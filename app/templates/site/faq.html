@@ -1,0 +1,1013 @@
+{% extends "site/base_new.html" %}
+
+{% block title %}FAQ - Atlas{% endblock %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --qlower-primary: #137C8B;
+    --qlower-dark: #344D59;
+    --qlower-light: #709CA7;
+    --qlower-tertiary-color: #B8CBD0;
+    --qlower-quaternary-color: #7A90A4;
+    --qlower-bg-light: #f8f9fa;
+    --qlower-text-dark: #344D59;
+    --qlower-text-light: #7A90A4;
+    --qlower-border: #e5e7eb;
+    --qlower-white: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.qlower-navbar *, 
+.qlower-nav-container *, 
+.qlower-nav-menu *, 
+.qlower-nav-item *, 
+.qlower-nav-link *,
+.qlower-nav-actions * {
+    border: none !important;
+    outline: none !important;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--qlower-text-dark);
+    background-color: var(--qlower-white);
+    overflow-x: hidden;
+}
+
+.qlower-navbar {
+    background: transparent;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 12px 24px;
+    border: none;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.qlower-nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    background: var(--qlower-white);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    min-height: 56px;
+    border: none;
+    outline: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.qlower-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    letter-spacing: -0.025em;
+}
+
+.qlower-logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.qlower-logo-icon::before {
+    content: 'A';
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.qlower-nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+    height: 100%;
+}
+
+.qlower-nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.qlower-nav-link {
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+.qlower-nav-link:hover {
+    background-color: #f9fafb;
+    color: var(--qlower-primary);
+}
+
+.qlower-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 100%;
+}
+
+.qlower-btn-demo {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: auto;
+}
+
+.qlower-btn-demo:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+    color: var(--qlower-white);
+    background: linear-gradient(135deg, #0f6b75 0%, #5d8a94 100%);
+}
+
+.qlower-btn-espace {
+    background: var(--qlower-dark);
+    color: var(--qlower-white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: auto;
+}
+
+.qlower-btn-espace:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(52, 77, 89, 0.3);
+    color: var(--qlower-white);
+    background: #2a3d47;
+}
+
+.qlower-hero {
+    padding: 140px 0 80px;
+    background: var(--qlower-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.qlower-hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    text-align: center;
+}
+
+.qlower-hero h1 {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--qlower-white);
+    margin-bottom: 24px;
+    letter-spacing: -0.025em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.qlower-hero-subtitle {
+    font-size: 20px;
+    color: var(--qlower-white);
+    margin-bottom: 40px;
+    line-height: 1.5;
+    font-weight: 400;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.qlower-section {
+    padding: 100px 0;
+}
+
+.qlower-section-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.qlower-faq-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px;
+    margin-bottom: 80px;
+}
+
+.qlower-category-card {
+    background: var(--qlower-white);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.qlower-category-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+.qlower-category-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    color: var(--qlower-white);
+    font-size: 32px;
+}
+
+.qlower-category-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    margin-bottom: 12px;
+}
+
+.qlower-category-card p {
+    color: var(--qlower-text-light);
+    margin-bottom: 20px;
+}
+
+.qlower-category-count {
+    background: var(--qlower-bg-light);
+    color: var(--qlower-primary);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.qlower-faq-list {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.qlower-faq-item {
+    background: var(--qlower-white);
+    border-radius: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.qlower-faq-item.active {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.qlower-faq-question {
+    padding: 24px;
+    background: var(--qlower-white);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    border: none;
+    width: 100%;
+    text-align: left;
+}
+
+.qlower-faq-question:hover {
+    background: var(--qlower-bg-light);
+}
+
+.qlower-faq-question h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin: 0;
+    flex: 1;
+    padding-right: 20px;
+}
+
+.qlower-faq-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--qlower-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--qlower-white);
+    font-size: 12px;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.qlower-faq-item.active .qlower-faq-icon {
+    transform: rotate(45deg);
+}
+
+.qlower-faq-answer {
+    padding: 0 24px;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.qlower-faq-item.active .qlower-faq-answer {
+    padding: 0 24px 24px;
+    max-height: 500px;
+}
+
+.qlower-faq-answer p {
+    color: var(--qlower-text-light);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.qlower-search-box {
+    background: var(--qlower-white);
+    border-radius: 16px;
+    padding: 48px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    margin-bottom: 60px;
+    text-align: center;
+}
+
+.qlower-search-input {
+    width: 100%;
+    max-width: 500px;
+    padding: 16px 24px;
+    border: 2px solid var(--qlower-border);
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    margin: 20px auto 0;
+    display: block;
+}
+
+.qlower-search-input:focus {
+    outline: none;
+    border-color: var(--qlower-primary);
+    box-shadow: 0 0 0 3px rgba(19, 124, 139, 0.1);
+}
+
+.qlower-footer {
+    background: var(--qlower-primary);
+    padding: 60px 24px 24px;
+    margin-top: 0;
+}
+
+.qlower-footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--qlower-white);
+    border-radius: 20px;
+    padding: 48px 40px 32px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.qlower-footer-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 60px;
+    margin-bottom: 40px;
+}
+
+.qlower-footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.qlower-footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.qlower-footer-logo span {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    letter-spacing: -0.025em;
+}
+
+.qlower-footer-description {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--qlower-text-light);
+    margin: 0;
+    max-width: 280px;
+}
+
+.qlower-footer-social {
+    display: flex;
+    gap: 16px;
+}
+
+.qlower-social-link {
+    width: 40px;
+    height: 40px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--qlower-text-light);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.qlower-social-link:hover {
+    background: var(--qlower-primary);
+    color: var(--qlower-white);
+    transform: translateY(-2px);
+}
+
+.qlower-footer-links {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+}
+
+.qlower-footer-column h6 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin-bottom: 20px;
+}
+
+.qlower-footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.qlower-footer-column li {
+    margin-bottom: 12px;
+}
+
+.qlower-footer-link {
+    font-size: 15px;
+    color: var(--qlower-text-light);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: block;
+    padding: 4px 0;
+}
+
+.qlower-footer-link:hover {
+    color: var(--qlower-primary);
+    padding-left: 8px;
+}
+
+.qlower-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 32px;
+    border-top: 1px solid var(--qlower-border);
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.qlower-footer-bottom p {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qlower-footer-bottom i {
+    color: var(--qlower-primary);
+}
+
+@media (max-width: 991px) {
+    .qlower-nav-menu {
+        display: none;
+    }
+    
+    .qlower-nav-actions {
+        display: none;
+    }
+    
+    .qlower-footer-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .qlower-footer-links {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+}
+
+@media (max-width: 767px) {
+    .qlower-navbar {
+        padding: 8px 16px;
+    }
+    
+    .qlower-nav-container {
+        padding: 0 16px;
+        height: 48px;
+    }
+    
+    .qlower-hero {
+        padding: 100px 0 60px;
+    }
+    
+    .qlower-hero h1 {
+        font-size: 36px;
+    }
+    
+    .qlower-faq-categories {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .qlower-search-box {
+        padding: 32px 24px;
+    }
+    
+    .qlower-footer-container {
+        padding: 32px 24px 24px;
+    }
+    
+    .qlower-footer-links {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .qlower-footer-bottom {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 479px) {
+    .qlower-nav-container,
+    .qlower-section-container {
+        padding: 0 16px;
+    }
+    
+    .qlower-hero h1 {
+        font-size: 28px;
+    }
+    
+    .qlower-faq-question {
+        padding: 20px;
+    }
+    
+    .qlower-faq-question h3 {
+        font-size: 16px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="qlower-navbar">
+    <div class="qlower-nav-container">
+        <a href="{{ url_for('site_pages.index') }}" class="qlower-logo">
+            <div class="qlower-logo-icon"></div>
+            <span>Atlas</span>
+        </a>
+        
+        <div class="qlower-nav-menu">
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.about') }}" class="qlower-nav-link">À propos</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">
+                    Nos Offres
+                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+                </a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="#" class="qlower-nav-link">
+                    Ressources
+                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="qlower-nav-actions">
+            <div class="qlower-nav-item">
+                <a href="#" class="qlower-nav-link">
+                    FR
+                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+                </a>
+            </div>
+            <a href="#rdv" class="qlower-btn-demo">Prendre RDV</a>
+            <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
+        </div>
+    </div>
+</nav>
+
+<section class="qlower-hero">
+    <div class="qlower-hero-container">
+        <h1>Questions Fréquentes</h1>
+        <p class="qlower-hero-subtitle">
+            Trouvez rapidement les réponses à toutes vos questions sur Atlas et nos services de gestion patrimoniale.
+        </p>
+    </div>
+</section>
+
+<section class="qlower-section" style="background: var(--qlower-bg-light);">
+    <div class="qlower-section-container">
+        <div class="qlower-search-box">
+            <h2 style="font-size: 28px; font-weight: 700; color: var(--qlower-dark); margin-bottom: 12px;">Rechercher une question</h2>
+            <p style="color: var(--qlower-text-light); margin-bottom: 0;">Tapez votre question ou un mot-clé pour trouver la réponse</p>
+            <input type="text" class="qlower-search-input" placeholder="Ex: frais, sécurité, résiliation..." id="searchInput">
+        </div>
+        
+        <div class="qlower-faq-categories">
+            <div class="qlower-category-card">
+                <div class="qlower-category-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h3>Général</h3>
+                <p>Questions sur Atlas et nos services</p>
+                <span class="qlower-category-count">8 questions</span>
+            </div>
+            
+            <div class="qlower-category-card">
+                <div class="qlower-category-icon">
+                    <i class="fas fa-euro-sign"></i>
+                </div>
+                <h3>Tarifs</h3>
+                <p>Informations sur nos prix et frais</p>
+                <span class="qlower-category-count">6 questions</span>
+            </div>
+            
+            <div class="qlower-category-card">
+                <div class="qlower-category-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Sécurité</h3>
+                <p>Protection et confidentialité</p>
+                <span class="qlower-category-count">5 questions</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="qlower-section">
+    <div class="qlower-section-container">
+        <div class="qlower-faq-list">
+            <div class="qlower-faq-item" data-category="general">
+                <button class="qlower-faq-question">
+                    <h3>Qu'est-ce qu'Atlas ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Atlas est une plateforme digitale de conseil en investissement et de gestion de patrimoine. Nous combinons l'expertise humaine avec la technologie pour vous offrir des conseils personnalisés et optimiser votre patrimoine financier.</p>
+                </div>
+            </div>
+
+            <div class="qlower-faq-item" data-category="general">
+                <button class="qlower-faq-question">
+                    <h3>Comment fonctionne Atlas ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Après avoir analysé votre situation financière et vos objectifs, nos algorithmes et nos conseillers vous proposent des stratégies d'investissement personnalisées. Vous bénéficiez d'un suivi régulier et de recommandations adaptées à l'évolution des marchés.</p>
+                </div>
+            </div>
+
+            <div class="qlower-faq-item" data-category="tarifs">
+                <button class="qlower-faq-question">
+                    <h3>Quels sont les tarifs d'Atlas ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Nous proposons trois formules : INITIA à 24,99€/mois (analyses et recommandations), OPTIMA à 49,99€/mois (gestion déléguée + conseiller dédié), et ULTIMA sur devis (service premium family office). Aucun frais caché.</p>
+                </div>
+            </div>
+
+            <div class="qlower-faq-item" data-category="general">
+                <button class="qlower-faq-question">
+                    <h3>Atlas est-il régulé ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Oui, Atlas est agréé en tant que Conseiller en Investissements Financiers (CIF) et régulé par l'AMF (Autorité des Marchés Financiers) et l'ACPR. Nous respectons toutes les réglementations européennes en matière de services financiers.</p>
+                </div>
+            </div>
+
+            <div class="qlower-faq-item" data-category="securite">
+                <button class="qlower-faq-question">
+                    <h3>Mes données sont-elles sécurisées ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Absolument. Nous utilisons un chiffrement de niveau bancaire (AES-256), l'authentification à deux facteurs, et nos serveurs sont hébergés en France. Vos données sont protégées selon les standards RGPD et ne sont jamais vendues à des tiers.</p>
+                </div>
+            </div>
+
+            <div class="qlower-faq-item" data-category="general">
+                <button class="qlower-faq-question">
+                    <h3>Quel est le montant minimum pour commencer ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Il n'y a pas de montant minimum requis pour utiliser Atlas. Nos conseils s'adaptent à tous les profils, que vous ayez 1 000€ ou 1 million d'euros à investir. L'important est de commencer à optimiser votre patrimoine.</p>
+                </div>
+            </div>
+
+            <div class="qlower-faq-item" data-category="tarifs">
+                <button class="qlower-faq-question">
+                    <h3>Puis-je changer de formule ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Oui, vous pouvez upgrader ou downgrader votre formule à tout moment depuis votre espace client. Les changements prennent effet immédiatement et la facturation est ajustée au prorata.</p>
+                </div>
+            </div>
+
+            <div class="qlower-faq-item" data-category="general">
+                <button class="qlower-faq-question">
+                    <h3>Comment résilier mon abonnement ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Vous pouvez résilier à tout moment depuis votre espace client, sans préavis ni frais. Votre abonnement reste actif jusqu'à la fin de la période payée. Vous conservez l'accès à vos données historiques.</p>
+                </div>
+            </div>
+
+            <div class="qlower-faq-item" data-category="securite">
+                <button class="qlower-faq-question">
+                    <h3>Que se passe-t-il si Atlas fait faillite ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Vos actifs sont détenus par des établissements tiers (banques et courtiers) et non par Atlas. En cas d'incident, vos investissements restent votre propriété et sont protégés par le Fonds de Garantie des Dépôts jusqu'à 100 000€.</p>
+                </div>
+            </div>
+
+            <div class="qlower-faq-item" data-category="general">
+                <button class="qlower-faq-question">
+                    <h3>Atlas convient-il aux débutants ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Absolument ! Notre plateforme est conçue pour être accessible aux débutants. Nous proposons des contenus éducatifs, des explications simples, et nos conseillers vous accompagnent dans votre apprentissage de l'investissement.</p>
+                </div>
+            </div>
+
+            <div class="qlower-faq-item" data-category="tarifs">
+                <button class="qlower-faq-question">
+                    <h3>Y a-t-il des frais cachés ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Non, nous pratiquons une transparence totale. Les seuls frais sont ceux de votre abonnement mensuel. Nous ne prenons aucune commission sur vos investissements et ne recevons aucun rétrocommission des produits recommandés.</p>
+                </div>
+            </div>
+
+            <div class="qlower-faq-item" data-category="general">
+                <button class="qlower-faq-question">
+                    <h3>Puis-je avoir un conseiller humain ?</h3>
+                    <div class="qlower-faq-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </button>
+                <div class="qlower-faq-answer">
+                    <p>Oui ! Les formules OPTIMA et ULTIMA incluent l'accès à un conseiller dédié. Même avec la formule INITIA, vous pouvez prendre rendez-vous ponctuellement avec nos experts.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="qlower-footer">
+    <div class="qlower-footer-container">
+        <div class="qlower-footer-content">
+            <div class="qlower-footer-brand">
+                <div class="qlower-footer-logo">
+                    <div class="qlower-logo-icon"></div>
+                    <span>Atlas</span>
+                </div>
+                <p class="qlower-footer-description">
+                    Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
+                </p>
+                <div class="qlower-footer-social">
+                    <a href="#" class="qlower-social-link"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="qlower-footer-links">
+                <div class="qlower-footer-column">
+                    <h6>Produit</h6>
+                    <ul>
+                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Nos Offres</a></li>
+                        <li><a href="#" class="qlower-footer-link">Fonctionnalités</a></li>
+                        <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
+                        <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Ressources</h6>
+                    <ul>
+                        <li><a href="#" class="qlower-footer-link">Blog</a></li>
+                        <li><a href="#" class="qlower-footer-link">Guides</a></li>
+                        <li><a href="#" class="qlower-footer-link">FAQ</a></li>
+                        <li><a href="{{ url_for('site_pages.contact') }}" class="qlower-footer-link">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Entreprise</h6>
+                    <ul>
+                        <li><a href="{{ url_for('site_pages.about') }}" class="qlower-footer-link">À propos</a></li>
+                        <li><a href="#" class="qlower-footer-link">Devenir Partenaire</a></li>
+                        <li><a href="#" class="qlower-footer-link">Carrières</a></li>
+                        <li><a href="#" class="qlower-footer-link">Presse</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Légal</h6>
+                    <ul>
+                        <li><a href="#" class="qlower-footer-link">CGU</a></li>
+                        <li><a href="#" class="qlower-footer-link">Confidentialité</a></li>
+                        <li><a href="#" class="qlower-footer-link">Cookies</a></li>
+                        <li><a href="#" class="qlower-footer-link">Mentions légales</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="qlower-footer-bottom">
+            <p>&copy; 2024 Atlas. Tous droits réservés.</p>
+            <p>
+                <i class="fas fa-shield-alt"></i>
+                Données sécurisées et cryptées • Agréé AMF & ACPR
+            </p>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const navbar = document.querySelector('.qlower-navbar');
+const navContainer = navbar.querySelector('.qlower-nav-container');
+
+window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    
+    if (currentScrollY > 100) {
+        navContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+        navContainer.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.2)';
+        navContainer.style.backdropFilter = 'blur(15px)';
+    } else {
+        navContainer.style.backgroundColor = 'rgba(255, 255, 255, 1)';
+        navContainer.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.15)';
+        navContainer.style.backdropFilter = 'blur(10px)';
+    }
+    
+    navbar.style.transform = 'translateY(0)';
+});
+
+// FAQ Accordion
+document.querySelectorAll('.qlower-faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+        const faqItem = question.closest('.qlower-faq-item');
+        const isActive = faqItem.classList.contains('active');
+        
+        // Close all other FAQ items
+        document.querySelectorAll('.qlower-faq-item.active').forEach(item => {
+            if (item !== faqItem) {
+                item.classList.remove('active');
+            }
+        });
+        
+        // Toggle current item
+        faqItem.classList.toggle('active', !isActive);
+    });
+});
+
+// Search functionality
+const searchInput = document.getElementById('searchInput');
+const faqItems = document.querySelectorAll('.qlower-faq-item');
+
+searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.qlower-faq-question h3').textContent.toLowerCase();
+        const answer = item.querySelector('.qlower-faq-answer p').textContent.toLowerCase();
+        
+        if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = searchTerm === '' ? 'block' : 'none';
+        }
+    });
+});
+
+// Entrance animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.qlower-faq-item, .qlower-category-card').forEach((item, index) => {
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(30px)';
+    item.style.transition = `all 0.6s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1}s`;
+    observer.observe(item);
+});
+</script>
+{% endblock %}

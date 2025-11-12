@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Admin - Patrimoine Pro{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                Dashboard Administrateur
+            </h2>
+        </div>
+    </div>
+    
+    <!-- Statistiques générales -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ stats.total_users }}</h4>
+                            <p class="mb-0">Utilisateurs Total</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ stats.active_subscriptions }}</h4>
+                            <p class="mb-0">Abonnements Actifs</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-credit-card fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ stats.trial_subscriptions }}</h4>
+                            <p class="mb-0">Essais Gratuits</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-gift fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ stats.conversion_rate }}%</h4>
+                            <p class="mb-0">Taux de Conversion</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Derniers utilisateurs -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Derniers Utilisateurs Inscrits
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_users %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Email</th>
+                                        <th>Date d'inscription</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in recent_users %}
+                                    <tr>
+                                        <td>{{ user.get_full_name() }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>{{ user.date_created.strftime('%d/%m/%Y') }}</td>
+                                        <td>
+                                            {% if user.subscription %}
+                                                <span class="badge bg-{{ 'success' if user.subscription.status == 'active' else 'warning' if user.subscription.status == 'trial' else 'secondary' }}">
+                                                    {{ user.subscription.get_status_display() }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Aucun abonnement</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('admin.client_detail', client_id=user.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> Voir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucun utilisateur inscrit pour le moment.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

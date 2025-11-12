@@ -1,0 +1,165 @@
+{% extends "platform/onboarding/base.html" %}
+
+{% block title %}Profil Personnel - Étape 2/5{% endblock %}
+
+{% block onboarding_content %}
+<div class="onboarding-step" data-step="2">
+    <div class="onboarding-header">
+        <div class="onboarding-progress">
+            <div class="onboarding-progress-bar" style="width: 40%;"></div>
+        </div>
+        <div class="onboarding-step-indicator">Étape 2 sur 5</div>
+    </div>
+
+    <div class="onboarding-content">
+        <div class="onboarding-welcome">
+            <h1>Parlons de vous</h1>
+            <p class="onboarding-subtitle">
+                Quelques informations personnelles nous aideront à personnaliser vos recommandations.
+            </p>
+        </div>
+
+        <form class="onboarding-form" id="profileForm">
+            <div class="onboarding-form-group half">
+                <div>
+                    <label class="onboarding-label" for="age">Âge</label>
+                    <select class="onboarding-select" id="age" name="age" required>
+                        <option value="">Sélectionnez votre tranche d'âge</option>
+                        <option value="18-25">18-25 ans</option>
+                        <option value="26-35">26-35 ans</option>
+                        <option value="36-45">36-45 ans</option>
+                        <option value="46-55">46-55 ans</option>
+                        <option value="56-65">56-65 ans</option>
+                        <option value="65+">Plus de 65 ans</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="onboarding-label" for="situation">Situation familiale</label>
+                    <select class="onboarding-select" id="situation" name="situation" required>
+                        <option value="">Sélectionnez</option>
+                        <option value="single">Célibataire</option>
+                        <option value="couple">En couple</option>
+                        <option value="married">Marié(e)</option>
+                        <option value="divorced">Divorcé(e)</option>
+                        <option value="widowed">Veuf/Veuve</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="onboarding-form-group half">
+                <div>
+                    <label class="onboarding-label" for="children">Nombre d'enfants</label>
+                    <select class="onboarding-select" id="children" name="children" required>
+                        <option value="">Sélectionnez</option>
+                        <option value="0">Aucun</option>
+                        <option value="1">1 enfant</option>
+                        <option value="2">2 enfants</option>
+                        <option value="3">3 enfants</option>
+                        <option value="4+">4 enfants ou plus</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="onboarding-label" for="profession">Profession</label>
+                    <select class="onboarding-select" id="profession" name="profession" required>
+                        <option value="">Sélectionnez</option>
+                        <option value="employee">Salarié(e)</option>
+                        <option value="executive">Cadre/Dirigeant</option>
+                        <option value="freelance">Indépendant/Freelance</option>
+                        <option value="entrepreneur">Entrepreneur</option>
+                        <option value="civil_servant">Fonctionnaire</option>
+                        <option value="retired">Retraité(e)</option>
+                        <option value="student">Étudiant(e)</option>
+                        <option value="other">Autre</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="onboarding-form-group">
+                <label class="onboarding-label" for="income">Revenus annuels nets</label>
+                <select class="onboarding-select" id="income" name="income" required>
+                    <option value="">Sélectionnez votre tranche</option>
+                    <option value="0-25000">Moins de 25 000€</option>
+                    <option value="25000-40000">25 000€ - 40 000€</option>
+                    <option value="40000-60000">40 000€ - 60 000€</option>
+                    <option value="60000-80000">60 000€ - 80 000€</option>
+                    <option value="80000-120000">80 000€ - 120 000€</option>
+                    <option value="120000-200000">120 000€ - 200 000€</option>
+                    <option value="200000+">Plus de 200 000€</option>
+                </select>
+            </div>
+
+            <div class="onboarding-form-group">
+                <label class="onboarding-label" for="patrimony">Patrimoine actuel estimé</label>
+                <select class="onboarding-select" id="patrimony" name="patrimony" required>
+                    <option value="">Sélectionnez</option>
+                    <option value="0-50000">Moins de 50 000€</option>
+                    <option value="50000-100000">50 000€ - 100 000€</option>
+                    <option value="100000-250000">100 000€ - 250 000€</option>
+                    <option value="250000-500000">250 000€ - 500 000€</option>
+                    <option value="500000-1000000">500 000€ - 1 000 000€</option>
+                    <option value="1000000+">Plus de 1 000 000€</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <div class="onboarding-actions">
+        <a href="{{ url_for('platform_onboarding.welcome') }}" class="onboarding-btn-back">
+            <i class="fas fa-arrow-left"></i>
+            <span>Retour</span>
+        </a>
+        
+        <button type="button" class="onboarding-btn-next" id="nextBtn" disabled>
+            <span>Continuer</span>
+            <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block onboarding_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const step = document.querySelector('.onboarding-step');
+    step.classList.add('animate-in');
+    
+    const form = document.getElementById('profileForm');
+    const nextBtn = document.getElementById('nextBtn');
+    const inputs = form.querySelectorAll('select[required]');
+    
+    // Validation du formulaire
+    function validateForm() {
+        let isValid = true;
+        inputs.forEach(input => {
+            if (!input.value) {
+                isValid = false;
+            }
+        });
+        
+        nextBtn.disabled = !isValid;
+    }
+    
+    // Écouter les changements
+    inputs.forEach(input => {
+        input.addEventListener('change', validateForm);
+    });
+    
+    // Action du bouton suivant
+    nextBtn.addEventListener('click', function() {
+        if (!nextBtn.disabled) {
+            // Sauvegarder les données (simulation)
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            // En production, envoyer les données au serveur
+            console.log('Profile data:', data);
+            
+            // Rediriger vers l'étape suivante
+            window.location.href = "{{ url_for('platform_onboarding.objectives') }}";
+        }
+    });
+});
+</script>
+{% endblock %}

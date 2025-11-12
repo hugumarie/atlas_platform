@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Tarifs - Patrimoine Pro{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Tarifs simples et transparents</h1>
+        <p class="lead">Un seul abonnement, tous les services inclus</p>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="card-title mb-0">Abonnement Premium</h3>
+                    <div class="display-4 fw-bold mt-2">20€<span class="fs-6">/mois</span></div>
+                    <p class="mb-0">7 jours d'essai gratuit</p>
+                </div>
+                <div class="card-body p-4">
+                    <ul class="list-unstyled">
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-check text-success me-3"></i>
+                            <div>
+                                <strong>Dashboard personnalisé</strong>
+                                <div class="text-muted small">Suivi en temps réel de vos investissements</div>
+                            </div>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-check text-success me-3"></i>
+                            <div>
+                                <strong>Formations vidéo illimitées</strong>
+                                <div class="text-muted small">Bibliothèque complète mise à jour régulièrement</div>
+                            </div>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-check text-success me-3"></i>
+                            <div>
+                                <strong>Assistant IA 24h/24</strong>
+                                <div class="text-muted small">Réponses instantanées à vos questions financières</div>
+                            </div>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-check text-success me-3"></i>
+                            <div>
+                                <strong>Appel mensuel avec un conseiller</strong>
+                                <div class="text-muted small">30 minutes de conseil personnalisé</div>
+                            </div>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-check text-success me-3"></i>
+                            <div>
+                                <strong>Analyses de performance</strong>
+                                <div class="text-muted small">Rapports détaillés sur vos investissements</div>
+                            </div>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-check text-success me-3"></i>
+                            <div>
+                                <strong>Alertes et notifications</strong>
+                                <div class="text-muted small">Opportunités et rappels personnalisés</div>
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-rocket me-2"></i>Commencer l'essai gratuit
+                        </a>
+                        <small class="text-muted d-block mt-2">Aucun engagement, résiliation à tout moment</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-light border-0">
+                <div class="card-body p-5">
+                    <h3 class="text-center mb-4">Questions fréquentes</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5><i class="fas fa-question-circle text-primary me-2"></i>Puis-je annuler à tout moment ?</h5>
+                                <p>Oui, vous pouvez résilier votre abonnement à tout moment depuis votre profil. Aucun frais de résiliation.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5><i class="fas fa-question-circle text-primary me-2"></i>Comment fonctionne l'essai gratuit ?</h5>
+                                <p>7 jours d'accès complet sans engagement. Aucun prélèvement pendant la période d'essai.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5><i class="fas fa-question-circle text-primary me-2"></i>Y a-t-il des frais cachés ?</h5>
+                                <p>Non, 20€/mois tout compris. Aucune commission sur vos investissements, aucun frais supplémentaire.</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5><i class="fas fa-question-circle text-primary me-2"></i>Que se passe-t-il si je ne suis pas satisfait ?</h5>
+                                <p>Nous offrons une garantie satisfait ou remboursé de 30 jours sur votre premier mois.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-5 mb-5">
+        <h3>Prêt à optimiser votre patrimoine ?</h3>
+        <p class="lead mb-4">Rejoignez des milliers d'investisseurs qui nous font confiance</p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg me-3">
+            <i class="fas fa-user-plus me-2"></i>Créer mon compte
+        </a>
+        <a href="{{ url_for('main.about') }}" class="btn btn-outline-primary btn-lg">
+            En savoir plus
+        </a>
+    </div>
+</div>
+{% endblock %}

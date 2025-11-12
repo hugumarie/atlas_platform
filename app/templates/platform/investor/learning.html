@@ -1,0 +1,231 @@
+{% extends "platform/base.html" %}
+
+{% block title %}Apprentissage - Atlas{% endblock %}
+
+{% block page_title %}Apprentissage{% endblock %}
+
+{% block content %}
+<!-- Grille de formations -->
+<div class="platform-grid platform-grid-3 mb-4">
+    <!-- Formation 1 -->
+    <div class="platform-card learning-card">
+        <div class="learning-card-content">
+            <div class="learning-image-placeholder"></div>
+            <div class="learning-content">
+                <h3 class="learning-title">Les bases de l'investissement</h3>
+                <p class="learning-description">Comprendre les fondamentaux de l'investissement et les différents types de placements disponibles sur le marché financier.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formation 2 -->
+    <div class="platform-card learning-card">
+        <div class="learning-card-content">
+            <div class="learning-image-placeholder"></div>
+            <div class="learning-content">
+                <h3 class="learning-title">Diversification de portefeuille</h3>
+                <p class="learning-description">Apprendre à répartir ses investissements pour optimiser le rapport rendement/risque et minimiser les pertes potentielles.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formation 3 -->
+    <div class="platform-card learning-card">
+        <div class="learning-card-content">
+            <div class="learning-image-placeholder"></div>
+            <div class="learning-content">
+                <h3 class="learning-title">PEA et optimisation fiscale</h3>
+                <p class="learning-description">Tout savoir sur le Plan d'Épargne en Actions et les stratégies d'optimisation fiscale pour maximiser vos gains.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formation 4 -->
+    <div class="platform-card learning-card">
+        <div class="learning-card-content">
+            <div class="learning-image-placeholder"></div>
+            <div class="learning-content">
+                <h3 class="learning-title">Assurance Vie stratégique</h3>
+                <p class="learning-description">Comprendre l'assurance vie, ses avantages fiscaux et comment l'utiliser dans votre stratégie patrimoniale globale.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formation 5 -->
+    <div class="platform-card learning-card">
+        <div class="learning-card-content">
+            <div class="learning-image-placeholder"></div>
+            <div class="learning-content">
+                <h3 class="learning-title">Investissement immobilier</h3>
+                <p class="learning-description">Découvrir les différentes stratégies d'investissement immobilier et leurs avantages fiscaux spécifiques.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formation 6 -->
+    <div class="platform-card learning-card">
+        <div class="learning-card-content">
+            <div class="learning-image-placeholder"></div>
+            <div class="learning-content">
+                <h3 class="learning-title">Analyse de performance</h3>
+                <p class="learning-description">Apprendre à analyser et suivre la performance de ses investissements avec les bons indicateurs et métriques.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formation 7 -->
+    <div class="platform-card learning-card">
+        <div class="learning-card-content">
+            <div class="learning-image-placeholder"></div>
+            <div class="learning-content">
+                <h3 class="learning-title">Gestion des risques</h3>
+                <p class="learning-description">Identifier, évaluer et maîtriser les risques financiers pour protéger et faire fructifier votre patrimoine.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formation 8 -->
+    <div class="platform-card learning-card">
+        <div class="learning-card-content">
+            <div class="learning-image-placeholder"></div>
+            <div class="learning-content">
+                <h3 class="learning-title">Cryptomonnaies et DeFi</h3>
+                <p class="learning-description">Introduction aux cryptomonnaies, blockchain et à la finance décentralisée pour diversifier votre portefeuille.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formation 9 -->
+    <div class="platform-card learning-card">
+        <div class="learning-card-content">
+            <div class="learning-image-placeholder"></div>
+            <div class="learning-content">
+                <h3 class="learning-title">Préparation à la retraite</h3>
+                <p class="learning-description">Construire une stratégie d'épargne retraite efficace avec les PER, rentes viagères et autres solutions patrimoniales.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Styles pour les cartes de formation */
+.learning-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+}
+
+.learning-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(19, 124, 139, 0.25);
+    border-color: var(--qlower-primary);
+}
+
+.learning-card-content {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    padding: 8px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.learning-image-placeholder {
+    width: 80px;
+    height: 80px;
+    background: var(--qlower-primary);
+    border-radius: 8px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
+    margin-left: 8px;
+    align-self: center;
+}
+
+.learning-image-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.learning-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.learning-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--qlower-primary);
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.learning-description {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    line-height: 1.5;
+    margin: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .learning-card-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .learning-image-placeholder {
+        margin: 0 auto;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation d'entrée des cartes
+    const cards = document.querySelectorAll('.learning-card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+        
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    });
+    
+    // Clic sur les cartes
+    cards.forEach(card => {
+        card.addEventListener('click', function() {
+            const title = this.querySelector('.learning-title').textContent;
+            console.log('Formation sélectionnée:', title);
+            // Ici on pourrait rediriger vers la page de la formation
+        });
+    });
+});
+</script>
+{% endblock %}

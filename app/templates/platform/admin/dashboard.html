@@ -1,0 +1,245 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard Admin - Atlas{% endblock %}
+
+{% block page_title %}Dashboard Administrateur{% endblock %}
+
+{% block content %}
+<!-- Statistiques principales -->
+<div class="admin-grid admin-grid-4 mb-4">
+    <div class="admin-card">
+        <div class="admin-card-body">
+            <div class="admin-stat">
+                <div class="admin-stat-value">{{ stats.total_users }}</div>
+                <div class="admin-stat-label">Utilisateurs Total</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-body">
+            <div class="admin-stat">
+                <div class="admin-stat-value">{{ stats.active_subscriptions }}</div>
+                <div class="admin-stat-label">Abonnements Actifs</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-body">
+            <div class="admin-stat">
+                <div class="admin-stat-value">{{ stats.trial_subscriptions }}</div>
+                <div class="admin-stat-label">Essais Gratuits</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-body">
+            <div class="admin-stat">
+                <div class="admin-stat-value">{{ stats.conversion_rate }}%</div>
+                <div class="admin-stat-label">Taux de Conversion</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Revenus et Analytics -->
+<div class="admin-grid admin-grid-2 mb-4">
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">
+                <i class="fas fa-euro-sign text-primary"></i>
+                Revenus Récurrents
+            </h3>
+            <p class="admin-card-subtitle">Chiffre d'affaires mensuel</p>
+        </div>
+        <div class="admin-card-body">
+            <div class="d-flex align-items-center gap-3">
+                <div class="admin-stat">
+                    <div class="admin-stat-value">{{ stats.mrr }}€</div>
+                    <div class="admin-stat-label">MRR (Monthly Recurring Revenue)</div>
+                </div>
+                <div style="flex: 1; background: var(--qlower-bg-light); height: 100px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--qlower-text-light);">
+                    <i class="fas fa-chart-area" style="font-size: 48px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">
+                <i class="fas fa-users text-primary"></i>
+                Croissance Utilisateurs
+            </h3>
+            <p class="admin-card-subtitle">Évolution des inscriptions</p>
+        </div>
+        <div class="admin-card-body">
+            <div class="d-flex align-items-center gap-3">
+                <div class="admin-stat">
+                    <div class="admin-stat-value">+{{ stats.completed_profiles }}</div>
+                    <div class="admin-stat-label">Profils Complétés</div>
+                </div>
+                <div style="flex: 1; background: var(--qlower-bg-light); height: 100px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--qlower-text-light);">
+                    <i class="fas fa-chart-line" style="font-size: 48px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Derniers utilisateurs -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">
+            <i class="fas fa-user-plus text-primary"></i>
+            Derniers Utilisateurs Inscrits
+        </h3>
+        <p class="admin-card-subtitle">Les 5 dernières inscriptions</p>
+    </div>
+    <div class="admin-card-body p-0">
+        {% if recent_users %}
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Email</th>
+                        <th>Date d'inscription</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">
+                                    {{ user.first_name[0] if user.first_name else 'U' }}{{ user.last_name[0] if user.last_name else '' }}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">{{ user.get_full_name() }}</div>
+                                    <div class="fs-sm text-secondary">{{ user.phone or 'Aucun téléphone' }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.date_created.strftime('%d/%m/%Y à %H:%M') }}</td>
+                        <td>
+                            {% if user.subscription %}
+                                {% if user.subscription.status == 'active' %}
+                                    <span style="background: #28a745; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                        Actif
+                                    </span>
+                                {% elif user.subscription.status == 'trial' %}
+                                    <span style="background: #ffc107; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                        Essai
+                                    </span>
+                                {% else %}
+                                    <span style="background: #6c757d; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                        Inactif
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span style="background: #6c757d; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                    Aucun abonnement
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('platform_admin.client_detail', client_id=user.id) }}" class="admin-btn admin-btn-secondary" style="padding: 8px 16px; font-size: 12px;">
+                                <i class="fas fa-eye"></i>
+                                Voir
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="p-4 text-center text-secondary">
+                <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                <p class="mb-0">Aucun utilisateur inscrit pour le moment.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="admin-grid admin-grid-3 mt-4">
+    <div class="admin-card">
+        <div class="admin-card-body text-center">
+            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: white; font-size: 24px;">
+                <i class="fas fa-users"></i>
+            </div>
+            <h4 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Gérer les Utilisateurs</h4>
+            <p style="color: var(--qlower-text-light); margin-bottom: 20px; font-size: 14px;">Voir et administrer tous les comptes utilisateurs</p>
+            <a href="{{ url_for('platform_admin.clients') }}" class="admin-btn admin-btn-primary">
+                <i class="fas fa-arrow-right"></i>
+                Accéder
+            </a>
+        </div>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-body text-center">
+            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: white; font-size: 24px;">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <h4 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Rapports</h4>
+            <p style="color: var(--qlower-text-light); margin-bottom: 20px; font-size: 14px;">Consulter les statistiques détaillées</p>
+            <a href="#" class="admin-btn admin-btn-secondary">
+                <i class="fas fa-arrow-right"></i>
+                Bientôt
+            </a>
+        </div>
+    </div>
+    
+    <div class="admin-card">
+        <div class="admin-card-body text-center">
+            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: white; font-size: 24px;">
+                <i class="fas fa-cog"></i>
+            </div>
+            <h4 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Paramètres</h4>
+            <p style="color: var(--qlower-text-light); margin-bottom: 20px; font-size: 14px;">Configurer la plateforme</p>
+            <a href="#" class="admin-btn admin-btn-secondary">
+                <i class="fas fa-arrow-right"></i>
+                Bientôt
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des statistiques
+    const stats = document.querySelectorAll('.admin-stat-value');
+    stats.forEach((stat, index) => {
+        setTimeout(() => {
+            stat.style.opacity = '1';
+            stat.style.transform = 'scale(1)';
+        }, index * 100);
+        
+        stat.style.opacity = '0';
+        stat.style.transform = 'scale(0.8)';
+        stat.style.transition = 'all 0.6s ease';
+    });
+    
+    // Animation des cartes
+    const cards = document.querySelectorAll('.admin-card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 200 + (index * 50));
+        
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.5s ease';
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,64 @@
+# Fichiers Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+.venv/
+venv/
+ENV/
+
+# Base de données
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Configuration et secrets
+.env
+.env.local
+.env.production
+config.py
+secret_key.txt
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Fichiers de développement
+test_*.py
+debug_*.py
+temp/
+tmp/
+
+# Uploads utilisateur
+uploads/
+static/uploads/
+
+# Cache Flask
+flask_session/
+
+# Node modules (si présents)
+node_modules/
+npm-debug.log*
+
+# Coverage
+.coverage
+htmlcov/
+
+# Pytest
+.pytest_cache/

@@ -1,0 +1,918 @@
+{% extends "platform/base.html" %}
+
+{% block title %}Données investisseur - Atlas{% endblock %}
+
+{% block page_title %}Données investisseur{% endblock %}
+
+{% block content %}
+{% if current_user.investor_profile %}
+
+{% if edit_mode %}
+<!-- MODE ÉDITION -->
+<div class="edit-mode-container">
+    <div class="edit-header mb-4">
+        <div class="alert alert-info">
+            <i class="fas fa-edit me-2"></i>
+            <strong>Mode édition :</strong> Modifiez vos informations ci-dessous puis cliquez sur "Sauvegarder".
+        </div>
+    </div>
+    
+    <form method="POST" action="{{ url_for('platform_investor.update_investor_data') }}" id="editForm">
+        <!-- Informations financières de base -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-euro-sign text-primary"></i>
+                    Situation financière
+                </h3>
+                <p class="platform-card-subtitle">Vos revenus et capacité d'épargne</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="financial-edit-grid">
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Revenus mensuels nets</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="monthly_net_income" 
+                                   value="{{ current_user.investor_profile.monthly_net_income }}" 
+                                   step="0.01" min="0" required>
+                            <span class="input-group-text">€</span>
+                        </div>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Épargne actuelle</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="current_savings" 
+                                   value="{{ current_user.investor_profile.current_savings }}" 
+                                   step="0.01" min="0" required>
+                            <span class="input-group-text">€</span>
+                        </div>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Capacité d'épargne mensuelle</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="monthly_savings_capacity" 
+                                   value="{{ current_user.investor_profile.monthly_savings_capacity }}" 
+                                   step="0.01" min="0" required>
+                            <span class="input-group-text">€</span>
+                        </div>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Situation familiale</label>
+                        <select class="form-control" name="family_situation" required>
+                            <option value="célibataire" {{ 'selected' if current_user.investor_profile.family_situation == 'célibataire' }}>Célibataire</option>
+                            <option value="en couple" {{ 'selected' if current_user.investor_profile.family_situation == 'en couple' }}>En couple</option>
+                            <option value="marié(e)" {{ 'selected' if current_user.investor_profile.family_situation == 'marié(e)' }}>Marié(e)</option>
+                            <option value="divorcé(e)" {{ 'selected' if current_user.investor_profile.family_situation == 'divorcé(e)' }}>Divorcé(e)</option>
+                            <option value="veuf/veuve" {{ 'selected' if current_user.investor_profile.family_situation == 'veuf/veuve' }}>Veuf/Veuve</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profil d'investissement -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-chart-line text-primary"></i>
+                    Profil d'investissement
+                </h3>
+                <p class="platform-card-subtitle">Votre approche d'investissement</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="financial-edit-grid">
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Tolérance au risque</label>
+                        <select class="form-control" name="risk_tolerance" required>
+                            <option value="conservateur" {{ 'selected' if current_user.investor_profile.risk_tolerance == 'conservateur' }}>Conservateur</option>
+                            <option value="modéré" {{ 'selected' if current_user.investor_profile.risk_tolerance == 'modéré' }}>Modéré</option>
+                            <option value="dynamique" {{ 'selected' if current_user.investor_profile.risk_tolerance == 'dynamique' }}>Dynamique</option>
+                        </select>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Expérience d'investissement</label>
+                        <select class="form-control" name="investment_experience" required>
+                            <option value="aucune" {{ 'selected' if current_user.investor_profile.investment_experience == 'aucune' }}>Aucune</option>
+                            <option value="limitée" {{ 'selected' if current_user.investor_profile.investment_experience == 'limitée' }}>Limitée</option>
+                            <option value="bonne" {{ 'selected' if current_user.investor_profile.investment_experience == 'bonne' }}>Bonne</option>
+                            <option value="experte" {{ 'selected' if current_user.investor_profile.investment_experience == 'experte' }}>Experte</option>
+                        </select>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Horizon d'investissement</label>
+                        <select class="form-control" name="investment_horizon" required>
+                            <option value="court terme" {{ 'selected' if current_user.investor_profile.investment_horizon == 'court terme' }}>Court terme (< 3 ans)</option>
+                            <option value="moyen terme" {{ 'selected' if current_user.investor_profile.investment_horizon == 'moyen terme' }}>Moyen terme (3-7 ans)</option>
+                            <option value="long terme" {{ 'selected' if current_user.investor_profile.investment_horizon == 'long terme' }}>Long terme (> 7 ans)</option>
+                        </select>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Situation professionnelle</label>
+                        <select class="form-control" name="professional_situation" required>
+                            <option value="employé" {{ 'selected' if current_user.investor_profile.professional_situation == 'employé' }}>Employé</option>
+                            <option value="fonctionnaire" {{ 'selected' if current_user.investor_profile.professional_situation == 'fonctionnaire' }}>Fonctionnaire</option>
+                            <option value="indépendant" {{ 'selected' if current_user.investor_profile.professional_situation == 'indépendant' }}>Indépendant</option>
+                            <option value="chef d'entreprise" {{ 'selected' if current_user.investor_profile.professional_situation == "chef d'entreprise" }}>Chef d'entreprise</option>
+                            <option value="retraité" {{ 'selected' if current_user.investor_profile.professional_situation == 'retraité' }}>Retraité</option>
+                            <option value="étudiant" {{ 'selected' if current_user.investor_profile.professional_situation == 'étudiant' }}>Étudiant</option>
+                            <option value="sans emploi" {{ 'selected' if current_user.investor_profile.professional_situation == 'sans emploi' }}>Sans emploi</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Objectifs d'investissement -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-bullseye text-primary"></i>
+                    Objectifs d'investissement
+                </h3>
+                <p class="platform-card-subtitle">Vos motivations et projets</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="objectives-content">
+                    <label class="financial-label mb-2">Décrivez vos objectifs d'investissement</label>
+                    <textarea class="form-control" name="investment_goals" rows="4" required>{{ current_user.investor_profile.investment_goals }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patrimoine actuel -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-wallet text-primary"></i>
+                    Patrimoine actuel
+                </h3>
+                <p class="platform-card-subtitle">Vos investissements et actifs</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="investments-edit-grid">
+                    <!-- Livret A -->
+                    <div class="investment-edit-item">
+                        <div class="investment-checkbox">
+                            <input type="checkbox" id="has_livret_a" name="has_livret_a" 
+                                   {{ 'checked' if current_user.investor_profile.has_livret_a }}>
+                            <label for="has_livret_a" class="checkbox-label">
+                                <i class="fas fa-piggy-bank text-primary"></i>
+                                Livret A
+                            </label>
+                        </div>
+                        <div class="investment-value">
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="livret_a_value" 
+                                       value="{{ current_user.investor_profile.livret_a_value if current_user.investor_profile.has_livret_a else 0 }}" 
+                                       step="0.01" min="0">
+                                <span class="input-group-text">€</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- PEA -->
+                    <div class="investment-edit-item">
+                        <div class="investment-checkbox">
+                            <input type="checkbox" id="has_pea" name="has_pea" 
+                                   {{ 'checked' if current_user.investor_profile.has_pea }}>
+                            <label for="has_pea" class="checkbox-label">
+                                <i class="fas fa-chart-line text-success"></i>
+                                PEA
+                            </label>
+                        </div>
+                        <div class="investment-value">
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="pea_value" 
+                                       value="{{ current_user.investor_profile.pea_value if current_user.investor_profile.has_pea else 0 }}" 
+                                       step="0.01" min="0">
+                                <span class="input-group-text">€</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- PER -->
+                    <div class="investment-edit-item">
+                        <div class="investment-checkbox">
+                            <input type="checkbox" id="has_per" name="has_per" 
+                                   {{ 'checked' if current_user.investor_profile.has_per }}>
+                            <label for="has_per" class="checkbox-label">
+                                <i class="fas fa-university text-info"></i>
+                                PER
+                            </label>
+                        </div>
+                        <div class="investment-value">
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="per_value" 
+                                       value="{{ current_user.investor_profile.per_value if current_user.investor_profile.has_per else 0 }}" 
+                                       step="0.01" min="0">
+                                <span class="input-group-text">€</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Assurance Vie -->
+                    <div class="investment-edit-item">
+                        <div class="investment-checkbox">
+                            <input type="checkbox" id="has_life_insurance" name="has_life_insurance" 
+                                   {{ 'checked' if current_user.investor_profile.has_life_insurance }}>
+                            <label for="has_life_insurance" class="checkbox-label">
+                                <i class="fas fa-shield-alt text-warning"></i>
+                                Assurance Vie
+                            </label>
+                        </div>
+                        <div class="investment-value">
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="life_insurance_value" 
+                                       value="{{ current_user.investor_profile.life_insurance_value if current_user.investor_profile.has_life_insurance else 0 }}" 
+                                       step="0.01" min="0">
+                                <span class="input-group-text">€</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Compte courant -->
+                    <div class="investment-edit-item">
+                        <div class="investment-checkbox">
+                            <input type="checkbox" id="has_current_account" name="has_current_account" 
+                                   {{ 'checked' if current_user.investor_profile.has_current_account }}>
+                            <label for="has_current_account" class="checkbox-label">
+                                <i class="fas fa-credit-card text-secondary"></i>
+                                Compte courant
+                            </label>
+                        </div>
+                        <div class="investment-value">
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="current_account_value" 
+                                       value="{{ current_user.investor_profile.current_account_value if current_user.investor_profile.has_current_account else 0 }}" 
+                                       step="0.01" min="0">
+                                <span class="input-group-text">€</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions mode édition -->
+        <div class="actions-container">
+            <button type="submit" class="platform-btn platform-btn-primary">
+                <i class="fas fa-save"></i>
+                Sauvegarder les modifications
+            </button>
+            <a href="{{ url_for('platform_investor.investor_data') }}" class="platform-btn platform-btn-secondary ms-3">
+                <i class="fas fa-times"></i>
+                Annuler
+            </a>
+        </div>
+    </form>
+</div>
+
+{% else %}
+<!-- MODE VISUALISATION -->
+<div class="platform-grid platform-grid-2 mb-4">
+    <!-- Informations financières de base -->
+    <div class="platform-card">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-euro-sign text-primary"></i>
+                Situation financière
+            </h3>
+            <p class="platform-card-subtitle">Vos revenus et capacité d'épargne</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="financial-data-grid">
+                <div class="financial-item">
+                    <div class="financial-label">Revenus mensuels nets</div>
+                    <div class="financial-value">{{ "{:,.0f}".format(current_user.investor_profile.monthly_net_income) }}€</div>
+                </div>
+                <div class="financial-item">
+                    <div class="financial-label">Épargne actuelle</div>
+                    <div class="financial-value">{{ "{:,.0f}".format(current_user.investor_profile.current_savings) }}€</div>
+                </div>
+                <div class="financial-item">
+                    <div class="financial-label">Capacité d'épargne mensuelle</div>
+                    <div class="financial-value">{{ "{:,.0f}".format(current_user.investor_profile.monthly_savings_capacity) }}€</div>
+                </div>
+                <div class="financial-item">
+                    <div class="financial-label">Situation familiale</div>
+                    <div class="financial-value">{{ current_user.investor_profile.family_situation.title() }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profil d'investissement -->
+    <div class="platform-card">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-chart-line text-primary"></i>
+                Profil d'investissement
+            </h3>
+            <p class="platform-card-subtitle">Votre approche d'investissement</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="financial-data-grid">
+                <div class="financial-item">
+                    <div class="financial-label">Tolérance au risque</div>
+                    <div class="financial-value">
+                        <span class="risk-badge risk-{{ current_user.investor_profile.risk_tolerance.lower() }}">
+                            {{ current_user.investor_profile.risk_tolerance.title() }}
+                        </span>
+                    </div>
+                </div>
+                <div class="financial-item">
+                    <div class="financial-label">Expérience d'investissement</div>
+                    <div class="financial-value">{{ current_user.investor_profile.investment_experience.title() }}</div>
+                </div>
+                <div class="financial-item">
+                    <div class="financial-label">Horizon d'investissement</div>
+                    <div class="financial-value">{{ current_user.investor_profile.investment_horizon.title() }}</div>
+                </div>
+                <div class="financial-item">
+                    <div class="financial-label">Situation professionnelle</div>
+                    <div class="financial-value">{{ current_user.investor_profile.professional_situation.title() }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Objectifs d'investissement -->
+<div class="platform-card mb-4">
+    <div class="platform-card-header">
+        <h3 class="platform-card-title">
+            <i class="fas fa-bullseye text-primary"></i>
+            Objectifs d'investissement
+        </h3>
+        <p class="platform-card-subtitle">Vos motivations et projets</p>
+    </div>
+    <div class="platform-card-body">
+        <div class="objectives-content">
+            <p class="objectives-text">{{ current_user.investor_profile.investment_goals }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Patrimoine actuel -->
+<div class="platform-card mb-4">
+    <div class="platform-card-header">
+        <h3 class="platform-card-title">
+            <i class="fas fa-wallet text-primary"></i>
+            Patrimoine actuel
+        </h3>
+        <p class="platform-card-subtitle">Vos investissements et actifs</p>
+    </div>
+    <div class="platform-card-body">
+        <div class="investments-grid">
+            {% if current_user.investor_profile.has_livret_a %}
+            <div class="investment-item">
+                <div class="investment-icon livret-a">
+                    <i class="fas fa-piggy-bank"></i>
+                </div>
+                <div class="investment-info">
+                    <h4>Livret A</h4>
+                    <p class="investment-amount">{{ "{:,.0f}".format(current_user.investor_profile.livret_a_value) }}€</p>
+                    <p class="investment-percentage">{{ "{:.1f}".format((current_user.investor_profile.livret_a_value / current_user.investor_profile.get_total_investments()) * 100 if current_user.investor_profile.get_total_investments() > 0 else 0) }}%</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if current_user.investor_profile.has_pea %}
+            <div class="investment-item">
+                <div class="investment-icon pea">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="investment-info">
+                    <h4>PEA</h4>
+                    <p class="investment-amount">{{ "{:,.0f}".format(current_user.investor_profile.pea_value) }}€</p>
+                    <p class="investment-percentage">{{ "{:.1f}".format((current_user.investor_profile.pea_value / current_user.investor_profile.get_total_investments()) * 100 if current_user.investor_profile.get_total_investments() > 0 else 0) }}%</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if current_user.investor_profile.has_per %}
+            <div class="investment-item">
+                <div class="investment-icon per">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div class="investment-info">
+                    <h4>PER</h4>
+                    <p class="investment-amount">{{ "{:,.0f}".format(current_user.investor_profile.per_value) }}€</p>
+                    <p class="investment-percentage">{{ "{:.1f}".format((current_user.investor_profile.per_value / current_user.investor_profile.get_total_investments()) * 100 if current_user.investor_profile.get_total_investments() > 0 else 0) }}%</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if current_user.investor_profile.has_life_insurance %}
+            <div class="investment-item">
+                <div class="investment-icon assurance-vie">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="investment-info">
+                    <h4>Assurance Vie</h4>
+                    <p class="investment-amount">{{ "{:,.0f}".format(current_user.investor_profile.life_insurance_value) }}€</p>
+                    <p class="investment-percentage">{{ "{:.1f}".format((current_user.investor_profile.life_insurance_value / current_user.investor_profile.get_total_investments()) * 100 if current_user.investor_profile.get_total_investments() > 0 else 0) }}%</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if current_user.investor_profile.has_current_account %}
+            <div class="investment-item">
+                <div class="investment-icon compte-courant">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="investment-info">
+                    <h4>Compte courant</h4>
+                    <p class="investment-amount">{{ "{:,.0f}".format(current_user.investor_profile.current_account_value) }}€</p>
+                    <p class="investment-percentage">{{ "{:.1f}".format((current_user.investor_profile.current_account_value / current_user.investor_profile.get_total_investments()) * 100 if current_user.investor_profile.get_total_investments() > 0 else 0) }}%</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Actions mode visualisation -->
+<div class="actions-container">
+    <a href="{{ url_for('platform_investor.investor_data', edit='true') }}" class="platform-btn platform-btn-primary">
+        <i class="fas fa-edit"></i>
+        Modifier mes données
+    </a>
+</div>
+{% endif %}
+
+{% else %}
+<!-- Profil non complété -->
+<div class="platform-card">
+    <div class="platform-card-body text-center">
+        <div class="empty-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Profil investisseur non complété</h3>
+            <p>Vous devez d'abord compléter votre profil investisseur pour accéder à vos données.</p>
+            <a href="{{ url_for('platform_investor.questionnaire') }}" class="platform-btn platform-btn-primary">
+                <i class="fas fa-plus"></i>
+                Compléter mon profil
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+/* Styles pour les données financières */
+.financial-data-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.financial-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--qlower-border);
+}
+
+.financial-item:last-child {
+    border-bottom: none;
+}
+
+.financial-label {
+    font-weight: 500;
+    color: var(--qlower-text-light);
+    font-size: 14px;
+}
+
+.financial-value {
+    font-weight: 600;
+    color: var(--qlower-dark);
+    font-size: 16px;
+}
+
+/* Badges de risque */
+.risk-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.risk-conservateur {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.risk-modéré {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.risk-dynamique {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+/* Objectifs d'investissement */
+.objectives-content {
+    padding: 16px 0;
+}
+
+.objectives-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--qlower-text-dark);
+    margin: 0;
+}
+
+/* Grille des investissements */
+.investments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.investment-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--qlower-bg-light);
+    border-radius: 12px;
+    border: 1px solid var(--qlower-border);
+    transition: all 0.2s ease;
+}
+
+.investment-item:hover {
+    background: var(--qlower-white);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.investment-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.investment-icon.livret-a {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+}
+
+.investment-icon.pea {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.investment-icon.per {
+    background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+}
+
+.investment-icon.assurance-vie {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.investment-icon.compte-courant {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+}
+
+.investment-info h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin: 0 0 4px 0;
+}
+
+.investment-amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--qlower-primary);
+    margin: 0;
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+}
+
+.investment-percentage {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--qlower-text-light);
+    margin: 0;
+}
+
+/* Autres investissements */
+.other-investments {
+    border-top: 1px solid var(--qlower-border);
+    padding-top: 20px;
+}
+
+.other-investments h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin: 0 0 8px 0;
+}
+
+.other-investments-text {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* STYLES MODE ÉDITION */
+.edit-mode-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.edit-header .alert {
+    border-radius: 12px;
+    border: none;
+    background: rgba(19, 124, 139, 0.1);
+    color: var(--qlower-dark);
+    border-left: 4px solid var(--qlower-primary);
+}
+
+.financial-edit-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.financial-edit-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-control {
+    padding: 12px 16px;
+    border: 1px solid var(--qlower-border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--qlower-primary);
+    box-shadow: 0 0 0 3px rgba(19, 124, 139, 0.1);
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+}
+
+.input-group .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+.input-group-text {
+    padding: 12px 16px;
+    background: var(--qlower-bg-light);
+    border: 1px solid var(--qlower-border);
+    border-left: none;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    font-weight: 500;
+    color: var(--qlower-text-light);
+}
+
+.investments-edit-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.investment-edit-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: var(--qlower-bg-light);
+    border-radius: 12px;
+    border: 1px solid var(--qlower-border);
+}
+
+.investment-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.investment-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--qlower-primary);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: var(--qlower-dark);
+    cursor: pointer;
+    margin: 0;
+}
+
+.checkbox-label i {
+    font-size: 16px;
+}
+
+.investment-value {
+    min-width: 150px;
+}
+
+.investment-value .input-group {
+    width: 100%;
+}
+
+.other-investments-edit textarea {
+    resize: vertical;
+}
+
+/* Zone de texte objectifs - pleine largeur */
+.objectives-content textarea {
+    width: 100%;
+    resize: vertical;
+}
+
+.objectives-content .form-control {
+    width: 100%;
+}
+
+/* Actions */
+.actions-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 32px;
+}
+
+.platform-btn-secondary {
+    background: var(--qlower-bg-light);
+    color: var(--qlower-text-dark);
+    border: 1px solid var(--qlower-border);
+    text-decoration: none;
+}
+
+.platform-btn-secondary:hover {
+    background: var(--qlower-white);
+    border-color: var(--qlower-primary);
+    color: var(--qlower-primary);
+    text-decoration: none;
+}
+
+.ms-3 {
+    margin-left: 16px !important;
+}
+
+/* État vide */
+.empty-state {
+    padding: 40px 20px;
+}
+
+.empty-state i {
+    font-size: 64px;
+    color: var(--qlower-text-light);
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin: 0 0 12px 0;
+}
+
+.empty-state p {
+    font-size: 16px;
+    color: var(--qlower-text-light);
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .financial-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .investments-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .investment-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .edit-mode-container {
+        max-width: 100%;
+    }
+    
+    .actions-container {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .ms-3 {
+        margin-left: 0 !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation d'entrée des cartes
+    const cards = document.querySelectorAll('.platform-card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 150);
+        
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    });
+    
+    // Mode édition uniquement
+    {% if edit_mode %}
+    // Gestion des checkboxes d'investissement
+    function setupInvestmentCheckbox(checkboxId, inputName) {
+        const checkbox = document.getElementById(checkboxId);
+        const input = document.querySelector(`input[name="${inputName}"]`);
+        
+        if (checkbox && input) {
+            // Initialiser l'état de l'input
+            input.disabled = !checkbox.checked;
+            if (!checkbox.checked) {
+                input.value = '0';
+            }
+            
+            // Écouter les changements
+            checkbox.addEventListener('change', function() {
+                input.disabled = !this.checked;
+                if (!this.checked) {
+                    input.value = '0';
+                } else {
+                    input.focus();
+                }
+            });
+        }
+    }
+    
+    // Configurer tous les checkboxes d'investissement
+    setupInvestmentCheckbox('has_livret_a', 'livret_a_value');
+    setupInvestmentCheckbox('has_pea', 'pea_value');
+    setupInvestmentCheckbox('has_per', 'per_value');
+    setupInvestmentCheckbox('has_life_insurance', 'life_insurance_value');
+    setupInvestmentCheckbox('has_current_account', 'current_account_value');
+    
+    // Validation du formulaire
+    const form = document.getElementById('editForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const monthlyIncome = parseFloat(document.querySelector('input[name="monthly_net_income"]').value || 0);
+            const currentSavings = parseFloat(document.querySelector('input[name="current_savings"]').value || 0);
+            const monthlySavings = parseFloat(document.querySelector('input[name="monthly_savings_capacity"]').value || 0);
+            
+            // Vérifier que l'épargne mensuelle ne dépasse pas les revenus
+            if (monthlySavings > monthlyIncome) {
+                e.preventDefault();
+                alert('Votre capacité d\'épargne mensuelle ne peut pas être supérieure à vos revenus mensuels nets.');
+                return false;
+            }
+            
+            // Vérifier que les valeurs sont positives
+            if (monthlyIncome < 0 || currentSavings < 0 || monthlySavings < 0) {
+                e.preventDefault();
+                alert('Les valeurs financières doivent être positives.');
+                return false;
+            }
+            
+            // Confirmation avant sauvegarde
+            const confirmed = confirm('Êtes-vous sûr de vouloir sauvegarder ces modifications ?');
+            if (!confirmed) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+    {% endif %}
+});
+</script>
+{% endblock %}
