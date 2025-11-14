@@ -436,6 +436,109 @@ def update_user_data(user_id):
         profile.question_5_reponse = request.form.get('question_5_reponse', '').strip() or None
         profile.synthese_profil_risque = request.form.get('synthese_profil_risque', '').strip() or None
         
+        # Nouveaux objectifs d'investissement étendus
+        profile.objectif_premiers_pas = request.form.get('objectif_premiers_pas') == 'on'
+        profile.objectif_constituer_capital = request.form.get('objectif_constituer_capital') == 'on'
+        profile.objectif_diversifier = request.form.get('objectif_diversifier') == 'on'
+        profile.objectif_optimiser_rendement = request.form.get('objectif_optimiser_rendement') == 'on'
+        profile.objectif_preparer_retraite = request.form.get('objectif_preparer_retraite') == 'on'
+        profile.objectif_securite_financiere = request.form.get('objectif_securite_financiere') == 'on'
+        profile.objectif_projet_immobilier = request.form.get('objectif_projet_immobilier') == 'on'
+        profile.objectif_revenus_complementaires = request.form.get('objectif_revenus_complementaires') == 'on'
+        profile.objectif_transmettre_capital = request.form.get('objectif_transmettre_capital') == 'on'
+        profile.objectif_proteger_famille = request.form.get('objectif_proteger_famille') == 'on'
+        
+        # Nouvelles questions de profil de risque détaillées
+        profile.tolerance_risque = request.form.get('tolerance_risque', '').strip() or None
+        profile.horizon_placement = request.form.get('horizon_placement', '').strip() or None
+        profile.besoin_liquidite = request.form.get('besoin_liquidite', '').strip() or None
+        profile.experience_investissement = request.form.get('experience_investissement', '').strip() or None
+        profile.attitude_volatilite = request.form.get('attitude_volatilite', '').strip() or None
+        
+        # Traitement des données complexes JSON
+        import json
+        
+        # Immobilier détaillé
+        immobilier_data = []
+        bien_types = request.form.getlist('bien_type[]')
+        bien_descriptions = request.form.getlist('bien_description[]')
+        bien_valeurs = request.form.getlist('bien_valeur[]')
+        bien_surfaces = request.form.getlist('bien_surface[]')
+        credit_checkboxes = request.form.getlist('credit_checkbox[]') or []
+        credit_montants = request.form.getlist('credit_montant[]')
+        credit_taegs = request.form.getlist('credit_taeg[]')
+        credit_tags = request.form.getlist('credit_tag[]')
+        credit_durees = request.form.getlist('credit_duree[]')
+        credit_dates = request.form.getlist('credit_date[]')
+        
+        for i in range(len(bien_types)):
+            if bien_types[i].strip():
+                bien_data = {
+                    'type': bien_types[i].strip(),
+                    'description': bien_descriptions[i].strip() if i < len(bien_descriptions) else '',
+                    'valeur': float(bien_valeurs[i] or 0) if i < len(bien_valeurs) else 0,
+                    'surface': float(bien_surfaces[i] or 0) if i < len(bien_surfaces) else 0,
+                    'has_credit': str(i) in [cb.split('_')[-1] for cb in credit_checkboxes] if credit_checkboxes else False,
+                    'credit_montant': float(credit_montants[i] or 0) if i < len(credit_montants) else 0,
+                    'credit_taeg': float(credit_taegs[i] or 0) if i < len(credit_taegs) else 0,
+                    'credit_tag': float(credit_tags[i] or 0) if i < len(credit_tags) else 0,
+                    'credit_duree': int(credit_durees[i] or 0) if i < len(credit_durees) else 0,
+                    'credit_date': credit_dates[i].strip() if i < len(credit_dates) else ''
+                }
+                immobilier_data.append(bien_data)
+        
+        profile.set_immobilier_data(immobilier_data)
+        
+        # Cryptomonnaies détaillées
+        crypto_data = []
+        crypto_symbols = request.form.getlist('crypto_symbol[]')
+        crypto_quantities = request.form.getlist('crypto_quantity[]')
+        
+        for i in range(len(crypto_symbols)):
+            if crypto_symbols[i].strip():
+                crypto_data.append({
+                    'symbol': crypto_symbols[i].strip(),
+                    'quantity': float(crypto_quantities[i] or 0) if i < len(crypto_quantities) else 0
+                })
+        
+        profile.set_cryptomonnaies_data(crypto_data)
+        
+        # Autres biens détaillés
+        autres_biens_data = []
+        autre_bien_names = request.form.getlist('autre_bien_name[]')
+        autre_bien_descriptions = request.form.getlist('autre_bien_description[]')
+        autre_bien_valeurs = request.form.getlist('autre_bien_valeur[]')
+        
+        for i in range(len(autre_bien_names)):
+            if autre_bien_names[i].strip():
+                autres_biens_data.append({
+                    'name': autre_bien_names[i].strip(),
+                    'description': autre_bien_descriptions[i].strip() if i < len(autre_bien_descriptions) else '',
+                    'valeur': float(autre_bien_valeurs[i] or 0) if i < len(autre_bien_valeurs) else 0
+                })
+        
+        profile.set_autres_biens_data(autres_biens_data)
+        
+        # Crédits détaillés (complémentaire au modèle Credit)
+        credits_data = []
+        credit_descriptions = request.form.getlist('credit_description[]')
+        credit_montants_initiaux = request.form.getlist('credit_montant_initial[]')
+        credit_taux = request.form.getlist('credit_taux[]')
+        credit_durees_credit = request.form.getlist('credit_duree[]')
+        credit_dates_depart = request.form.getlist('credit_date_depart[]')
+        
+        for i in range(len(credit_descriptions)):
+            if credit_descriptions[i].strip():
+                credits_data.append({
+                    'description': credit_descriptions[i].strip(),
+                    'montant_initial': float(credit_montants_initiaux[i] or 0) if i < len(credit_montants_initiaux) else 0,
+                    'taux': float(credit_taux[i] or 0) if i < len(credit_taux) else 0,
+                    'duree': int(credit_durees_credit[i] or 0) if i < len(credit_durees_credit) else 0,
+                    'date_depart': credit_dates_depart[i].strip() if i < len(credit_dates_depart) else ''
+                })
+        
+        profile.set_credits_data(credits_data)
+        
         db.session.commit()
         
         # Redirection vers la vue normale après modification

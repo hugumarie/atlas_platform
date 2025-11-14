@@ -1163,6 +1163,169 @@
         </div>
     </div>
 
+    <!-- Section Objectifs d'investissement -->
+    {% if user.investor_profile.objectif_premiers_pas or user.investor_profile.objectif_constituer_capital or 
+         user.investor_profile.objectif_diversifier or user.investor_profile.objectif_optimiser_rendement or 
+         user.investor_profile.objectif_preparer_retraite or user.investor_profile.objectif_securite_financiere or 
+         user.investor_profile.objectif_projet_immobilier or user.investor_profile.objectif_revenus_complementaires or 
+         user.investor_profile.objectif_transmettre_capital or user.investor_profile.objectif_proteger_famille %}
+    <div class="platform-card mb-4">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-bullseye text-primary"></i>
+                OBJECTIFS D'INVESTISSEMENT
+            </h3>
+            <p class="platform-card-subtitle">Objectifs d'investissement sélectionnés</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="objectifs-view-grid">
+                {% if user.investor_profile.objectif_premiers_pas %}
+                <div class="objectif-view-item">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Faire mes premiers pas dans l'investissement</span>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.objectif_constituer_capital %}
+                <div class="objectif-view-item">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Constituer progressivement un capital</span>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.objectif_diversifier %}
+                <div class="objectif-view-item">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Diversifier mes placements</span>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.objectif_optimiser_rendement %}
+                <div class="objectif-view-item">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Optimiser le rendement de mon épargne</span>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.objectif_preparer_retraite %}
+                <div class="objectif-view-item">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Préparer ma retraite</span>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.objectif_securite_financiere %}
+                <div class="objectif-view-item">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Assurer ma sécurité financière à long terme</span>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.objectif_projet_immobilier %}
+                <div class="objectif-view-item">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Financer un projet immobilier / résidence principale</span>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.objectif_revenus_complementaires %}
+                <div class="objectif-view-item">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Générer des revenus complémentaires réguliers</span>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.objectif_transmettre_capital %}
+                <div class="objectif-view-item">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Transmettre un capital à mes proches</span>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.objectif_proteger_famille %}
+                <div class="objectif-view-item">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Protéger ma famille en cas d'imprévu</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Section Profil de risque -->
+    {% if user.investor_profile.tolerance_risque or user.investor_profile.horizon_placement or 
+         user.investor_profile.besoin_liquidite or user.investor_profile.experience_investissement or 
+         user.investor_profile.attitude_volatilite %}
+    <div class="platform-card mb-4">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-chart-bar text-warning"></i>
+                PROFIL DE RISQUE
+            </h3>
+            <p class="platform-card-subtitle">Évaluation du profil d'investisseur</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="risk-profile-view">
+                <!-- Badge du profil calculé -->
+                <div class="risk-profile-badge-view">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Profil d'investisseur : <strong>Équilibré</strong></span>
+                </div>
+                
+                <!-- Détails des réponses -->
+                <div class="risk-details-grid">
+                    {% if user.investor_profile.tolerance_risque %}
+                    <div class="risk-detail-item">
+                        <div class="risk-label">Tolérance au risque</div>
+                        <div class="risk-value">
+                            {% if user.investor_profile.tolerance_risque == 'faible' %}Jusqu'à –5 %
+                            {% elif user.investor_profile.tolerance_risque == 'moderee' %}Jusqu'à –15 %
+                            {% elif user.investor_profile.tolerance_risque == 'elevee' %}Jusqu'à –30 % ou plus
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if user.investor_profile.horizon_placement %}
+                    <div class="risk-detail-item">
+                        <div class="risk-label">Horizon de placement</div>
+                        <div class="risk-value">
+                            {% if user.investor_profile.horizon_placement == 'court' %}Moins de 2 ans
+                            {% elif user.investor_profile.horizon_placement == 'moyen' %}2 à 5 ans
+                            {% elif user.investor_profile.horizon_placement == 'long' %}Plus de 5 ans
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if user.investor_profile.besoin_liquidite %}
+                    <div class="risk-detail-item">
+                        <div class="risk-label">Besoin de liquidité</div>
+                        <div class="risk-value">
+                            {% if user.investor_profile.besoin_liquidite == 'court_terme' %}Oui, à court terme
+                            {% elif user.investor_profile.besoin_liquidite == 'long_terme' %}Non, peut investir plusieurs années
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if user.investor_profile.experience_investissement %}
+                    <div class="risk-detail-item">
+                        <div class="risk-label">Expérience en investissement</div>
+                        <div class="risk-value">
+                            {% if user.investor_profile.experience_investissement == 'debutant' %}Débutant – Je découvre l'investissement
+                            {% elif user.investor_profile.experience_investissement == 'intermediaire' %}Intermédiaire – J'ai déjà quelques placements
+                            {% elif user.investor_profile.experience_investissement == 'confirme' %}Confirmé – Je suis à l'aise avec les marchés
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if user.investor_profile.attitude_volatilite %}
+                    <div class="risk-detail-item">
+                        <div class="risk-label">Attitude face à la volatilité</div>
+                        <div class="risk-value">
+                            {% if user.investor_profile.attitude_volatilite == 'vendre' %}Je vendrais pour limiter les pertes
+                            {% elif user.investor_profile.attitude_volatilite == 'attendre' %}J'attendrais que ça remonte
+                            {% elif user.investor_profile.attitude_volatilite == 'investir_plus' %}J'en profiterais pour investir davantage
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Situation financière -->
     <div class="platform-card mb-4">
         <div class="platform-card-header">
@@ -1445,7 +1608,103 @@
         </div>
     </div>
 
-    <!-- Section 6: CRYPTOMONNAIES -->
+    <!-- Section 6: IMMOBILIER -->
+    {% if user.investor_profile.immobilier_data %}
+    <div class="platform-card mb-4">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-home text-success"></i>
+                IMMOBILIER
+            </h3>
+            <p class="platform-card-subtitle">Patrimoine immobilier détaillé</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="immobilier-view-grid">
+                {% for bien in user.investor_profile.immobilier_data %}
+                <div class="immobilier-view-item">
+                    <div class="immobilier-view-header">
+                        <div class="immobilier-type">
+                            <i class="fas fa-home"></i>
+                            <span>{{ bien.type }}</span>
+                        </div>
+                        {% if bien.description %}
+                        <div class="immobilier-description">{{ bien.description }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="immobilier-view-details">
+                        <div class="immobilier-detail-row">
+                            <div class="immobilier-detail">
+                                <label>Valeur du bien</label>
+                                <span>{{ "{:,.0f}".format(bien.valeur) }}€</span>
+                            </div>
+                            {% if bien.surface > 0 %}
+                            <div class="immobilier-detail">
+                                <label>Surface</label>
+                                <span>{{ bien.surface }} m²</span>
+                            </div>
+                            <div class="immobilier-detail">
+                                <label>Prix au m²</label>
+                                <span>{{ "{:,.0f}".format(bien.valeur / bien.surface) }}€/m²</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if bien.has_credit %}
+                        <div class="immobilier-credit-info">
+                            <h6><i class="fas fa-credit-card text-danger"></i> Crédit immobilier associé</h6>
+                            <div class="credit-detail-row">
+                                <div class="credit-detail">
+                                    <label>Montant crédit</label>
+                                    <span>{{ "{:,.0f}".format(bien.credit_montant) }}€</span>
+                                </div>
+                                <div class="credit-detail">
+                                    <label>Taux TAG</label>
+                                    <span>{{ bien.credit_tag }}%</span>
+                                </div>
+                                <div class="credit-detail">
+                                    <label>Taux TAEG</label>
+                                    <span>{{ bien.credit_taeg }}%</span>
+                                </div>
+                                <div class="credit-detail">
+                                    <label>Durée</label>
+                                    <span>{{ bien.credit_duree }} ans</span>
+                                </div>
+                                {% if bien.credit_date %}
+                                <div class="credit-detail">
+                                    <label>Date de début</label>
+                                    <span>{{ bien.credit_date }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="immobilier-valeur-nette">
+                            <strong>Valeur nette : {{ "{:,.0f}".format(bien.valeur - (bien.credit_montant if bien.has_credit else 0)) }}€</strong>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Totaux immobilier -->
+            {% set total_valeur_brute = user.investor_profile.immobilier_data | map(attribute='valeur') | sum %}
+            {% set total_credits = user.investor_profile.immobilier_data | selectattr('has_credit', 'equalto', true) | map(attribute='credit_montant') | sum %}
+            {% set total_valeur_nette = total_valeur_brute - total_credits %}
+            
+            <div class="total-section-view">
+                <div class="total-display-view credit-restant">
+                    <i class="fas fa-credit-card"></i> 
+                    <span>Total Capital Restant Dû (crédits immobiliers): {{ "{:,.0f}".format(total_credits) }}€</span>
+                </div>
+                <div class="total-display-view immobilier">
+                    <i class="fas fa-home"></i> 
+                    <span>Total Immobilier (valeur nette): {{ "{:,.0f}".format(total_valeur_nette) }}€</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Section 7: CRYPTOMONNAIES -->
     {% if user.investor_profile.cryptomonnaies_data %}
     <div class="platform-card mb-4">
         <div class="platform-card-header">
@@ -1481,7 +1740,107 @@
     </div>
     {% endif %}
 
-    <!-- Section 7: PROFIL INVESTISSEUR -->
+    <!-- Section 8: AUTRES BIENS -->
+    {% if user.investor_profile.autres_biens_data %}
+    <div class="platform-card mb-4">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-gem text-purple"></i>
+                AUTRES BIENS
+            </h3>
+            <p class="platform-card-subtitle">Œuvres d'art, voitures de collection, bijoux, etc.</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="autres-biens-view-grid">
+                {% for bien in user.investor_profile.autres_biens_data %}
+                <div class="autre-bien-view-item">
+                    <div class="autre-bien-view-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div class="autre-bien-view-info">
+                        <div class="autre-bien-view-name">{{ bien.name }}</div>
+                        {% if bien.description %}
+                        <div class="autre-bien-view-description">{{ bien.description }}</div>
+                        {% endif %}
+                        <div class="autre-bien-view-valeur">{{ "{:,.0f}".format(bien.valeur) }}€</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Total autres biens -->
+            {% set total_autres_biens = user.investor_profile.autres_biens_data | map(attribute='valeur') | sum %}
+            <div class="total-section-view">
+                <div class="total-display-view autres-biens">
+                    <i class="fas fa-gem"></i> 
+                    <span>Total Autres biens: {{ "{:,.0f}".format(total_autres_biens) }}€</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Section 9: CRÉDITS -->
+    {% if user.investor_profile.credits_data %}
+    <div class="platform-card mb-4">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-credit-card text-danger"></i>
+                CRÉDITS (hors crédit immobilier)
+            </h3>
+            <p class="platform-card-subtitle">Crédits à la consommation et autres emprunts en cours</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="credits-view-grid">
+                {% for credit in user.investor_profile.credits_data %}
+                <div class="credit-view-item">
+                    <div class="credit-view-header">
+                        <div class="credit-view-description">
+                            <i class="fas fa-credit-card"></i>
+                            <span>{{ credit.description }}</span>
+                        </div>
+                    </div>
+                    <div class="credit-view-details">
+                        <div class="credit-detail-row">
+                            <div class="credit-detail">
+                                <label>Montant initial</label>
+                                <span>{{ "{:,.0f}".format(credit.montant_initial) }}€</span>
+                            </div>
+                            <div class="credit-detail">
+                                <label>Taux</label>
+                                <span>{{ credit.taux }}%</span>
+                            </div>
+                            <div class="credit-detail">
+                                <label>Durée</label>
+                                <span>{{ credit.duree }} ans</span>
+                            </div>
+                            {% if credit.date_depart %}
+                            <div class="credit-detail">
+                                <label>Date de départ</label>
+                                <span>{{ credit.date_depart }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="credit-capital-restant">
+                            <strong>Capital restant dû : À calculer selon la formule d'amortissement</strong>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Total crédits -->
+            <div class="total-section-view">
+                <div class="total-display-view credits">
+                    <i class="fas fa-credit-card text-danger"></i> 
+                    <span>Total Capital Restant Dû: Calcul automatique requis</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Section 10: PROFIL INVESTISSEUR -->
     <div class="platform-card mb-4">
         <div class="platform-card-header">
             <h3 class="platform-card-title">
@@ -3249,11 +3608,253 @@
     line-height: 1.3;
 }
 
+/* Styles pour les sections de visualisation */
+.objectifs-view-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.objectif-view-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8f9fa;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border-left: 3px solid var(--qlower-primary);
+}
+
+.objectif-view-item i {
+    color: #28a745;
+    font-size: 14px;
+}
+
+.risk-profile-view {
+    text-align: center;
+}
+
+.risk-profile-badge-view {
+    background: var(--qlower-primary);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.risk-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.risk-detail-item {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: left;
+}
+
+.risk-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.risk-value {
+    color: var(--qlower-dark);
+    font-weight: 500;
+}
+
+/* Immobilier view */
+.immobilier-view-grid {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.immobilier-view-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    border-left: 4px solid var(--qlower-primary);
+}
+
+.immobilier-view-header {
+    margin-bottom: 16px;
+}
+
+.immobilier-type {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--qlower-primary);
+    margin-bottom: 8px;
+}
+
+.immobilier-description {
+    color: #666;
+    font-style: italic;
+}
+
+.immobilier-detail-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.immobilier-detail {
+    background: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+}
+
+.immobilier-detail label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.immobilier-detail span {
+    font-weight: 500;
+    color: var(--qlower-dark);
+}
+
+.immobilier-credit-info {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 12px 0;
+}
+
+.immobilier-credit-info h6 {
+    margin: 0 0 8px 0;
+    color: #856404;
+}
+
+.credit-detail-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+}
+
+.credit-detail {
+    background: white;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.immobilier-valeur-nette {
+    text-align: right;
+    padding-top: 12px;
+    border-top: 2px solid var(--qlower-primary);
+    color: var(--qlower-primary);
+}
+
+/* Autres biens view */
+.autres-biens-view-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.autre-bien-view-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid #6f42c1;
+}
+
+.autre-bien-view-icon i {
+    color: #6f42c1;
+    font-size: 20px;
+}
+
+.autre-bien-view-name {
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin-bottom: 4px;
+}
+
+.autre-bien-view-description {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.autre-bien-view-valeur {
+    font-weight: 700;
+    color: #6f42c1;
+}
+
+/* Crédits view */
+.credits-view-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.credit-view-item {
+    background: #fff5f5;
+    border: 1px solid #fed7d7;
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid #e53e3e;
+}
+
+.credit-view-description {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #e53e3e;
+    margin-bottom: 12px;
+}
+
+.credit-capital-restant {
+    text-align: right;
+    padding-top: 12px;
+    border-top: 2px solid #e53e3e;
+    color: #e53e3e;
+}
+
+.total-display-view.credit-restant {
+    margin-top: 16px;
+}
+
 /* Responsive crédits */
 @media (max-width: 768px) {
     .credit-row {
         grid-template-columns: 1fr;
         gap: 10px;
+    }
+    
+    .immobilier-detail-row,
+    .credit-detail-row,
+    .risk-details-grid,
+    .objectifs-view-grid,
+    .autres-biens-view-grid {
+        grid-template-columns: 1fr;
     }
 }
 </style>
