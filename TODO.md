@@ -35,6 +35,17 @@
 - [x] **Responsive design** mobile/desktop
 - [x] **Navigation cohérente** entre toutes les sections
 
+#### Interface Admin Utilisateur (Nouvelle session - Novembre 2025)
+- [x] **Section IMMOBILIER** complète avec calculs automatiques
+- [x] **Section CRYPTOMONNAIES** avec API CoinGecko temps réel
+- [x] **Section AUTRES BIENS** (art, collectibles, voitures...)
+- [x] **Section CRÉDITS** avec calcul capital restant dû automatique
+- [x] **Section OBJECTIFS D'INVESTISSEMENT** avec 10 objectifs à cocher
+- [x] **Section PROFIL DE RISQUE** avec 5 questions et calcul automatique
+- [x] **Total capital restant dû** pour crédits immobiliers
+- [x] **Réorganisation formulaire** identité (situation familiale après prénom)
+- [x] **Design Atlas cohérent** avec badges verts et animations
+
 ---
 
 ### 🔄 EN COURS / À AMÉLIORER
