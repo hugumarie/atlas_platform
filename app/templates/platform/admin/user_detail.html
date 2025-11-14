@@ -37,7 +37,7 @@
             </div>
             <div class="platform-card-body">
                 <div class="financial-edit-grid">
-                    <!-- Ligne 1: Civilité + Nom + Prénom -->
+                    <!-- Ligne 1: Civilité + Nom + Prénom + Situation familiale -->
                     <div class="financial-edit-item">
                         <label class="financial-label">Civilité *</label>
                         <select class="form-control" name="civilite" required>
@@ -55,6 +55,19 @@
                         <label class="financial-label">Prénom *</label>
                         <input type="text" class="form-control" name="first_name" 
                                value="{{ user.first_name }}" required>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Situation familiale *</label>
+                        <select class="form-control" name="family_situation" required>
+                            <option value="">Choisir...</option>
+                            <option value="Célibataire" {{ 'selected' if user.investor_profile.family_situation == 'Célibataire' }}>Célibataire</option>
+                            <option value="Marié(e)" {{ 'selected' if user.investor_profile.family_situation == 'Marié(e)' }}>Marié(e)</option>
+                            <option value="Pacsé(e)" {{ 'selected' if user.investor_profile.family_situation == 'Pacsé(e)' }}>Pacsé(e)</option>
+                            <option value="En concubinage" {{ 'selected' if user.investor_profile.family_situation == 'En concubinage' }}>En concubinage</option>
+                            <option value="En couple" {{ 'selected' if user.investor_profile.family_situation == 'En couple' }}>En couple</option>
+                            <option value="En couple avec enfants" {{ 'selected' if user.investor_profile.family_situation == 'En couple avec enfants' }}>En couple avec enfants</option>
+                            <option value="Autre" {{ 'selected' if user.investor_profile.family_situation == 'Autre' }}>Autre</option>
+                        </select>
                     </div>
                     
                     <!-- Ligne 2: Email + Téléphone + Nationalité -->
@@ -94,26 +107,213 @@
                         <input type="text" class="form-control" name="pays_residence" 
                                value="{{ user.investor_profile.pays_residence or 'France' }}">
                     </div>
-                    
-                    <!-- Ligne 4: Situation familiale -->
-                    <div class="financial-edit-item">
-                        <label class="financial-label">Situation familiale *</label>
-                        <select class="form-control" name="family_situation" required>
-                            <option value="">Choisir...</option>
-                            <option value="Célibataire" {{ 'selected' if user.investor_profile.family_situation == 'Célibataire' }}>Célibataire</option>
-                            <option value="Marié(e)" {{ 'selected' if user.investor_profile.family_situation == 'Marié(e)' }}>Marié(e)</option>
-                            <option value="Pacsé(e)" {{ 'selected' if user.investor_profile.family_situation == 'Pacsé(e)' }}>Pacsé(e)</option>
-                            <option value="En concubinage" {{ 'selected' if user.investor_profile.family_situation == 'En concubinage' }}>En concubinage</option>
-                            <option value="En couple" {{ 'selected' if user.investor_profile.family_situation == 'En couple' }}>En couple</option>
-                            <option value="En couple avec enfants" {{ 'selected' if user.investor_profile.family_situation == 'En couple avec enfants' }}>En couple avec enfants</option>
-                            <option value="Autre" {{ 'selected' if user.investor_profile.family_situation == 'Autre' }}>Autre</option>
-                        </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: OBJECTIFS D'INVESTISSEMENT -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-bullseye text-primary"></i>
+                    OBJECTIFS D'INVESTISSEMENT
+                </h3>
+                <p class="platform-card-subtitle">Cochez un ou plusieurs objectifs qui correspondent à votre situation</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="objectifs-grid">
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_premiers_pas" {{ 'checked' if user.investor_profile.objectif_premiers_pas }}>
+                            <span class="objectif-text">Faire mes premiers pas dans l'investissement</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_constituer_capital" {{ 'checked' if user.investor_profile.objectif_constituer_capital }}>
+                            <span class="objectif-text">Constituer progressivement un capital</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_diversifier" {{ 'checked' if user.investor_profile.objectif_diversifier }}>
+                            <span class="objectif-text">Diversifier mes placements</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_optimiser_rendement" {{ 'checked' if user.investor_profile.objectif_optimiser_rendement }}>
+                            <span class="objectif-text">Optimiser le rendement de mon épargne</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_preparer_retraite" {{ 'checked' if user.investor_profile.objectif_preparer_retraite }}>
+                            <span class="objectif-text">Préparer ma retraite</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_securite_financiere" {{ 'checked' if user.investor_profile.objectif_securite_financiere }}>
+                            <span class="objectif-text">Assurer ma sécurité financière à long terme</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_projet_immobilier" {{ 'checked' if user.investor_profile.objectif_projet_immobilier }}>
+                            <span class="objectif-text">Financer un projet immobilier / résidence principale</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_revenus_complementaires" {{ 'checked' if user.investor_profile.objectif_revenus_complementaires }}>
+                            <span class="objectif-text">Générer des revenus complémentaires réguliers</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_transmettre_capital" {{ 'checked' if user.investor_profile.objectif_transmettre_capital }}>
+                            <span class="objectif-text">Transmettre un capital à mes proches</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_proteger_famille" {{ 'checked' if user.investor_profile.objectif_proteger_famille }}>
+                            <span class="objectif-text">Protéger ma famille en cas d'imprévu</span>
+                        </label>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Section 2: REVENUS -->
+        <!-- Section 3: PROFIL DE RISQUE -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-chart-bar text-warning"></i>
+                    PROFIL DE RISQUE
+                </h3>
+                <p class="platform-card-subtitle">Évaluation de votre profil d'investisseur</p>
+            </div>
+            <div class="platform-card-body">
+                <!-- Question 1: Tolérance au risque -->
+                <div class="risk-question-section mb-4">
+                    <div class="risk-question-header">
+                        <h5><i class="fas fa-bullseye text-primary"></i> 1. Tolérance au risque</h5>
+                        <p>Quelle baisse maximale de la valeur de vos avoirs seriez-vous prêt à accepter sur une année ?</p>
+                    </div>
+                    <div class="risk-answers">
+                        <label class="risk-answer-label">
+                            <input type="radio" name="tolerance_risque" value="faible" onchange="updateRiskProfile()">
+                            <span>Jusqu'à –5 %</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="tolerance_risque" value="moderee" onchange="updateRiskProfile()" checked>
+                            <span>Jusqu'à –15 %</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="tolerance_risque" value="elevee" onchange="updateRiskProfile()">
+                            <span>Jusqu'à –30 % ou plus</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 2: Horizon de placement -->
+                <div class="risk-question-section mb-4">
+                    <div class="risk-question-header">
+                        <h5><i class="fas fa-clock text-primary"></i> 2. Horizon de placement</h5>
+                        <p>Sur quelle durée envisagez-vous vos placements ?</p>
+                    </div>
+                    <div class="risk-answers">
+                        <label class="risk-answer-label">
+                            <input type="radio" name="horizon_placement" value="court" onchange="updateRiskProfile()">
+                            <span>Moins de 2 ans</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="horizon_placement" value="moyen" onchange="updateRiskProfile()" checked>
+                            <span>2 à 5 ans</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="horizon_placement" value="long" onchange="updateRiskProfile()">
+                            <span>Plus de 5 ans</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 3: Besoin de liquidité -->
+                <div class="risk-question-section mb-4">
+                    <div class="risk-question-header">
+                        <h5><i class="fas fa-money-bill-wave text-primary"></i> 3. Besoin de liquidité</h5>
+                        <p>Avez-vous besoin de pouvoir récupérer rapidement une partie de vos placements ?</p>
+                    </div>
+                    <div class="risk-answers">
+                        <label class="risk-answer-label">
+                            <input type="radio" name="besoin_liquidite" value="court_terme" onchange="updateRiskProfile()">
+                            <span>Oui, à court terme</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="besoin_liquidite" value="long_terme" onchange="updateRiskProfile()" checked>
+                            <span>Non, je peux laisser mon argent investi plusieurs années</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 4: Expérience / connaissance -->
+                <div class="risk-question-section mb-4">
+                    <div class="risk-question-header">
+                        <h5><i class="fas fa-brain text-primary"></i> 4. Expérience / connaissance en investissement</h5>
+                        <p>Comment évalueriez-vous votre expérience en matière d'investissement ?</p>
+                    </div>
+                    <div class="risk-answers">
+                        <label class="risk-answer-label">
+                            <input type="radio" name="experience_investissement" value="debutant" onchange="updateRiskProfile()">
+                            <span>Débutant – Je découvre l'investissement</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="experience_investissement" value="intermediaire" onchange="updateRiskProfile()" checked>
+                            <span>Intermédiaire – J'ai déjà quelques placements</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="experience_investissement" value="confirme" onchange="updateRiskProfile()">
+                            <span>Confirmé – Je suis à l'aise avec les marchés et la gestion du risque</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 5: Attitude face à la volatilité -->
+                <div class="risk-question-section mb-4">
+                    <div class="risk-question-header">
+                        <h5><i class="fas fa-comments text-primary"></i> 5. Attitude face à la volatilité</h5>
+                        <p>Comment réagiriez-vous si la valeur de vos placements baissait fortement ?</p>
+                    </div>
+                    <div class="risk-answers">
+                        <label class="risk-answer-label">
+                            <input type="radio" name="attitude_volatilite" value="vendre" onchange="updateRiskProfile()">
+                            <span>Je vendrais pour limiter les pertes</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="attitude_volatilite" value="attendre" onchange="updateRiskProfile()" checked>
+                            <span>J'attendrais que ça remonte</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="attitude_volatilite" value="investir_plus" onchange="updateRiskProfile()">
+                            <span>J'en profiterais pour investir davantage</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Affichage du profil calculé -->
+                <div class="risk-profile-result">
+                    <div class="risk-profile-badge-atlas">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Votre profil d'investisseur : </span>
+                        <strong id="profileRisqueActuel">Équilibré</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: REVENUS -->
         <div class="platform-card mb-4">
             <div class="platform-card-header">
                 <h3 class="platform-card-title">
@@ -660,9 +860,228 @@
                 <!-- Total Immobilier -->
                 <div class="total-section">
                     <div class="total-display">
+                        <i class="fas fa-credit-card"></i> 
+                        <span>Total Capital Restant Dû (crédits immobiliers): </span>
+                        <span id="totalCapitalRestantImmobilier">0€</span>
+                    </div>
+
+                    <div class="total-display credit-restant">
                         <i class="fas fa-home"></i> 
                         <span>Total Immobilier (valeur nette): </span>
                         <span id="totalImmobilier">0€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Cryptomonnaies -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fab fa-bitcoin text-warning"></i>
+                    CRYPTOMONNAIES
+                </h3>
+                <p class="platform-card-subtitle">Portefeuille de cryptomonnaies - Valorisation en temps réel</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="crypto-grid" id="cryptoGrid">
+                    {% for crypto in user.investor_profile.cryptomonnaies_data or [] %}
+                    <div class="crypto-item">
+                        <button type="button" class="crypto-delete-btn" onclick="removeCryptoItem(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="crypto-content">
+                            <div class="crypto-row">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Cryptomonnaie</label>
+                                    <select class="form-control crypto-select" name="crypto_symbol[]" onchange="updateCryptoPrice(this)">
+                                        <option value="">Choisir une crypto...</option>
+                                        <!-- Options seront remplies par JavaScript -->
+                                    </select>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Quantité possédée</label>
+                                    <input type="number" class="form-control crypto-quantity" name="crypto_quantity[]" 
+                                           value="{{ crypto.quantity or 0 }}" step="0.00000001" min="0" onchange="calculateCryptoValue(this)">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Prix unitaire</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control crypto-price-display" readonly>
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Valeur totale</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control crypto-total-display" readonly>
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="crypto-add-item" id="cryptoAddItem">
+                        <div class="crypto-add-content" onclick="addCryptoInline()">
+                            <i class="fab fa-bitcoin"></i>
+                            <span>Ajouter une cryptomonnaie</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Total Cryptomonnaies -->
+                <div class="total-section">
+                    <div class="total-display">
+                        <i class="fab fa-bitcoin"></i> 
+                        <span>Total Cryptomonnaies: </span>
+                        <span id="totalCryptomonnaies">0€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Autres biens -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-gem text-purple"></i>
+                    AUTRES BIENS
+                </h3>
+                <p class="platform-card-subtitle">Œuvres d'art, voitures de collection, bijoux, etc.</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="autres-biens-grid" id="autresBiensGrid">
+                    {% for bien in user.investor_profile.autres_biens_data or [] %}
+                    <div class="autre-bien-item">
+                        <button type="button" class="autre-bien-delete-btn" onclick="removeAutreBienItem(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="autre-bien-content">
+                            <div class="autre-bien-row">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Type de bien</label>
+                                    <input type="text" class="form-control autre-bien-name" name="autre_bien_name[]" 
+                                           value="{{ bien.name or '' }}" placeholder="Ex: Œuvre d'art, Bateau, Voiture de collection...">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Description (optionnelle)</label>
+                                    <input type="text" class="form-control autre-bien-description" name="autre_bien_description[]" 
+                                           value="{{ bien.description or '' }}" placeholder="Ex: Tableau de Monet, Ferrari 250 GT...">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Valeur estimée</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control autre-bien-valeur" name="autre_bien_valeur[]" 
+                                               value="{{ bien.valeur or 0 }}" step="100" min="0" onchange="calculateTotalAutresBiens()">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="autre-bien-add-item" id="autreBienAddItem">
+                        <div class="autre-bien-add-content" onclick="addAutreBienInline()">
+                            <i class="fas fa-plus"></i>
+                            <span>Ajouter un autre bien</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Total Autres biens -->
+                <div class="total-section">
+                    <div class="total-display">
+                        <i class="fas fa-gem"></i> 
+                        <span>Total Autres biens: </span>
+                        <span id="totalAutresBiens">0€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Crédits -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-credit-card text-danger"></i>
+                    CRÉDITS (hors crédit immobilier)
+                </h3>
+                <p class="platform-card-subtitle">Crédits à la consommation et autres emprunts en cours</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="credits-grid" id="creditsGrid">
+                    {% for credit in user.investor_profile.credits_data or [] %}
+                    <div class="credit-item">
+                        <button type="button" class="credit-delete-btn" onclick="removeCreditItem(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="credit-content">
+                            <div class="credit-row">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Description</label>
+                                    <input type="text" class="form-control credit-description" name="credit_description[]" 
+                                           value="{{ credit.description or '' }}" placeholder="Ex: Crédit auto, Prêt travaux, Crédit conso...">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Montant initial</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control credit-montant-initial" name="credit_montant_initial[]" 
+                                               value="{{ credit.montant_initial or 0 }}" step="100" min="0" onchange="calculateCreditRestant(this)">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Taux (%)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control credit-taux" name="credit_taux[]" 
+                                               value="{{ credit.taux or 0 }}" step="0.01" min="0" max="25" onchange="calculateCreditRestant(this)">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="credit-row">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Durée (années)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control credit-duree" name="credit_duree[]" 
+                                               value="{{ credit.duree or 0 }}" step="1" min="0" max="30" onchange="calculateCreditRestant(this)">
+                                        <span class="input-group-text">ans</span>
+                                    </div>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Date de départ</label>
+                                    <input type="month" class="form-control credit-date-depart" name="credit_date_depart[]" 
+                                           value="{{ credit.date_depart or '' }}" onchange="calculateCreditRestant(this)">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Capital restant dû</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control credit-capital-restant" readonly>
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="credit-add-item" id="creditAddItem">
+                        <div class="credit-add-content" onclick="addCreditInline()">
+                            <i class="fas fa-plus"></i>
+                            <span>Ajouter un crédit</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Total Crédits -->
+                <div class="total-section">
+                    <div class="total-display">
+                        <i class="fas fa-credit-card"></i> 
+                        <span>Total Crédits restant à rembourser: </span>
+                        <span id="totalCredits">0€</span>
                     </div>
                 </div>
             </div>
@@ -2366,31 +2785,33 @@
 .immobilier-add-item {
     background: linear-gradient(135deg, #137c8b, #1a8a9a);
     border: none;
-    border-radius: 14px;
-    padding: 25px;
+    border-radius: 8px;
+    padding: 8px 15px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(19, 124, 139, 0.15);
+    box-shadow: 0 2px 8px rgba(19, 124, 139, 0.15);
+    width: fit-content;
+    margin: 0 auto;
 }
 
 .immobilier-add-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(19, 124, 139, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(19, 124, 139, 0.2);
 }
 
 .immobilier-add-content {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
     color: white;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .immobilier-add-content i {
-    font-size: 24px;
+    font-size: 16px;
 }
 
 .prix-m2-display, .capital-restant-display, .mensualites-display, .total-paye-display {
@@ -2405,6 +2826,434 @@
     .immobilier-values,
     .credit-row {
         grid-template-columns: 1fr;
+    }
+}
+
+/* Styles pour la section CRYPTOMONNAIES */
+.crypto-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.crypto-item {
+    position: relative;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.crypto-delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.crypto-delete-btn:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+.crypto-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 15px;
+    align-items: end;
+}
+
+.crypto-price-display, .crypto-total-display {
+    background: #f8f9fa !important;
+    color: #137c8b;
+    font-weight: 600;
+}
+
+.crypto-add-item {
+    background: linear-gradient(135deg, #f7931a, #ffb347);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(247, 147, 26, 0.15);
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.crypto-add-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(247, 147, 26, 0.2);
+}
+
+.crypto-add-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.crypto-add-content i {
+    font-size: 16px;
+}
+
+/* Responsive crypto */
+@media (max-width: 768px) {
+    .crypto-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+/* Styles pour la section AUTRES BIENS */
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+.autres-biens-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.autre-bien-item {
+    position: relative;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.autre-bien-delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.autre-bien-delete-btn:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+.autre-bien-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    align-items: end;
+}
+
+.autre-bien-add-item {
+    background: linear-gradient(135deg, #6f42c1, #8e5ad8);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(111, 66, 193, 0.15);
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.autre-bien-add-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(111, 66, 193, 0.2);
+}
+
+.autre-bien-add-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.autre-bien-add-content i {
+    font-size: 16px;
+}
+
+/* Responsive autres biens */
+@media (max-width: 768px) {
+    .autre-bien-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+/* Styles pour la section CRÉDITS */
+.credits-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.credit-item {
+    position: relative;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.credit-delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.credit-delete-btn:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+.credit-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    align-items: end;
+    margin-bottom: 15px;
+}
+
+.credit-row:last-child {
+    margin-bottom: 0;
+}
+
+.credit-capital-restant {
+    background: #f8f9fa !important;
+    color: #dc3545 !important;
+    font-weight: 600;
+}
+
+.credit-add-item {
+    background: linear-gradient(135deg, #dc3545, #e74c3c);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.15);
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.credit-add-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+}
+
+.credit-add-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.credit-add-content i {
+    font-size: 16px;
+}
+
+/* Styles pour les objectifs d'investissement */
+.objectifs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.objectif-item {
+    background: var(--qlower-white);
+    border: 2px solid var(--qlower-border);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.objectif-item:hover {
+    border-color: var(--qlower-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 12px rgba(19, 124, 139, 0.1);
+}
+
+.objectif-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-weight: 500;
+    color: var(--qlower-dark);
+    font-size: 14px;
+    cursor: pointer;
+    margin: 0;
+    width: 100%;
+    line-height: 1.4;
+}
+
+.objectif-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--qlower-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.objectif-text {
+    flex: 1;
+}
+
+/* Espacement pour les totaux immobiliers */
+.total-display.credit-restant {
+    margin-top: 16px;
+}
+
+/* Styles pour le profil de risque - Version compacte */
+.risk-profile-result {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.risk-profile-badge-atlas {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--qlower-primary);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(19, 124, 139, 0.2);
+    transition: all 0.3s ease;
+}
+
+.risk-profile-badge-atlas:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+}
+
+.risk-profile-badge-atlas i {
+    font-size: 18px;
+    color: white;
+}
+
+.risk-profile-badge-atlas strong {
+    color: white;
+    font-weight: 700;
+    font-size: 17px;
+}
+
+.risk-question-section {
+    border: 1px solid var(--qlower-border);
+    border-radius: 6px;
+    padding: 12px;
+    background: #fafafa;
+}
+
+.risk-question-header h5 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+}
+
+.risk-question-header p {
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.3;
+}
+
+.risk-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.risk-answer-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 0;
+    margin: 0;
+    transition: all 0.2s ease;
+}
+
+.risk-answer-label:hover {
+    background: rgba(19, 124, 139, 0.05);
+    border-radius: 4px;
+    padding-left: 4px;
+}
+
+.risk-answer-label input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--qlower-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.risk-answer-label span {
+    flex: 1;
+    line-height: 1.3;
+}
+
+/* Responsive crédits */
+@media (max-width: 768px) {
+    .credit-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
 }
 </style>
@@ -3005,16 +3854,32 @@ function calculateValeurNette(item) {
 // Fonction pour calculer le total immobilier
 function calculateTotalImmobilier() {
     let total = 0;
+    let totalCapitalRestant = 0;
     
     document.querySelectorAll('.immobilier-item').forEach(item => {
         const valeurNetteText = item.querySelector('.valeur-nette-value').textContent;
         const valeur = parseFloat(valeurNetteText.replace(/[€\s]/g, '') || 0);
         total += valeur;
+        
+        // Calculer le total du capital restant dû pour les crédits immobiliers
+        const creditCheckbox = item.querySelector('.credit-checkbox');
+        if (creditCheckbox && creditCheckbox.checked) {
+            const capitalRestantDisplay = item.querySelector('.capital-restant-display');
+            if (capitalRestantDisplay) {
+                const capitalRestant = parseFloat(capitalRestantDisplay.value.replace(/[€\s]/g, '') || 0);
+                totalCapitalRestant += capitalRestant;
+            }
+        }
     });
     
     const totalDisplay = document.getElementById('totalImmobilier');
     if (totalDisplay) {
         totalDisplay.textContent = total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+    }
+    
+    const totalCapitalRestantDisplay = document.getElementById('totalCapitalRestantImmobilier');
+    if (totalCapitalRestantDisplay) {
+        totalCapitalRestantDisplay.textContent = totalCapitalRestant.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
     }
 }
 
@@ -3070,6 +3935,483 @@ function setupImmobilierEventListeners(item) {
             calculateTotalImmobilier();
         });
     });
+}
+
+// Variables globales pour les cryptomonnaies
+let cryptoList = [];
+let cryptoPrices = {};
+
+// Fonctions pour la section CRYPTOMONNAIES
+
+// Fonction pour charger la liste des top 100 cryptos depuis CoinGecko
+async function loadCryptoList() {
+    try {
+        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1');
+        const data = await response.json();
+        
+        cryptoList = data.map(coin => ({
+            id: coin.id,
+            symbol: coin.symbol.toUpperCase(),
+            name: coin.name,
+            current_price: coin.current_price,
+            price_change_percentage_24h: coin.price_change_percentage_24h
+        }));
+        
+        // Stocker les prix pour accès rapide
+        cryptoPrices = {};
+        data.forEach(coin => {
+            cryptoPrices[coin.id] = {
+                price: coin.current_price,
+                change_24h: coin.price_change_percentage_24h
+            };
+        });
+        
+        // Mettre à jour toutes les options de select
+        updateAllCryptoSelects();
+        
+        // Actualiser automatiquement les prix des cryptos existantes
+        setTimeout(() => {
+            updateExistingCryptoPrices();
+        }, 500);
+        
+        console.log('Liste des cryptos chargée:', cryptoList.length, 'cryptos');
+        
+    } catch (error) {
+        console.error('Erreur lors du chargement des cryptos:', error);
+        // Fallback avec quelques cryptos principales
+        cryptoList = [
+            {id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', current_price: 0, price_change_percentage_24h: 0},
+            {id: 'ethereum', symbol: 'ETH', name: 'Ethereum', current_price: 0, price_change_percentage_24h: 0},
+            {id: 'binancecoin', symbol: 'BNB', name: 'BNB', current_price: 0, price_change_percentage_24h: 0}
+        ];
+        updateAllCryptoSelects();
+    }
+}
+
+// Fonction pour mettre à jour tous les selects de crypto
+function updateAllCryptoSelects() {
+    document.querySelectorAll('.crypto-select').forEach(select => {
+        const selectedValue = select.value;
+        
+        // Vider et remplir le select
+        select.innerHTML = '<option value="">Choisir une crypto...</option>';
+        
+        cryptoList.forEach(crypto => {
+            const option = document.createElement('option');
+            option.value = crypto.id;
+            option.textContent = `${crypto.name} (${crypto.symbol})`;
+            if (crypto.id === selectedValue) option.selected = true;
+            select.appendChild(option);
+        });
+    });
+}
+
+// Fonction pour actualiser les prix des cryptos existantes
+function updateExistingCryptoPrices() {
+    document.querySelectorAll('.crypto-select').forEach(select => {
+        if (select.value) {
+            updateCryptoPrice(select);
+        }
+    });
+}
+
+// Fonction pour ajouter une cryptomonnaie
+function addCryptoInline() {
+    const grid = document.getElementById('cryptoGrid');
+    const addButton = document.getElementById('cryptoAddItem');
+    
+    const newItem = document.createElement('div');
+    newItem.className = 'crypto-item';
+    newItem.innerHTML = `
+        <button type="button" class="crypto-delete-btn" onclick="removeCryptoItem(this)">
+            <i class="fas fa-trash"></i>
+        </button>
+        <div class="crypto-content">
+            <div class="crypto-row">
+                <div class="financial-edit-item">
+                    <label class="financial-label">Cryptomonnaie</label>
+                    <select class="form-control crypto-select" name="crypto_symbol[]" onchange="updateCryptoPrice(this)">
+                        <option value="">Choisir une crypto...</option>
+                    </select>
+                </div>
+                <div class="financial-edit-item">
+                    <label class="financial-label">Quantité possédée</label>
+                    <input type="number" class="form-control crypto-quantity" name="crypto_quantity[]" 
+                           value="0" step="0.00000001" min="0" onchange="calculateCryptoValue(this)">
+                </div>
+                <div class="financial-edit-item">
+                    <label class="financial-label">Prix unitaire</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control crypto-price-display" readonly>
+                        <span class="input-group-text">€</span>
+                    </div>
+                </div>
+                <div class="financial-edit-item">
+                    <label class="financial-label">Valeur totale</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control crypto-total-display" readonly>
+                        <span class="input-group-text">€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    grid.insertBefore(newItem, addButton);
+    
+    // Remplir le nouveau select
+    const newSelect = newItem.querySelector('.crypto-select');
+    cryptoList.forEach(crypto => {
+        const option = document.createElement('option');
+        option.value = crypto.id;
+        option.textContent = `${crypto.name} (${crypto.symbol})`;
+        newSelect.appendChild(option);
+    });
+    
+    // Focus sur le select
+    newSelect.focus();
+    
+    calculateTotalCryptomonnaies();
+}
+
+// Fonction pour supprimer une cryptomonnaie
+function removeCryptoItem(button) {
+    button.closest('.crypto-item').remove();
+    calculateTotalCryptomonnaies();
+}
+
+// Fonction pour mettre à jour le prix d'une crypto sélectionnée
+function updateCryptoPrice(selectElement) {
+    const cryptoItem = selectElement.closest('.crypto-item');
+    const cryptoId = selectElement.value;
+    const priceDisplay = cryptoItem.querySelector('.crypto-price-display');
+    
+    if (cryptoId && cryptoPrices[cryptoId]) {
+        const price = cryptoPrices[cryptoId].price;
+        
+        // Afficher le prix
+        priceDisplay.value = price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        
+        // Recalculer la valeur totale
+        calculateCryptoValue(selectElement);
+    } else {
+        priceDisplay.value = '0';
+        calculateCryptoValue(selectElement);
+    }
+}
+
+// Fonction pour calculer la valeur d'une crypto
+function calculateCryptoValue(element) {
+    const cryptoItem = element.closest('.crypto-item');
+    const select = cryptoItem.querySelector('.crypto-select');
+    const quantityInput = cryptoItem.querySelector('.crypto-quantity');
+    const totalDisplay = cryptoItem.querySelector('.crypto-total-display');
+    
+    const cryptoId = select.value;
+    const quantity = parseFloat(quantityInput.value || 0);
+    
+    if (cryptoId && cryptoPrices[cryptoId] && quantity > 0) {
+        const price = cryptoPrices[cryptoId].price;
+        const total = price * quantity;
+        totalDisplay.value = total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    } else {
+        totalDisplay.value = '0';
+    }
+    
+    calculateTotalCryptomonnaies();
+}
+
+// Fonction pour calculer le total des cryptomonnaies
+function calculateTotalCryptomonnaies() {
+    let total = 0;
+    
+    document.querySelectorAll('.crypto-item').forEach(item => {
+        const totalText = item.querySelector('.crypto-total-display').value;
+        const value = parseFloat(totalText.replace(/\s/g, '') || 0);
+        total += value;
+    });
+    
+    const totalDisplay = document.getElementById('totalCryptomonnaies');
+    if (totalDisplay) {
+        totalDisplay.textContent = total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+    }
+}
+
+// Fonction pour actualiser automatiquement les prix des cryptos sélectionnées
+async function autoRefreshCryptoPrices() {
+    const selectedCryptos = [];
+    document.querySelectorAll('.crypto-select').forEach(select => {
+        if (select.value) selectedCryptos.push(select.value);
+    });
+    
+    if (selectedCryptos.length === 0) return;
+    
+    try {
+        const ids = selectedCryptos.join(',');
+        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=eur&include_24hr_change=true`);
+        const data = await response.json();
+        
+        // Mettre à jour les prix stockés
+        Object.keys(data).forEach(cryptoId => {
+            if (cryptoPrices[cryptoId]) {
+                cryptoPrices[cryptoId].price = data[cryptoId].eur;
+                cryptoPrices[cryptoId].change_24h = data[cryptoId].eur_24h_change || 0;
+            }
+        });
+        
+        // Mettre à jour l'affichage
+        document.querySelectorAll('.crypto-select').forEach(select => {
+            if (select.value) {
+                updateCryptoPrice(select);
+            }
+        });
+        
+        console.log('Prix des cryptos actualisés automatiquement');
+        
+    } catch (error) {
+        console.error('Erreur lors de l\'actualisation automatique des prix:', error);
+    }
+}
+
+// Fonctions pour la section AUTRES BIENS
+
+// Fonction pour ajouter un autre bien
+function addAutreBienInline() {
+    const grid = document.getElementById('autresBiensGrid');
+    const addButton = document.getElementById('autreBienAddItem');
+    
+    const newItem = document.createElement('div');
+    newItem.className = 'autre-bien-item';
+    newItem.innerHTML = `
+        <button type="button" class="autre-bien-delete-btn" onclick="removeAutreBienItem(this)">
+            <i class="fas fa-trash"></i>
+        </button>
+        <div class="autre-bien-content">
+            <div class="autre-bien-row">
+                <div class="financial-edit-item">
+                    <label class="financial-label">Type de bien</label>
+                    <input type="text" class="form-control autre-bien-name" name="autre_bien_name[]" 
+                           value="" placeholder="Ex: Œuvre d'art, Bateau, Voiture de collection...">
+                </div>
+                <div class="financial-edit-item">
+                    <label class="financial-label">Description (optionnelle)</label>
+                    <input type="text" class="form-control autre-bien-description" name="autre_bien_description[]" 
+                           value="" placeholder="Ex: Tableau de Monet, Ferrari 250 GT...">
+                </div>
+                <div class="financial-edit-item">
+                    <label class="financial-label">Valeur estimée</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control autre-bien-valeur" name="autre_bien_valeur[]" 
+                               value="0" step="100" min="0" onchange="calculateTotalAutresBiens()">
+                        <span class="input-group-text">€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    grid.insertBefore(newItem, addButton);
+    
+    // Focus sur le champ type de bien
+    newItem.querySelector('.autre-bien-name').focus();
+    
+    calculateTotalAutresBiens();
+}
+
+// Fonction pour supprimer un autre bien
+function removeAutreBienItem(button) {
+    button.closest('.autre-bien-item').remove();
+    calculateTotalAutresBiens();
+}
+
+// Fonction pour calculer le total des autres biens
+function calculateTotalAutresBiens() {
+    let total = 0;
+    
+    document.querySelectorAll('.autre-bien-item').forEach(item => {
+        const valeurInput = item.querySelector('.autre-bien-valeur');
+        const valeur = parseFloat(valeurInput.value || 0);
+        total += valeur;
+    });
+    
+    const totalDisplay = document.getElementById('totalAutresBiens');
+    if (totalDisplay) {
+        totalDisplay.textContent = total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+    }
+}
+
+// Fonctions pour la section CRÉDITS
+
+// Fonction pour ajouter un crédit
+function addCreditInline() {
+    const grid = document.getElementById('creditsGrid');
+    const addButton = document.getElementById('creditAddItem');
+    
+    const newItem = document.createElement('div');
+    newItem.className = 'credit-item';
+    newItem.innerHTML = `
+        <button type="button" class="credit-delete-btn" onclick="removeCreditItem(this)">
+            <i class="fas fa-trash"></i>
+        </button>
+        <div class="credit-content">
+            <div class="credit-row">
+                <div class="financial-edit-item">
+                    <label class="financial-label">Description</label>
+                    <input type="text" class="form-control credit-description" name="credit_description[]" 
+                           value="" placeholder="Ex: Crédit auto, Prêt travaux, Crédit conso...">
+                </div>
+                <div class="financial-edit-item">
+                    <label class="financial-label">Montant initial</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control credit-montant-initial" name="credit_montant_initial[]" 
+                               value="0" step="100" min="0" onchange="calculateCreditRestant(this)">
+                        <span class="input-group-text">€</span>
+                    </div>
+                </div>
+                <div class="financial-edit-item">
+                    <label class="financial-label">Taux (%)</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control credit-taux" name="credit_taux[]" 
+                               value="0" step="0.01" min="0" max="25" onchange="calculateCreditRestant(this)">
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="credit-row">
+                <div class="financial-edit-item">
+                    <label class="financial-label">Durée (années)</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control credit-duree" name="credit_duree[]" 
+                               value="0" step="1" min="0" max="30" onchange="calculateCreditRestant(this)">
+                        <span class="input-group-text">ans</span>
+                    </div>
+                </div>
+                <div class="financial-edit-item">
+                    <label class="financial-label">Date de départ</label>
+                    <input type="month" class="form-control credit-date-depart" name="credit_date_depart[]" 
+                           value="" onchange="calculateCreditRestant(this)">
+                </div>
+                <div class="financial-edit-item">
+                    <label class="financial-label">Capital restant dû</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control credit-capital-restant" readonly>
+                        <span class="input-group-text">€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    grid.insertBefore(newItem, addButton);
+    
+    // Focus sur le champ description
+    newItem.querySelector('.credit-description').focus();
+    
+    calculateTotalCredits();
+}
+
+// Fonction pour supprimer un crédit
+function removeCreditItem(button) {
+    button.closest('.credit-item').remove();
+    calculateTotalCredits();
+}
+
+// Fonction pour calculer le capital restant dû d'un crédit
+function calculateCreditRestant(element) {
+    const creditItem = element.closest('.credit-item');
+    const montantInput = creditItem.querySelector('.credit-montant-initial');
+    const tauxInput = creditItem.querySelector('.credit-taux');
+    const dureeInput = creditItem.querySelector('.credit-duree');
+    const dateInput = creditItem.querySelector('.credit-date-depart');
+    const capitalDisplay = creditItem.querySelector('.credit-capital-restant');
+    
+    const montantInitial = parseFloat(montantInput.value || 0);
+    const tauxAnnuel = parseFloat(tauxInput.value || 0) / 100;
+    const dureeAnnees = parseFloat(dureeInput.value || 0);
+    const dateCredit = new Date(dateInput.value + '-01');
+    
+    if (montantInitial > 0 && tauxAnnuel > 0 && dureeAnnees > 0 && dateInput.value) {
+        const tauxMensuel = tauxAnnuel / 12;
+        const dureeMois = dureeAnnees * 12;
+        
+        // Calcul de la mensualité avec la formule classique
+        const mensualite = montantInitial * (tauxMensuel * Math.pow(1 + tauxMensuel, dureeMois)) / (Math.pow(1 + tauxMensuel, dureeMois) - 1);
+        
+        // Nombre de mois écoulés depuis le début du crédit
+        const dateActuelle = new Date();
+        const moisEcoules = (dateActuelle.getFullYear() - dateCredit.getFullYear()) * 12 + 
+                           (dateActuelle.getMonth() - dateCredit.getMonth());
+        
+        if (moisEcoules >= 0 && moisEcoules < dureeMois) {
+            // Calcul du capital restant par simulation d'amortissement
+            let capitalRestant = montantInitial;
+            
+            for (let i = 0; i < moisEcoules; i++) {
+                const interets = capitalRestant * tauxMensuel;
+                const amortissement = mensualite - interets;
+                capitalRestant -= amortissement;
+            }
+            
+            capitalDisplay.value = Math.max(0, capitalRestant).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        } else if (moisEcoules >= dureeMois) {
+            // Crédit terminé
+            capitalDisplay.value = '0';
+        } else {
+            // Crédit pas encore commencé
+            capitalDisplay.value = montantInitial.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        }
+    } else {
+        capitalDisplay.value = '0';
+    }
+    
+    calculateTotalCredits();
+}
+
+// Fonction pour calculer le total des crédits
+function calculateTotalCredits() {
+    let total = 0;
+    
+    document.querySelectorAll('.credit-item').forEach(item => {
+        const capitalText = item.querySelector('.credit-capital-restant').value;
+        const capital = parseFloat(capitalText.replace(/\s/g, '') || 0);
+        total += capital;
+    });
+    
+    const totalDisplay = document.getElementById('totalCredits');
+    if (totalDisplay) {
+        totalDisplay.textContent = total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+    }
+}
+
+// Fonction pour calculer et mettre à jour le profil de risque
+function updateRiskProfile() {
+    // Récupération des valeurs sélectionnées
+    const tolerance = document.querySelector('input[name="tolerance_risque"]:checked')?.value || 'moderee';
+    const horizon = document.querySelector('input[name="horizon_placement"]:checked')?.value || 'moyen';
+    const liquidite = document.querySelector('input[name="besoin_liquidite"]:checked')?.value || 'long_terme';
+    const experience = document.querySelector('input[name="experience_investissement"]:checked')?.value || 'intermediaire';
+    const volatilite = document.querySelector('input[name="attitude_volatilite"]:checked')?.value || 'attendre';
+    
+    // Calcul simple du profil (pour le moment tout le monde est "Équilibré")
+    let profil = 'Équilibré';
+    
+    // Logique future pour calculer le profil selon les réponses
+    // Pour l'instant on garde "Équilibré" par défaut comme demandé
+    
+    // Mise à jour de l'affichage
+    const profilDisplay = document.getElementById('profileRisqueActuel');
+    if (profilDisplay) {
+        profilDisplay.textContent = profil;
+        
+        // Ajout d'une couleur selon le profil
+        profilDisplay.className = 'profil-equilibre';
+        
+        // Animation de changement
+        profilDisplay.style.opacity = '0.5';
+        setTimeout(() => {
+            profilDisplay.style.opacity = '1';
+        }, 200);
+    }
 }
 
 // Initialisation au chargement de la page
@@ -3152,6 +4494,46 @@ document.addEventListener('DOMContentLoaded', function() {
         calculatePrixM2(item);
         calculateCapitalRestant(item);
         calculateValeurNette(item);
+    });
+    
+    // Initialiser la section cryptomonnaies
+    loadCryptoList();
+    calculateTotalCryptomonnaies();
+    
+    // Configurer les événements pour les cryptos existantes
+    document.querySelectorAll('.crypto-item').forEach(item => {
+        const select = item.querySelector('.crypto-select');
+        const quantity = item.querySelector('.crypto-quantity');
+        
+        // Ajouter les événements
+        select.addEventListener('change', () => updateCryptoPrice(select));
+        quantity.addEventListener('input', () => calculateCryptoValue(quantity));
+        
+        // Calculer les valeurs initiales
+        if (select.value) {
+            setTimeout(() => {
+                updateCryptoPrice(select);
+            }, 1000); // Attendre que l'API soit chargée
+        }
+    });
+    
+    // Actualisation automatique des prix toutes les 5 minutes
+    setInterval(() => {
+        autoRefreshCryptoPrices();
+    }, 5 * 60 * 1000); // 5 minutes
+    
+    // Première actualisation après 30 secondes (pour laisser le temps au chargement initial)
+    setTimeout(() => {
+        autoRefreshCryptoPrices();
+    }, 30000);
+    
+    // Initialiser la section autres biens
+    calculateTotalAutresBiens();
+    
+    // Configurer les événements pour les autres biens existants
+    document.querySelectorAll('.autre-bien-item').forEach(item => {
+        const valeurInput = item.querySelector('.autre-bien-valeur');
+        valeurInput.addEventListener('input', calculateTotalAutresBiens);
     });
     
     // Ajouter des événements sur tous les champs de montant de la section EPARGNE
