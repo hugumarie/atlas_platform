@@ -74,6 +74,12 @@ class InvestorProfile(db.Model):
     placements_personnalises_json = db.Column(db.Text, nullable=True)  # Placements personnalisés JSON
     # taux_epargne calculé automatiquement via méthode
     
+    # Nouvelles sections JSON pour données complexes
+    immobilier_data_json = db.Column(db.Text, nullable=True)  # Données détaillées immobilier
+    cryptomonnaies_data_json = db.Column(db.Text, nullable=True)  # Données détaillées crypto avec prix
+    autres_biens_data_json = db.Column(db.Text, nullable=True)  # Autres biens détaillés
+    credits_data_json = db.Column(db.Text, nullable=True)  # Crédits détaillés (complément du modèle Credit)
+    
     # Investissements actuels - Section 3 Patrimoine
     has_real_estate = db.Column(db.Boolean, default=False)
     real_estate_value = db.Column(db.Float, default=0.0)
@@ -123,18 +129,37 @@ class InvestorProfile(db.Model):
     
     other_investments = db.Column(db.Text, nullable=True)
     
-    # Section 4 - Objectifs d'investissement
+    # Section 4 - Objectifs d'investissement (étendus)
     objectif_constitution_epargne = db.Column(db.Boolean, default=False)
     objectif_retraite = db.Column(db.Boolean, default=False)
     objectif_transmission = db.Column(db.Boolean, default=False)
     objectif_defiscalisation = db.Column(db.Boolean, default=False)
     objectif_immobilier = db.Column(db.Boolean, default=False)
     
+    # Nouveaux objectifs d'investissement
+    objectif_premiers_pas = db.Column(db.Boolean, default=False)
+    objectif_constituer_capital = db.Column(db.Boolean, default=False)
+    objectif_diversifier = db.Column(db.Boolean, default=False)
+    objectif_optimiser_rendement = db.Column(db.Boolean, default=False)
+    objectif_preparer_retraite = db.Column(db.Boolean, default=False)
+    objectif_securite_financiere = db.Column(db.Boolean, default=False)
+    objectif_projet_immobilier = db.Column(db.Boolean, default=False)
+    objectif_revenus_complementaires = db.Column(db.Boolean, default=False)
+    objectif_transmettre_capital = db.Column(db.Boolean, default=False)
+    objectif_proteger_famille = db.Column(db.Boolean, default=False)
+    
     # Section 5 - Profil de risque
     profil_risque_connu = db.Column(db.Boolean, default=False)
     profil_risque_choisi = db.Column(db.String(20), nullable=True)  # conservateur, modéré, dynamique
     
-    # Section 6 - Questions de risque détaillées
+    # Section 6 - Questions de risque détaillées (nouvelles questions spécifiques)
+    tolerance_risque = db.Column(db.String(50), nullable=True)  # faible, moderee, elevee
+    horizon_placement = db.Column(db.String(50), nullable=True)  # court, moyen, long
+    besoin_liquidite = db.Column(db.String(50), nullable=True)  # court_terme, long_terme
+    experience_investissement = db.Column(db.String(50), nullable=True)  # debutant, intermediaire, confirme
+    attitude_volatilite = db.Column(db.String(50), nullable=True)  # vendre, attendre, investir_plus
+    
+    # Anciennes questions (maintenues pour compatibilité)
     question_1_reponse = db.Column(db.String(100), nullable=True)
     question_2_reponse = db.Column(db.String(100), nullable=True)
     question_3_reponse = db.Column(db.String(100), nullable=True)
@@ -529,6 +554,126 @@ class InvestorProfile(db.Model):
             self.placements_personnalises_json = json.dumps(data)
         else:
             self.placements_personnalises_json = None
+    
+    @property
+    def immobilier_data(self):
+        """
+        Retourne les données immobilier détaillées sous forme de liste.
+        
+        Returns:
+            list: Liste des biens immobiliers avec détails complets
+        """
+        if not self.immobilier_data_json:
+            return []
+        
+        try:
+            import json
+            return json.loads(self.immobilier_data_json)
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
+    def set_immobilier_data(self, data):
+        """
+        Sauvegarde les données immobilier en format JSON.
+        
+        Args:
+            data (list): Liste des biens immobiliers détaillés
+        """
+        if data:
+            import json
+            self.immobilier_data_json = json.dumps(data)
+        else:
+            self.immobilier_data_json = None
+    
+    @property
+    def cryptomonnaies_data(self):
+        """
+        Retourne les données crypto détaillées avec prix.
+        
+        Returns:
+            list: Liste des cryptomonnaies avec prix et quantités
+        """
+        if not self.cryptomonnaies_data_json:
+            return []
+        
+        try:
+            import json
+            return json.loads(self.cryptomonnaies_data_json)
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
+    def set_cryptomonnaies_data(self, data):
+        """
+        Sauvegarde les données crypto en format JSON.
+        
+        Args:
+            data (list): Liste des cryptomonnaies détaillées
+        """
+        if data:
+            import json
+            self.cryptomonnaies_data_json = json.dumps(data)
+        else:
+            self.cryptomonnaies_data_json = None
+    
+    @property
+    def autres_biens_data(self):
+        """
+        Retourne les autres biens détaillés.
+        
+        Returns:
+            list: Liste des autres biens avec descriptions
+        """
+        if not self.autres_biens_data_json:
+            return []
+        
+        try:
+            import json
+            return json.loads(self.autres_biens_data_json)
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
+    def set_autres_biens_data(self, data):
+        """
+        Sauvegarde les autres biens en format JSON.
+        
+        Args:
+            data (list): Liste des autres biens détaillés
+        """
+        if data:
+            import json
+            self.autres_biens_data_json = json.dumps(data)
+        else:
+            self.autres_biens_data_json = None
+    
+    @property
+    def credits_data(self):
+        """
+        Retourne les données crédits détaillées.
+        
+        Returns:
+            list: Liste des crédits avec calculs
+        """
+        if not self.credits_data_json:
+            return []
+        
+        try:
+            import json
+            return json.loads(self.credits_data_json)
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
+    def set_credits_data(self, data):
+        """
+        Sauvegarde les données crédits en format JSON.
+        
+        Args:
+            data (list): Liste des crédits détaillés
+        """
+        if data:
+            import json
+            self.credits_data_json = json.dumps(data)
+        else:
+            self.credits_data_json = None
     
     def __repr__(self):
         return f'<InvestorProfile {self.user.get_full_name()}>'
