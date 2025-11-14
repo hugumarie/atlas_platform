@@ -27,11 +27,12 @@
     
     <form id="adminEditFormExtended" method="POST" action="{{ url_for('platform_admin.update_user_data', user_id=user.id) }}">
         
-        <!-- Section 1: IDENTITÉ -->
+        <!-- Section 1: INFORMATIONS PERSONNELLES -->
         <div class="platform-card mb-4">
             <div class="platform-card-header">
                 <h3 class="platform-card-title">
-                    IDENTITÉ
+                    <i class="fas fa-user text-primary"></i>
+                    INFORMATIONS PERSONNELLES
                 </h3>
                 <p class="platform-card-subtitle">Informations personnelles complètes</p>
             </div>
@@ -1118,47 +1119,124 @@
         {% endif %}
     </div>
 
-    <!-- Informations utilisateur -->
+    <!-- Section 0: DONNÉES DU COMPTE UTILISATEUR -->
+    <div class="platform-card mb-4">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-database text-info"></i>
+                DONNÉES DU COMPTE UTILISATEUR
+            </h3>
+            <p class="platform-card-subtitle">Informations techniques et administratives du compte</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="personal-info-compact-grid">
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Date de création</div>
+                    <div class="personal-value">{{ user.date_created.strftime('%d/%m/%Y à %H:%M') if user.date_created else '-' }}</div>
+                </div>
+                {% if user.last_login %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Dernière connexion</div>
+                    <div class="personal-value">{{ user.last_login.strftime('%d/%m/%Y à %H:%M') }}</div>
+                </div>
+                {% endif %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Statut</div>
+                    <div class="personal-value">
+                        <span class="account-status-badge account-status-{{ user.user_type }}">{{ user.user_type|title }}</span>
+                    </div>
+                </div>
+                {% if user.subscription %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Plan d'abonnement</div>
+                    <div class="personal-value">
+                        <span class="subscription-badge subscription-{{ user.subscription.tier }}">{{ user.subscription.get_tier_display() }}</span>
+                        <span class="subscription-status">({{ user.subscription.get_status_display() }})</span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Plan d'abonnement</div>
+                    <div class="personal-value">
+                        <span class="subscription-badge subscription-none">Aucun abonnement</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 1: INFORMATIONS PERSONNELLES -->
     <div class="platform-card mb-4">
         <div class="platform-card-header">
             <h3 class="platform-card-title">
                 <i class="fas fa-user text-primary"></i>
-                Informations personnelles
+                INFORMATIONS PERSONNELLES
             </h3>
-            <p class="platform-card-subtitle">Données de base de l'utilisateur</p>
+            <p class="platform-card-subtitle">Informations personnelles complètes</p>
         </div>
         <div class="platform-card-body">
-            <div class="user-info-grid">
-                <div class="user-info-item">
-                    <div class="info-label">Nom complet</div>
-                    <div class="info-value">{{ user.first_name }} {{ user.last_name }}</div>
-                </div>
-                <div class="user-info-item">
-                    <div class="info-label">Email</div>
-                    <div class="info-value">{{ user.email }}</div>
-                </div>
-                <div class="user-info-item">
-                    <div class="info-label">Téléphone</div>
-                    <div class="info-value">{{ user.phone or 'Non renseigné' }}</div>
-                </div>
-                <div class="user-info-item">
-                    <div class="info-label">Date création</div>
-                    <div class="info-value">{{ user.date_created.strftime('%d/%m/%Y à %H:%M') if user.date_created else '-' }}</div>
-                </div>
-                {% if user.last_login %}
-                <div class="user-info-item">
-                    <div class="info-label">Dernière connexion</div>
-                    <div class="info-value">{{ user.last_login.strftime('%d/%m/%Y à %H:%M') }}</div>
+            <div class="personal-info-compact-grid">
+                <!-- Ligne 1: Civilité + Nom + Prénom + Situation familiale -->
+                {% if user.investor_profile.civilite %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Civilité</div>
+                    <div class="personal-value">{{ user.investor_profile.civilite }}</div>
                 </div>
                 {% endif %}
-                <div class="user-info-item">
-                    <div class="info-label">Statut</div>
-                    <div class="info-value">
-                        <span class="status-badge status-active">
-                            Client
-                        </span>
-                    </div>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Nom</div>
+                    <div class="personal-value">{{ user.last_name }}</div>
                 </div>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Prénom</div>
+                    <div class="personal-value">{{ user.first_name }}</div>
+                </div>
+                {% if user.investor_profile.family_situation %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Situation familiale</div>
+                    <div class="personal-value">{{ user.investor_profile.family_situation }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Ligne 2: Email + Téléphone + Nationalité -->
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Email</div>
+                    <div class="personal-value">{{ user.email }}</div>
+                </div>
+                {% if user.phone %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Téléphone</div>
+                    <div class="personal-value">{{ user.phone }}</div>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.nationalite %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Nationalité</div>
+                    <div class="personal-value">{{ user.investor_profile.nationalite }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Ligne 3: Date de naissance + Lieu de naissance + Pays résidence -->
+                {% if user.investor_profile.date_naissance %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Date de naissance</div>
+                    <div class="personal-value">{{ user.investor_profile.date_naissance.strftime('%d/%m/%Y') }}</div>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.lieu_naissance %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Lieu de naissance</div>
+                    <div class="personal-value">{{ user.investor_profile.lieu_naissance }}</div>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.pays_residence %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Pays de résidence</div>
+                    <div class="personal-value">{{ user.investor_profile.pays_residence }}</div>
+                </div>
+                {% endif %}
+                
             </div>
         </div>
     </div>
@@ -1178,63 +1256,63 @@
             <p class="platform-card-subtitle">Objectifs d'investissement sélectionnés</p>
         </div>
         <div class="platform-card-body">
-            <div class="objectifs-view-grid">
+            <div class="objectifs-list">
                 {% if user.investor_profile.objectif_premiers_pas %}
-                <div class="objectif-view-item">
+                <div class="objectif-line">
                     <i class="fas fa-check-circle text-success"></i>
                     <span>Faire mes premiers pas dans l'investissement</span>
                 </div>
                 {% endif %}
                 {% if user.investor_profile.objectif_constituer_capital %}
-                <div class="objectif-view-item">
+                <div class="objectif-line">
                     <i class="fas fa-check-circle text-success"></i>
                     <span>Constituer progressivement un capital</span>
                 </div>
                 {% endif %}
                 {% if user.investor_profile.objectif_diversifier %}
-                <div class="objectif-view-item">
+                <div class="objectif-line">
                     <i class="fas fa-check-circle text-success"></i>
                     <span>Diversifier mes placements</span>
                 </div>
                 {% endif %}
                 {% if user.investor_profile.objectif_optimiser_rendement %}
-                <div class="objectif-view-item">
+                <div class="objectif-line">
                     <i class="fas fa-check-circle text-success"></i>
                     <span>Optimiser le rendement de mon épargne</span>
                 </div>
                 {% endif %}
                 {% if user.investor_profile.objectif_preparer_retraite %}
-                <div class="objectif-view-item">
+                <div class="objectif-line">
                     <i class="fas fa-check-circle text-success"></i>
                     <span>Préparer ma retraite</span>
                 </div>
                 {% endif %}
                 {% if user.investor_profile.objectif_securite_financiere %}
-                <div class="objectif-view-item">
+                <div class="objectif-line">
                     <i class="fas fa-check-circle text-success"></i>
                     <span>Assurer ma sécurité financière à long terme</span>
                 </div>
                 {% endif %}
                 {% if user.investor_profile.objectif_projet_immobilier %}
-                <div class="objectif-view-item">
+                <div class="objectif-line">
                     <i class="fas fa-check-circle text-success"></i>
                     <span>Financer un projet immobilier / résidence principale</span>
                 </div>
                 {% endif %}
                 {% if user.investor_profile.objectif_revenus_complementaires %}
-                <div class="objectif-view-item">
+                <div class="objectif-line">
                     <i class="fas fa-check-circle text-success"></i>
                     <span>Générer des revenus complémentaires réguliers</span>
                 </div>
                 {% endif %}
                 {% if user.investor_profile.objectif_transmettre_capital %}
-                <div class="objectif-view-item">
+                <div class="objectif-line">
                     <i class="fas fa-check-circle text-success"></i>
                     <span>Transmettre un capital à mes proches</span>
                 </div>
                 {% endif %}
                 {% if user.investor_profile.objectif_proteger_famille %}
-                <div class="objectif-view-item">
+                <div class="objectif-line">
                     <i class="fas fa-check-circle text-success"></i>
                     <span>Protéger ma famille en cas d'imprévu</span>
                 </div>
@@ -1257,94 +1335,55 @@
             <p class="platform-card-subtitle">Évaluation du profil d'investisseur</p>
         </div>
         <div class="platform-card-body">
-            <div class="risk-profile-view">
-                <!-- Badge du profil calculé -->
+            <div class="risk-profile-simple">
+                <!-- Badge du profil calculé uniquement -->
                 <div class="risk-profile-badge-view">
                     <i class="fas fa-user-shield"></i>
                     <span>Profil d'investisseur : <strong>Équilibré</strong></span>
-                </div>
-                
-                <!-- Détails des réponses -->
-                <div class="risk-details-grid">
-                    {% if user.investor_profile.tolerance_risque %}
-                    <div class="risk-detail-item">
-                        <div class="risk-label">Tolérance au risque</div>
-                        <div class="risk-value">
-                            {% if user.investor_profile.tolerance_risque == 'faible' %}Jusqu'à –5 %
-                            {% elif user.investor_profile.tolerance_risque == 'moderee' %}Jusqu'à –15 %
-                            {% elif user.investor_profile.tolerance_risque == 'elevee' %}Jusqu'à –30 % ou plus
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if user.investor_profile.horizon_placement %}
-                    <div class="risk-detail-item">
-                        <div class="risk-label">Horizon de placement</div>
-                        <div class="risk-value">
-                            {% if user.investor_profile.horizon_placement == 'court' %}Moins de 2 ans
-                            {% elif user.investor_profile.horizon_placement == 'moyen' %}2 à 5 ans
-                            {% elif user.investor_profile.horizon_placement == 'long' %}Plus de 5 ans
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if user.investor_profile.besoin_liquidite %}
-                    <div class="risk-detail-item">
-                        <div class="risk-label">Besoin de liquidité</div>
-                        <div class="risk-value">
-                            {% if user.investor_profile.besoin_liquidite == 'court_terme' %}Oui, à court terme
-                            {% elif user.investor_profile.besoin_liquidite == 'long_terme' %}Non, peut investir plusieurs années
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if user.investor_profile.experience_investissement %}
-                    <div class="risk-detail-item">
-                        <div class="risk-label">Expérience en investissement</div>
-                        <div class="risk-value">
-                            {% if user.investor_profile.experience_investissement == 'debutant' %}Débutant – Je découvre l'investissement
-                            {% elif user.investor_profile.experience_investissement == 'intermediaire' %}Intermédiaire – J'ai déjà quelques placements
-                            {% elif user.investor_profile.experience_investissement == 'confirme' %}Confirmé – Je suis à l'aise avec les marchés
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if user.investor_profile.attitude_volatilite %}
-                    <div class="risk-detail-item">
-                        <div class="risk-label">Attitude face à la volatilité</div>
-                        <div class="risk-value">
-                            {% if user.investor_profile.attitude_volatilite == 'vendre' %}Je vendrais pour limiter les pertes
-                            {% elif user.investor_profile.attitude_volatilite == 'attendre' %}J'attendrais que ça remonte
-                            {% elif user.investor_profile.attitude_volatilite == 'investir_plus' %}J'en profiterais pour investir davantage
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
     {% endif %}
 
-    <!-- Situation financière -->
+    <!-- REVENUS - Section complète -->
     <div class="platform-card mb-4">
         <div class="platform-card-header">
             <h3 class="platform-card-title">
                 <i class="fas fa-euro-sign text-primary"></i>
-                Situation financière
+                REVENUS
             </h3>
-            <p class="platform-card-subtitle">Revenus et capacité d'épargne</p>
+            <p class="platform-card-subtitle">L'ensemble des flux mensuels, entrants et sortants</p>
         </div>
         <div class="platform-card-body">
             <div class="financial-view-grid">
+                <!-- Ligne 1: Situation professionnelle + Métier -->
+                {% if user.investor_profile.professional_situation %}
                 <div class="financial-view-item">
-                    <div class="financial-label">Revenus mensuels nets</div>
+                    <div class="financial-label">Situation professionnelle</div>
+                    <div class="financial-value">{{ user.investor_profile.professional_situation }}</div>
+                </div>
+                {% endif %}
+                {% if user.investor_profile.metier %}
+                <div class="financial-view-item">
+                    <div class="financial-label">Métier</div>
+                    <div class="financial-value">{{ user.investor_profile.metier }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Ligne 2: Revenu mensuel net + Impôts mensuels -->
+                <div class="financial-view-item">
+                    <div class="financial-label">Revenu mensuel net</div>
                     <div class="financial-value">{{ "{:,.0f}".format(user.investor_profile.monthly_net_income) }}€</div>
                 </div>
+                {% if user.investor_profile.impots_mensuels and user.investor_profile.impots_mensuels > 0 %}
                 <div class="financial-view-item">
-                    <div class="financial-label">Épargne actuelle</div>
-                    <div class="financial-value">{{ "{:,.0f}".format(user.investor_profile.current_savings) }}€</div>
+                    <div class="financial-label">Impôts mensuels</div>
+                    <div class="financial-value">{{ "{:,.0f}".format(user.investor_profile.impots_mensuels) }}€</div>
                 </div>
+                {% endif %}
+                
+                <!-- Ligne 3: Capacité d'épargne + Taux d'épargne -->
                 <div class="financial-view-item">
                     <div class="financial-label">Capacité d'épargne mensuelle</div>
                     <div class="financial-value">{{ "{:,.0f}".format(user.investor_profile.monthly_savings_capacity) }}€</div>
@@ -1357,64 +1396,55 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Sous-section: Revenus complémentaires -->
+            {% if user.investor_profile.revenus_complementaires_data %}
+            <div class="revenue-subsection mt-4">
+                <h4 class="revenue-subsection-title">
+                    <i class="fas fa-plus-circle text-success"></i>
+                    Revenus complémentaires
+                </h4>
+                <div class="revenue-view-grid">
+                    {% for revenu in user.investor_profile.revenus_complementaires_data %}
+                    <div class="revenue-view-item">
+                        <div class="revenue-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="revenue-info">
+                            <div class="revenue-name">{{ revenu.name }}</div>
+                            <div class="revenue-amount">{{ "{:,.0f}".format(revenu.amount) }}€/mois</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Sous-section: Charges mensuelles -->
+            {% if user.investor_profile.charges_mensuelles_data %}
+            <div class="charges-subsection mt-4">
+                <h4 class="charges-subsection-title">
+                    <i class="fas fa-minus-circle text-danger"></i>
+                    Charges mensuelles
+                </h4>
+                <div class="charges-view-grid">
+                    {% for charge in user.investor_profile.charges_mensuelles_data %}
+                    <div class="charge-view-item">
+                        <div class="charge-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="charge-info">
+                            <div class="charge-name">{{ charge.name }}</div>
+                            <div class="charge-amount">{{ "{:,.0f}".format(charge.amount) }}€/mois</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Section revenus complémentaires -->
-    {% if user.investor_profile.revenus_complementaires_data %}
-    <div class="platform-card mb-4">
-        <div class="platform-card-header">
-            <h3 class="platform-card-title">
-                <i class="fas fa-plus-circle text-success"></i>
-                REVENUS COMPLÉMENTAIRES
-            </h3>
-            <p class="platform-card-subtitle">Sources de revenus supplémentaires</p>
-        </div>
-        <div class="platform-card-body">
-            <div class="revenue-view-grid">
-                {% for revenu in user.investor_profile.revenus_complementaires_data %}
-                <div class="revenue-view-item">
-                    <div class="revenue-icon">
-                        <i class="fas fa-coins"></i>
-                    </div>
-                    <div class="revenue-info">
-                        <div class="revenue-name">{{ revenu.name }}</div>
-                        <div class="revenue-amount">{{ "{:,.0f}".format(revenu.amount) }}€/mois</div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Section 3: CHARGES -->
-    {% if user.investor_profile.charges_data %}
-    <div class="platform-card mb-4">
-        <div class="platform-card-header">
-            <h3 class="platform-card-title">
-                <i class="fas fa-minus-circle text-danger"></i>
-                CHARGES
-            </h3>
-            <p class="platform-card-subtitle">Charges et dépenses mensuelles</p>
-        </div>
-        <div class="platform-card-body">
-            <div class="charges-view-grid">
-                {% for charge in user.investor_profile.charges_data %}
-                <div class="charge-view-item">
-                    <div class="charge-icon">
-                        <i class="fas fa-credit-card"></i>
-                    </div>
-                    <div class="charge-info">
-                        <div class="charge-name">{{ charge.name }}</div>
-                        <div class="charge-amount">{{ "{:,.0f}".format(charge.amount) }}€/mois</div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
 
     <!-- Section 4: LIQUIDITÉS -->
     <div class="platform-card mb-4">
@@ -1436,6 +1466,45 @@
                     <div class="patrimoine-view-info">
                         <div class="patrimoine-view-name">Livret A</div>
                         <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.livret_a_value) }}€</div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- LDDS -->
+                {% if user.investor_profile.has_ldds and user.investor_profile.ldds_value > 0 %}
+                <div class="patrimoine-view-item">
+                    <div class="patrimoine-view-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="patrimoine-view-info">
+                        <div class="patrimoine-view-name">LDDS</div>
+                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.ldds_value) }}€</div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- LEP -->
+                {% if user.investor_profile.has_lep and user.investor_profile.lep_value > 0 %}
+                <div class="patrimoine-view-item">
+                    <div class="patrimoine-view-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <div class="patrimoine-view-info">
+                        <div class="patrimoine-view-name">LEP</div>
+                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.lep_value) }}€</div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- PEL/CEL -->
+                {% if user.investor_profile.has_pel_cel and user.investor_profile.pel_cel_value > 0 %}
+                <div class="patrimoine-view-item">
+                    <div class="patrimoine-view-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="patrimoine-view-info">
+                        <div class="patrimoine-view-name">PEL/CEL</div>
+                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.pel_cel_value) }}€</div>
                     </div>
                 </div>
                 {% endif %}
@@ -1545,6 +1614,32 @@
                     <div class="patrimoine-view-info">
                         <div class="patrimoine-view-name">Assurance Vie</div>
                         <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.life_insurance_value) }}€</div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- PEE -->
+                {% if user.investor_profile.has_pee and user.investor_profile.pee_value > 0 %}
+                <div class="patrimoine-view-item">
+                    <div class="patrimoine-view-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="patrimoine-view-info">
+                        <div class="patrimoine-view-name">PEE</div>
+                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.pee_value) }}€</div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- SCPI -->
+                {% if user.investor_profile.has_scpi and user.investor_profile.scpi_value > 0 %}
+                <div class="patrimoine-view-item">
+                    <div class="patrimoine-view-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="patrimoine-view-info">
+                        <div class="patrimoine-view-name">SCPI</div>
+                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.scpi_value) }}€</div>
                     </div>
                 </div>
                 {% endif %}
@@ -1840,63 +1935,6 @@
     </div>
     {% endif %}
 
-    <!-- Section 10: PROFIL INVESTISSEUR -->
-    <div class="platform-card mb-4">
-        <div class="platform-card-header">
-            <h3 class="platform-card-title">
-                <i class="fas fa-chart-bar text-primary"></i>
-                PROFIL INVESTISSEUR
-            </h3>
-            <p class="platform-card-subtitle">Profil et objectifs d'investissement</p>
-        </div>
-        <div class="platform-card-body">
-            <div class="view-data-grid">
-                <div class="view-data-item">
-                    <div class="view-label">Revenus mensuels nets</div>
-                    <div class="view-value amount">{{ "{:,.0f}".format(user.investor_profile.monthly_net_income) }}€</div>
-                </div>
-                <div class="view-data-item">
-                    <div class="view-label">Épargne actuelle</div>
-                    <div class="view-value amount">{{ "{:,.0f}".format(user.investor_profile.current_savings) }}€</div>
-                </div>
-                <div class="view-data-item">
-                    <div class="view-label">Capacité d'épargne mensuelle</div>
-                    <div class="view-value amount">{{ "{:,.0f}".format(user.investor_profile.monthly_savings_capacity) }}€</div>
-                </div>
-                <div class="view-data-item">
-                    <div class="view-label">Situation familiale</div>
-                    <div class="view-value">{{ user.investor_profile.family_situation|title if user.investor_profile.family_situation else '-' }}</div>
-                </div>
-                <div class="view-data-item">
-                    <div class="view-label">Tolérance au risque</div>
-                    <div class="view-value risk-{{ user.investor_profile.risk_tolerance|lower if user.investor_profile.risk_tolerance }}">
-                        {{ user.investor_profile.risk_tolerance|title if user.investor_profile.risk_tolerance else '-' }}
-                    </div>
-                </div>
-                <div class="view-data-item">
-                    <div class="view-label">Expérience d'investissement</div>
-                    <div class="view-value">{{ user.investor_profile.investment_experience|title if user.investor_profile.investment_experience else '-' }}</div>
-                </div>
-                <div class="view-data-item">
-                    <div class="view-label">Horizon d'investissement</div>
-                    <div class="view-value">{{ user.investor_profile.investment_horizon|title if user.investor_profile.investment_horizon else '-' }}</div>
-                </div>
-                <div class="view-data-item">
-                    <div class="view-label">Situation professionnelle</div>
-                    <div class="view-value">{{ user.investor_profile.professional_situation|title if user.investor_profile.professional_situation else '-' }}</div>
-                </div>
-            </div>
-            
-            {% if user.investor_profile.investment_goals %}
-            <div class="objectives-content">
-                <h4 class="objectives-title">Objectifs d'investissement</h4>
-                <div class="objectives-text">
-                    {{ user.investor_profile.investment_goals|replace('\n', '<br>')|safe }}
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
 
 </div>
 {% endif %}
@@ -2077,6 +2115,219 @@
 
 .crypto-select {
     font-size: 14px;
+}
+
+/* Styles compacts pour informations personnelles */
+.personal-info-compact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.personal-info-compact-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.personal-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.personal-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: #343a40;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.status-badge-compact {
+    background: #28a745;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Styles pour objectifs en liste */
+.objectifs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.objectif-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.objectif-line:last-child {
+    border-bottom: none;
+}
+
+.objectif-line i {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.objectif-line span {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #343a40;
+}
+
+/* Styles pour badges de statut et abonnement */
+.account-status-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.account-status-client {
+    background: #28a745;
+    color: white;
+}
+
+.account-status-prospect {
+    background: #ffc107;
+    color: #212529;
+}
+
+.subscription-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-right: 6px;
+}
+
+.subscription-initia {
+    background: #6f42c1;
+    color: white;
+}
+
+.subscription-optima {
+    background: #fd7e14;
+    color: white;
+}
+
+.subscription-ultima {
+    background: #dc3545;
+    color: white;
+}
+
+.subscription-none {
+    background: #6c757d;
+    color: white;
+}
+
+.subscription-status {
+    font-size: 11px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Styles pour sous-sections de revenus */
+.revenue-subsection, .charges-subsection {
+    border-top: 1px solid #e9ecef;
+    padding-top: 16px;
+}
+
+.revenue-subsection-title, .charges-subsection-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.revenue-subsection-title i, .charges-subsection-title i {
+    font-size: 12px;
+}
+
+.revenue-view-grid, .charges-view-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.revenue-view-item, .charge-view-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.revenue-icon, .charge-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.revenue-icon {
+    background: #d4edda;
+    color: #155724;
+}
+
+.charge-icon {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.revenue-icon i, .charge-icon i {
+    font-size: 12px;
+}
+
+.revenue-info, .charge-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.revenue-name, .charge-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #343a40;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.revenue-amount, .charge-amount {
+    font-size: 11px;
+    font-weight: 500;
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.2;
 }
 
 /* Styles généraux */
@@ -5161,13 +5412,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Gestion de la soumission du formulaire
+    // Gestion de la soumission du formulaire - implémentée côté serveur
     const form = document.getElementById('adminEditFormExtended');
     if (form) {
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            console.log('Formulaire soumis - à implémenter');
-            alert('Sauvegarde à implémenter');
+            // Permettre la soumission normale du formulaire
+            console.log('Formulaire soumis vers le serveur');
         });
     }
 });

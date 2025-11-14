@@ -181,9 +181,14 @@ def update_user_data(user_id):
         except ValueError:
             profile.monthly_net_income = 0.0
             
+        try:
+            profile.impots_mensuels = float(request.form.get('impots_mensuels', 0) or 0)
+        except ValueError:
+            profile.impots_mensuels = 0.0
+            
         # Traitement des revenus complémentaires (nouveau format)
-        income_names = request.form.getlist('complementary_income_name[]')
-        income_amounts = request.form.getlist('complementary_income_amount[]')
+        income_names = request.form.getlist('revenu_complementaire_name[]')
+        income_amounts = request.form.getlist('revenu_complementaire_amount[]')
         
         complementary_incomes = []
         for name, amount in zip(income_names, income_amounts):
@@ -205,8 +210,8 @@ def update_user_data(user_id):
         profile.revenus_complementaires = total_complementaires
         
         # Traitement des charges mensuelles (nouveau format)
-        charge_names = request.form.getlist('monthly_charge_name[]')
-        charge_amounts = request.form.getlist('monthly_charge_amount[]')
+        charge_names = request.form.getlist('charge_mensuelle_name[]')
+        charge_amounts = request.form.getlist('charge_mensuelle_amount[]')
         
         monthly_charges = []
         for name, amount in zip(charge_names, charge_amounts):
@@ -309,6 +314,27 @@ def update_user_data(user_id):
             profile.ldds_value = float(request.form.get('ldds_value', 0) or 0) if profile.has_ldds else 0.0
         except ValueError:
             profile.ldds_value = 0.0
+            
+        # LEP
+        profile.has_lep = request.form.get('has_lep') == 'on'
+        try:
+            profile.lep_value = float(request.form.get('lep_value', 0) or 0) if profile.has_lep else 0.0
+        except ValueError:
+            profile.lep_value = 0.0
+            
+        # PEL/CEL
+        profile.has_pel_cel = request.form.get('has_pel_cel') == 'on'
+        try:
+            profile.pel_cel_value = float(request.form.get('pel_cel_value', 0) or 0) if profile.has_pel_cel else 0.0
+        except ValueError:
+            profile.pel_cel_value = 0.0
+            
+        # Compte Courant
+        profile.has_current_account = request.form.get('has_current_account') == 'on'
+        try:
+            profile.current_account_value = float(request.form.get('current_account_value', 0) or 0) if profile.has_current_account else 0.0
+        except ValueError:
+            profile.current_account_value = 0.0
         
         # PEL
         profile.has_pel = request.form.get('has_pel') == 'on'
@@ -380,6 +406,13 @@ def update_user_data(user_id):
             profile.crowdfunding_value = float(request.form.get('crowdfunding_value', 0) or 0) if profile.has_crowdfunding else 0.0
         except ValueError:
             profile.crowdfunding_value = 0.0
+            
+        # SCPI
+        profile.has_scpi = request.form.get('has_scpi') == 'on'
+        try:
+            profile.scpi_value = float(request.form.get('scpi_value', 0) or 0) if profile.has_scpi else 0.0
+        except ValueError:
+            profile.scpi_value = 0.0
         
         # Immobilier
         profile.has_immobilier = request.form.get('has_immobilier') == 'on'
@@ -423,10 +456,12 @@ def update_user_data(user_id):
         # Section 5: PROFIL DE RISQUE
         profile.profil_risque_connu = request.form.get('profil_risque_connu') == 'on'
         profile.profil_risque_choisi = request.form.get('profil_risque_choisi', '').strip() or None
-        profile.risk_tolerance = profile.profil_risque_choisi  # Compatibilité
+        # Compatibilité avec valeur par défaut pour éviter NOT NULL constraint
+        profile.risk_tolerance = profile.profil_risque_choisi or 'modéré'
         
-        profile.investment_experience = request.form.get('investment_experience', '').strip() or None
-        profile.investment_horizon = request.form.get('investment_horizon', '').strip() or None
+        # Valeurs par défaut pour éviter NOT NULL constraint
+        profile.investment_experience = request.form.get('investment_experience', '').strip() or 'intermédiaire'
+        profile.investment_horizon = request.form.get('investment_horizon', '').strip() or 'moyen'
         
         # Section 6: QUESTIONNAIRE DE RISQUE
         profile.question_1_reponse = request.form.get('question_1_reponse', '').strip() or None

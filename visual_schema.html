@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Database Schema - PostgreSQL</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #4f46e5;
+        }
+        
+        .header h1 {
+            color: #4f46e5;
+            font-size: 2.5em;
+            margin: 0;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+            margin: 10px 0 0 0;
+        }
+        
+        .schema-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .table-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 20px;
+            background: #fafafa;
+            transition: all 0.3s ease;
+        }
+        
+        .table-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: #4f46e5;
+        }
+        
+        .table-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .table-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        
+        .table-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .table-description {
+            font-size: 0.9em;
+            color: #6b7280;
+            margin-left: auto;
+        }
+        
+        .field-group {
+            margin-bottom: 15px;
+        }
+        
+        .field-group-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .field {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 10px;
+            margin: 3px 0;
+            background: white;
+            border-radius: 5px;
+            font-size: 0.85em;
+        }
+        
+        .field-name {
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .field-type {
+            color: #6b7280;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .primary-key {
+            background: #fee2e2 !important;
+            border-left: 3px solid #ef4444;
+        }
+        
+        .foreign-key {
+            background: #dbeafe !important;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .json-field {
+            background: #f0fdf4 !important;
+            border-left: 3px solid #22c55e;
+        }
+        
+        .relations {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .relations h2 {
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+        
+        .relation {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #8b5cf6;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .advantages {
+            margin-top: 40px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 15px;
+            border: 2px solid #0ea5e9;
+        }
+        
+        .advantages h2 {
+            color: #0c4a6e;
+            margin-bottom: 20px;
+        }
+        
+        .advantage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .advantage {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #0ea5e9;
+        }
+        
+        .advantage-title {
+            font-weight: bold;
+            color: #0c4a6e;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏦 Atlas Database Schema</h1>
+            <p>Migration SQLite → PostgreSQL - Structure détaillée</p>
+        </div>
+        
+        <div class="schema-container">
+            <!-- USERS Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-icon">👥</span>
+                    <span class="table-name">USERS</span>
+                    <span class="table-description">1 utilisateur actuel</span>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">🔑 Identité</div>
+                    <div class="field primary-key">
+                        <span class="field-name">id</span>
+                        <span class="field-type">SERIAL PK</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">email</span>
+                        <span class="field-type">VARCHAR(120) UNIQUE</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">first_name, last_name</span>
+                        <span class="field-type">VARCHAR(50)</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">phone</span>
+                        <span class="field-type">VARCHAR(20)</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">⚙️ Système</div>
+                    <div class="field">
+                        <span class="field-name">is_admin, is_active</span>
+                        <span class="field-type">BOOLEAN</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">date_created, last_login</span>
+                        <span class="field-type">TIMESTAMPTZ</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">🎯 CRM</div>
+                    <div class="field">
+                        <span class="field-name">user_type</span>
+                        <span class="field-type">prospect | client</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">prospect_status</span>
+                        <span class="field-type">nouveau | contacté</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- INVESTOR_PROFILES Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-icon">📈</span>
+                    <span class="table-name">INVESTOR_PROFILES</span>
+                    <span class="table-description">1 profil complet</span>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">🔗 Relations</div>
+                    <div class="field foreign-key">
+                        <span class="field-name">user_id</span>
+                        <span class="field-type">→ users(id)</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">💰 Finances</div>
+                    <div class="field">
+                        <span class="field-name">monthly_net_income</span>
+                        <span class="field-type">4,500€</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">monthly_savings_capacity</span>
+                        <span class="field-type">1,000€</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">impots_mensuels</span>
+                        <span class="field-type">DECIMAL(12,2)</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">🎯 Profil Risque</div>
+                    <div class="field">
+                        <span class="field-name">risk_tolerance</span>
+                        <span class="field-type">modéré</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">investment_experience</span>
+                        <span class="field-type">intermédiaire</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">investment_horizon</span>
+                        <span class="field-type">moyen</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">✅ Objectifs (10)</div>
+                    <div class="field">
+                        <span class="field-name">objectif_premiers_pas</span>
+                        <span class="field-type">BOOLEAN</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">objectif_constituer_capital</span>
+                        <span class="field-type">BOOLEAN</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">... (8 autres)</span>
+                        <span class="field-type">BOOLEAN</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">💧 Liquidités</div>
+                    <div class="field">
+                        <span class="field-name">livret_a_value, ldds_value</span>
+                        <span class="field-type">DECIMAL(12,2)</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">lep_value, pel_cel_value</span>
+                        <span class="field-type">DECIMAL(12,2)</span>
+                    </div>
+                    <div class="field json-field">
+                        <span class="field-name">liquidites_personnalisees</span>
+                        <span class="field-type">JSONB</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">📈 Placements</div>
+                    <div class="field">
+                        <span class="field-name">pea_value, per_value</span>
+                        <span class="field-type">DECIMAL(12,2)</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">pee_value, scpi_value</span>
+                        <span class="field-type">DECIMAL(12,2)</span>
+                    </div>
+                    <div class="field json-field">
+                        <span class="field-name">placements_personnalises</span>
+                        <span class="field-type">JSONB</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">🏠 Patrimoine</div>
+                    <div class="field json-field">
+                        <span class="field-name">immobilier_data</span>
+                        <span class="field-type">JSONB</span>
+                    </div>
+                    <div class="field json-field">
+                        <span class="field-name">cryptomonnaies_data</span>
+                        <span class="field-type">JSONB</span>
+                    </div>
+                    <div class="field json-field">
+                        <span class="field-name">autres_biens_data</span>
+                        <span class="field-type">JSONB</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SUBSCRIPTIONS Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-icon">💳</span>
+                    <span class="table-name">SUBSCRIPTIONS</span>
+                    <span class="table-description">1 abonnement actif</span>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">🔗 Relations</div>
+                    <div class="field foreign-key">
+                        <span class="field-name">user_id</span>
+                        <span class="field-type">→ users(id)</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">📋 Abonnement</div>
+                    <div class="field">
+                        <span class="field-name">status</span>
+                        <span class="field-type">active</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">tier</span>
+                        <span class="field-type">INITIA</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">price</span>
+                        <span class="field-type">20.00€</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">📅 Dates</div>
+                    <div class="field">
+                        <span class="field-name">start_date</span>
+                        <span class="field-type">30/09/2025</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">next_billing_date</span>
+                        <span class="field-type">TIMESTAMPTZ</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PORTFOLIOS Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-icon">🏦</span>
+                    <span class="table-name">PORTFOLIOS</span>
+                    <span class="table-description">Portefeuilles futurs</span>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">🔗 Relations</div>
+                    <div class="field foreign-key">
+                        <span class="field-name">user_id</span>
+                        <span class="field-type">→ users(id)</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">📊 Portfolio</div>
+                    <div class="field">
+                        <span class="field-name">name</span>
+                        <span class="field-type">VARCHAR(100)</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">strategy</span>
+                        <span class="field-type">conservateur | équilibré</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">total_value</span>
+                        <span class="field-type">DECIMAL(15,2)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CREDITS Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-icon">💰</span>
+                    <span class="table-name">CREDITS</span>
+                    <span class="table-description">Crédits détaillés</span>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">🔗 Relations</div>
+                    <div class="field foreign-key">
+                        <span class="field-name">investor_profile_id</span>
+                        <span class="field-type">→ investor_profiles(id)</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">💳 Crédit</div>
+                    <div class="field">
+                        <span class="field-name">credit_type</span>
+                        <span class="field-type">immobilier | auto</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">initial_amount</span>
+                        <span class="field-type">DECIMAL(12,2)</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">interest_rate</span>
+                        <span class="field-type">DECIMAL(5,4)</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">monthly_payment</span>
+                        <span class="field-type">DECIMAL(12,2)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PAYMENT_METHODS Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-icon">💳</span>
+                    <span class="table-name">PAYMENT_METHODS</span>
+                    <span class="table-description">Moyens de paiement</span>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">🔗 Relations</div>
+                    <div class="field foreign-key">
+                        <span class="field-name">user_id</span>
+                        <span class="field-type">→ users(id)</span>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-group-title">💳 Paiement</div>
+                    <div class="field">
+                        <span class="field-name">method_type</span>
+                        <span class="field-type">card | sepa | paypal</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">provider</span>
+                        <span class="field-type">stripe | paypal</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-name">is_default</span>
+                        <span class="field-type">BOOLEAN</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="relations">
+            <h2>🔗 Relations entre tables</h2>
+            <div class="relation">
+                <strong>users</strong> (1) ←→ (1) <strong>investor_profiles</strong> - Un utilisateur a un profil financier
+            </div>
+            <div class="relation">
+                <strong>users</strong> (1) ←→ (1) <strong>subscriptions</strong> - Un utilisateur a un abonnement
+            </div>
+            <div class="relation">
+                <strong>users</strong> (1) ←→ (*) <strong>portfolios</strong> - Un utilisateur peut avoir plusieurs portefeuilles
+            </div>
+            <div class="relation">
+                <strong>users</strong> (1) ←→ (*) <strong>payment_methods</strong> - Un utilisateur peut avoir plusieurs moyens de paiement
+            </div>
+            <div class="relation">
+                <strong>investor_profiles</strong> (1) ←→ (*) <strong>credits</strong> - Un profil peut avoir plusieurs crédits
+            </div>
+            <div class="relation">
+                <strong>portfolios</strong> (1) ←→ (*) <strong>portfolio_holdings</strong> - Un portefeuille contient plusieurs positions
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">6</div>
+                <div>Tables principales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">1</div>
+                <div>Utilisateur actuel</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div>Champs JSONB</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">10</div>
+                <div>Objectifs d'investissement</div>
+            </div>
+        </div>
+        
+        <div class="advantages">
+            <h2>🚀 Avantages PostgreSQL vs SQLite</h2>
+            <div class="advantage-grid">
+                <div class="advantage">
+                    <div class="advantage-title">🔍 Requêtes JSON avancées</div>
+                    <div>Recherche directe dans les données JSONB complexes</div>
+                </div>
+                <div class="advantage">
+                    <div class="advantage-title">⚡ Performance</div>
+                    <div>Index sophistiqués, optimiseur de requêtes puissant</div>
+                </div>
+                <div class="advantage">
+                    <div class="advantage-title">👥 Multi-utilisateur</div>
+                    <div>Gestion simultanée de milliers d'utilisateurs</div>
+                </div>
+                <div class="advantage">
+                    <div class="advantage-title">💰 Précision monétaire</div>
+                    <div>Types DECIMAL exacts pour les calculs financiers</div>
+                </div>
+                <div class="advantage">
+                    <div class="advantage-title">🔒 Sécurité</div>
+                    <div>Gestion fine des permissions et authentification</div>
+                </div>
+                <div class="advantage">
+                    <div class="advantage-title">📈 Évolutivité</div>
+                    <div>Prêt pour la croissance d'Atlas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
