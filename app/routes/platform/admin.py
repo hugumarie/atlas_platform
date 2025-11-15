@@ -173,6 +173,7 @@ def update_user_data(user_id):
         
         # Section 2: REVENUS
         profile.professional_situation = request.form.get('professional_situation', '').strip() or None
+        profile.professional_situation_other = request.form.get('professional_situation_other', '').strip() or None
         profile.metier = request.form.get('metier', '').strip() or None
         
         
@@ -195,7 +196,7 @@ def update_user_data(user_id):
             if name and name.strip() and amount and amount.strip():
                 try:
                     amount_float = float(amount.strip())
-                    if amount_float > 0:
+                    if amount_float >= 0:  # Permettre 0 aussi
                         complementary_incomes.append({
                             'name': name.strip(),
                             'amount': amount_float
@@ -218,7 +219,7 @@ def update_user_data(user_id):
             if name and name.strip() and amount and amount.strip():
                 try:
                     amount_float = float(amount.strip())
-                    if amount_float > 0:
+                    if amount_float >= 0:  # Permettre 0 aussi
                         monthly_charges.append({
                             'name': name.strip(),
                             'amount': amount_float
@@ -232,24 +233,7 @@ def update_user_data(user_id):
         total_charges = sum(charge['amount'] for charge in monthly_charges)
         profile.charges_mensuelles = total_charges
         
-        # Traitement des cryptomonnaies
-        crypto_symbols = request.form.getlist('crypto_symbol[]')
-        crypto_quantities = request.form.getlist('crypto_quantity[]')
-        
-        crypto_investments = []
-        for symbol, quantity in zip(crypto_symbols, crypto_quantities):
-            if symbol and symbol.strip() and quantity and quantity.strip():
-                try:
-                    quantity_float = float(quantity.strip())
-                    if quantity_float > 0:
-                        crypto_investments.append({
-                            'symbol': symbol.strip().upper(),
-                            'quantity': quantity_float
-                        })
-                except ValueError:
-                    continue
-        
-        profile.set_cryptos_data(crypto_investments)
+        # Cryptomonnaies traités plus loin dans la fonction
         
         # Traitement des liquidités personnalisées
         liquidite_names = request.form.getlist('liquidite_personnalisee_name[]')
@@ -302,135 +286,85 @@ def update_user_data(user_id):
         
         # Liquidités - Section 1
         # Livret A
-        profile.has_livret_a = request.form.get('has_livret_a') == 'on'
         try:
-            profile.livret_a_value = float(request.form.get('livret_a_value', 0) or 0) if profile.has_livret_a else 0.0
+            profile.livret_a_value = float(request.form.get('livret_a_value', 0) or 0)
         except ValueError:
             profile.livret_a_value = 0.0
+        profile.has_livret_a = profile.livret_a_value > 0
         
         # Livret LDDS
-        profile.has_ldds = request.form.get('has_ldds') == 'on'
         try:
-            profile.ldds_value = float(request.form.get('ldds_value', 0) or 0) if profile.has_ldds else 0.0
+            profile.ldds_value = float(request.form.get('ldds_value', 0) or 0)
         except ValueError:
             profile.ldds_value = 0.0
+        profile.has_ldds = profile.ldds_value > 0
             
-        # LEP
-        profile.has_lep = request.form.get('has_lep') == 'on'
-        try:
-            profile.lep_value = float(request.form.get('lep_value', 0) or 0) if profile.has_lep else 0.0
-        except ValueError:
-            profile.lep_value = 0.0
-            
+        # LEP - Pas dans le formulaire, on garde la valeur existante
+        
         # PEL/CEL
-        profile.has_pel_cel = request.form.get('has_pel_cel') == 'on'
         try:
-            profile.pel_cel_value = float(request.form.get('pel_cel_value', 0) or 0) if profile.has_pel_cel else 0.0
+            profile.pel_cel_value = float(request.form.get('pel_cel_value', 0) or 0)
         except ValueError:
             profile.pel_cel_value = 0.0
+        profile.has_pel_cel = profile.pel_cel_value > 0
             
-        # Compte Courant
-        profile.has_current_account = request.form.get('has_current_account') == 'on'
-        try:
-            profile.current_account_value = float(request.form.get('current_account_value', 0) or 0) if profile.has_current_account else 0.0
-        except ValueError:
-            profile.current_account_value = 0.0
+        # Compte Courant - Pas dans le formulaire, on garde la valeur existante
         
-        # PEL
-        profile.has_pel = request.form.get('has_pel') == 'on'
-        try:
-            profile.pel_value = float(request.form.get('pel_value', 0) or 0) if profile.has_pel else 0.0
-        except ValueError:
-            profile.pel_value = 0.0
-        
-        # CEL
-        profile.has_cel = request.form.get('has_cel') == 'on'
-        try:
-            profile.cel_value = float(request.form.get('cel_value', 0) or 0) if profile.has_cel else 0.0
-        except ValueError:
-            profile.cel_value = 0.0
-        
-        # Autres livrets
-        profile.has_autres_livrets = request.form.get('has_autres_livrets') == 'on'
-        try:
-            profile.autres_livrets_value = float(request.form.get('autres_livrets_value', 0) or 0) if profile.has_autres_livrets else 0.0
-        except ValueError:
-            profile.autres_livrets_value = 0.0
+        # PEL, CEL, Autres livrets - Pas dans le formulaire, on garde les valeurs existantes
         
         # Placements financiers - Section 2
         # PEA
-        profile.has_pea = request.form.get('has_pea') == 'on'
         try:
-            profile.pea_value = float(request.form.get('pea_value', 0) or 0) if profile.has_pea else 0.0
+            profile.pea_value = float(request.form.get('pea_value', 0) or 0)
         except ValueError:
             profile.pea_value = 0.0
+        profile.has_pea = profile.pea_value > 0
         
         # PER
-        profile.has_per = request.form.get('has_per') == 'on'
         try:
-            profile.per_value = float(request.form.get('per_value', 0) or 0) if profile.has_per else 0.0
+            profile.per_value = float(request.form.get('per_value', 0) or 0)
         except ValueError:
             profile.per_value = 0.0
+        profile.has_per = profile.per_value > 0
         
         # PEE
-        profile.has_pee = request.form.get('has_pee') == 'on'
         try:
-            profile.pee_value = float(request.form.get('pee_value', 0) or 0) if profile.has_pee else 0.0
+            profile.pee_value = float(request.form.get('pee_value', 0) or 0)
         except ValueError:
             profile.pee_value = 0.0
+        profile.has_pee = profile.pee_value > 0
         
         # Assurance Vie
-        profile.has_life_insurance = request.form.get('has_life_insurance') == 'on'
         try:
-            profile.life_insurance_value = float(request.form.get('life_insurance_value', 0) or 0) if profile.has_life_insurance else 0.0
+            profile.life_insurance_value = float(request.form.get('life_insurance_value', 0) or 0)
         except ValueError:
             profile.life_insurance_value = 0.0
+        profile.has_life_insurance = profile.life_insurance_value > 0
         
         # CTO
-        profile.has_cto = request.form.get('has_cto') == 'on'
         try:
-            profile.cto_value = float(request.form.get('cto_value', 0) or 0) if profile.has_cto else 0.0
+            profile.cto_value = float(request.form.get('cto_value', 0) or 0)
         except ValueError:
             profile.cto_value = 0.0
+        profile.has_cto = profile.cto_value > 0
         
         # Private Equity
-        profile.has_private_equity = request.form.get('has_private_equity') == 'on'
         try:
-            profile.private_equity_value = float(request.form.get('private_equity_value', 0) or 0) if profile.has_private_equity else 0.0
+            profile.private_equity_value = float(request.form.get('private_equity_value', 0) or 0)
         except ValueError:
             profile.private_equity_value = 0.0
+        profile.has_private_equity = profile.private_equity_value > 0
         
-        # Crowdfunding
-        profile.has_crowdfunding = request.form.get('has_crowdfunding') == 'on'
-        try:
-            profile.crowdfunding_value = float(request.form.get('crowdfunding_value', 0) or 0) if profile.has_crowdfunding else 0.0
-        except ValueError:
-            profile.crowdfunding_value = 0.0
-            
+        # Crowdfunding - Pas dans le formulaire, on garde la valeur existante
+        
         # SCPI
-        profile.has_scpi = request.form.get('has_scpi') == 'on'
         try:
-            profile.scpi_value = float(request.form.get('scpi_value', 0) or 0) if profile.has_scpi else 0.0
+            profile.scpi_value = float(request.form.get('scpi_value', 0) or 0)
         except ValueError:
             profile.scpi_value = 0.0
+        profile.has_scpi = profile.scpi_value > 0
         
-        # Immobilier
-        profile.has_immobilier = request.form.get('has_immobilier') == 'on'
-        try:
-            profile.immobilier_value = float(request.form.get('immobilier_value', 0) or 0) if profile.has_immobilier else 0.0
-        except ValueError:
-            profile.immobilier_value = 0.0
-        
-        # Autres Biens
-        profile.has_autres_biens = request.form.get('has_autres_biens') == 'on'
-        try:
-            profile.autres_biens_value = float(request.form.get('autres_biens_value', 0) or 0) if profile.has_autres_biens else 0.0
-        except ValueError:
-            profile.autres_biens_value = 0.0
-        
-        # Compatibilité anciens champs
-        profile.has_real_estate = profile.has_immobilier
-        profile.real_estate_value = profile.immobilier_value
+        # Immobilier et Autres Biens - Traités plus bas dans le formulaire avec détails (lignes 440-474)
         
         # Section 4: OBJECTIFS
         profile.objectif_constitution_epargne = request.form.get('objectif_constitution_epargne') == 'on'
@@ -460,10 +394,17 @@ def update_user_data(user_id):
         profile.risk_tolerance = profile.profil_risque_choisi or 'modéré'
         
         # Valeurs par défaut pour éviter NOT NULL constraint
-        profile.investment_experience = request.form.get('investment_experience', '').strip() or 'intermédiaire'
-        profile.investment_horizon = request.form.get('investment_horizon', '').strip() or 'moyen'
+        profile.investment_experience = request.form.get('experience_investissement', '').strip() or 'intermediaire'
+        profile.investment_horizon = request.form.get('horizon_placement', '').strip() or 'moyen'
         
-        # Section 6: QUESTIONNAIRE DE RISQUE
+        # Section 6: QUESTIONNAIRE DE RISQUE DÉTAILLÉ
+        profile.tolerance_risque = request.form.get('tolerance_risque', '').strip() or 'moderee'
+        profile.horizon_placement = request.form.get('horizon_placement', '').strip() or 'moyen'  
+        profile.besoin_liquidite = request.form.get('besoin_liquidite', '').strip() or 'long_terme'
+        profile.experience_investissement = request.form.get('experience_investissement', '').strip() or 'intermediaire'
+        profile.attitude_volatilite = request.form.get('attitude_volatilite', '').strip() or 'attendre'
+        
+        # Ancien questionnaire (pour compatibilité)
         profile.question_1_reponse = request.form.get('question_1_reponse', '').strip() or None
         profile.question_2_reponse = request.form.get('question_2_reponse', '').strip() or None
         profile.question_3_reponse = request.form.get('question_3_reponse', '').strip() or None
@@ -490,8 +431,7 @@ def update_user_data(user_id):
         profile.experience_investissement = request.form.get('experience_investissement', '').strip() or None
         profile.attitude_volatilite = request.form.get('attitude_volatilite', '').strip() or None
         
-        # Traitement des données complexes JSON
-        import json
+        # Traitement des données complexes JSONB
         
         # Immobilier détaillé
         immobilier_data = []
@@ -499,7 +439,7 @@ def update_user_data(user_id):
         bien_descriptions = request.form.getlist('bien_description[]')
         bien_valeurs = request.form.getlist('bien_valeur[]')
         bien_surfaces = request.form.getlist('bien_surface[]')
-        credit_checkboxes = request.form.getlist('credit_checkbox[]') or []
+        credit_checkboxes = request.form.getlist('bien_has_credit[]') or []
         credit_montants = request.form.getlist('credit_montant[]')
         credit_taegs = request.form.getlist('credit_taeg[]')
         credit_tags = request.form.getlist('credit_tag[]')
@@ -513,7 +453,7 @@ def update_user_data(user_id):
                     'description': bien_descriptions[i].strip() if i < len(bien_descriptions) else '',
                     'valeur': float(bien_valeurs[i] or 0) if i < len(bien_valeurs) else 0,
                     'surface': float(bien_surfaces[i] or 0) if i < len(bien_surfaces) else 0,
-                    'has_credit': str(i) in [cb.split('_')[-1] for cb in credit_checkboxes] if credit_checkboxes else False,
+                    'has_credit': str(i) in credit_checkboxes if credit_checkboxes else False,
                     'credit_montant': float(credit_montants[i] or 0) if i < len(credit_montants) else 0,
                     'credit_taeg': float(credit_taegs[i] or 0) if i < len(credit_taegs) else 0,
                     'credit_tag': float(credit_tags[i] or 0) if i < len(credit_tags) else 0,
@@ -523,6 +463,15 @@ def update_user_data(user_id):
                 immobilier_data.append(bien_data)
         
         profile.set_immobilier_data(immobilier_data)
+        
+        # Calcul des totaux immobilier et mise à jour des champs de résumé
+        total_immobilier_value = sum(bien.get('valeur', 0) for bien in immobilier_data)
+        profile.immobilier_value = total_immobilier_value
+        profile.has_immobilier = total_immobilier_value > 0
+        
+        # Compatibilité anciens champs
+        profile.has_real_estate = profile.has_immobilier
+        profile.real_estate_value = profile.immobilier_value
         
         # Cryptomonnaies détaillées
         crypto_data = []

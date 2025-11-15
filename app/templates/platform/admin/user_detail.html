@@ -156,7 +156,7 @@
                     <div class="objectif-item">
                         <label class="objectif-label">
                             <input type="checkbox" name="objectif_securite_financiere" {{ 'checked' if user.investor_profile.objectif_securite_financiere }}>
-                            <span class="objectif-text">Assurer ma sécurité financière à long terme</span>
+                            <i class="fas fa-check-circle text-atlas me-2"></i><span class="objectif-text">Assurer ma sécurité financière à long terme</span>
                         </label>
                     </div>
                     <div class="objectif-item">
@@ -168,7 +168,7 @@
                     <div class="objectif-item">
                         <label class="objectif-label">
                             <input type="checkbox" name="objectif_revenus_complementaires" {{ 'checked' if user.investor_profile.objectif_revenus_complementaires }}>
-                            <span class="objectif-text">Générer des revenus complémentaires réguliers</span>
+                            <i class="fas fa-check-circle text-atlas me-2"></i><span class="objectif-text">Générer des revenus complémentaires réguliers</span>
                         </label>
                     </div>
                     <div class="objectif-item">
@@ -191,7 +191,7 @@
         <div class="platform-card mb-4">
             <div class="platform-card-header">
                 <h3 class="platform-card-title">
-                    <i class="fas fa-chart-bar text-warning"></i>
+                    <i class="fas fa-check-circle text-atlas"></i>
                     PROFIL DE RISQUE
                 </h3>
                 <p class="platform-card-subtitle">Évaluation de votre profil d'investisseur</p>
@@ -383,7 +383,7 @@
                 
                 <!-- Revenus complémentaires (dynamique) -->
                 <div class="mt-4">
-                    <h4 class="financial-section-title">Revenus complémentaires</h4>
+                    <h4 class="financial-section-title"><i class="fas fa-plus-circle text-atlas"></i> Revenus complémentaires</h4>
                     <div class="revenus-edit-grid" id="revenusGrid">
                         {% for revenu in user.investor_profile.revenus_complementaires_data %}
                         <div class="revenu-edit-item">
@@ -394,13 +394,13 @@
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Type de revenu</label>
                                     <input type="text" class="form-control revenu-complementaire-input" name="revenu_complementaire_name[]" 
-                                           value="{{ revenu.name }}" placeholder="Ex: Loyers, Dividendes...">
+                                           value="{{ revenu.get('name', '') }}" placeholder="Ex: Loyers, Dividendes...">
                                 </div>
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Montant mensuel</label>
                                     <div class="input-group">
                                         <input type="number" class="form-control revenu-complementaire-input" name="revenu_complementaire_amount[]" 
-                                               value="{{ revenu.amount }}" step="0.01" min="0">
+                                               value="{{ revenu.get('amount', 0) }}" step="0.01" min="0">
                                         <span class="input-group-text">€</span>
                                     </div>
                                 </div>
@@ -411,7 +411,7 @@
                         <div class="patrimoine-edit-item add-revenu-grid-item" id="addRevenuGridItem">
                             <div class="patrimoine-checkbox add-revenu-checkbox" onclick="addRevenuInline()">
                                 <div class="add-revenu-content">
-                                    <i class="fas fa-plus"></i>
+                                    <i class="fas fa-plus text-atlas"></i>
                                     <span>Ajouter un revenu</span>
                                 </div>
                             </div>
@@ -421,7 +421,7 @@
                 
                 <!-- Charges mensuelles (dynamique) -->
                 <div class="mt-4">
-                    <h4 class="financial-section-title">Charges mensuelles</h4>
+                    <h4 class="financial-section-title"><i class="fas fa-minus-circle text-atlas"></i> Charges mensuelles</h4>
                     <div class="charges-edit-grid" id="chargesGrid">
                         {% for charge in user.investor_profile.charges_mensuelles_data %}
                         <div class="charge-edit-item">
@@ -432,13 +432,13 @@
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Type de charge</label>
                                     <input type="text" class="form-control charge-mensuelle-input" name="charge_mensuelle_name[]" 
-                                           value="{{ charge.name }}" placeholder="Ex: Loyer, Crédit auto...">
+                                           value="{{ charge.get('name', '') }}" placeholder="Ex: Loyer, Crédit auto...">
                                 </div>
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Montant mensuel</label>
                                     <div class="input-group">
                                         <input type="number" class="form-control charge-mensuelle-input" name="charge_mensuelle_amount[]" 
-                                               value="{{ charge.amount }}" step="0.01" min="0">
+                                               value="{{ charge.get('amount', 0) }}" step="0.01" min="0">
                                         <span class="input-group-text">€</span>
                                     </div>
                                 </div>
@@ -449,7 +449,7 @@
                         <div class="patrimoine-edit-item add-charge-grid-item" id="addChargeGridItem">
                             <div class="patrimoine-checkbox add-charge-checkbox" onclick="addChargeInline()">
                                 <div class="add-charge-content">
-                                    <i class="fas fa-plus"></i>
+                                    <i class="fas fa-plus text-atlas"></i>
                                     <span>Ajouter une charge</span>
                                 </div>
                             </div>
@@ -524,13 +524,13 @@
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Type de liquidité</label>
                                     <input type="text" class="form-control" name="liquidite_personnalisee_name[]" 
-                                           value="{{ liquidite.name }}" placeholder="Nom de la liquidité">
+                                           value="{{ liquidite.get('name', '') }}" placeholder="Nom de la liquidité">
                                 </div>
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Montant</label>
                                     <div class="input-group">
                                         <input type="number" class="form-control" name="liquidite_personnalisee_amount[]" 
-                                               value="{{ liquidite.amount }}" step="0.01" min="0">
+                                               value="{{ liquidite.get('amount', 0) }}" step="0.01" min="0">
                                         <span class="input-group-text">€</span>
                                     </div>
                                 </div>
@@ -669,13 +669,13 @@
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Type de placement</label>
                                     <input type="text" class="form-control" name="placement_personnalise_name[]" 
-                                           value="{{ placement.name }}" placeholder="Ex: Crowdfunding">
+                                           value="{{ placement.get('name', '') }}" placeholder="Ex: Crowdfunding">
                                 </div>
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Montant</label>
                                     <div class="input-group">
                                         <input type="number" class="form-control" name="placement_personnalise_amount[]" 
-                                               value="{{ placement.amount }}" step="0.01" min="0">
+                                               value="{{ placement.get('amount', 0) }}" step="0.01" min="0">
                                         <span class="input-group-text">€</span>
                                     </div>
                                 </div>
@@ -715,7 +715,7 @@
             </div>
             <div class="platform-card-body">
                 <div class="immobilier-grid" id="immobilierGrid">
-                    {% for bien in user.investor_profile.biens_immobiliers_data or [] %}
+                    {% for bien in user.investor_profile.immobilier_data or [] %}
                     <div class="immobilier-item">
                         <button type="button" class="immobilier-delete-btn" onclick="removeImmobilierItem(this)">
                             <i class="fas fa-trash"></i>
@@ -726,15 +726,15 @@
                                     <label class="financial-label">Type de bien</label>
                                     <select class="form-control bien-type-select" name="bien_type[]">
                                         <option value="">Choisir...</option>
-                                        <option value="residence_principale" {{ 'selected' if bien.type == 'residence_principale' }}>Résidence principale</option>
-                                        <option value="residence_secondaire" {{ 'selected' if bien.type == 'residence_secondaire' }}>Résidence secondaire</option>
-                                        <option value="investissement_locatif" {{ 'selected' if bien.type == 'investissement_locatif' }}>Investissement locatif</option>
+                                        <option value="residence_principale" {{ 'selected' if bien.get('type') == 'residence_principale' }}>Résidence principale</option>
+                                        <option value="residence_secondaire" {{ 'selected' if bien.get('type') == 'residence_secondaire' }}>Résidence secondaire</option>
+                                        <option value="investissement_locatif" {{ 'selected' if bien.get('type') == 'investissement_locatif' }}>Investissement locatif</option>
                                     </select>
                                 </div>
-                                <div class="financial-edit-item description-field" style="display: {{ 'block' if bien.type == 'investissement_locatif' else 'none' }};">
+                                <div class="financial-edit-item description-field" style="display: {{ 'block' if bien.get('type') == 'investissement_locatif' else 'none' }};">
                                     <label class="financial-label">Description</label>
                                     <input type="text" class="form-control" name="bien_description[]" 
-                                           value="{{ bien.description or '' }}" placeholder="Ex: Appartement, Maison...">
+                                           value="{{ bien.get('description', '') }}" placeholder="Ex: Appartement, Maison...">
                                 </div>
                             </div>
                             
@@ -743,7 +743,7 @@
                                     <label class="financial-label">Valeur estimée</label>
                                     <div class="input-group">
                                         <input type="number" class="form-control bien-valeur-input" name="bien_valeur[]" 
-                                               value="{{ bien.valeur or 0 }}" step="1000" min="0">
+                                               value="{{ bien.get('valeur', 0) }}" step="1000" min="0">
                                         <span class="input-group-text">€</span>
                                     </div>
                                 </div>
@@ -751,7 +751,7 @@
                                     <label class="financial-label">Surface (m²)</label>
                                     <div class="input-group">
                                         <input type="number" class="form-control bien-surface-input" name="bien_surface[]" 
-                                               value="{{ bien.surface or 0 }}" step="1" min="0">
+                                               value="{{ bien.get('surface', 0) }}" step="1" min="0">
                                         <span class="input-group-text">m²</span>
                                     </div>
                                 </div>
@@ -766,18 +766,18 @@
                             
                             <div class="credit-section">
                                 <div class="credit-checkbox-container">
-                                    <input type="checkbox" class="credit-checkbox" name="bien_has_credit[]" value="1" 
-                                           {{ 'checked' if bien.has_credit }}>
+                                    <input type="checkbox" class="credit-checkbox" name="bien_has_credit[]" value="{{ loop.index0 }}" 
+                                           {{ 'checked' if bien.get('has_credit', False) }}>
                                     <label class="credit-label">J'ai un crédit immobilier lié à ce bien</label>
                                 </div>
                                 
-                                <div class="credit-details" style="display: {{ 'block' if bien.has_credit else 'none' }};">
+                                <div class="credit-details" style="display: {{ 'block' if bien.get('has_credit', False) else 'none' }};">
                                     <div class="credit-row">
                                         <div class="financial-edit-item">
                                             <label class="financial-label">Montant du crédit initial</label>
                                             <div class="input-group">
                                                 <input type="number" class="form-control credit-montant-input" name="credit_montant[]" 
-                                                       value="{{ bien.credit_montant or 0 }}" step="1000" min="0">
+                                                       value="{{ bien.get('credit_montant', 0) }}" step="1000" min="0">
                                                 <span class="input-group-text">€</span>
                                             </div>
                                         </div>
@@ -785,7 +785,7 @@
                                             <label class="financial-label">Durée (années)</label>
                                             <div class="input-group">
                                                 <input type="number" class="form-control credit-duree-input" name="credit_duree[]" 
-                                                       value="{{ bien.credit_duree or 0 }}" step="1" min="0" max="50">
+                                                       value="{{ bien.get('credit_duree', 0) }}" step="1" min="0" max="50">
                                                 <span class="input-group-text">ans</span>
                                             </div>
                                         </div>
@@ -795,7 +795,7 @@
                                             <label class="financial-label">Taux TAG (%)</label>
                                             <div class="input-group">
                                                 <input type="number" class="form-control credit-tag-input" name="credit_tag[]" 
-                                                       value="{{ bien.credit_tag or 0 }}" step="0.01" min="0" max="20">
+                                                       value="{{ bien.get('credit_tag', 0) }}" step="0.01" min="0" max="20">
                                                 <span class="input-group-text">%</span>
                                             </div>
                                         </div>
@@ -803,7 +803,7 @@
                                             <label class="financial-label">Taux TAEG (%)</label>
                                             <div class="input-group">
                                                 <input type="number" class="form-control credit-taeg-input" name="credit_taeg[]" 
-                                                       value="{{ bien.credit_taeg or 0 }}" step="0.01" min="0" max="20">
+                                                       value="{{ bien.get('credit_taeg', 0) }}" step="0.01" min="0" max="20">
                                                 <span class="input-group-text">%</span>
                                             </div>
                                         </div>
@@ -812,7 +812,7 @@
                                         <div class="financial-edit-item">
                                             <label class="financial-label">Date de départ</label>
                                             <input type="month" class="form-control credit-date-input" name="credit_date[]" 
-                                                   value="{{ bien.credit_date or '' }}">
+                                                   value="{{ bien.get('credit_date', '') }}">
                                         </div>
                                         <div class="financial-edit-item">
                                             <label class="financial-label">Mensualités</label>
@@ -868,7 +868,7 @@
 
                     <div class="total-display credit-restant">
                         <i class="fas fa-home"></i> 
-                        <span>Total Immobilier (valeur nette): </span>
+                        <span>Patrimoine immobilier net: </span>
                         <span id="totalImmobilier">0€</span>
                     </div>
                 </div>
@@ -903,7 +903,7 @@
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Quantité possédée</label>
                                     <input type="number" class="form-control crypto-quantity" name="crypto_quantity[]" 
-                                           value="{{ crypto.quantity or 0 }}" step="0.00000001" min="0" onchange="calculateCryptoValue(this)">
+                                           value="{{ crypto.get('quantity', 0) }}" step="0.00000001" min="0" onchange="calculateCryptoValue(this)">
                                 </div>
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Prix unitaire</label>
@@ -964,18 +964,18 @@
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Type de bien</label>
                                     <input type="text" class="form-control autre-bien-name" name="autre_bien_name[]" 
-                                           value="{{ bien.name or '' }}" placeholder="Ex: Œuvre d'art, Bateau, Voiture de collection...">
+                                           value="{{ bien.get('name', '') }}" placeholder="Ex: Œuvre d'art, Bateau, Voiture de collection...">
                                 </div>
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Description (optionnelle)</label>
                                     <input type="text" class="form-control autre-bien-description" name="autre_bien_description[]" 
-                                           value="{{ bien.description or '' }}" placeholder="Ex: Tableau de Monet, Ferrari 250 GT...">
+                                           value="{{ bien.get('description', '') }}" placeholder="Ex: Tableau de Monet, Ferrari 250 GT...">
                                 </div>
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Valeur estimée</label>
                                     <div class="input-group">
                                         <input type="number" class="form-control autre-bien-valeur" name="autre_bien_valeur[]" 
-                                               value="{{ bien.valeur or 0 }}" step="100" min="0" onchange="calculateTotalAutresBiens()">
+                                               value="{{ bien.get('valeur', 0) }}" step="100" min="0" onchange="calculateTotalAutresBiens()">
                                         <span class="input-group-text">€</span>
                                     </div>
                                 </div>
@@ -1289,7 +1289,7 @@
                 {% endif %}
                 {% if user.investor_profile.objectif_securite_financiere %}
                 <div class="objectif-line">
-                    <i class="fas fa-check-circle text-success"></i>
+                    <i class="fas fa-check-circle text-atlas"></i>
                     <span>Assurer ma sécurité financière à long terme</span>
                 </div>
                 {% endif %}
@@ -1301,7 +1301,7 @@
                 {% endif %}
                 {% if user.investor_profile.objectif_revenus_complementaires %}
                 <div class="objectif-line">
-                    <i class="fas fa-check-circle text-success"></i>
+                    <i class="fas fa-check-circle text-atlas"></i>
                     <span>Générer des revenus complémentaires réguliers</span>
                 </div>
                 {% endif %}
@@ -1329,7 +1329,7 @@
     <div class="platform-card mb-4">
         <div class="platform-card-header">
             <h3 class="platform-card-title">
-                <i class="fas fa-chart-bar text-warning"></i>
+                <i class="fas fa-check-circle text-atlas"></i>
                 PROFIL DE RISQUE
             </h3>
             <p class="platform-card-subtitle">Évaluation du profil d'investisseur</p>
@@ -1356,41 +1356,37 @@
             <p class="platform-card-subtitle">L'ensemble des flux mensuels, entrants et sortants</p>
         </div>
         <div class="platform-card-body">
-            <div class="financial-view-grid">
-                <!-- Ligne 1: Situation professionnelle + Métier -->
+            <div class="personal-info-compact-grid">
+                <!-- Informations principales compactes -->
                 {% if user.investor_profile.professional_situation %}
-                <div class="financial-view-item">
-                    <div class="financial-label">Situation professionnelle</div>
-                    <div class="financial-value">{{ user.investor_profile.professional_situation }}</div>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Situation professionnelle</div>
+                    <div class="personal-value">{{ user.investor_profile.professional_situation }}</div>
                 </div>
                 {% endif %}
                 {% if user.investor_profile.metier %}
-                <div class="financial-view-item">
-                    <div class="financial-label">Métier</div>
-                    <div class="financial-value">{{ user.investor_profile.metier }}</div>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Métier</div>
+                    <div class="personal-value">{{ user.investor_profile.metier }}</div>
                 </div>
                 {% endif %}
-                
-                <!-- Ligne 2: Revenu mensuel net + Impôts mensuels -->
-                <div class="financial-view-item">
-                    <div class="financial-label">Revenu mensuel net</div>
-                    <div class="financial-value">{{ "{:,.0f}".format(user.investor_profile.monthly_net_income) }}€</div>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Revenu mensuel net</div>
+                    <div class="personal-value">{{ "{:,.0f}".format(user.investor_profile.monthly_net_income) }}€</div>
                 </div>
                 {% if user.investor_profile.impots_mensuels and user.investor_profile.impots_mensuels > 0 %}
-                <div class="financial-view-item">
-                    <div class="financial-label">Impôts mensuels</div>
-                    <div class="financial-value">{{ "{:,.0f}".format(user.investor_profile.impots_mensuels) }}€</div>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Impôts mensuels</div>
+                    <div class="personal-value">{{ "{:,.0f}".format(user.investor_profile.impots_mensuels) }}€</div>
                 </div>
                 {% endif %}
-                
-                <!-- Ligne 3: Capacité d'épargne + Taux d'épargne -->
-                <div class="financial-view-item">
-                    <div class="financial-label">Capacité d'épargne mensuelle</div>
-                    <div class="financial-value">{{ "{:,.0f}".format(user.investor_profile.monthly_savings_capacity) }}€</div>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Capacité d'épargne mensuelle</div>
+                    <div class="personal-value">{{ "{:,.0f}".format(user.investor_profile.monthly_savings_capacity) }}€</div>
                 </div>
-                <div class="financial-view-item">
-                    <div class="financial-label">Taux d'épargne</div>
-                    <div class="financial-value">
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">Taux d'épargne</div>
+                    <div class="personal-value">
                         {% set taux_epargne = (user.investor_profile.monthly_savings_capacity / user.investor_profile.monthly_net_income * 100) if user.investor_profile.monthly_net_income > 0 %}
                         {{ "{:.1f}".format(taux_epargne) }}%
                     </div>
@@ -1401,19 +1397,16 @@
             {% if user.investor_profile.revenus_complementaires_data %}
             <div class="revenue-subsection mt-4">
                 <h4 class="revenue-subsection-title">
-                    <i class="fas fa-plus-circle text-success"></i>
+                    <i class="fas fa-plus-circle text-atlas"></i>
                     Revenus complémentaires
                 </h4>
-                <div class="revenue-view-grid">
+                <div class="personal-info-compact-grid">
                     {% for revenu in user.investor_profile.revenus_complementaires_data %}
-                    <div class="revenue-view-item">
-                        <div class="revenue-icon">
-                            <i class="fas fa-coins"></i>
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-coins text-atlas me-2"></i>{{ revenu.get('name', '') }}
                         </div>
-                        <div class="revenue-info">
-                            <div class="revenue-name">{{ revenu.name }}</div>
-                            <div class="revenue-amount">{{ "{:,.0f}".format(revenu.amount) }}€/mois</div>
-                        </div>
+                        <div class="personal-value revenue-amount">{{ "{:,.0f}".format(revenu.get('amount', 0)) }}€/mois</div>
                     </div>
                     {% endfor %}
                 </div>
@@ -1424,19 +1417,16 @@
             {% if user.investor_profile.charges_mensuelles_data %}
             <div class="charges-subsection mt-4">
                 <h4 class="charges-subsection-title">
-                    <i class="fas fa-minus-circle text-danger"></i>
+                    <i class="fas fa-minus-circle text-atlas"></i>
                     Charges mensuelles
                 </h4>
-                <div class="charges-view-grid">
+                <div class="personal-info-compact-grid">
                     {% for charge in user.investor_profile.charges_mensuelles_data %}
-                    <div class="charge-view-item">
-                        <div class="charge-icon">
-                            <i class="fas fa-credit-card"></i>
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-credit-card text-atlas me-2"></i>{{ charge.get('name', '') }}
                         </div>
-                        <div class="charge-info">
-                            <div class="charge-name">{{ charge.name }}</div>
-                            <div class="charge-amount">{{ "{:,.0f}".format(charge.amount) }}€/mois</div>
-                        </div>
+                        <div class="personal-value charge-amount">{{ "{:,.0f}".format(charge.get('amount', 0)) }}€/mois</div>
                     </div>
                     {% endfor %}
                 </div>
@@ -1446,103 +1436,89 @@
     </div>
 
 
-    <!-- Section 4: LIQUIDITÉS -->
+    <!-- ÉPARGNE - Section complète -->
     <div class="platform-card mb-4">
         <div class="platform-card-header">
             <h3 class="platform-card-title">
-                <i class="fas fa-water text-info"></i>
-                LIQUIDITÉS
+                <i class="fas fa-coins text-atlas"></i>
+                ÉPARGNE & PATRIMOINE
             </h3>
-            <p class="platform-card-subtitle">Comptes et liquidités disponibles</p>
+            <p class="platform-card-subtitle">Situation patrimoniale complète : liquidités, placements, immobilier et autres actifs</p>
         </div>
         <div class="platform-card-body">
-            <div class="patrimoine-view-grid">
+
+            <!-- Sous-section: LIQUIDITÉS -->
+            <div class="revenue-subsection mt-4">
+                <h4 class="revenue-subsection-title">
+                    <i class="fas fa-water text-atlas"></i>
+                    Liquidités
+                </h4>
+                <div class="personal-info-compact-grid">
                 <!-- Livret A -->
                 {% if user.investor_profile.has_livret_a and user.investor_profile.livret_a_value > 0 %}
-                <div class="patrimoine-view-item">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-piggy-bank"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-piggy-bank text-atlas me-2"></i>Livret A
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">Livret A</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.livret_a_value) }}€</div>
-                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.livret_a_value) }}€</div>
                 </div>
                 {% endif %}
                 
                 <!-- LDDS -->
                 {% if user.investor_profile.has_ldds and user.investor_profile.ldds_value > 0 %}
-                <div class="patrimoine-view-item">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-leaf"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-leaf text-atlas me-2"></i>LDDS
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">LDDS</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.ldds_value) }}€</div>
-                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.ldds_value) }}€</div>
                 </div>
                 {% endif %}
                 
                 <!-- LEP -->
                 {% if user.investor_profile.has_lep and user.investor_profile.lep_value > 0 %}
-                <div class="patrimoine-view-item">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-hand-holding-heart"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-hand-holding-heart text-atlas me-2"></i>LEP
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">LEP</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.lep_value) }}€</div>
-                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.lep_value) }}€</div>
                 </div>
                 {% endif %}
                 
                 <!-- PEL/CEL -->
                 {% if user.investor_profile.has_pel_cel and user.investor_profile.pel_cel_value > 0 %}
-                <div class="patrimoine-view-item">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-home"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-home text-atlas me-2"></i>PEL/CEL
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">PEL/CEL</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.pel_cel_value) }}€</div>
-                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.pel_cel_value) }}€</div>
                 </div>
                 {% endif %}
                 
                 <!-- Compte Courant -->
                 {% if user.investor_profile.has_current_account and user.investor_profile.current_account_value > 0 %}
-                <div class="patrimoine-view-item">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-credit-card"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-credit-card text-atlas me-2"></i>Compte courant
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">Compte courant</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.current_account_value) }}€</div>
-                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.current_account_value) }}€</div>
                 </div>
                 {% endif %}
                 
                 <!-- Liquidités personnalisées -->
                 {% for liquidite in user.investor_profile.liquidites_personnalisees_data %}
-                <div class="patrimoine-view-item custom">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-coins"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-coins text-atlas me-2"></i>{{ liquidite.name }}
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">{{ liquidite.name }}</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(liquidite.amount) }}€</div>
-                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(liquidite.amount) }}€</div>
                 </div>
                 {% endfor %}
             </div>
             
-            <!-- Total Liquidités - Style patrimoine exact -->
+            <!-- Total Liquidités - TOUS les champs affichés -->
             {% set total_liquidites = 0 %}
             {% if user.investor_profile.has_livret_a and user.investor_profile.livret_a_value %}
                 {% set total_liquidites = total_liquidites + user.investor_profile.livret_a_value %}
-            {% endif %}
-            {% if user.investor_profile.has_current_account and user.investor_profile.current_account_value %}
-                {% set total_liquidites = total_liquidites + user.investor_profile.current_account_value %}
             {% endif %}
             {% if user.investor_profile.has_ldds and user.investor_profile.ldds_value %}
                 {% set total_liquidites = total_liquidites + user.investor_profile.ldds_value %}
@@ -1553,107 +1529,107 @@
             {% if user.investor_profile.has_pel_cel and user.investor_profile.pel_cel_value %}
                 {% set total_liquidites = total_liquidites + user.investor_profile.pel_cel_value %}
             {% endif %}
-            {% for liquidite in user.investor_profile.liquidites_personnalisees_data %}
-                {% set total_liquidites = total_liquidites + liquidite.amount %}
-            {% endfor %}
-            
-            {% if total_liquidites > 0 %}
-            <div class="total-section-view">
-                <div class="total-display-view liquidites">
-                    <i class="fas fa-coins"></i> 
-                    <span>Total Liquidités: {{ "{:,.0f}".format(total_liquidites) }}€</span>
-                </div>
-            </div>
+            {% if user.investor_profile.has_current_account and user.investor_profile.current_account_value %}
+                {% set total_liquidites = total_liquidites + user.investor_profile.current_account_value %}
             {% endif %}
-        </div>
-    </div>
+            {% set liquidites_perso_montants = user.investor_profile.liquidites_personnalisees_data | map(attribute='amount') | list %}
+            {% set total_liquidites_perso = liquidites_perso_montants | sum %}
+            {% set total_liquidites = total_liquidites + total_liquidites_perso %}
+            
+                {% if total_liquidites > 0 %}
+                <div class="total-section-view" style="display: flex; justify-content: center;">
+                    <div class="total-display-view liquidites" style="padding: 8px 16px; max-width: 300px;">
+                        <i class="fas fa-coins"></i> 
+                        <span>Total Liquidités: {{ "{:,.0f}".format(total_liquidites) }}€</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
 
-    <!-- Section 5: PLACEMENTS FINANCIERS -->
-    <div class="platform-card mb-4">
-        <div class="platform-card-header">
-            <h3 class="platform-card-title">
-                <i class="fas fa-chart-line text-success"></i>
-                PLACEMENTS FINANCIERS
-            </h3>
-            <p class="platform-card-subtitle">Investissements et placements</p>
-        </div>
-        <div class="platform-card-body">
-            <div class="patrimoine-view-grid">
+            <!-- Sous-section: PLACEMENTS FINANCIERS -->
+            <div class="revenue-subsection mt-4">
+                <h4 class="revenue-subsection-title">
+                    <i class="fas fa-chart-line text-atlas"></i>
+                    Placements Financiers
+                </h4>
+            <div class="personal-info-compact-grid">
                 <!-- PEA -->
                 {% if user.investor_profile.has_pea and user.investor_profile.pea_value > 0 %}
-                <div class="patrimoine-view-item">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-chart-line"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-chart-line text-atlas me-2"></i>Plan d'Épargne en Actions
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">PEA</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.pea_value) }}€</div>
-                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.pea_value) }}€</div>
                 </div>
                 {% endif %}
                 
                 <!-- PER -->
                 {% if user.investor_profile.has_per and user.investor_profile.per_value > 0 %}
-                <div class="patrimoine-view-item">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-university"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-university text-atlas me-2"></i>Plan d'Épargne Retraite
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">PER</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.per_value) }}€</div>
-                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.per_value) }}€</div>
                 </div>
                 {% endif %}
                 
                 <!-- Assurance Vie -->
                 {% if user.investor_profile.has_life_insurance and user.investor_profile.life_insurance_value > 0 %}
-                <div class="patrimoine-view-item">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-shield-alt"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-shield-alt text-atlas me-2"></i>Assurance Vie
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">Assurance Vie</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.life_insurance_value) }}€</div>
-                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.life_insurance_value) }}€</div>
                 </div>
                 {% endif %}
                 
                 <!-- PEE -->
                 {% if user.investor_profile.has_pee and user.investor_profile.pee_value > 0 %}
-                <div class="patrimoine-view-item">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-briefcase"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-briefcase text-atlas me-2"></i>Plan d'Épargne Entreprise
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">PEE</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.pee_value) }}€</div>
-                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.pee_value) }}€</div>
                 </div>
                 {% endif %}
                 
                 <!-- SCPI -->
                 {% if user.investor_profile.has_scpi and user.investor_profile.scpi_value > 0 %}
-                <div class="patrimoine-view-item">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-building"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-building text-atlas me-2"></i>SCPI
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">SCPI</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(user.investor_profile.scpi_value) }}€</div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.scpi_value) }}€</div>
+                </div>
+                {% endif %}
+                
+                <!-- CTO -->
+                {% if user.investor_profile.has_cto and user.investor_profile.cto_value > 0 %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-chart-line text-atlas me-2"></i>Compte Titres Ordinaire
                     </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.cto_value) }}€</div>
+                </div>
+                {% endif %}
+                
+                <!-- Private Equity -->
+                {% if user.investor_profile.has_private_equity and user.investor_profile.private_equity_value > 0 %}
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-chart-area text-atlas me-2"></i>Private Equity
+                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(user.investor_profile.private_equity_value) }}€</div>
                 </div>
                 {% endif %}
                 
                 <!-- Placements personnalisés -->
                 {% for placement in user.investor_profile.placements_personnalises_data %}
-                <div class="patrimoine-view-item custom">
-                    <div class="patrimoine-view-icon">
-                        <i class="fas fa-chart-area"></i>
+                <div class="personal-info-compact-item">
+                    <div class="personal-label">
+                        <i class="fas fa-chart-area text-atlas me-2"></i>{{ placement.name }}
                     </div>
-                    <div class="patrimoine-view-info">
-                        <div class="patrimoine-view-name">{{ placement.name }}</div>
-                        <div class="patrimoine-view-amount">{{ "{:,.0f}".format(placement.amount) }}€</div>
-                    </div>
+                    <div class="personal-value revenue-amount">{{ "{:,.0f}".format(placement.amount) }}€</div>
                 </div>
                 {% endfor %}
             </div>
@@ -1675,6 +1651,12 @@
             {% if user.investor_profile.has_scpi and user.investor_profile.scpi_value %}
                 {% set total_placements = total_placements + user.investor_profile.scpi_value %}
             {% endif %}
+            {% if user.investor_profile.has_cto and user.investor_profile.cto_value %}
+                {% set total_placements = total_placements + user.investor_profile.cto_value %}
+            {% endif %}
+            {% if user.investor_profile.has_private_equity and user.investor_profile.private_equity_value %}
+                {% set total_placements = total_placements + user.investor_profile.private_equity_value %}
+            {% endif %}
             {% for placement in user.investor_profile.placements_personnalises_data %}
                 {% set total_placements = total_placements + placement.amount %}
             {% endfor %}
@@ -1683,133 +1665,164 @@
             {% set patrimoine_total = total_liquidites + total_placements %}
             
             {% if total_placements > 0 %}
-            <div class="total-section-view">
-                <div class="total-display-view placements">
+            <div class="total-section-view" style="display: flex; justify-content: center;">
+                <div class="total-display-view placements" style="padding: 8px 16px; max-width: 300px;">
                     <i class="fas fa-chart-line"></i> 
                     <span>Total Placements: {{ "{:,.0f}".format(total_placements) }}€</span>
                 </div>
             </div>
             {% endif %}
             
-            <!-- Patrimoine total -->
-            {% if patrimoine_total > 0 %}
-            <div class="total-section-view mt-3">
-                <div class="total-display-view patrimoine-total">
-                    <i class="fas fa-coins"></i> 
-                    <span>PATRIMOINE TOTAL: {{ "{:,.0f}".format(patrimoine_total) }}€</span>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Section 6: IMMOBILIER -->
-    {% if user.investor_profile.immobilier_data %}
-    <div class="platform-card mb-4">
-        <div class="platform-card-header">
-            <h3 class="platform-card-title">
-                <i class="fas fa-home text-success"></i>
-                IMMOBILIER
-            </h3>
-            <p class="platform-card-subtitle">Patrimoine immobilier détaillé</p>
-        </div>
-        <div class="platform-card-body">
-            <div class="immobilier-view-grid">
-                {% for bien in user.investor_profile.immobilier_data %}
-                <div class="immobilier-view-item">
-                    <div class="immobilier-view-header">
-                        <div class="immobilier-type">
-                            <i class="fas fa-home"></i>
-                            <span>{{ bien.type }}</span>
+            
+            <!-- Sous-section: IMMOBILIER -->
+            {% if user.investor_profile.immobilier_data %}
+            <div class="revenue-subsection mt-4">
+                <h4 class="revenue-subsection-title">
+                    <i class="fas fa-home text-atlas"></i>
+                    Immobilier
+                </h4>
+            {% for bien in user.investor_profile.immobilier_data %}
+            <div class="revenue-subsection mt-4 immobilier-view-item"
+                 data-valeur="{{ bien.get('valeur', 0) }}"
+                 data-credit-montant="{{ bien.get('credit_montant', 0) if bien.get('has_credit', False) else 0 }}"
+                 data-credit-tag="{{ bien.get('credit_tag', 0) if bien.get('has_credit', False) else 0 }}"
+                 data-credit-taeg="{{ bien.get('credit_taeg', 0) if bien.get('has_credit', False) else 0 }}"
+                 data-credit-duree="{{ bien.get('credit_duree', 0) if bien.get('has_credit', False) else 0 }}"
+                 data-credit-date="{{ bien.get('credit_date', '') if bien.get('has_credit', False) else '' }}"
+                 data-has-credit="{{ 'true' if bien.get('has_credit', False) else 'false' }}">
+                <h5 class="revenue-subsection-title">
+                    <i class="fas fa-home text-atlas"></i>
+                    {{ bien.get('type', 'Bien immobilier') }}
+                    {% if bien.get('description') %} - {{ bien.get('description') }}{% endif %}
+                </h5>
+                
+                <!-- Données du bien -->
+                <div class="personal-info-compact-grid">
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-tag text-atlas me-2"></i>Valeur du bien
                         </div>
-                        {% if bien.description %}
-                        <div class="immobilier-description">{{ bien.description }}</div>
-                        {% endif %}
+                        <div class="personal-value revenue-amount">{{ "{:,.0f}".format(bien.get('valeur', 0)) }}€</div>
                     </div>
-                    <div class="immobilier-view-details">
-                        <div class="immobilier-detail-row">
-                            <div class="immobilier-detail">
-                                <label>Valeur du bien</label>
-                                <span>{{ "{:,.0f}".format(bien.valeur) }}€</span>
-                            </div>
-                            {% if bien.surface > 0 %}
-                            <div class="immobilier-detail">
-                                <label>Surface</label>
-                                <span>{{ bien.surface }} m²</span>
-                            </div>
-                            <div class="immobilier-detail">
-                                <label>Prix au m²</label>
-                                <span>{{ "{:,.0f}".format(bien.valeur / bien.surface) }}€/m²</span>
-                            </div>
-                            {% endif %}
+                    
+                    {% if bien.get('surface', 0) > 0 %}
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-expand-arrows-alt text-atlas me-2"></i>Surface
                         </div>
-                        {% if bien.has_credit %}
-                        <div class="immobilier-credit-info">
-                            <h6><i class="fas fa-credit-card text-danger"></i> Crédit immobilier associé</h6>
-                            <div class="credit-detail-row">
-                                <div class="credit-detail">
-                                    <label>Montant crédit</label>
-                                    <span>{{ "{:,.0f}".format(bien.credit_montant) }}€</span>
-                                </div>
-                                <div class="credit-detail">
-                                    <label>Taux TAG</label>
-                                    <span>{{ bien.credit_tag }}%</span>
-                                </div>
-                                <div class="credit-detail">
-                                    <label>Taux TAEG</label>
-                                    <span>{{ bien.credit_taeg }}%</span>
-                                </div>
-                                <div class="credit-detail">
-                                    <label>Durée</label>
-                                    <span>{{ bien.credit_duree }} ans</span>
-                                </div>
-                                {% if bien.credit_date %}
-                                <div class="credit-detail">
-                                    <label>Date de début</label>
-                                    <span>{{ bien.credit_date }}</span>
-                                </div>
-                                {% endif %}
-                            </div>
+                        <div class="personal-value">{{ bien.get('surface', 0) }} m²</div>
+                    </div>
+                    
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-calculator text-atlas me-2"></i>Prix au m²
                         </div>
-                        {% endif %}
-                        <div class="immobilier-valeur-nette">
-                            <strong>Valeur nette : {{ "{:,.0f}".format(bien.valeur - (bien.credit_montant if bien.has_credit else 0)) }}€</strong>
+                        <div class="personal-value">{{ "{:,.0f}".format(bien.get('valeur', 0) / bien.get('surface', 1)) }}€/m²</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-chart-line text-atlas me-2"></i>Valeur nette
                         </div>
+                        <div class="personal-value revenue-amount immobilier-valeur-nette-display">{{ "{:,.0f}".format(bien.get('valeur', 0) - (bien.get('credit_montant', 0) if bien.get('has_credit', False) else 0)) }}€</div>
                     </div>
                 </div>
-                {% endfor %}
+                
+                <!-- Données du crédit -->
+                {% if bien.get('has_credit', False) %}
+                <h6 class="revenue-subsection-subtitle mt-3">
+                    <i class="fas fa-credit-card text-atlas"></i>
+                    Crédit immobilier associé
+                </h6>
+                <div class="personal-info-compact-grid">
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-euro-sign text-atlas me-2"></i>Montant initial
+                        </div>
+                        <div class="personal-value">{{ "{:,.0f}".format(bien.get('credit_montant', 0)) }}€</div>
+                    </div>
+                    
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-percentage text-atlas me-2"></i>Taux TAG
+                        </div>
+                        <div class="personal-value">{{ bien.get('credit_tag', 0) }}%</div>
+                    </div>
+                    
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-percentage text-atlas me-2"></i>Taux TAEG
+                        </div>
+                        <div class="personal-value">{{ bien.get('credit_taeg', 0) }}%</div>
+                    </div>
+                    
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-clock text-atlas me-2"></i>Durée
+                        </div>
+                        <div class="personal-value">{{ bien.get('credit_duree', 0) }} ans</div>
+                    </div>
+                    
+                    {% if bien.get('credit_date') %}
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-calendar text-atlas me-2"></i>Date de début
+                        </div>
+                        <div class="personal-value">{{ bien.get('credit_date', '') }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-check-circle text-atlas me-2"></i>Capital remboursé
+                        </div>
+                        <div class="personal-value immobilier-capital-rembourse-display">0€</div>
+                    </div>
+                    
+                    <div class="personal-info-compact-item">
+                        <div class="personal-label">
+                            <i class="fas fa-money-bill text-atlas me-2"></i>Capital restant dû
+                        </div>
+                        <div class="personal-value credit-restant immobilier-capital-restant-display">{{ "{:,.0f}".format(bien.get('credit_montant', 0)) }}€</div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
+            {% endfor %}
             
             <!-- Totaux immobilier -->
             {% set total_valeur_brute = user.investor_profile.immobilier_data | map(attribute='valeur') | sum %}
+            
+            <!-- Calcul du capital restant dû réel pour chaque crédit immobilier -->
+            <!-- Pour l'instant, approximation simple basée sur les montants initiaux -->
+            <!-- TODO: Implémenter le calcul précis du capital restant dû -->
             {% set total_credits = user.investor_profile.immobilier_data | selectattr('has_credit', 'equalto', true) | map(attribute='credit_montant') | sum %}
+            
             {% set total_valeur_nette = total_valeur_brute - total_credits %}
             
-            <div class="total-section-view">
-                <div class="total-display-view credit-restant">
+            {% if total_valeur_brute > 0 %}
+            <div style="display: table; margin: 20px auto; border-spacing: 20px 0;">
+                <div class="total-display-view credit-restant" style="display: table-cell; width: 300px; height: 50px; text-align: center; vertical-align: middle;">
                     <i class="fas fa-credit-card"></i> 
-                    <span>Total Capital Restant Dû (crédits immobiliers): {{ "{:,.0f}".format(total_credits) }}€</span>
+                    Capital Restant Dû: <span id="totalCapitalRestantView">{{ "{:,.0f}".format(total_credits) }}</span>€
                 </div>
-                <div class="total-display-view immobilier">
+                <div class="total-display-view immobilier" style="display: table-cell; width: 300px; height: 50px; text-align: center; vertical-align: middle;">
                     <i class="fas fa-home"></i> 
-                    <span>Total Immobilier (valeur nette): {{ "{:,.0f}".format(total_valeur_nette) }}€</span>
+                    Patrimoine Net: <span id="totalImmobilierView">{{ "{:,.0f}".format(total_valeur_nette) }}</span>€
                 </div>
             </div>
-        </div>
-    </div>
-    {% endif %}
+            {% endif %}
+            </div>
+            {% endif %}
 
-    <!-- Section 7: CRYPTOMONNAIES -->
-    {% if user.investor_profile.cryptomonnaies_data %}
-    <div class="platform-card mb-4">
-        <div class="platform-card-header">
-            <h3 class="platform-card-title">
-                <i class="fab fa-bitcoin text-warning"></i>
-                CRYPTOMONNAIES
-            </h3>
-            <p class="platform-card-subtitle">Portefeuille de cryptomonnaies détenues en direct</p>
-        </div>
-        <div class="platform-card-body">
+            <!-- Sous-section: CRYPTOMONNAIES -->
+            {% if user.investor_profile.cryptomonnaies_data %}
+            <div class="revenue-subsection mt-4">
+                <h4 class="revenue-subsection-title">
+                    <i class="fab fa-bitcoin text-atlas"></i>
+                    Cryptomonnaies
+                </h4>
             <div class="crypto-view-grid">
                 {% for crypto in user.investor_profile.cryptomonnaies_data %}
                 <div class="crypto-view-item">
@@ -1817,8 +1830,8 @@
                         <i class="fab fa-bitcoin"></i>
                     </div>
                     <div class="crypto-view-info">
-                        <div class="crypto-view-name">{{ crypto.symbol }}</div>
-                        <div class="crypto-view-quantity">{{ crypto.quantity }}</div>
+                        <div class="crypto-view-name">{{ crypto.get('symbol', '') }}</div>
+                        <div class="crypto-view-quantity">{{ crypto.get('quantity', 0) }}</div>
                         <div class="crypto-view-note">Valeur temps réel à calculer</div>
                     </div>
                 </div>
@@ -1831,21 +1844,16 @@
                     <span>Valeur totale: Calcul en temps réel requis</span>
                 </div>
             </div>
-        </div>
-    </div>
-    {% endif %}
+            </div>
+            {% endif %}
 
-    <!-- Section 8: AUTRES BIENS -->
-    {% if user.investor_profile.autres_biens_data %}
-    <div class="platform-card mb-4">
-        <div class="platform-card-header">
-            <h3 class="platform-card-title">
-                <i class="fas fa-gem text-purple"></i>
-                AUTRES BIENS
-            </h3>
-            <p class="platform-card-subtitle">Œuvres d'art, voitures de collection, bijoux, etc.</p>
-        </div>
-        <div class="platform-card-body">
+            <!-- Sous-section: AUTRES BIENS -->
+            {% if user.investor_profile.autres_biens_data %}
+            <div class="revenue-subsection mt-4">
+                <h4 class="revenue-subsection-title">
+                    <i class="fas fa-gem text-atlas"></i>
+                    Autres Biens
+                </h4>
             <div class="autres-biens-view-grid">
                 {% for bien in user.investor_profile.autres_biens_data %}
                 <div class="autre-bien-view-item">
@@ -1853,11 +1861,11 @@
                         <i class="fas fa-gem"></i>
                     </div>
                     <div class="autre-bien-view-info">
-                        <div class="autre-bien-view-name">{{ bien.name }}</div>
-                        {% if bien.description %}
-                        <div class="autre-bien-view-description">{{ bien.description }}</div>
+                        <div class="autre-bien-view-name">{{ bien.get('name', '') }}</div>
+                        {% if bien.get('description') %}
+                        <div class="autre-bien-view-description">{{ bien.get('description', '') }}</div>
                         {% endif %}
-                        <div class="autre-bien-view-valeur">{{ "{:,.0f}".format(bien.valeur) }}€</div>
+                        <div class="autre-bien-view-valeur">{{ "{:,.0f}".format(bien.get('valeur', 0)) }}€</div>
                     </div>
                 </div>
                 {% endfor %}
@@ -1871,21 +1879,16 @@
                     <span>Total Autres biens: {{ "{:,.0f}".format(total_autres_biens) }}€</span>
                 </div>
             </div>
-        </div>
-    </div>
-    {% endif %}
+            </div>
+            {% endif %}
 
-    <!-- Section 9: CRÉDITS -->
-    {% if user.investor_profile.credits_data %}
-    <div class="platform-card mb-4">
-        <div class="platform-card-header">
-            <h3 class="platform-card-title">
-                <i class="fas fa-credit-card text-danger"></i>
-                CRÉDITS (hors crédit immobilier)
-            </h3>
-            <p class="platform-card-subtitle">Crédits à la consommation et autres emprunts en cours</p>
-        </div>
-        <div class="platform-card-body">
+            <!-- Sous-section: CRÉDITS -->
+            {% if user.investor_profile.credits_data %}
+            <div class="revenue-subsection mt-4">
+                <h4 class="revenue-subsection-title">
+                    <i class="fas fa-credit-card text-atlas"></i>
+                    Crédits (hors crédit immobilier)
+                </h4>
             <div class="credits-view-grid">
                 {% for credit in user.investor_profile.credits_data %}
                 <div class="credit-view-item">
@@ -1931,9 +1934,20 @@
                     <span>Total Capital Restant Dû: Calcul automatique requis</span>
                 </div>
             </div>
+            </div>
+            {% endif %}
+
+            <!-- Patrimoine total -->
+            {% if patrimoine_total > 0 %}
+            <div class="total-section-view mt-4">
+                <div class="total-display-view patrimoine-total">
+                    <i class="fas fa-coins"></i> 
+                    <span>PATRIMOINE TOTAL: {{ "{:,.0f}".format(patrimoine_total) }}€</span>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
 
 
 </div>
@@ -2657,68 +2671,7 @@
     font-size: 18px;
 }
 
-/* Styles pour le patrimoine en mode lecture */
-.patrimoine-view-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
-.patrimoine-view-item {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
-    background: var(--qlower-white);
-    border: 2px solid var(--qlower-border);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.patrimoine-view-item:hover {
-    border-color: var(--qlower-primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(19, 124, 139, 0.1);
-}
-
-.patrimoine-view-item.custom {
-    border-color: var(--qlower-primary);
-    background: linear-gradient(135deg, rgba(19, 124, 139, 0.05) 0%, rgba(112, 156, 167, 0.05) 100%);
-}
-
-.patrimoine-view-icon {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
-    color: white;
-    font-size: 20px;
-    flex-shrink: 0;
-}
-
-.patrimoine-view-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.patrimoine-view-name {
-    font-weight: 600;
-    color: var(--qlower-dark);
-    font-size: 16px;
-}
-
-.patrimoine-view-amount {
-    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
-    font-weight: 700;
-    color: var(--qlower-primary);
-    font-size: 18px;
-}
+/* Patrimoine styles removed - now using personal-info-compact format */
 
 /* Styles pour les cryptos en mode lecture */
 .crypto-view-grid {
@@ -2811,11 +2764,19 @@
 }
 
 .total-display-view.placements {
-    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
 }
 
 .total-display-view.crypto {
     background: linear-gradient(135deg, #f7931a 0%, #ff9500 100%);
+}
+
+.total-display-view.immobilier {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+}
+
+.total-display-view.credit-restant {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
 }
 
 .total-display-view.patrimoine-total {
@@ -3258,7 +3219,7 @@
     }
     
     .revenue-view-grid, .charges-view-grid, 
-    .patrimoine-view-grid, .crypto-view-grid {
+    .crypto-view-grid {
         grid-template-columns: 1fr;
     }
     
@@ -4462,6 +4423,9 @@ function addImmobilierInline() {
     const grid = document.getElementById('immobilierGrid');
     const addButton = document.getElementById('immobilierAddItem');
     
+    // Calculer l'index du nouveau bien (nombre d'éléments existants)
+    const currentIndex = grid.querySelectorAll('.immobilier-item').length;
+    
     const newItem = document.createElement('div');
     newItem.className = 'immobilier-item';
     newItem.innerHTML = `
@@ -4514,7 +4478,7 @@ function addImmobilierInline() {
             
             <div class="credit-section">
                 <div class="credit-checkbox-container">
-                    <input type="checkbox" class="credit-checkbox" name="bien_has_credit[]" value="1">
+                    <input type="checkbox" class="credit-checkbox" name="bien_has_credit[]" value="${currentIndex}">
                     <label class="credit-label">J'ai un crédit immobilier lié à ce bien</label>
                 </div>
                 
@@ -4708,19 +4672,47 @@ function calculateTotalImmobilier() {
     let total = 0;
     let totalCapitalRestant = 0;
     
-    document.querySelectorAll('.immobilier-item').forEach(item => {
-        const valeurNetteText = item.querySelector('.valeur-nette-value').textContent;
-        const valeur = parseFloat(valeurNetteText.replace(/[€\s]/g, '') || 0);
-        total += valeur;
+    // Calcul depuis la section visualisation avec la vraie logique d'amortissement
+    document.querySelectorAll('.immobilier-view-item').forEach(viewItem => {
+        const valeur = parseFloat(viewItem.dataset.valeur || 0);
+        const hasCredit = viewItem.dataset.hasCredit === 'true';
         
-        // Calculer le total du capital restant dû pour les crédits immobiliers
-        const creditCheckbox = item.querySelector('.credit-checkbox');
-        if (creditCheckbox && creditCheckbox.checked) {
-            const capitalRestantDisplay = item.querySelector('.capital-restant-display');
-            if (capitalRestantDisplay) {
-                const capitalRestant = parseFloat(capitalRestantDisplay.value.replace(/[€\s]/g, '') || 0);
-                totalCapitalRestant += capitalRestant;
+        if (hasCredit) {
+            const montantInitial = parseFloat(viewItem.dataset.creditMontant || 0);
+            let capitalRestant = montantInitial;
+            
+            // Utiliser la même logique que updateImmobilierViewValues et section édition
+            const taegMensuel = parseFloat(viewItem.dataset.creditTaeg || 0) / 100 / 12; // Taux mensuel TAEG
+            const dureeAnnees = parseFloat(viewItem.dataset.creditDuree || 0);
+            const dateCredit = viewItem.dataset.creditDate;
+            
+            if (montantInitial > 0 && taegMensuel > 0 && dureeAnnees > 0 && dateCredit) {
+                const dureeMois = dureeAnnees * 12;
+                const dateDebut = new Date(dateCredit + '-01');
+                const dateActuelle = new Date();
+                const moisEcoules = (dateActuelle.getFullYear() - dateDebut.getFullYear()) * 12 + 
+                                   (dateActuelle.getMonth() - dateDebut.getMonth());
+                
+                if (moisEcoules > 0 && moisEcoules < dureeMois && taegMensuel > 0) {
+                    const mensualite = montantInitial * (taegMensuel * Math.pow(1 + taegMensuel, dureeMois)) / (Math.pow(1 + taegMensuel, dureeMois) - 1);
+                    let capitalRestantTemp = montantInitial;
+                    
+                    for (let i = 0; i < moisEcoules; i++) {
+                        const interets = capitalRestantTemp * taegMensuel;
+                        const amortissement = mensualite - interets;
+                        capitalRestantTemp -= amortissement;
+                    }
+                    
+                    capitalRestant = Math.max(0, capitalRestantTemp);
+                } else if (moisEcoules >= dureeMois) {
+                    capitalRestant = 0;
+                }
             }
+            
+            totalCapitalRestant += capitalRestant;
+            total += (valeur - capitalRestant);
+        } else {
+            total += valeur;
         }
     });
     
@@ -4733,6 +4725,95 @@ function calculateTotalImmobilier() {
     if (totalCapitalRestantDisplay) {
         totalCapitalRestantDisplay.textContent = totalCapitalRestant.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
     }
+    
+    // Mettre à jour aussi les totaux dans la section visualisation
+    const totalCapitalRestantView = document.getElementById('totalCapitalRestantView');
+    if (totalCapitalRestantView) {
+        totalCapitalRestantView.textContent = totalCapitalRestant.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+    
+    const totalImmobilierView = document.getElementById('totalImmobilierView');
+    if (totalImmobilierView) {
+        totalImmobilierView.textContent = total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+    
+    // Mettre à jour aussi les valeurs individuelles dans la section visualisation
+    updateImmobilierViewValues();
+}
+
+// Fonction pour mettre à jour les valeurs nettes dans la section visualisation  
+function updateImmobilierViewValues() {
+    document.querySelectorAll('.immobilier-view-item').forEach(viewItem => {
+        const valeur = parseFloat(viewItem.dataset.valeur || 0);
+        const hasCredit = viewItem.dataset.hasCredit === 'true';
+        
+        if (hasCredit) {
+            const montantInitial = parseFloat(viewItem.dataset.creditMontant || 0);
+            const taegMensuel = parseFloat(viewItem.dataset.creditTaeg || 0) / 100 / 12; // Taux mensuel TAEG (comme dans l'édition)
+            const dureeAnnees = parseFloat(viewItem.dataset.creditDuree || 0);
+            const dateCredit = viewItem.dataset.creditDate;
+            
+            let capitalRembourse = 0;
+            let capitalRestant = montantInitial;
+            
+            // Calcul précis basé sur la date (même logique que section édition)
+            if (montantInitial > 0 && taegMensuel > 0 && dureeAnnees > 0 && dateCredit) {
+                const dureeMois = dureeAnnees * 12;
+                const dateDebut = new Date(dateCredit + '-01');
+                const dateActuelle = new Date();
+                const moisEcoules = (dateActuelle.getFullYear() - dateDebut.getFullYear()) * 12 + 
+                                   (dateActuelle.getMonth() - dateDebut.getMonth());
+                
+                if (moisEcoules >= 0 && moisEcoules < dureeMois) {
+                    // Calcul de la mensualité (exactement comme dans la section édition)
+                    const mensualite = montantInitial * (taegMensuel * Math.pow(1 + taegMensuel, dureeMois)) / (Math.pow(1 + taegMensuel, dureeMois) - 1);
+                    
+                    // Simulation de l'amortissement (exactement comme dans la section édition)
+                    let capitalRembourseTemp = 0;
+                    let capitalRestantTemp = montantInitial;
+                    
+                    for (let i = 0; i < moisEcoules; i++) {
+                        const interets = capitalRestantTemp * taegMensuel;
+                        const amortissement = mensualite - interets;
+                        capitalRembourseTemp += amortissement;
+                        capitalRestantTemp -= amortissement;
+                    }
+                    
+                    capitalRembourse = Math.max(0, capitalRembourseTemp);
+                    capitalRestant = Math.max(0, capitalRestantTemp);
+                } else if (moisEcoules >= dureeMois) {
+                    // Crédit terminé
+                    capitalRembourse = montantInitial;
+                    capitalRestant = 0;
+                }
+            }
+            
+            const valeurNette = valeur - capitalRestant;
+            
+            // Mettre à jour la valeur nette
+            const valeurNetteDisplay = viewItem.querySelector('.immobilier-valeur-nette-display');
+            if (valeurNetteDisplay) {
+                valeurNetteDisplay.textContent = Math.max(0, valeurNette).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+            }
+            
+            // Mettre à jour le capital remboursé
+            const capitalRembourseLDisplay = viewItem.querySelector('.immobilier-capital-rembourse-display');
+            if (capitalRembourseLDisplay) {
+                capitalRembourseLDisplay.textContent = capitalRembourse.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+            }
+            
+            // Mettre à jour le capital restant
+            const capitalRestantDisplay = viewItem.querySelector('.immobilier-capital-restant-display');
+            if (capitalRestantDisplay) {
+                capitalRestantDisplay.textContent = capitalRestant.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+            }
+        } else {
+            const valeurNetteDisplay = viewItem.querySelector('.immobilier-valeur-nette-display');
+            if (valeurNetteDisplay) {
+                valeurNetteDisplay.textContent = valeur.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+            }
+        }
+    });
 }
 
 // Fonction pour configurer les événements sur un élément immobilier
@@ -5271,6 +5352,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Calculer les totaux de la section EPARGNE
     calculateTotalEpargneLiquidites();
     calculateTotalEpargnePlacements();
+    
+    // Calculer les totaux de la section IMMOBILIER
+    // D'abord, calculer les valeurs de chaque bien existant
+    document.querySelectorAll('.immobilier-item').forEach(item => {
+        calculatePrixM2(item);
+        calculateCapitalRestant(item);
+        calculateValeurNette(item);
+        setupImmobilierEventListeners(item);
+    });
+    // Puis calculer les totaux et mettre à jour la visualisation
+    calculateTotalImmobilier();
+    updateImmobilierViewValues();
+    
+    // Double vérification après un court délai pour s'assurer que tout est bien calculé
+    setTimeout(function() {
+        calculateTotalImmobilier();
+        updateImmobilierViewValues();
+    }, 500);
     
     // Calculer le taux d'épargne initial
     calculateTauxEpargne();
