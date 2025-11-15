@@ -862,7 +862,7 @@
                 <div class="total-section">
                     <div class="total-display">
                         <i class="fas fa-credit-card"></i> 
-                        <span>Total Capital Restant Dû (crédits immobiliers): </span>
+                        <span>Total Montant Restant (crédits immobiliers): </span>
                         <span id="totalCapitalRestantImmobilier">0€</span>
                     </div>
 
@@ -1775,14 +1775,14 @@
                     
                     <div class="personal-info-compact-item">
                         <div class="personal-label">
-                            <i class="fas fa-check-circle text-atlas me-2"></i>Capital remboursé
+                            <i class="fas fa-euro-sign text-atlas me-2"></i>Mensualité
                         </div>
-                        <div class="personal-value immobilier-capital-rembourse-display">0€</div>
+                        <div class="personal-value immobilier-mensualite-display">0€</div>
                     </div>
                     
                     <div class="personal-info-compact-item">
                         <div class="personal-label">
-                            <i class="fas fa-money-bill text-atlas me-2"></i>Capital restant dû
+                            <i class="fas fa-money-bill text-atlas me-2"></i>Montant restant du crédit à rembourser
                         </div>
                         <div class="personal-value credit-restant immobilier-capital-restant-display">{{ "{:,.0f}".format(bien.get('credit_montant', 0)) }}€</div>
                     </div>
@@ -1803,13 +1803,13 @@
             
             {% if total_valeur_brute > 0 %}
             <div style="display: table; margin: 20px auto; border-spacing: 20px 0;">
-                <div class="total-display-view credit-restant" style="display: table-cell; width: 300px; height: 50px; text-align: center; vertical-align: middle;">
+                <div class="total-display-view credit-restant" style="display: table-cell; width: 400px; height: 50px; text-align: center; vertical-align: middle;">
                     <i class="fas fa-credit-card"></i> 
-                    Capital Restant Dû: <span id="totalCapitalRestantView">{{ "{:,.0f}".format(total_credits) }}</span>€
+                    Montant de Crédit à Rembourser: <span id="totalCapitalRestantView">{{ "{:,.0f}".format(total_credits) }}</span>€
                 </div>
-                <div class="total-display-view immobilier" style="display: table-cell; width: 300px; height: 50px; text-align: center; vertical-align: middle;">
+                <div class="total-display-view immobilier" style="display: table-cell; width: 400px; height: 50px; text-align: center; vertical-align: middle;">
                     <i class="fas fa-home"></i> 
-                    Patrimoine Net: <span id="totalImmobilierView">{{ "{:,.0f}".format(total_valeur_nette) }}</span>€
+                    Patrimoine Immobilier Net: <span id="totalImmobilierView">{{ "{:,.0f}".format(total_valeur_nette) }}</span>€
                 </div>
             </div>
             {% endif %}
@@ -1931,7 +1931,7 @@
             <div class="total-section-view">
                 <div class="total-display-view credits">
                     <i class="fas fa-credit-card text-danger"></i> 
-                    <span>Total Capital Restant Dû: Calcul automatique requis</span>
+                    <span>Total Montant Restant: Calcul automatique requis</span>
                 </div>
             </div>
             </div>
@@ -4621,19 +4621,12 @@ function calculateCapitalRestant(item) {
                            (dateActuelle.getMonth() - dateCredit.getMonth());
         
         if (moisEcoules >= 0 && moisEcoules < dureeMois) {
-            // Capital remboursé = somme des amortissements
-            let capitalRembourse = 0;
-            let capitalRestant = montantCredit;
+            // Calcul simple : montant initial - (mensualité × mois écoulés)
+            const totalPaye = moisEcoules * mensualite;
+            const capitalRestant = Math.max(0, montantCredit - totalPaye);
             
-            for (let i = 0; i < moisEcoules; i++) {
-                const interets = capitalRestant * taeg;
-                const amortissement = mensualite - interets;
-                capitalRembourse += amortissement;
-                capitalRestant -= amortissement;
-            }
-            
-            capitalDisplay.value = Math.max(0, capitalRestant).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-            totalPayeDisplay.value = (moisEcoules * mensualite).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            capitalDisplay.value = capitalRestant.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+            totalPayeDisplay.value = totalPaye.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
         } else if (moisEcoules >= dureeMois) {
             capitalDisplay.value = '0';
             totalPayeDisplay.value = (dureeMois * mensualite).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
@@ -4672,19 +4665,25 @@ function calculateTotalImmobilier() {
     let total = 0;
     let totalCapitalRestant = 0;
     
-    // Calcul depuis la section visualisation avec la vraie logique d'amortissement
-    document.querySelectorAll('.immobilier-view-item').forEach(viewItem => {
-        const valeur = parseFloat(viewItem.dataset.valeur || 0);
-        const hasCredit = viewItem.dataset.hasCredit === 'true';
+    // Calcul depuis la section édition
+    document.querySelectorAll('.immobilier-item').forEach(item => {
+        const valeurInput = item.querySelector('.bien-valeur-input');
+        const creditCheckbox = item.querySelector('.credit-checkbox');
+        const montantInput = item.querySelector('.credit-montant-input');
+        const taegInput = item.querySelector('.credit-taeg-input');
+        const dureeInput = item.querySelector('.credit-duree-input');
+        const dateInput = item.querySelector('.credit-date-input');
         
-        if (hasCredit) {
-            const montantInitial = parseFloat(viewItem.dataset.creditMontant || 0);
-            let capitalRestant = montantInitial;
+        const valeur = parseFloat(valeurInput?.value || 0);
+        const hasCredit = creditCheckbox?.checked || false;
+        
+        if (hasCredit && montantInput && taegInput && dureeInput && dateInput) {
+            const montantInitial = parseFloat(montantInput.value || 0);
+            const taegMensuel = parseFloat(taegInput.value || 0) / 100 / 12;
+            const dureeAnnees = parseFloat(dureeInput.value || 0);
+            const dateCredit = dateInput.value;
             
-            // Utiliser la même logique que updateImmobilierViewValues et section édition
-            const taegMensuel = parseFloat(viewItem.dataset.creditTaeg || 0) / 100 / 12; // Taux mensuel TAEG
-            const dureeAnnees = parseFloat(viewItem.dataset.creditDuree || 0);
-            const dateCredit = viewItem.dataset.creditDate;
+            let capitalRestant = montantInitial;
             
             if (montantInitial > 0 && taegMensuel > 0 && dureeAnnees > 0 && dateCredit) {
                 const dureeMois = dureeAnnees * 12;
@@ -4693,17 +4692,10 @@ function calculateTotalImmobilier() {
                 const moisEcoules = (dateActuelle.getFullYear() - dateDebut.getFullYear()) * 12 + 
                                    (dateActuelle.getMonth() - dateDebut.getMonth());
                 
-                if (moisEcoules > 0 && moisEcoules < dureeMois && taegMensuel > 0) {
+                if (moisEcoules > 0 && moisEcoules < dureeMois) {
                     const mensualite = montantInitial * (taegMensuel * Math.pow(1 + taegMensuel, dureeMois)) / (Math.pow(1 + taegMensuel, dureeMois) - 1);
-                    let capitalRestantTemp = montantInitial;
-                    
-                    for (let i = 0; i < moisEcoules; i++) {
-                        const interets = capitalRestantTemp * taegMensuel;
-                        const amortissement = mensualite - interets;
-                        capitalRestantTemp -= amortissement;
-                    }
-                    
-                    capitalRestant = Math.max(0, capitalRestantTemp);
+                    const totalPaye = mensualite * moisEcoules;
+                    capitalRestant = Math.max(0, montantInitial - totalPaye);
                 } else if (moisEcoules >= dureeMois) {
                     capitalRestant = 0;
                 }
@@ -4715,6 +4707,43 @@ function calculateTotalImmobilier() {
             total += valeur;
         }
     });
+    
+    // Calcul depuis la section visualisation pour la compatibilité
+    document.querySelectorAll('.immobilier-view-item').forEach(viewItem => {
+        const valeur = parseFloat(viewItem.dataset.valeur || 0);
+        const hasCredit = viewItem.dataset.hasCredit === 'true';
+        
+        if (hasCredit) {
+            const montantInitial = parseFloat(viewItem.dataset.creditMontant || 0);
+            let capitalRestant = montantInitial;
+            
+            const taegMensuel = parseFloat(viewItem.dataset.creditTaeg || 0) / 100 / 12;
+            const dureeAnnees = parseFloat(viewItem.dataset.creditDuree || 0);
+            const dateCredit = viewItem.dataset.creditDate;
+            
+            if (montantInitial > 0 && taegMensuel > 0 && dureeAnnees > 0 && dateCredit) {
+                const dureeMois = dureeAnnees * 12;
+                const dateDebut = new Date(dateCredit + '-01');
+                const dateActuelle = new Date();
+                const moisEcoules = (dateActuelle.getFullYear() - dateDebut.getFullYear()) * 12 + 
+                                   (dateActuelle.getMonth() - dateDebut.getMonth());
+                
+                if (moisEcoules > 0 && moisEcoules < dureeMois) {
+                    const mensualite = montantInitial * (taegMensuel * Math.pow(1 + taegMensuel, dureeMois)) / (Math.pow(1 + taegMensuel, dureeMois) - 1);
+                    const totalPaye = mensualite * moisEcoules;
+                    capitalRestant = Math.max(0, montantInitial - totalPaye);
+                } else if (moisEcoules >= dureeMois) {
+                    capitalRestant = 0;
+                }
+            }
+            
+            totalCapitalRestant += capitalRestant;
+            total += (valeur - capitalRestant);
+        } else {
+            total += valeur;
+        }
+    });
+    
     
     const totalDisplay = document.getElementById('totalImmobilier');
     if (totalDisplay) {
@@ -4765,22 +4794,13 @@ function updateImmobilierViewValues() {
                                    (dateActuelle.getMonth() - dateDebut.getMonth());
                 
                 if (moisEcoules >= 0 && moisEcoules < dureeMois) {
-                    // Calcul de la mensualité (exactement comme dans la section édition)
+                    // Calcul de la mensualité
                     const mensualite = montantInitial * (taegMensuel * Math.pow(1 + taegMensuel, dureeMois)) / (Math.pow(1 + taegMensuel, dureeMois) - 1);
                     
-                    // Simulation de l'amortissement (exactement comme dans la section édition)
-                    let capitalRembourseTemp = 0;
-                    let capitalRestantTemp = montantInitial;
-                    
-                    for (let i = 0; i < moisEcoules; i++) {
-                        const interets = capitalRestantTemp * taegMensuel;
-                        const amortissement = mensualite - interets;
-                        capitalRembourseTemp += amortissement;
-                        capitalRestantTemp -= amortissement;
-                    }
-                    
-                    capitalRembourse = Math.max(0, capitalRembourseTemp);
-                    capitalRestant = Math.max(0, capitalRestantTemp);
+                    // Calcul simple : montant initial - (mensualité × mois écoulés)
+                    const totalPaye = mensualite * moisEcoules;
+                    capitalRestant = Math.max(0, montantInitial - totalPaye);
+                    capitalRembourse = 0; // On n'utilise plus cette valeur
                 } else if (moisEcoules >= dureeMois) {
                     // Crédit terminé
                     capitalRembourse = montantInitial;
@@ -4796,10 +4816,12 @@ function updateImmobilierViewValues() {
                 valeurNetteDisplay.textContent = Math.max(0, valeurNette).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
             }
             
-            // Mettre à jour le capital remboursé
-            const capitalRembourseLDisplay = viewItem.querySelector('.immobilier-capital-rembourse-display');
-            if (capitalRembourseLDisplay) {
-                capitalRembourseLDisplay.textContent = capitalRembourse.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+            // Mettre à jour la mensualité
+            const mensualiteDisplay = viewItem.querySelector('.immobilier-mensualite-display');
+            if (mensualiteDisplay && montantInitial > 0 && taegMensuel > 0 && dureeAnnees > 0) {
+                const dureeMois = dureeAnnees * 12;
+                const mensualite = montantInitial * (taegMensuel * Math.pow(1 + taegMensuel, dureeMois)) / (Math.pow(1 + taegMensuel, dureeMois) - 1);
+                mensualiteDisplay.textContent = mensualite.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
             }
             
             // Mettre à jour le capital restant
