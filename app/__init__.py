@@ -23,9 +23,37 @@ def create_app():
     
     # Configuration
     app.config['SECRET_KEY'] = 'votre-cle-secrete-très-longue-et-complexe'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///patrimoine.db'
+    
+    # Configuration PostgreSQL
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://huguesmarie:@localhost:5432/atlas_db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = 'app/static/uploads'
+    
+    # Configuration PostgreSQL avancée
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 10,
+        'pool_recycle': 120,
+        'pool_pre_ping': True
+    }
+    
+    # Configuration anti-cache pour le développement - Templates ET fichiers statiques
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    
+    # Configuration DEBUG pour auto-reload du code Python
+    import os
+    if os.environ.get('FLASK_ENV') != 'production':
+        app.config['DEBUG'] = True
+        app.config['ENV'] = 'development'
+    
+    # Headers anti-cache pour le développement - Templates ET fichiers statiques
+    @app.after_request
+    def after_request(response):
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        response.headers['Last-Modified'] = '0'
+        return response
     
     # Initialisation des extensions avec l'app
     db.init_app(app)

@@ -5,6 +5,7 @@ Contient les réponses au questionnaire de profil et les données financières.
 
 from app import db
 from datetime import datetime
+from sqlalchemy.dialects.postgresql import JSONB
 
 class InvestorProfile(db.Model):
     """
@@ -54,6 +55,7 @@ class InvestorProfile(db.Model):
     # Situation personnelle
     family_situation = db.Column(db.String(20), nullable=False)  # célibataire, en couple, famille
     professional_situation = db.Column(db.String(30), nullable=False)  # salarié, indépendant, retraité
+    professional_situation_other = db.Column(db.String(100), nullable=True)  # Situation pro personnalisée
     
     # Section 1 - Identité
     civilite = db.Column(db.String(10), nullable=True)  # M., Mme
@@ -66,19 +68,19 @@ class InvestorProfile(db.Model):
     # Section 2 - Revenus étendus
     metier = db.Column(db.String(100), nullable=True)  # Métier/profession
     revenus_complementaires = db.Column(db.Float, nullable=True)  # Ancien champ (maintenu pour compatibilité)
-    revenus_complementaires_json = db.Column(db.Text, nullable=True)  # Nouveau format JSON
+    revenus_complementaires_json = db.Column(JSONB, nullable=True)  # Nouveau format JSONB PostgreSQL
     charges_mensuelles = db.Column(db.Float, nullable=True)  # Ancien champ (maintenu pour compatibilité)
-    charges_mensuelles_json = db.Column(db.Text, nullable=True)  # Nouveau format JSON
-    cryptos_json = db.Column(db.Text, nullable=True)  # Cryptomonnaies JSON
-    liquidites_personnalisees_json = db.Column(db.Text, nullable=True)  # Liquidités personnalisées JSON
-    placements_personnalises_json = db.Column(db.Text, nullable=True)  # Placements personnalisés JSON
+    charges_mensuelles_json = db.Column(JSONB, nullable=True)  # Nouveau format JSONB PostgreSQL
+    cryptos_json = db.Column(JSONB, nullable=True)  # Cryptomonnaies JSONB (legacy compatibility)
+    liquidites_personnalisees_json = db.Column(JSONB, nullable=True)  # Liquidités personnalisées JSONB
+    placements_personnalises_json = db.Column(JSONB, nullable=True)  # Placements personnalisés JSONB
     # taux_epargne calculé automatiquement via méthode
     
     # Nouvelles sections JSON pour données complexes
-    immobilier_data_json = db.Column(db.Text, nullable=True)  # Données détaillées immobilier
-    cryptomonnaies_data_json = db.Column(db.Text, nullable=True)  # Données détaillées crypto avec prix
-    autres_biens_data_json = db.Column(db.Text, nullable=True)  # Autres biens détaillés
-    credits_data_json = db.Column(db.Text, nullable=True)  # Crédits détaillés (complément du modèle Credit)
+    immobilier_data_json = db.Column(JSONB, nullable=True)  # Données détaillées immobilier
+    cryptomonnaies_data_json = db.Column(JSONB, nullable=True)  # Données détaillées crypto avec prix
+    autres_biens_data_json = db.Column(JSONB, nullable=True)  # Autres biens détaillés
+    credits_data_json = db.Column(JSONB, nullable=True)  # Crédits détaillés (complément du modèle Credit)
     
     # Investissements actuels - Section 3 Patrimoine
     has_real_estate = db.Column(db.Boolean, default=False)
@@ -103,11 +105,9 @@ class InvestorProfile(db.Model):
     has_ldds = db.Column(db.Boolean, default=False)
     ldds_value = db.Column(db.Float, default=0.0)
     
-    has_pel = db.Column(db.Boolean, default=False)
-    pel_value = db.Column(db.Float, default=0.0)
-    
-    has_cel = db.Column(db.Boolean, default=False)
-    cel_value = db.Column(db.Float, default=0.0)
+    # PEL/CEL combiné
+    has_pel_cel = db.Column(db.Boolean, default=False)
+    pel_cel_value = db.Column(db.Float, default=0.0)
     
     has_autres_livrets = db.Column(db.Boolean, default=False)
     autres_livrets_value = db.Column(db.Float, default=0.0)
@@ -126,6 +126,9 @@ class InvestorProfile(db.Model):
     
     has_crowdfunding = db.Column(db.Boolean, default=False)
     crowdfunding_value = db.Column(db.Float, default=0.0)
+    
+    has_scpi = db.Column(db.Boolean, default=False)
+    scpi_value = db.Column(db.Float, default=0.0)
     
     other_investments = db.Column(db.Text, nullable=True)
     
@@ -186,10 +189,8 @@ class InvestorProfile(db.Model):
             total += self.livret_a_value or 0.0
         if self.has_ldds:
             total += self.ldds_value or 0.0
-        if self.has_pel:
-            total += self.pel_value or 0.0
-        if self.has_cel:
-            total += self.cel_value or 0.0
+        if self.has_pel_cel:
+            total += self.pel_cel_value or 0.0
         if self.has_autres_livrets:
             total += self.autres_livrets_value or 0.0
         if self.has_pea:
@@ -204,6 +205,8 @@ class InvestorProfile(db.Model):
             total += self.cto_value or 0.0
         if self.has_private_equity:
             total += self.private_equity_value or 0.0
+        if self.has_scpi:
+            total += self.scpi_value or 0.0
         if self.has_crowdfunding:
             total += self.crowdfunding_value or 0.0
         return total
@@ -235,10 +238,8 @@ class InvestorProfile(db.Model):
             total += self.livret_a_value or 0.0
         if self.has_ldds:
             total += self.ldds_value or 0.0
-        if self.has_pel:
-            total += self.pel_value or 0.0
-        if self.has_cel:
-            total += self.cel_value or 0.0
+        if self.has_pel_cel:
+            total += self.pel_cel_value or 0.0
         if self.has_autres_livrets:
             total += self.autres_livrets_value or 0.0
             
@@ -255,6 +256,8 @@ class InvestorProfile(db.Model):
             total += self.cto_value or 0.0
         if self.has_private_equity:
             total += self.private_equity_value or 0.0
+        if self.has_scpi:
+            total += self.scpi_value or 0.0
         if self.has_crowdfunding:
             total += self.crowdfunding_value or 0.0
             
@@ -339,11 +342,8 @@ class InvestorProfile(db.Model):
         if self.has_ldds and self.ldds_value > 0:
             distribution['Livret de développement durable et solidaire (LDDS)'] = self.ldds_value
             
-        if self.has_pel and self.pel_value > 0:
-            distribution['Plan d\'Épargne Logement (PEL)'] = self.pel_value
-            
-        if self.has_cel and self.cel_value > 0:
-            distribution['Compte d\'Épargne Logement (CEL)'] = self.cel_value
+        if self.has_pel_cel and self.pel_cel_value > 0:
+            distribution['PEL/CEL'] = self.pel_cel_value
             
         if self.has_autres_livrets and self.autres_livrets_value > 0:
             distribution['Autres livrets'] = self.autres_livrets_value
@@ -365,6 +365,9 @@ class InvestorProfile(db.Model):
             
         if self.has_private_equity and self.private_equity_value > 0:
             distribution['Private Equity (PE)'] = self.private_equity_value
+            
+        if self.has_scpi and self.scpi_value > 0:
+            distribution['SCPI'] = self.scpi_value
             
         if self.has_crowdfunding and self.crowdfunding_value > 0:
             distribution['Crowdfunding'] = self.crowdfunding_value
@@ -416,6 +419,11 @@ class InvestorProfile(db.Model):
         if not self.revenus_complementaires_json:
             return []
         
+        # PostgreSQL JSONB returns Python objects directly, not JSON strings
+        if isinstance(self.revenus_complementaires_json, list):
+            return self.revenus_complementaires_json
+        
+        # Fallback for string JSON data
         try:
             import json
             return json.loads(self.revenus_complementaires_json)
@@ -429,11 +437,8 @@ class InvestorProfile(db.Model):
         Args:
             data (list): Liste des revenus [{'name': str, 'amount': float}]
         """
-        if data:
-            import json
-            self.revenus_complementaires_json = json.dumps(data)
-        else:
-            self.revenus_complementaires_json = None
+        # PostgreSQL JSONB stores Python objects directly
+        self.revenus_complementaires_json = data if data else None
     
     @property
     def charges_mensuelles_data(self):
@@ -446,6 +451,11 @@ class InvestorProfile(db.Model):
         if not self.charges_mensuelles_json:
             return []
         
+        # PostgreSQL JSONB returns Python objects directly, not JSON strings
+        if isinstance(self.charges_mensuelles_json, list):
+            return self.charges_mensuelles_json
+        
+        # Fallback for string JSON data
         try:
             import json
             return json.loads(self.charges_mensuelles_json)
@@ -459,11 +469,8 @@ class InvestorProfile(db.Model):
         Args:
             data (list): Liste des charges [{'name': str, 'amount': float}]
         """
-        if data:
-            import json
-            self.charges_mensuelles_json = json.dumps(data)
-        else:
-            self.charges_mensuelles_json = None
+        # PostgreSQL JSONB stores Python objects directly
+        self.charges_mensuelles_json = data if data else None
     
     @property
     def cryptos_data(self):
@@ -476,6 +483,11 @@ class InvestorProfile(db.Model):
         if not self.cryptos_json:
             return []
         
+        # PostgreSQL JSONB returns Python objects directly
+        if isinstance(self.cryptos_json, list):
+            return self.cryptos_json
+        
+        # Fallback for string JSON data
         try:
             import json
             return json.loads(self.cryptos_json)
@@ -484,16 +496,13 @@ class InvestorProfile(db.Model):
     
     def set_cryptos_data(self, data):
         """
-        Sauvegarde les cryptomonnaies en format JSON.
+        Sauvegarde les cryptomonnaies en format JSONB.
         
         Args:
             data (list): Liste des cryptos [{'symbol': str, 'quantity': float}]
         """
-        if data:
-            import json
-            self.cryptos_json = json.dumps(data)
-        else:
-            self.cryptos_json = None
+        # PostgreSQL JSONB stores Python objects directly
+        self.cryptos_json = data if data else None
     
     @property
     def liquidites_personnalisees_data(self):
@@ -506,6 +515,11 @@ class InvestorProfile(db.Model):
         if not self.liquidites_personnalisees_json:
             return []
         
+        # PostgreSQL JSONB returns Python objects directly
+        if isinstance(self.liquidites_personnalisees_json, list):
+            return self.liquidites_personnalisees_json
+        
+        # Fallback for string JSON data
         try:
             import json
             return json.loads(self.liquidites_personnalisees_json)
@@ -514,16 +528,13 @@ class InvestorProfile(db.Model):
     
     def set_liquidites_personnalisees_data(self, data):
         """
-        Sauvegarde les liquidités personnalisées en format JSON.
+        Sauvegarde les liquidités personnalisées en format JSONB.
         
         Args:
             data (list): Liste des liquidités [{'name': str, 'amount': float}]
         """
-        if data:
-            import json
-            self.liquidites_personnalisees_json = json.dumps(data)
-        else:
-            self.liquidites_personnalisees_json = None
+        # PostgreSQL JSONB stores Python objects directly
+        self.liquidites_personnalisees_json = data if data else None
     
     @property
     def placements_personnalises_data(self):
@@ -536,6 +547,11 @@ class InvestorProfile(db.Model):
         if not self.placements_personnalises_json:
             return []
         
+        # PostgreSQL JSONB returns Python objects directly
+        if isinstance(self.placements_personnalises_json, list):
+            return self.placements_personnalises_json
+        
+        # Fallback for string JSON data
         try:
             import json
             return json.loads(self.placements_personnalises_json)
@@ -544,16 +560,13 @@ class InvestorProfile(db.Model):
     
     def set_placements_personnalises_data(self, data):
         """
-        Sauvegarde les placements personnalisés en format JSON.
+        Sauvegarde les placements personnalisés en format JSONB.
         
         Args:
             data (list): Liste des placements [{'name': str, 'amount': float}]
         """
-        if data:
-            import json
-            self.placements_personnalises_json = json.dumps(data)
-        else:
-            self.placements_personnalises_json = None
+        # PostgreSQL JSONB stores Python objects directly
+        self.placements_personnalises_json = data if data else None
     
     @property
     def immobilier_data(self):
@@ -566,6 +579,11 @@ class InvestorProfile(db.Model):
         if not self.immobilier_data_json:
             return []
         
+        # PostgreSQL JSONB returns Python objects directly
+        if isinstance(self.immobilier_data_json, list):
+            return self.immobilier_data_json
+        
+        # Fallback for string JSON data
         try:
             import json
             return json.loads(self.immobilier_data_json)
@@ -574,16 +592,13 @@ class InvestorProfile(db.Model):
     
     def set_immobilier_data(self, data):
         """
-        Sauvegarde les données immobilier en format JSON.
+        Sauvegarde les données immobilier en format JSONB.
         
         Args:
             data (list): Liste des biens immobiliers détaillés
         """
-        if data:
-            import json
-            self.immobilier_data_json = json.dumps(data)
-        else:
-            self.immobilier_data_json = None
+        # PostgreSQL JSONB stores Python objects directly
+        self.immobilier_data_json = data if data else None
     
     @property
     def cryptomonnaies_data(self):
@@ -596,6 +611,11 @@ class InvestorProfile(db.Model):
         if not self.cryptomonnaies_data_json:
             return []
         
+        # PostgreSQL JSONB returns Python objects directly
+        if isinstance(self.cryptomonnaies_data_json, list):
+            return self.cryptomonnaies_data_json
+        
+        # Fallback for string JSON data
         try:
             import json
             return json.loads(self.cryptomonnaies_data_json)
@@ -604,16 +624,13 @@ class InvestorProfile(db.Model):
     
     def set_cryptomonnaies_data(self, data):
         """
-        Sauvegarde les données crypto en format JSON.
+        Sauvegarde les données crypto en format JSONB.
         
         Args:
             data (list): Liste des cryptomonnaies détaillées
         """
-        if data:
-            import json
-            self.cryptomonnaies_data_json = json.dumps(data)
-        else:
-            self.cryptomonnaies_data_json = None
+        # PostgreSQL JSONB stores Python objects directly
+        self.cryptomonnaies_data_json = data if data else None
     
     @property
     def autres_biens_data(self):
@@ -626,6 +643,11 @@ class InvestorProfile(db.Model):
         if not self.autres_biens_data_json:
             return []
         
+        # PostgreSQL JSONB returns Python objects directly
+        if isinstance(self.autres_biens_data_json, list):
+            return self.autres_biens_data_json
+        
+        # Fallback for string JSON data
         try:
             import json
             return json.loads(self.autres_biens_data_json)
@@ -634,16 +656,13 @@ class InvestorProfile(db.Model):
     
     def set_autres_biens_data(self, data):
         """
-        Sauvegarde les autres biens en format JSON.
+        Sauvegarde les autres biens en format JSONB.
         
         Args:
             data (list): Liste des autres biens détaillés
         """
-        if data:
-            import json
-            self.autres_biens_data_json = json.dumps(data)
-        else:
-            self.autres_biens_data_json = None
+        # PostgreSQL JSONB stores Python objects directly
+        self.autres_biens_data_json = data if data else None
     
     @property
     def credits_data(self):
@@ -656,6 +675,11 @@ class InvestorProfile(db.Model):
         if not self.credits_data_json:
             return []
         
+        # PostgreSQL JSONB returns Python objects directly
+        if isinstance(self.credits_data_json, list):
+            return self.credits_data_json
+        
+        # Fallback for string JSON data
         try:
             import json
             return json.loads(self.credits_data_json)
@@ -664,16 +688,13 @@ class InvestorProfile(db.Model):
     
     def set_credits_data(self, data):
         """
-        Sauvegarde les données crédits en format JSON.
+        Sauvegarde les données crédits en format JSONB.
         
         Args:
             data (list): Liste des crédits détaillés
         """
-        if data:
-            import json
-            self.credits_data_json = json.dumps(data)
-        else:
-            self.credits_data_json = None
+        # PostgreSQL JSONB stores Python objects directly
+        self.credits_data_json = data if data else None
     
     def __repr__(self):
         return f'<InvestorProfile {self.user.get_full_name()}>'
