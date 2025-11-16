@@ -10,6 +10,8 @@ from app.models.investor_profile import InvestorProfile
 from app.models.subscription import Subscription
 from sqlalchemy import or_
 from flask import jsonify
+import requests
+import time
 
 platform_admin_bp = Blueprint('platform_admin', __name__, url_prefix='/plateforme/admin')
 
@@ -121,6 +123,11 @@ def user_detail(user_id):
     
     # Mode édition activé par paramètre URL
     edit_mode = request.args.get('edit') == 'true'
+    
+    # Enrichir les données crypto avec les prix en temps réel
+    if user.investor_profile and user.investor_profile.cryptomonnaies_data:
+        cryptomonnaies_data = enrich_crypto_with_prices(user.investor_profile.cryptomonnaies_data)
+        user.investor_profile._enriched_crypto_data = cryptomonnaies_data
     
     return render_template('platform/admin/user_detail.html', 
                          user=user, 
@@ -766,3 +773,81 @@ def invite_prospect(prospect_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Erreur lors de l\'envoi: {str(e)}'}), 500
+
+
+def enrich_crypto_with_prices(crypto_data):
+    """
+    Enrichit les données crypto avec les prix actuels depuis l'API CoinGecko.
+    """
+    if not crypto_data:
+        return []
+    
+    try:
+        # Mapping des symbols vers les IDs CoinGecko
+        symbol_to_id = {
+            'btc': 'bitcoin',
+            'eth': 'ethereum',
+            'bnb': 'binancecoin',
+            'ada': 'cardano',
+            'sol': 'solana',
+            'usdt': 'tether',
+            'usdc': 'usd-coin',
+            'xrp': 'ripple',
+            'dot': 'polkadot',
+            'avax': 'avalanche-2',
+            'link': 'chainlink',
+            'matic': 'matic-network',
+            'ltc': 'litecoin',
+            'atom': 'cosmos',
+            'uni': 'uniswap'
+        }
+        
+        # Récupérer les symbols uniques
+        symbols = []
+        for crypto in crypto_data:
+            symbol = crypto.get('symbol', '').lower()
+            if symbol and symbol not in symbols:
+                symbols.append(symbol)
+        
+        if not symbols:
+            return crypto_data
+        
+        # Convertir en IDs CoinGecko
+        ids = []
+        for symbol in symbols:
+            coin_id = symbol_to_id.get(symbol, symbol)
+            ids.append(coin_id)
+        
+        # Appel à l'API CoinGecko
+        ids_str = ','.join(ids)
+        url = f'https://api.coingecko.com/api/v3/simple/price?ids={ids_str}&vs_currencies=eur'
+        
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        prices_data = response.json()
+        
+        # Enrichir les données crypto
+        enriched_data = []
+        for crypto in crypto_data:
+            symbol = crypto.get('symbol', '').lower()
+            coin_id = symbol_to_id.get(symbol, symbol)
+            
+            crypto_copy = crypto.copy()
+            if coin_id in prices_data:
+                crypto_copy['current_price'] = prices_data[coin_id].get('eur', 0)
+            else:
+                crypto_copy['current_price'] = 0
+            
+            enriched_data.append(crypto_copy)
+        
+        return enriched_data
+        
+    except Exception as e:
+        print(f"Erreur lors de la récupération des prix crypto: {e}")
+        # En cas d'erreur, retourner les données originales avec prix à 0
+        enriched_data = []
+        for crypto in crypto_data:
+            crypto_copy = crypto.copy()
+            crypto_copy['current_price'] = 0
+            enriched_data.append(crypto_copy)
+        return enriched_data
