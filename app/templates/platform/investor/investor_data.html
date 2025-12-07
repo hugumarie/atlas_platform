@@ -735,13 +735,232 @@
     box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
     color: white;
 }
+
+/* NAVIGATION RAPIDE STICKY SIMPLE */
+.quick-nav {
+    background: linear-gradient(135deg, var(--qlower-white) 0%, #fafbfc 100%);
+    border-radius: 16px;
+    border: 1px solid var(--qlower-border);
+    box-shadow: 0 4px 20px rgba(19, 124, 139, 0.08);
+    position: sticky;
+    top: 24px;
+    z-index: 500;
+    backdrop-filter: blur(10px);
+    margin-bottom: 24px;
+}
+
+.quick-nav-container {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.quick-nav-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--qlower-text-dark);
+    white-space: nowrap;
+}
+
+.quick-nav-items {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.quick-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.quick-nav-item:hover {
+    background: rgba(19, 124, 139, 0.08);
+    color: var(--qlower-primary);
+    border-color: rgba(19, 124, 139, 0.15);
+    transform: translateY(-1px);
+}
+
+.quick-nav-item.active {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: white;
+    border-color: var(--qlower-primary);
+}
+
+.quick-nav-item i {
+    font-size: 12px;
+}
+
+.quick-nav-item span {
+    font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .quick-nav {
+        top: 16px;
+    }
+    
+    .quick-nav-container {
+        padding: 12px 16px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    
+    .quick-nav-title {
+        font-size: 12px;
+    }
+    
+    .quick-nav-items {
+        gap: 4px;
+        width: 100%;
+    }
+    
+    .quick-nav-item {
+        padding: 6px 12px;
+        font-size: 12px;
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
+    }
+    
+    .quick-nav-item span {
+        font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* BOUTON D'ÉDITION FLOTTANT */
+.edit-floating-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border: none;
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(19, 124, 139, 0.3);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.025em;
+}
+
+.edit-floating-btn:hover {
+    transform: translateY(-4px) scale(1.1);
+    box-shadow: 0 16px 48px rgba(19, 124, 139, 0.4);
+    background: linear-gradient(135deg, var(--qlower-dark) 0%, var(--qlower-primary) 100%);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.edit-floating-btn:active {
+    transform: translateY(-2px) scale(1.05);
+}
+
+.edit-floating-btn i {
+    font-size: 16px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Animation d'apparition */
+.edit-floating-btn {
+    opacity: 0;
+    transform: translateY(100px);
+    animation: slideUpFadeIn 0.6s ease forwards;
+    animation-delay: 0.5s;
+}
+
+@keyframes slideUpFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .edit-floating-btn {
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .edit-floating-btn i {
+        font-size: 14px;
+    }
+}
 </style>
 
 {% if current_user.investor_profile %}
 <div class="investor-dashboard">
     
+    <!-- NAVIGATION RAPIDE FIXE -->
+    <nav class="quick-nav" id="quickNav">
+        <div class="quick-nav-container">
+            <div class="quick-nav-title">Navigation rapide</div>
+            <div class="quick-nav-items">
+                <a href="#infos-personnelles" class="quick-nav-item active">
+                    <i class="fas fa-user"></i>
+                    <span>Infos perso</span>
+                </a>
+                <a href="#objectifs-investissement" class="quick-nav-item">
+                    <i class="fas fa-target"></i>
+                    <span>Objectifs</span>
+                </a>
+                <a href="#profil-risque" class="quick-nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Profil risque</span>
+                </a>
+                <a href="#revenus-charges" class="quick-nav-item">
+                    <i class="fas fa-wallet"></i>
+                    <span>Revenus</span>
+                </a>
+                <a href="#epargne-patrimoine" class="quick-nav-item">
+                    <i class="fas fa-piggy-bank"></i>
+                    <span>Patrimoine</span>
+                </a>
+                <a href="#credits" class="quick-nav-item">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Crédits</span>
+                </a>
+                <a href="#patrimoine-net-total" class="quick-nav-item">
+                    <i class="fas fa-crown"></i>
+                    <span>Bilan</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+    
     <!-- INFORMATIONS PERSONNELLES -->
-    <div class="platform-card">
+    <div class="platform-card" id="infos-personnelles">
         <div class="platform-card-header">
             <div>
                 <div class="platform-card-title">INFORMATIONS PERSONNELLES</div>
@@ -831,7 +1050,7 @@
     </div>
 
     <!-- OBJECTIFS D'INVESTISSEMENT -->
-    <div class="platform-card">
+    <div class="platform-card" id="objectifs-investissement">
         <div class="platform-card-header">
             <div>
                 <div class="platform-card-title">OBJECTIFS D'INVESTISSEMENT</div>
@@ -875,7 +1094,7 @@
     </div>
 
     <!-- PROFIL DE RISQUE -->
-    <div class="platform-card">
+    <div class="platform-card" id="profil-risque">
         <div class="platform-card-header">
             <div>
                 <div class="platform-card-title">PROFIL DE RISQUE</div>
@@ -906,7 +1125,7 @@
     </div>
 
     <!-- REVENUS ET CHARGES -->
-    <div class="platform-card">
+    <div class="platform-card" id="revenus-charges">
         <div class="platform-card-header">
             <div>
                 <div class="platform-card-title">REVENUS ET CHARGES</div>
@@ -1017,7 +1236,7 @@
     </div>
 
     <!-- ÉPARGNE ET PLACEMENTS -->
-    <div class="platform-card">
+    <div class="platform-card" id="epargne-patrimoine">
         <div class="platform-card-header">
             <div>
                 <div class="platform-card-title">ÉPARGNE & PATRIMOINE</div>
@@ -1419,7 +1638,7 @@
 
     <!-- CRÉDITS -->
     {% if current_user.investor_profile.credits_data %}
-    <div class="platform-card">
+    <div class="platform-card" id="credits">
         <div class="platform-card-header">
             <div>
                 <div class="platform-card-title">CRÉDITS (hors immobilier)</div>
@@ -1491,7 +1710,7 @@
     {% set total_actifs_sans_crypto = total_liquidites_calc + total_placements_calc + total_immobilier_calc + total_autres_biens_calc %}
     {% set total_passifs = current_user.investor_profile.calculated_total_credits_consommation or 0 %}
     
-    <div class="patrimoine-final">
+    <div class="patrimoine-final" id="patrimoine-net-total">
         <div class="patrimoine-icon">
             <i class="fas fa-crown"></i>
         </div>
@@ -1503,6 +1722,12 @@
             Total Actifs: <span id="totalActifsDetail" data-sans-crypto="{{ total_actifs_sans_crypto }}">{{ "{:,.0f}".format(total_actifs_sans_crypto) }}€</span> • Total Dettes: {{ "{:,.0f}".format(total_passifs) }}€
         </div>
     </div>
+    
+    <!-- BOUTON D'ÉDITION FLOTTANT -->
+    <button class="edit-floating-btn" type="button" title="Modifier les données">
+        <i class="fas fa-edit"></i>
+        <span>Modifier les données</span>
+    </button>
 </div>
 
 {% else %}
@@ -1532,6 +1757,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     loadCryptoPrices();
+    initQuickNavigation();
 });
 
 async function loadCryptoPrices() {
@@ -1639,6 +1865,65 @@ function updateTotalPatrimoine(cryptoTotalValue) {
         patrimoineNetElement.textContent = `${formattedPatrimoineNet}€`;
         totalActifsDetailElement.textContent = `${formattedActifs}€`;
     }
+}
+
+function initQuickNavigation() {
+    const navItems = document.querySelectorAll('.quick-nav-item');
+    const sections = document.querySelectorAll('[id]');
+    
+    // Smooth scroll pour les liens de navigation
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            const targetSection = document.getElementById(targetId);
+            
+            if (targetSection) {
+                const navHeight = 100; // Compensation pour le sticky nav
+                const targetPosition = targetSection.offsetTop - navHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+                
+                // Mettre à jour l'élément actif
+                updateActiveNavItem(this);
+            }
+        });
+    });
+    
+    // Mise à jour de l'élément actif au scroll
+    window.addEventListener('scroll', function() {
+        let current = '';
+        const offset = 150; // Offset pour la détection de section active
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - offset;
+            const sectionHeight = section.offsetHeight;
+            
+            if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
+                current = section.getAttribute('id');
+            }
+        });
+        
+        if (current) {
+            const activeItem = document.querySelector(`[href="#${current}"]`);
+            if (activeItem) {
+                updateActiveNavItem(activeItem);
+            }
+        }
+    });
+}
+
+function updateActiveNavItem(activeItem) {
+    // Retirer la classe active de tous les éléments
+    document.querySelectorAll('.quick-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Ajouter la classe active à l'élément courant
+    activeItem.classList.add('active');
 }
 </script>
 {% endblock %}
