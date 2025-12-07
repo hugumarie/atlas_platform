@@ -552,7 +552,7 @@
                         <div class="total-display">
                             <i class="fas fa-coins"></i> 
                             <span>Total Liquidités: </span>
-                            <span id="totalEpargneLiquidites">0€</span>
+                            <span id="totalEpargneLiquidites">{{ "{:,.0f}".format(user.investor_profile.calculated_total_liquidites or 0) }}€</span>
                         </div>
                     </div>
                 </div>
@@ -697,7 +697,7 @@
                         <div class="total-display">
                             <i class="fas fa-chart-line"></i> 
                             <span>Total Placements financiers: </span>
-                            <span id="totalEpargnePlacements">0€</span>
+                            <span id="totalEpargnePlacements">{{ "{:,.0f}".format(user.investor_profile.calculated_total_placements or 0) }}€</span>
                         </div>
                     </div>
                 </div>
@@ -824,7 +824,7 @@
                                     </div>
                                     <div class="credit-row">
                                         <div class="financial-edit-item">
-                                            <label class="financial-label">Capital restant dû</label>
+                                            <label class="financial-label">Montant restant du crédit à rembourser</label>
                                             <div class="input-group">
                                                 <input type="text" class="form-control capital-restant-display" readonly>
                                                 <span class="input-group-text">€</span>
@@ -879,7 +879,7 @@
         <div class="platform-card mb-4">
             <div class="platform-card-header">
                 <h3 class="platform-card-title">
-                    <i class="fab fa-bitcoin text-warning"></i>
+                    <i class="fab fa-bitcoin text-primary"></i>
                     CRYPTOMONNAIES
                 </h3>
                 <p class="platform-card-subtitle">Portefeuille de cryptomonnaies - Valorisation en temps réel</p>
@@ -937,7 +937,7 @@
                     <div class="total-display">
                         <i class="fab fa-bitcoin"></i> 
                         <span>Total Cryptomonnaies: </span>
-                        <span id="totalCryptomonnaies">0€</span>
+                        <span id="totalCryptomonnaies">{{ "{:,.0f}".format(user.investor_profile.calculated_total_cryptomonnaies or 0) }}€</span>
                     </div>
                 </div>
             </div>
@@ -1020,16 +1020,18 @@
                             <i class="fas fa-trash"></i>
                         </button>
                         <div class="credit-content">
+                            <!-- ID unique pour identifier ce crédit -->
+                            <input type="hidden" name="credit_conso_id[]" value="{{ credit.get('id', loop.index0) }}">
                             <div class="credit-row">
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Description</label>
-                                    <input type="text" class="form-control credit-description" name="credit_description[]" 
+                                    <input type="text" class="form-control credit-description" name="credit_conso_description[]" 
                                            value="{{ credit.description or '' }}" placeholder="Ex: Crédit auto, Prêt travaux, Crédit conso...">
                                 </div>
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Montant initial</label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control credit-montant-initial" name="credit_montant_initial[]" 
+                                        <input type="number" class="form-control credit-montant-initial" name="credit_conso_montant_initial[]" 
                                                value="{{ credit.montant_initial or 0 }}" step="100" min="0" onchange="calculateCreditRestant(this)">
                                         <span class="input-group-text">€</span>
                                     </div>
@@ -1037,7 +1039,7 @@
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Taux (%)</label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control credit-taux" name="credit_taux[]" 
+                                        <input type="number" class="form-control credit-taux" name="credit_conso_taux[]" 
                                                value="{{ credit.taux or 0 }}" step="0.01" min="0" max="25" onchange="calculateCreditRestant(this)">
                                         <span class="input-group-text">%</span>
                                     </div>
@@ -1047,20 +1049,29 @@
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Durée (années)</label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control credit-duree" name="credit_duree[]" 
+                                        <input type="number" class="form-control credit-duree" name="credit_conso_duree[]" 
                                                value="{{ credit.duree or 0 }}" step="1" min="0" max="30" onchange="calculateCreditRestant(this)">
                                         <span class="input-group-text">ans</span>
                                     </div>
                                 </div>
                                 <div class="financial-edit-item">
                                     <label class="financial-label">Date de départ</label>
-                                    <input type="month" class="form-control credit-date-depart" name="credit_date_depart[]" 
+                                    <input type="month" class="form-control credit-date-depart" name="credit_conso_date_depart[]" 
                                            value="{{ credit.date_depart or '' }}" onchange="calculateCreditRestant(this)">
                                 </div>
                                 <div class="financial-edit-item">
-                                    <label class="financial-label">Capital restant dû</label>
+                                    <label class="financial-label">Mensualité</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control credit-capital-restant" readonly>
+                                        <input type="text" class="form-control credit-mensualite" readonly 
+                                               value="{{ '{:,.0f}'.format(credit.get('mensualite', 0)) if credit.get('mensualite') else '0' }}">
+                                        <span class="input-group-text">€/mois</span>
+                                    </div>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Montant restant du crédit à rembourser</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control credit-capital-restant" readonly
+                                               value="{{ '{:,.0f}'.format(credit.get('capital_restant', credit.get('montant_restant', credit.get('montant_initial', 0)))) }}">
                                         <span class="input-group-text">€</span>
                                     </div>
                                 </div>
@@ -1081,8 +1092,8 @@
                 <div class="total-section">
                     <div class="total-display">
                         <i class="fas fa-credit-card"></i> 
-                        <span>Total Crédits restant à rembourser: </span>
-                        <span id="totalCredits">0€</span>
+                        <span>Montant de crédit total à rembourser: </span>
+                        <span id="totalCredits">{{ "{:,.0f}".format(user.investor_profile.calculated_total_credits_consommation or 0) }}€</span>
                     </div>
                 </div>
             </div>
@@ -1520,10 +1531,10 @@
             {% set total_liquidites_perso = liquidites_perso_montants | sum %}
             {% set total_liquidites = total_liquidites + total_liquidites_perso %}
             
-                {% if total_liquidites > 0 %}
+                {% if user.investor_profile.calculated_total_liquidites and user.investor_profile.calculated_total_liquidites > 0 %}
                 <div class="liquidites-compact-item-total">
                     <div class="liquidites-compact-name-total">Total Liquidités</div>
-                    <div class="liquidites-compact-value-total">{{ "{:,.0f}".format(total_liquidites) }}€</div>
+                    <div class="liquidites-compact-value-total">{{ "{:,.0f}".format(user.investor_profile.calculated_total_liquidites or 0) }}€</div>
                 </div>
                 {% endif %}
             </div>
@@ -1628,13 +1639,11 @@
                 {% set total_placements = total_placements + placement.amount %}
             {% endfor %}
             
-            <!-- Calcul du patrimoine total en temps réel -->
-            {% set patrimoine_total = total_liquidites + total_placements %}
             
-            {% if total_placements > 0 %}
+            {% if user.investor_profile.calculated_total_placements and user.investor_profile.calculated_total_placements > 0 %}
             <div class="placements-compact-item-total">
                 <div class="placements-compact-name-total">Total Placements Financiers</div>
-                <div class="placements-compact-value-total">{{ "{:,.0f}".format(total_placements) }}€</div>
+                <div class="placements-compact-value-total">{{ "{:,.0f}".format(user.investor_profile.calculated_total_placements or 0) }}€</div>
             </div>
             {% endif %}
             
@@ -1752,7 +1761,7 @@
                 </div>
                 <div class="immobilier-compact-item-special">
                     <div class="immobilier-compact-name-special">Patrimoine Immobilier Net</div>
-                    <div class="immobilier-compact-value-special"><span id="totalImmobilierView">{{ "{:,.0f}".format(total_valeur_nette) }}</span>€</div>
+                    <div class="immobilier-compact-value-special"><span id="totalImmobilierView">{{ "{:,.0f}".format(user.investor_profile.calculated_total_immobilier_net or 0) }}</span>€</div>
                 </div>
             </div>
             {% endif %}
@@ -1790,7 +1799,7 @@
                 
                 <div class="crypto-compact-item-total">
                     <div class="crypto-compact-name-total">Total Cryptomonnaies</div>
-                    <div class="crypto-compact-value-total">-</div>
+                    <div class="crypto-compact-value-total">{{ "{:,.0f}".format(user.investor_profile.calculated_total_cryptomonnaies or 0) }}€</div>
                 </div>
             </div>
             
@@ -1857,7 +1866,7 @@
                         });
                         
                         const totalElement = document.querySelector('.crypto-compact-value-total');
-                        if (totalElement) {
+                        if (totalElement && !totalElement.hasAttribute('id')) {
                             totalElement.textContent = Math.round(totalValue).toLocaleString('fr-FR') + '€';
                         }
                     })
@@ -1895,24 +1904,14 @@
                     {% endfor %}
                 </div>
                 
-                {% set total_autres_biens = user.investor_profile.autres_biens_data | map(attribute='valeur') | sum %}
                 <div class="crypto-compact-item-total">
                     <div class="crypto-compact-name-total">Total Autres Biens</div>
-                    <div class="crypto-compact-value-total">{{ "{:,.0f}".format(total_autres_biens) }}€</div>
+                    <div class="crypto-compact-value-total">{{ "{:,.0f}".format(user.investor_profile.calculated_total_autres_biens or 0) }}€</div>
                 </div>
             </div>
             {% endif %}
 
 
-            <!-- Patrimoine total -->
-            {% if patrimoine_total > 0 %}
-            <div class="total-section-view mt-4">
-                <div class="total-display-view patrimoine-total">
-                    <i class="fas fa-coins"></i> 
-                    <span>PATRIMOINE TOTAL: {{ "{:,.0f}".format(patrimoine_total) }}€</span>
-                </div>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
@@ -1922,29 +1921,97 @@
 <div class="platform-card">
     <div class="platform-card-header">
         <h3 class="platform-card-title">
-            <i class="fas fa-credit-card text-danger"></i>
+            <i class="fas fa-credit-card text-atlas"></i>
             CRÉDITS
         </h3>
         <p class="platform-card-subtitle">Crédits en cours (hors immobilier)</p>
     </div>
     <div class="platform-card-body">
-        <div class="crypto-compact-list">
-            {% for credit in user.investor_profile.credits_data %}
-            <div class="crypto-compact-item">
-                <div class="crypto-compact-name">{{ credit.description }}</div>
-                <div class="crypto-compact-quantity">{{ credit.taux }}% / {{ credit.duree }}a</div>
-                <div class="crypto-compact-value">{{ "{:,.0f}".format(credit.get('montant_restant', credit.montant_initial)) }}€</div>
+        {% for credit in user.investor_profile.credits_data %}
+        <div class="revenue-subsection mt-4 credit-view-item">
+            <h5 class="revenue-subsection-title">
+                <i class="fas fa-credit-card text-atlas"></i>
+                {{ credit.get('description', 'Crédit') }}
+            </h5>
+            
+            <!-- Données du crédit -->
+            <div class="immobilier-compact-list">
+                <div class="immobilier-compact-item">
+                    <div class="immobilier-compact-name">Montant initial</div>
+                    <div class="immobilier-compact-value">{{ "{:,.0f}".format(credit.get('montant_initial', 0)) }}€</div>
+                </div>
+                
+                <div class="immobilier-compact-item">
+                    <div class="immobilier-compact-name">Taux d'intérêt</div>
+                    <div class="immobilier-compact-value">{{ credit.get('taux', 0) }}%</div>
+                </div>
+                
+                <div class="immobilier-compact-item">
+                    <div class="immobilier-compact-name">Durée</div>
+                    <div class="immobilier-compact-value">{{ credit.get('duree', 0) }} ans</div>
+                </div>
+                
+                {% if credit.get('date_depart') %}
+                <div class="immobilier-compact-item">
+                    <div class="immobilier-compact-name">Date de départ</div>
+                    <div class="immobilier-compact-value">{{ credit.get('date_depart') }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="immobilier-compact-item">
+                    <div class="immobilier-compact-name">Mensualité</div>
+                    <div class="immobilier-compact-value">{{ "{:,.0f}".format(credit.get('mensualite', 0)) }}€/mois</div>
+                </div>
+                
+                <div class="immobilier-compact-item">
+                    <div class="immobilier-compact-name">Montant restant du crédit à rembourser</div>
+                    <div class="immobilier-compact-value">{{ "{:,.0f}".format(credit.get('montant_restant', credit.get('montant_initial', 0))) }}€</div>
+                </div>
             </div>
-            {% endfor %}
+        </div>
+        {% endfor %}
+        
+        <!-- Total des crédits - depuis la base de données -->
+        {% set total_credits_restant = user.investor_profile.calculated_total_credits_consommation or 0 %}
+        
+        <div class="crypto-compact-item-total">
+            <div class="crypto-compact-name-total">Montant de crédit total à rembourser</div>
+            <div class="crypto-compact-value-total">{{ "{:,.0f}".format(total_credits_restant) }}€</div>
         </div>
         
-        {% set total_credits = 0 %}
-        {% for credit in user.investor_profile.credits_data %}
-            {% set total_credits = total_credits + credit.get('montant_restant', credit.montant_initial) %}
-        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- PATRIMOINE TOTAL NET -->
+{% if user.investor_profile %}
+<div class="platform-card mb-4">
+    <div class="platform-card-body">
+        <!-- Calcul du patrimoine total à partir des totaux de sections -->
+        {% set ns_patrimoine = namespace(total_actifs=0) %}
+        
+        <!-- 1. Total Liquidités - depuis la base de données -->
+        {% set total_liquidites = user.investor_profile.calculated_total_liquidites or 0 %}
+        
+        <!-- 2. Total Placements Financiers - depuis la base de données -->
+        {% set total_placements = user.investor_profile.calculated_total_placements or 0 %}
+        
+        <!-- 3. Total Immobilier Net - depuis la base de données -->
+        {% set total_immobilier_net = user.investor_profile.calculated_total_immobilier_net or 0 %}
+        
+        <!-- 4. Total Cryptomonnaies - depuis la base de données -->
+        {% set total_cryptos = user.investor_profile.calculated_total_cryptomonnaies or 0 %}
+        
+        <!-- 5. Total Autres Biens - depuis la base de données -->
+        {% set total_autres_biens = user.investor_profile.calculated_total_autres_biens or 0 %}
+        
+        <!-- TOTAL ACTIFS et PATRIMOINE NET - depuis la base de données -->
+        {% set total_actifs = user.investor_profile.calculated_total_actifs or 0 %}
+        {% set patrimoine_net = user.investor_profile.calculated_patrimoine_total_net or 0 %}
+        
         <div class="crypto-compact-item-total">
-            <div class="crypto-compact-name-total">Total Crédits</div>
-            <div class="crypto-compact-value-total">{{ "{:,.0f}".format(total_credits) }}€</div>
+            <div class="crypto-compact-name-total" style="font-size: 18px;">PATRIMOINE TOTAL NET</div>
+            <div class="crypto-compact-value-total" style="font-size: 24px; font-weight: bold;" id="patrimoineTotal">{{ "{:,.0f}".format(patrimoine_net) }}€</div>
         </div>
     </div>
 </div>
@@ -1964,7 +2031,6 @@
 {% endif %}
 
 <!-- Import des styles de la page profil -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/investor_data.css') }}">
 <style>
 /* Styles Atlas pour la grille de patrimoine */
 .liquidites-edit-grid, .placements-edit-grid {
@@ -3057,6 +3123,10 @@
     background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
 }
 
+.total-display-view.credits {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+}
+
 .total-display-view.credit-restant {
     background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
 }
@@ -3786,21 +3856,21 @@
 }
 
 .crypto-add-item {
-    background: linear-gradient(135deg, #f7931a, #ffb347);
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-light));
     border: none;
     border-radius: 8px;
     padding: 8px 15px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(247, 147, 26, 0.15);
+    box-shadow: 0 2px 8px rgba(19, 124, 139, 0.15);
     width: fit-content;
     margin: 0 auto;
 }
 
 .crypto-add-item:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(247, 147, 26, 0.2);
+    box-shadow: 0 4px 15px rgba(19, 124, 139, 0.2);
 }
 
 .crypto-add-content {
@@ -3876,21 +3946,21 @@
 }
 
 .autre-bien-add-item {
-    background: linear-gradient(135deg, #6f42c1, #8e5ad8);
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-light));
     border: none;
     border-radius: 8px;
     padding: 8px 15px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(111, 66, 193, 0.15);
+    box-shadow: 0 2px 8px rgba(19, 124, 139, 0.15);
     width: fit-content;
     margin: 0 auto;
 }
 
 .autre-bien-add-item:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(111, 66, 193, 0.2);
+    box-shadow: 0 4px 15px rgba(19, 124, 139, 0.2);
 }
 
 .autre-bien-add-content {
@@ -3968,26 +4038,26 @@
 
 .credit-capital-restant {
     background: #f8f9fa !important;
-    color: #dc3545 !important;
+    color: #495057 !important;
     font-weight: 600;
 }
 
 .credit-add-item {
-    background: linear-gradient(135deg, #dc3545, #e74c3c);
+    background: linear-gradient(135deg, #6c757d, #868e96);
     border: none;
     border-radius: 8px;
     padding: 8px 15px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.15);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.15);
     width: fit-content;
     margin: 0 auto;
 }
 
 .credit-add-item:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
 }
 
 .credit-add-content {
@@ -4360,11 +4430,11 @@
 }
 
 .credit-view-item {
-    background: #fff5f5;
-    border: 1px solid #fed7d7;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
     border-radius: 8px;
     padding: 16px;
-    border-left: 4px solid #e53e3e;
+    border-left: 4px solid #6c757d;
 }
 
 .credit-view-description {
@@ -4372,7 +4442,7 @@
     align-items: center;
     gap: 8px;
     font-weight: 600;
-    color: #e53e3e;
+    color: #495057;
     margin-bottom: 12px;
 }
 
@@ -4867,7 +4937,7 @@ function addImmobilierInline() {
                     </div>
                     <div class="credit-row">
                         <div class="financial-edit-item">
-                            <label class="financial-label">Capital restant dû</label>
+                            <label class="financial-label">Montant restant du crédit à rembourser</label>
                             <div class="input-group">
                                 <input type="text" class="form-control capital-restant-display" readonly>
                                 <span class="input-group-text">€</span>
@@ -5717,16 +5787,18 @@ function addCreditInline() {
             <i class="fas fa-trash"></i>
         </button>
         <div class="credit-content">
+            <!-- ID unique pour nouveau crédit -->
+            <input type="hidden" name="credit_conso_id[]" value="new_${Date.now()}">
             <div class="credit-row">
                 <div class="financial-edit-item">
                     <label class="financial-label">Description</label>
-                    <input type="text" class="form-control credit-description" name="credit_description[]" 
+                    <input type="text" class="form-control credit-description" name="credit_conso_description[]" 
                            value="" placeholder="Ex: Crédit auto, Prêt travaux, Crédit conso...">
                 </div>
                 <div class="financial-edit-item">
                     <label class="financial-label">Montant initial</label>
                     <div class="input-group">
-                        <input type="number" class="form-control credit-montant-initial" name="credit_montant_initial[]" 
+                        <input type="number" class="form-control credit-montant-initial" name="credit_conso_montant_initial[]" 
                                value="0" step="100" min="0" onchange="calculateCreditRestant(this)">
                         <span class="input-group-text">€</span>
                     </div>
@@ -5734,7 +5806,7 @@ function addCreditInline() {
                 <div class="financial-edit-item">
                     <label class="financial-label">Taux (%)</label>
                     <div class="input-group">
-                        <input type="number" class="form-control credit-taux" name="credit_taux[]" 
+                        <input type="number" class="form-control credit-taux" name="credit_conso_taux[]" 
                                value="0" step="0.01" min="0" max="25" onchange="calculateCreditRestant(this)">
                         <span class="input-group-text">%</span>
                     </div>
@@ -5744,20 +5816,27 @@ function addCreditInline() {
                 <div class="financial-edit-item">
                     <label class="financial-label">Durée (années)</label>
                     <div class="input-group">
-                        <input type="number" class="form-control credit-duree" name="credit_duree[]" 
+                        <input type="number" class="form-control credit-duree" name="credit_conso_duree[]" 
                                value="0" step="1" min="0" max="30" onchange="calculateCreditRestant(this)">
                         <span class="input-group-text">ans</span>
                     </div>
                 </div>
                 <div class="financial-edit-item">
                     <label class="financial-label">Date de départ</label>
-                    <input type="month" class="form-control credit-date-depart" name="credit_date_depart[]" 
+                    <input type="month" class="form-control credit-date-depart" name="credit_conso_date_depart[]" 
                            value="" onchange="calculateCreditRestant(this)">
                 </div>
                 <div class="financial-edit-item">
-                    <label class="financial-label">Capital restant dû</label>
+                    <label class="financial-label">Mensualité</label>
                     <div class="input-group">
-                        <input type="text" class="form-control credit-capital-restant" readonly>
+                        <input type="text" class="form-control credit-mensualite" readonly value="0">
+                        <span class="input-group-text">€/mois</span>
+                    </div>
+                </div>
+                <div class="financial-edit-item">
+                    <label class="financial-label">Montant restant du crédit à rembourser</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control credit-capital-restant" readonly value="0">
                         <span class="input-group-text">€</span>
                     </div>
                 </div>
@@ -5779,7 +5858,11 @@ function removeCreditItem(button) {
     calculateTotalCredits();
 }
 
-// Fonction pour calculer le capital restant dû d'un crédit
+// Variable pour gérer les appels API en cours
+let calculationQueue = [];
+let isCalculating = false;
+
+// Fonction pour calculer le montant restant à rembourser d'un crédit
 function calculateCreditRestant(element) {
     const creditItem = element.closest('.credit-item');
     const montantInput = creditItem.querySelector('.credit-montant-initial');
@@ -5787,62 +5870,154 @@ function calculateCreditRestant(element) {
     const dureeInput = creditItem.querySelector('.credit-duree');
     const dateInput = creditItem.querySelector('.credit-date-depart');
     const capitalDisplay = creditItem.querySelector('.credit-capital-restant');
+    const mensualiteDisplay = creditItem.querySelector('.credit-mensualite');
     
     const montantInitial = parseFloat(montantInput.value || 0);
-    const tauxAnnuel = parseFloat(tauxInput.value || 0) / 100;
+    const tauxAnnuel = parseFloat(tauxInput.value || 0);
     const dureeAnnees = parseFloat(dureeInput.value || 0);
-    const dateCredit = new Date(dateInput.value + '-01');
+    const dateDebutStr = dateInput.value;
     
-    if (montantInitial > 0 && tauxAnnuel > 0 && dureeAnnees > 0 && dateInput.value) {
-        const tauxMensuel = tauxAnnuel / 12;
-        const dureeMois = dureeAnnees * 12;
+    if (montantInitial > 0 && tauxAnnuel > 0 && dureeAnnees > 0 && dateDebutStr) {
+        // Ajouter à la queue de calculs
+        const calculationTask = {
+            creditData: {
+                montant_initial: montantInitial,
+                taux_interet: tauxAnnuel,
+                duree_mois: dureeAnnees * 12,
+                date_debut: dateDebutStr
+            },
+            capitalDisplay,
+            mensualiteDisplay
+        };
         
-        // Calcul de la mensualité avec la formule classique
-        const mensualite = montantInitial * (tauxMensuel * Math.pow(1 + tauxMensuel, dureeMois)) / (Math.pow(1 + tauxMensuel, dureeMois) - 1);
-        
-        // Nombre de mois écoulés depuis le début du crédit
-        const dateActuelle = new Date();
-        const moisEcoules = (dateActuelle.getFullYear() - dateCredit.getFullYear()) * 12 + 
-                           (dateActuelle.getMonth() - dateCredit.getMonth());
-        
-        if (moisEcoules >= 0 && moisEcoules < dureeMois) {
-            // Calcul du capital restant par simulation d'amortissement
-            let capitalRestant = montantInitial;
-            
-            for (let i = 0; i < moisEcoules; i++) {
-                const interets = capitalRestant * tauxMensuel;
-                const amortissement = mensualite - interets;
-                capitalRestant -= amortissement;
-            }
-            
-            capitalDisplay.value = Math.max(0, capitalRestant).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-        } else if (moisEcoules >= dureeMois) {
-            // Crédit terminé
-            capitalDisplay.value = '0';
-        } else {
-            // Crédit pas encore commencé
-            capitalDisplay.value = montantInitial.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-        }
+        calculationQueue.push(calculationTask);
+        processCalculationQueue();
     } else {
-        capitalDisplay.value = '0';
+        // Réinitialiser les valeurs si les données sont incomplètes
+        capitalDisplay.value = montantInitial > 0 ? montantInitial.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '0';
+        if (mensualiteDisplay) {
+            mensualiteDisplay.value = '0';
+        }
+        calculateTotalCredits();
+    }
+}
+
+// Traiter la queue de calculs de manière séquentielle
+async function processCalculationQueue() {
+    if (isCalculating || calculationQueue.length === 0) {
+        return;
     }
     
+    isCalculating = true;
+    
+    while (calculationQueue.length > 0) {
+        const task = calculationQueue.shift();
+        
+        try {
+            const response = await fetch('/plateforme/admin/api/credit/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(task.creditData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Mise à jour de l'affichage
+                const montantRestant = data.remaining_capital;
+                task.capitalDisplay.value = Math.max(0, montantRestant).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                
+                if (task.mensualiteDisplay) {
+                    task.mensualiteDisplay.value = data.monthly_payment.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                }
+            }
+        } catch (error) {
+            console.error('Erreur calcul crédit:', error);
+            // Fallback vers calcul local
+            calculateCreditRestantLocal(
+                task.creditData.montant_initial, 
+                task.creditData.taux_interet, 
+                task.creditData.duree_mois / 12, 
+                task.creditData.date_debut, 
+                task.capitalDisplay, 
+                task.mensualiteDisplay
+            );
+        }
+        
+        // Petit délai entre les calculs
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    isCalculating = false;
     calculateTotalCredits();
+}
+
+// Fonction de calcul locale en fallback
+function calculateCreditRestantLocal(montantInitial, tauxAnnuel, dureeAnnees, dateDebutStr, capitalDisplay, mensualiteDisplay) {
+    const tauxMensuel = (tauxAnnuel / 100) / 12;
+    const dureeMois = dureeAnnees * 12;
+    const dateDebut = new Date(dateDebutStr + '-01');
+    const dateActuelle = new Date();
+    
+    // Calcul de la mensualité
+    let mensualite = 0;
+    if (tauxMensuel > 0) {
+        mensualite = montantInitial * (tauxMensuel * Math.pow(1 + tauxMensuel, dureeMois)) / (Math.pow(1 + tauxMensuel, dureeMois) - 1);
+    } else {
+        mensualite = montantInitial / dureeMois;
+    }
+    
+    // Calcul du nombre de mois écoulés
+    const moisEcoules = Math.max(0, (dateActuelle.getFullYear() - dateDebut.getFullYear()) * 12 + 
+                               (dateActuelle.getMonth() - dateDebut.getMonth()));
+    
+    let capitalRestant = montantInitial;
+    
+    if (moisEcoules > 0 && moisEcoules < dureeMois) {
+        // Simulation d'amortissement
+        for (let i = 0; i < moisEcoules; i++) {
+            const interets = capitalRestant * tauxMensuel;
+            const amortissement = mensualite - interets;
+            capitalRestant -= amortissement;
+        }
+    } else if (moisEcoules >= dureeMois) {
+        capitalRestant = 0;
+    }
+    
+    // Mise à jour de l'affichage
+    capitalDisplay.value = Math.max(0, capitalRestant).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    if (mensualiteDisplay) {
+        mensualiteDisplay.value = mensualite.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
 }
 
 // Fonction pour calculer le total des crédits
 function calculateTotalCredits() {
     let total = 0;
     
-    document.querySelectorAll('.credit-item').forEach(item => {
-        const capitalText = item.querySelector('.credit-capital-restant').value;
-        const capital = parseFloat(capitalText.replace(/\s/g, '') || 0);
-        total += capital;
+    console.log('💰 Calcul du total des crédits...');
+    
+    document.querySelectorAll('.credit-item').forEach((item, index) => {
+        const capitalElement = item.querySelector('.credit-capital-restant');
+        if (capitalElement) {
+            const capitalText = capitalElement.value || '0';
+            const capital = parseFloat(capitalText.replace(/\s/g, '') || 0);
+            console.log(`Crédit ${index}: capital restant = ${capitalText} => ${capital}€`);
+            total += capital;
+        }
     });
+    
+    console.log(`Total calculé: ${total}€`);
     
     const totalDisplay = document.getElementById('totalCredits');
     if (totalDisplay) {
-        totalDisplay.textContent = total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+        const formattedTotal = total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+        totalDisplay.textContent = formattedTotal;
+        console.log(`✅ Total affiché: ${formattedTotal}`);
+    } else {
+        console.error('❌ Élément totalCredits non trouvé !');
     }
 }
 
@@ -6116,6 +6291,42 @@ function testCryptoPricesView() {
         totalElement.textContent = `${totalValue.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}€`;
     }
 }
+
+// Fonction d'initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔄 Initialisation des calculs de crédits...');
+    
+    // Attendre un petit délai pour que la page soit entièrement chargée
+    setTimeout(() => {
+        // Recalculer tous les crédits existants au chargement
+        const creditItems = document.querySelectorAll('.credit-item');
+        console.log(`Trouvé ${creditItems.length} crédit(s) à recalculer`);
+        
+        creditItems.forEach((creditItem, index) => {
+            const montantInput = creditItem.querySelector('.credit-montant-initial');
+            const tauxInput = creditItem.querySelector('.credit-taux');
+            const dureeInput = creditItem.querySelector('.credit-duree');
+            const dateInput = creditItem.querySelector('.credit-date-depart');
+            
+            console.log(`Crédit ${index}: montant=${montantInput?.value}, taux=${tauxInput?.value}, durée=${dureeInput?.value}, date=${dateInput?.value}`);
+            
+            // Déclencher le calcul même si tous les champs ne sont pas remplis
+            // pour initialiser les valeurs par défaut
+            if (montantInput?.value || tauxInput?.value || dureeInput?.value || dateInput?.value) {
+                console.log(`Calcul du crédit ${index}...`);
+                calculateCreditRestant(montantInput);
+            }
+        });
+        
+        // Forcer le calcul du total même sans recalcul des crédits individuels
+        setTimeout(() => {
+            calculateTotalCredits();
+            console.log('✅ Calcul total forcé');
+        }, 1000);
+        
+        console.log('✅ Initialisation terminée');
+    }, 500);
+});
 
 </script>
 {% endblock %}

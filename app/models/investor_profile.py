@@ -174,6 +174,17 @@ class InvestorProfile(db.Model):
     date_completed = db.Column(db.DateTime, default=datetime.utcnow)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
+    # Colonnes pour les totaux calculés et sauvegardés
+    calculated_total_liquidites = db.Column(db.Float, nullable=True, default=0.0)
+    calculated_total_placements = db.Column(db.Float, nullable=True, default=0.0)  
+    calculated_total_immobilier_net = db.Column(db.Float, nullable=True, default=0.0)
+    calculated_total_cryptomonnaies = db.Column(db.Float, nullable=True, default=0.0)
+    calculated_total_autres_biens = db.Column(db.Float, nullable=True, default=0.0)
+    calculated_total_credits_consommation = db.Column(db.Float, nullable=True, default=0.0)
+    calculated_total_actifs = db.Column(db.Float, nullable=True, default=0.0)
+    calculated_patrimoine_total_net = db.Column(db.Float, nullable=True, default=0.0)
+    last_calculation_date = db.Column(db.DateTime, nullable=True)
+    
     # Relations
     credits = db.relationship('Credit', backref='investor_profile', cascade='all, delete-orphan')
     

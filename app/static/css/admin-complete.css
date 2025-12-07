@@ -2087,3 +2087,381 @@
         font-size: 16px !important;
         background: none !important;
     }
+
+    /* COMPACT LIST STYLES - INVESTOR DATA */
+
+    /* Personal Info Compact Lists */
+    .personal-info-compact-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .personal-info-compact-item-new {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--qlower-border);
+        transition: all 0.2s ease;
+    }
+
+    .personal-info-compact-item-new:last-child {
+        border-bottom: none;
+    }
+
+    .personal-info-compact-item-new:hover {
+        background: var(--admin-hover-bg);
+        padding-left: 8px;
+        padding-right: 8px;
+        border-radius: 8px;
+        border-bottom: 1px solid var(--qlower-border);
+    }
+
+    .personal-info-compact-name {
+        font-weight: 500;
+        color: var(--qlower-text-light);
+        font-size: 14px;
+        flex: 1;
+        margin-right: 16px;
+    }
+
+    .personal-info-compact-value {
+        font-weight: 600;
+        color: var(--qlower-text-dark);
+        font-size: 14px;
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    /* Revenus Compact Lists */
+    .revenus-compact-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .revenus-compact-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--qlower-border);
+        transition: all 0.2s ease;
+    }
+
+    .revenus-compact-item:last-child {
+        border-bottom: none;
+    }
+
+    .revenus-compact-item:hover {
+        background: var(--admin-hover-bg);
+        padding-left: 8px;
+        padding-right: 8px;
+        border-radius: 8px;
+        border-bottom: 1px solid var(--qlower-border);
+    }
+
+    .revenus-compact-name {
+        font-weight: 500;
+        color: var(--qlower-text-light);
+        font-size: 14px;
+        flex: 1;
+        margin-right: 16px;
+    }
+
+    .revenus-compact-value {
+        font-weight: 600;
+        color: var(--qlower-primary);
+        font-size: 14px;
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    /* Liquidites Compact Lists */
+    .liquidites-compact-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .liquidites-compact-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--qlower-border);
+        transition: all 0.2s ease;
+    }
+
+    .liquidites-compact-item:last-child {
+        border-bottom: none;
+    }
+
+    .liquidites-compact-item:hover {
+        background: var(--admin-hover-bg);
+        padding-left: 8px;
+        padding-right: 8px;
+        border-radius: 8px;
+        border-bottom: 1px solid var(--qlower-border);
+    }
+
+    .liquidites-compact-name {
+        font-weight: 500;
+        color: var(--qlower-text-light);
+        font-size: 14px;
+        flex: 1;
+        margin-right: 16px;
+    }
+
+    .liquidites-compact-value {
+        font-weight: 600;
+        color: var(--qlower-primary);
+        font-size: 14px;
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    /* Total Items - Special styling */
+    .liquidites-compact-item-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 12px;
+        background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+        border-radius: 12px;
+        margin-top: 16px;
+        box-shadow: 0 2px 8px rgba(19, 124, 139, 0.15);
+    }
+
+    .liquidites-compact-name-total {
+        font-weight: 700;
+        color: white;
+        font-size: 15px;
+        letter-spacing: 0.5px;
+    }
+
+    .liquidites-compact-value-total {
+        font-weight: 700;
+        color: white;
+        font-size: 18px;
+    }
+
+    /* Risk Profile Styling */
+    .risk-profile-simple {
+        margin-bottom: 16px;
+    }
+
+    .risk-profile-badge-view {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        box-shadow: 0 2px 8px rgba(19, 124, 139, 0.15);
+    }
+
+    /* Objectifs List */
+    .objectifs-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .objectif-line {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+    }
+
+    .objectif-line i {
+        flex-shrink: 0;
+        width: 16px;
+    }
+
+    .objectif-line span {
+        font-size: 14px;
+        color: var(--qlower-text-dark);
+        line-height: 1.4;
+    }
+
+    /* Edit Mode Styles */
+    .edit-mode-container {
+        max-width: 100%;
+    }
+
+    .edit-header {
+        margin-bottom: 32px;
+    }
+
+    .alert {
+        padding: 16px 20px;
+        border-radius: 12px;
+        border: 1px solid;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .alert-info {
+        background: rgba(19, 124, 139, 0.1);
+        border-color: var(--qlower-primary);
+        color: var(--qlower-dark);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 16px;
+        justify-content: flex-end;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid var(--qlower-border);
+    }
+
+    /* Objectifs Grid */
+    .objectifs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .objectif-item {
+        padding: 16px;
+        border: 1px solid var(--qlower-border);
+        border-radius: 12px;
+        background: var(--qlower-bg-light);
+        transition: all 0.3s ease;
+    }
+
+    .objectif-item:hover {
+        border-color: var(--qlower-primary);
+        box-shadow: 0 2px 8px rgba(19, 124, 139, 0.1);
+    }
+
+    .objectif-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--qlower-text-dark);
+    }
+
+    .objectif-label input[type="checkbox"] {
+        margin-top: 2px;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .objectif-text {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    /* Risk Questions */
+    .risk-questions {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .risk-question-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .risk-question-title {
+        font-weight: 600;
+        color: var(--qlower-text-dark);
+        font-size: 15px;
+    }
+
+    .risk-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .risk-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 1px solid var(--qlower-border);
+        border-radius: 8px;
+        background: var(--qlower-white);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 14px;
+        color: var(--qlower-text-dark);
+    }
+
+    .risk-option:hover {
+        border-color: var(--qlower-primary);
+        background: rgba(19, 124, 139, 0.05);
+    }
+
+    .risk-option input[type="radio"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    /* Mobile Responsive for Compact Lists */
+    @media (max-width: 768px) {
+        .personal-info-compact-item-new,
+        .revenus-compact-item,
+        .liquidites-compact-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+        
+        .personal-info-compact-name,
+        .revenus-compact-name,
+        .liquidites-compact-name {
+            margin-right: 0;
+        }
+        
+        .personal-info-compact-value,
+        .revenus-compact-value,
+        .liquidites-compact-value {
+            text-align: left;
+            font-size: 15px;
+        }
+        
+        .liquidites-compact-item-total {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .liquidites-compact-value-total {
+            font-size: 20px;
+        }
+
+        .objectifs-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .risk-options {
+            gap: 6px;
+        }
+
+        .risk-option {
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            gap: 12px;
+        }
+    }
