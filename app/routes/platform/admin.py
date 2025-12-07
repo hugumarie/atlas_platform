@@ -2,16 +2,23 @@
 Routes pour l'interface administrateur de la plateforme.
 """
 
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, send_file
 from flask_login import login_required, current_user
 from app import db
 from app.models.user import User
 from app.models.investor_profile import InvestorProfile
 from app.models.subscription import Subscription
+from app.models.apprentissage import Apprentissage
 from sqlalchemy import or_
 from flask import jsonify
 import requests
 import time
+import os
+import uuid
+from datetime import datetime
+from werkzeug.utils import secure_filename
+from app.services.credit_calculation import CreditCalculationService
+from app.services.patrimoine_calculation import PatrimoineCalculationService
 
 platform_admin_bp = Blueprint('platform_admin', __name__, url_prefix='/plateforme/admin')
 
@@ -128,6 +135,21 @@ def user_detail(user_id):
     if user.investor_profile and user.investor_profile.cryptomonnaies_data:
         cryptomonnaies_data = enrich_crypto_with_prices(user.investor_profile.cryptomonnaies_data)
         user.investor_profile._enriched_crypto_data = cryptomonnaies_data
+    
+    # Calculer et sauvegarder les données des crédits - toujours effectuer les calculs
+    if user.investor_profile and user.investor_profile.credits_data_json:
+        credits_data = calculate_and_save_credits_data(user.investor_profile)
+    
+    # Calcul automatique des totaux patrimoniaux pour affichage
+    if user.investor_profile:
+        try:
+            PatrimoineCalculationService.calculate_all_totaux(user.investor_profile, save_to_db=True)
+            # Rafraîchir les objets depuis la base pour récupérer les nouvelles valeurs calculées
+            db.session.refresh(user.investor_profile)
+            db.session.refresh(user)
+            # Totaux patrimoniaux mis à jour
+        except Exception as calc_error:
+            print(f"Erreur lors du calcul des totaux patrimoniaux: {calc_error}")
     
     return render_template('platform/admin/user_detail.html', 
                          user=user, 
@@ -510,27 +532,84 @@ def update_user_data(user_id):
         
         profile.set_autres_biens_data(autres_biens_data)
         
-        # Crédits détaillés (complémentaire au modèle Credit)
+        # Crédits détaillés (complémentaire au modèle Credit) - GESTION AMÉLIORÉE
         credits_data = []
-        credit_descriptions = request.form.getlist('credit_description[]')
-        credit_montants_initiaux = request.form.getlist('credit_montant_initial[]')
-        credit_taux = request.form.getlist('credit_taux[]')
-        credit_durees_credit = request.form.getlist('credit_duree[]')
-        credit_dates_depart = request.form.getlist('credit_date_depart[]')
+        credit_ids = request.form.getlist('credit_conso_id[]')
+        credit_descriptions = request.form.getlist('credit_conso_description[]')
+        credit_montants_initiaux = request.form.getlist('credit_conso_montant_initial[]')
+        credit_taux = request.form.getlist('credit_conso_taux[]')
+        credit_durees_credit = request.form.getlist('credit_conso_duree[]')
+        credit_dates_depart = request.form.getlist('credit_conso_date_depart[]')
         
-        for i in range(len(credit_descriptions)):
-            if credit_descriptions[i].strip():
-                credits_data.append({
-                    'description': credit_descriptions[i].strip(),
+        # Vérifier que tous les arrays ont la même longueur
+        arrays = [credit_ids, credit_descriptions, credit_montants_initiaux, credit_taux, credit_durees_credit, credit_dates_depart]
+        max_length = max(len(arr) for arr in arrays) if any(arrays) else 0
+        
+        # Créer un mapping des crédits existants par ID/index pour préserver les calculs
+        existing_credits = profile.credits_data.copy() if profile.credits_data else []
+        existing_by_index = {i: credit for i, credit in enumerate(existing_credits)}
+        
+        
+        for i in range(max_length):
+            description = credit_descriptions[i].strip() if i < len(credit_descriptions) else ''
+            
+            # Ne traiter que les crédits avec une description
+            if description:
+                credit_id = credit_ids[i] if i < len(credit_ids) else str(i)
+                
+                
+                # Données de base du formulaire
+                new_credit = {
+                    'id': credit_id,
+                    'description': description,
                     'montant_initial': float(credit_montants_initiaux[i] or 0) if i < len(credit_montants_initiaux) else 0,
                     'taux': float(credit_taux[i] or 0) if i < len(credit_taux) else 0,
                     'duree': int(credit_durees_credit[i] or 0) if i < len(credit_durees_credit) else 0,
                     'date_depart': credit_dates_depart[i].strip() if i < len(credit_dates_depart) else ''
-                })
+                }
+                
+                # Chercher le crédit existant correspondant
+                existing_match = None
+                if i < len(existing_credits):
+                    existing = existing_credits[i]
+                    # Match par position ET similarité des données
+                    if (existing.get('description') == new_credit['description'] and
+                        abs(existing.get('montant_initial', 0) - new_credit['montant_initial']) < 0.01):
+                        existing_match = existing
+                
+                # Préserver les données calculées existantes ou calculer si nouveau
+                if existing_match and not any([ 
+                    existing_match.get('taux') != new_credit['taux'],
+                    existing_match.get('duree') != new_credit['duree'],
+                    existing_match.get('date_depart') != new_credit['date_depart']
+                ]):
+                    # Aucun changement dans les paramètres de calcul - préserver
+                    new_credit.update({
+                        'mensualite': existing_match.get('mensualite', 0),
+                        'capital_restant': existing_match.get('capital_restant', new_credit['montant_initial']),
+                        'montant_restant': existing_match.get('montant_restant', new_credit['montant_initial'])
+                    })
+                else:
+                    # Nouveaux paramètres - sera recalculé par calculate_and_save_credits_data
+                    pass
+                
+                credits_data.append(new_credit)
         
-        profile.set_credits_data(credits_data)
+        # CORRECTION: Ne pas écraser - directement calculer et sauvegarder avec les nouvelles données
+        # Mettre à jour temporairement les données pour le calcul
+        profile.credits_data_json = credits_data
+        
+        # Calculer automatiquement les mensualités et capital restant (qui va sauvegarder correctement)
+        calculate_and_save_credits_data(profile)
         
         db.session.commit()
+        
+        # Recalcul automatique des totaux patrimoniaux après mise à jour
+        try:
+            PatrimoineCalculationService.calculate_all_totaux(profile, save_to_db=True)
+            # Totaux patrimoniaux recalculés
+        except Exception as calc_error:
+            print(f"Erreur lors du recalcul des totaux patrimoniaux: {calc_error}")
         
         # Redirection vers la vue normale après modification
         flash('Profil utilisateur mis à jour avec succès.', 'success')
@@ -851,3 +930,481 @@ def enrich_crypto_with_prices(crypto_data):
             crypto_copy['current_price'] = 0
             enriched_data.append(crypto_copy)
         return enriched_data
+
+
+def calculate_and_save_credits_data(investor_profile):
+    """
+    Calcule les mensualités et capital restant pour tous les crédits et sauvegarde en base.
+    Utilise le service centralisé de calcul pour assurer la cohérence.
+    """
+    from app.services.credit_calculation import CreditCalculationService
+    from datetime import date
+    
+    # Traitement des crédits dans credits_data_json (format JSONB)
+    credits_data = investor_profile.credits_data.copy() if investor_profile.credits_data else []
+    
+    for i, credit_data in enumerate(credits_data):
+        # Récupération des données
+        montant_initial = float(credit_data.get('montant_initial', 0))
+        taux_annuel = float(credit_data.get('taux', 0))
+        duree_annees = int(credit_data.get('duree', 0))
+        date_depart = credit_data.get('date_depart', '')
+        
+        if montant_initial > 0 and duree_annees > 0:
+            # Conversion durée en mois
+            duree_mois = duree_annees * 12
+            
+            # Parse de la date
+            try:
+                if date_depart:
+                    if len(date_depart) == 7:  # Format 2025-10
+                        year, month = date_depart.split('-')
+                        start_date = date(int(year), int(month), 1)
+                    else:
+                        start_date = date.today()
+                else:
+                    start_date = date.today()
+            except:
+                start_date = date.today()
+            
+            # Calculs avec le service
+            mensualite = CreditCalculationService.calculate_monthly_payment(
+                montant_initial, taux_annuel, duree_mois
+            )
+            
+            capital_restant = CreditCalculationService.calculate_remaining_capital(
+                montant_initial, taux_annuel, duree_mois, start_date
+            )
+            
+            # Mise à jour des données avec TOUS les champs nécessaires
+            credits_data[i]['mensualite'] = round(mensualite, 2)
+            credits_data[i]['montant_restant'] = round(capital_restant, 2)  # Champ attendu par le template
+            credits_data[i]['capital_restant'] = round(capital_restant, 2)  # Champ alternatif
+            
+        else:
+            # Valeurs par défaut si données insuffisantes
+            credits_data[i]['mensualite'] = 0
+            credits_data[i]['montant_restant'] = montant_initial
+            credits_data[i]['capital_restant'] = montant_initial
+    
+    # Sauvegarder les données mises à jour avec SQL direct (plus fiable pour JSONB)
+    import json
+    try:
+        sql = '''UPDATE investor_profiles 
+                 SET credits_data_json = :credits_data 
+                 WHERE id = :profile_id'''
+        
+        db.session.execute(db.text(sql), {
+            'credits_data': json.dumps(credits_data),
+            'profile_id': investor_profile.id
+        })
+        db.session.commit()
+        pass  # Sauvegarde réussie
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde des calculs de crédit: {e}")
+        db.session.rollback()
+    
+    return credits_data
+
+
+@platform_admin_bp.route('/api/credit/calculate', methods=['POST'])
+@login_required
+def calculate_credit_api():
+    """
+    API endpoint pour calculer en temps réel les données d'un crédit.
+    """
+    if not current_user.is_admin:
+        return jsonify({'error': 'Accès non autorisé'}), 403
+    
+    try:
+        from app.services.credit_calculation import CreditCalculationService
+        
+        data = request.get_json()
+        
+        # Validation des données d'entrée
+        required_fields = ['montant_initial', 'taux_interet', 'duree_mois']
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Champs manquants'}), 400
+        
+        # Calculs
+        monthly_payment = CreditCalculationService.calculate_monthly_payment(
+            float(data['montant_initial']),
+            float(data['taux_interet']),
+            int(data['duree_mois'])
+        )
+        
+        remaining_capital = data['montant_initial']  # Par défaut
+        if data.get('date_debut'):
+            from datetime import datetime
+            try:
+                start_date = CreditCalculationService._parse_date(data['date_debut'])
+                remaining_capital = CreditCalculationService.calculate_remaining_capital(
+                    float(data['montant_initial']),
+                    float(data['taux_interet']),
+                    int(data['duree_mois']),
+                    start_date
+                )
+            except Exception:
+                pass
+        
+        # Calculs additionnels
+        total_cost = CreditCalculationService.calculate_total_cost(
+            float(data['montant_initial']),
+            float(data['taux_interet']),
+            int(data['duree_mois'])
+        )
+        
+        return jsonify({
+            'success': True,
+            'monthly_payment': monthly_payment,
+            'remaining_capital': remaining_capital,
+            'total_cost': total_cost
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'Erreur de calcul: {str(e)}'}), 500
+
+
+@platform_admin_bp.route('/api/credit/<int:user_id>/update', methods=['POST'])
+@login_required
+def update_user_credit_api(user_id):
+    """
+    API endpoint pour mettre à jour les calculs des crédits d'un utilisateur.
+    """
+    if not current_user.is_admin:
+        return jsonify({'error': 'Accès non autorisé'}), 403
+    
+    try:
+        user = User.query.get_or_404(user_id)
+        investor_profile = user.investor_profile
+        
+        if not investor_profile:
+            return jsonify({'error': 'Profil investisseur non trouvé'}), 404
+        
+        # Recalcul des données de crédit
+        updated_credits = calculate_and_save_credits_data(investor_profile)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Calculs mis à jour avec succès',
+            'credits_data': updated_credits
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'Erreur lors de la mise à jour: {str(e)}'}), 500
+
+
+@platform_admin_bp.route('/api/patrimoine/calculate/<int:user_id>', methods=['POST'])
+@login_required
+def calculate_patrimoine_totaux(user_id):
+    """
+    Calcule et sauvegarde tous les totaux patrimoniaux pour un utilisateur.
+    """
+    if not current_user.is_admin:
+        return jsonify({'error': 'Accès non autorisé'}), 403
+    
+    try:
+        user = User.query.get_or_404(user_id)
+        investor_profile = user.investor_profile
+        
+        if not investor_profile:
+            return jsonify({'error': 'Profil investisseur non trouvé'}), 404
+        
+        # Calcul de tous les totaux patrimoniaux
+        totaux = PatrimoineCalculationService.calculate_all_totaux(investor_profile, save_to_db=True)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Tous les totaux patrimoniaux ont été calculés et sauvegardés',
+            'totaux': totaux
+        })
+        
+    except Exception as e:
+        print(f"Erreur calcul patrimoine pour utilisateur {user_id}: {e}")
+        return jsonify({'error': f'Erreur lors du calcul: {str(e)}'}), 500
+
+
+@platform_admin_bp.route('/api/patrimoine/calculate-all', methods=['POST'])
+@login_required
+def calculate_all_patrimoine():
+    """
+    Calcule et sauvegarde les totaux patrimoniaux pour tous les utilisateurs.
+    """
+    if not current_user.is_admin:
+        return jsonify({'error': 'Accès non autorisé'}), 403
+    
+    try:
+        # Mise à jour pour tous les utilisateurs
+        PatrimoineCalculationService.update_all_users_patrimoine()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Tous les totaux patrimoniaux ont été recalculés pour tous les utilisateurs'
+        })
+        
+    except Exception as e:
+        print(f"Erreur calcul patrimoine global: {e}")
+        return jsonify({'error': f'Erreur lors du calcul global: {str(e)}'}), 500
+
+
+# ==========================================
+# ROUTES APPRENTISSAGE / FORMATIONS
+# ==========================================
+
+@platform_admin_bp.route('/apprentissages')
+@login_required
+def apprentissages():
+    """Liste de toutes les formations"""
+    if not current_user.is_admin:
+        flash('Accès non autorisé.', 'error')
+        return redirect(url_for('site_pages.index'))
+    
+    apprentissages = Apprentissage.query.order_by(Apprentissage.ordre, Apprentissage.date_creation.desc()).all()
+    return render_template('platform/admin/apprentissages.html', apprentissages=apprentissages)
+
+
+@platform_admin_bp.route('/apprentissages/nouveau', methods=['GET', 'POST'])
+@login_required
+def apprentissage_create():
+    """Créer une nouvelle formation"""
+    if not current_user.is_admin:
+        flash('Accès non autorisé.', 'error')
+        return redirect(url_for('site_pages.index'))
+    
+    if request.method == 'POST':
+        try:
+            # Récupération des données du formulaire
+            nom = request.form.get('nom', '').strip()
+            description = request.form.get('description', '').strip()
+            ordre = int(request.form.get('ordre', 0))
+            actif = 'actif' in request.form
+            
+            if not nom:
+                flash('Le nom de la formation est obligatoire.', 'error')
+                return render_template('platform/admin/apprentissage_form.html')
+            
+            # Création du dossier uploads si nécessaire
+            upload_dir = os.path.join('app', 'static', 'uploads', 'apprentissages')
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            # Gestion de l'image
+            image_filename = None
+            if 'image' in request.files:
+                image_file = request.files['image']
+                if image_file and image_file.filename:
+                    # Vérifier le type de fichier
+                    if image_file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                        # Générer un nom unique
+                        file_extension = os.path.splitext(image_file.filename)[1]
+                        image_filename = f"{uuid.uuid4().hex}{file_extension}"
+                        image_path = os.path.join(upload_dir, image_filename)
+                        image_file.save(image_path)
+                    else:
+                        flash('Format d\'image non supporté. Utilisez PNG, JPG ou GIF.', 'error')
+                        return render_template('platform/admin/apprentissage_form.html')
+            
+            # Gestion du PDF
+            pdf_filename = None
+            pdf_original_name = None
+            if 'fichier_pdf' in request.files:
+                pdf_file = request.files['fichier_pdf']
+                if pdf_file and pdf_file.filename:
+                    if pdf_file.filename.lower().endswith('.pdf'):
+                        # Conserver le nom original et générer un nom unique pour le stockage
+                        pdf_original_name = pdf_file.filename
+                        # Créer un nom sécurisé avec timestamp pour éviter les conflits
+                        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                        safe_filename = "".join(c for c in pdf_original_name if c.isalnum() or c in '._-')
+                        pdf_filename = f"{timestamp}_{safe_filename}"
+                        pdf_path = os.path.join(upload_dir, pdf_filename)
+                        pdf_file.save(pdf_path)
+                    else:
+                        flash('Seuls les fichiers PDF sont autorisés.', 'error')
+                        return render_template('platform/admin/apprentissage_form.html')
+            
+            # Création de la formation
+            apprentissage = Apprentissage(
+                nom=nom,
+                description=description if description else None,
+                image=image_filename,
+                fichier_pdf=pdf_filename,
+                fichier_pdf_original=pdf_original_name,
+                ordre=ordre,
+                actif=actif
+            )
+            
+            db.session.add(apprentissage)
+            db.session.commit()
+            
+            flash(f'Formation "{nom}" créée avec succès.', 'success')
+            return redirect(url_for('platform_admin.apprentissages'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erreur lors de la création de la formation: {str(e)}', 'error')
+            return render_template('platform/admin/apprentissage_form.html')
+    
+    return render_template('platform/admin/apprentissage_form.html')
+
+
+@platform_admin_bp.route('/apprentissages/<int:id>/modifier', methods=['GET', 'POST'])
+@login_required
+def apprentissage_edit(id):
+    """Modifier une formation existante"""
+    if not current_user.is_admin:
+        flash('Accès non autorisé.', 'error')
+        return redirect(url_for('site_pages.index'))
+    
+    apprentissage = Apprentissage.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        try:
+            # Récupération des données du formulaire
+            nom = request.form.get('nom', '').strip()
+            description = request.form.get('description', '').strip()
+            ordre = int(request.form.get('ordre', 0))
+            actif = 'actif' in request.form
+            
+            if not nom:
+                flash('Le nom de la formation est obligatoire.', 'error')
+                return render_template('platform/admin/apprentissage_form.html', apprentissage=apprentissage)
+            
+            # Dossier uploads
+            upload_dir = os.path.join('app', 'static', 'uploads', 'apprentissages')
+            os.makedirs(upload_dir, exist_ok=True)
+            
+            # Gestion de l'image
+            if 'image' in request.files:
+                image_file = request.files['image']
+                if image_file and image_file.filename and image_file.filename.strip():
+                    if image_file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                        try:
+                            # Supprimer l'ancienne image
+                            if apprentissage.image:
+                                old_image_path = os.path.join(upload_dir, apprentissage.image)
+                                if os.path.exists(old_image_path):
+                                    os.remove(old_image_path)
+                            
+                            # Sauvegarder la nouvelle image
+                            file_extension = os.path.splitext(image_file.filename)[1]
+                            image_filename = f"{uuid.uuid4().hex}{file_extension}"
+                            image_path = os.path.join(upload_dir, image_filename)
+                            
+                            image_file.save(image_path)
+                            
+                            # Vérifier que le fichier existe après sauvegarde
+                            if os.path.exists(image_path):
+                                apprentissage.image = image_filename
+                            else:
+                                flash('Erreur: fichier image non sauvegardé', 'error')
+                                return render_template('platform/admin/apprentissage_form.html', apprentissage=apprentissage)
+                                
+                        except Exception as img_error:
+                            flash(f'Erreur lors de la sauvegarde de l\'image: {str(img_error)}', 'error')
+                            return render_template('platform/admin/apprentissage_form.html', apprentissage=apprentissage)
+                    else:
+                        flash('Format d\'image non supporté. Utilisez PNG, JPG ou GIF.', 'error')
+                        return render_template('platform/admin/apprentissage_form.html', apprentissage=apprentissage)
+            
+            # Gestion du PDF
+            if 'fichier_pdf' in request.files:
+                pdf_file = request.files['fichier_pdf']
+                if pdf_file and pdf_file.filename:
+                    if pdf_file.filename.lower().endswith('.pdf'):
+                        # Supprimer l'ancien PDF
+                        if apprentissage.fichier_pdf:
+                            old_pdf_path = os.path.join(upload_dir, apprentissage.fichier_pdf)
+                            if os.path.exists(old_pdf_path):
+                                os.remove(old_pdf_path)
+                        
+                        # Conserver le nom original et générer un nom unique pour le stockage
+                        pdf_original_name = pdf_file.filename
+                        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                        safe_filename = "".join(c for c in pdf_original_name if c.isalnum() or c in '._-')
+                        pdf_filename = f"{timestamp}_{safe_filename}"
+                        pdf_path = os.path.join(upload_dir, pdf_filename)
+                        pdf_file.save(pdf_path)
+                        apprentissage.fichier_pdf = pdf_filename
+                        apprentissage.fichier_pdf_original = pdf_original_name
+                    else:
+                        flash('Seuls les fichiers PDF sont autorisés.', 'error')
+                        return render_template('platform/admin/apprentissage_form.html', apprentissage=apprentissage)
+            
+            # Mise à jour des autres champs
+            apprentissage.nom = nom
+            apprentissage.description = description if description else None
+            apprentissage.ordre = ordre
+            apprentissage.actif = actif
+            
+            db.session.commit()
+            
+            flash(f'Formation "{nom}" mise à jour avec succès.', 'success')
+            return redirect(url_for('platform_admin.apprentissages'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erreur lors de la mise à jour de la formation: {str(e)}', 'error')
+            return render_template('platform/admin/apprentissage_form.html', apprentissage=apprentissage)
+    
+    return render_template('platform/admin/apprentissage_form.html', apprentissage=apprentissage)
+
+
+@platform_admin_bp.route('/apprentissages/<int:id>/supprimer', methods=['POST'])
+@login_required
+def apprentissage_delete(id):
+    """Supprimer une formation"""
+    if not current_user.is_admin:
+        flash('Accès non autorisé.', 'error')
+        return redirect(url_for('site_pages.index'))
+    
+    apprentissage = Apprentissage.query.get_or_404(id)
+    nom = apprentissage.nom
+    
+    try:
+        # Supprimer les fichiers associés
+        upload_dir = os.path.join('app', 'static', 'uploads', 'apprentissages')
+        
+        if apprentissage.image:
+            image_path = os.path.join(upload_dir, apprentissage.image)
+            if os.path.exists(image_path):
+                os.remove(image_path)
+        
+        if apprentissage.fichier_pdf:
+            pdf_path = os.path.join(upload_dir, apprentissage.fichier_pdf)
+            if os.path.exists(pdf_path):
+                os.remove(pdf_path)
+        
+        # Supprimer de la base de données
+        db.session.delete(apprentissage)
+        db.session.commit()
+        
+        flash(f'Formation "{nom}" supprimée avec succès.', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Erreur lors de la suppression de la formation: {str(e)}', 'error')
+    
+    return redirect(url_for('platform_admin.apprentissages'))
+
+
+@platform_admin_bp.route('/apprentissages/<int:id>/apercu')
+@login_required
+def apprentissage_preview(id):
+    """Aperçu d'un PDF d'apprentissage"""
+    if not current_user.is_admin:
+        flash('Accès non autorisé.', 'error')
+        return redirect(url_for('site_pages.index'))
+    
+    apprentissage = Apprentissage.query.get_or_404(id)
+    
+    if not apprentissage.fichier_pdf:
+        flash('Aucun fichier PDF associé à cette formation.', 'error')
+        return redirect(url_for('platform_admin.apprentissages'))
+    
+    try:
+        pdf_path = os.path.join('app', 'static', 'uploads', 'apprentissages', apprentissage.fichier_pdf)
+        return send_file(pdf_path, mimetype='application/pdf')
+        
+    except FileNotFoundError:
+        flash('Fichier PDF introuvable.', 'error')
+        return redirect(url_for('platform_admin.apprentissages'))

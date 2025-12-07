@@ -5,50 +5,80 @@
 {% block page_title %}Tableau de bord{% endblock %}
 
 {% block content %}
-<!-- Première ligne - 3 boîtes statistiques -->
-<div class="platform-grid platform-grid-3 mb-4">
-    <div class="platform-card">
-        <div class="platform-card-body">
-            <div class="platform-stat">
-                <div class="platform-stat-value" id="currentPatrimony">
-                    {% if current_user.investor_profile %}
-                        {{ "{:,.0f}".format(current_user.investor_profile.current_savings) }}€
-                    {% else %}
-                        45 250€
-                    {% endif %}
-                </div>
-                <div class="platform-stat-label">Patrimoine actuel</div>
+<!-- Métriques principales - Design moderne une par ligne -->
+<div class="modern-metrics-container mb-4">
+    <!-- Patrimoine total -->
+    <div class="metric-card primary-metric">
+        <div class="metric-content">
+            <div class="metric-label">Patrimoine total net</div>
+            <div class="metric-value" id="currentPatrimony">
+                {% if current_user.investor_profile and current_user.investor_profile.calculated_patrimoine_total_net %}
+                    {{ "{:,.0f}".format(current_user.investor_profile.calculated_patrimoine_total_net) }}€
+                {% elif current_user.investor_profile %}
+                    {{ "{:,.0f}".format(current_user.investor_profile.current_savings) }}€
+                {% else %}
+                    45 250€
+                {% endif %}
+            </div>
+            <div class="metric-trend">
+                <span class="trend-indicator positive">
+                    <i class="fas fa-arrow-up"></i>
+                    +12.5%
+                </span>
+                <span class="trend-period">ce mois</span>
             </div>
         </div>
-    </div>
-    
-    <div class="platform-card">
-        <div class="platform-card-body">
-            <div class="platform-stat">
-                <div class="platform-stat-value" id="monthlySavingsGoal">
-                    {% if current_user.investor_profile %}
-                        {{ "{:,.0f}".format(current_user.investor_profile.monthly_savings_capacity) }}€
-                    {% else %}
-                        850€
-                    {% endif %}
-                </div>
-                <div class="platform-stat-label">Objectif d'épargne mensuel</div>
-            </div>
+        <div class="metric-action">
+            <a href="{{ url_for('platform_investor.investor_data') }}" class="action-btn">
+                <i class="fas fa-eye"></i>
+            </a>
         </div>
     </div>
-    
-    <div class="platform-card">
-        <div class="platform-card-body">
-            <div class="platform-stat">
-                <div class="platform-stat-value" id="monthlyIncome">
-                    {% if current_user.investor_profile %}
-                        {{ "{:,.0f}".format(current_user.investor_profile.monthly_net_income) }}€
-                    {% else %}
-                        3 200€
-                    {% endif %}
-                </div>
-                <div class="platform-stat-label">Revenu mensuel</div>
+
+    <!-- Objectif épargne -->
+    <div class="metric-card">
+        <div class="metric-content">
+            <div class="metric-label">Objectif d'épargne mensuel</div>
+            <div class="metric-value" id="monthlySavingsGoal">
+                {% if current_user.investor_profile %}
+                    {{ "{:,.0f}".format(current_user.investor_profile.monthly_savings_capacity) }}€
+                {% else %}
+                    850€
+                {% endif %}
             </div>
+            <div class="metric-progress">
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: 75%"></div>
+                </div>
+                <span class="progress-text">75% atteint</span>
+            </div>
+        </div>
+        <div class="metric-action">
+            <a href="#" class="action-btn">
+                <i class="fas fa-cog"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Revenu mensuel -->
+    <div class="metric-card">
+        <div class="metric-content">
+            <div class="metric-label">Revenu mensuel net</div>
+            <div class="metric-value" id="monthlyIncome">
+                {% if current_user.investor_profile %}
+                    {{ "{:,.0f}".format(current_user.investor_profile.monthly_net_income) }}€
+                {% else %}
+                    3 200€
+                {% endif %}
+            </div>
+            <div class="metric-subtitle">
+                Capacité d'investissement disponible
+            </div>
+        </div>
+        <div class="metric-action">
+            <a href="#" class="action-btn">
+                <i class="fas fa-plus"></i>
+            </a>
         </div>
     </div>
 </div>
@@ -98,16 +128,21 @@
     </div>
 </div>
 
-<!-- Camembert répartition des actifs -->
-<div class="platform-card">
-    <div class="platform-card-header">
-        <h3 class="platform-card-title">
-            <i class="fas fa-chart-pie text-primary"></i>
-            Répartition de vos actifs
-        </h3>
-        <p class="platform-card-subtitle">Diversification de votre portefeuille</p>
+<!-- Répartition des actifs moderne -->
+<div class="modern-portfolio-card">
+    <div class="portfolio-header">
+        <div class="portfolio-header-content">
+            <div class="portfolio-title-section">
+                <h3 class="portfolio-title">Répartition de vos actifs</h3>
+                <p class="portfolio-subtitle">Diversification de votre portefeuille</p>
+            </div>
+        </div>
+        <div class="portfolio-total">
+            <span class="total-label">Total</span>
+            <span class="total-value" id="portfolioTotal">45 250€</span>
+        </div>
     </div>
-    <div class="platform-card-body">
+    <div class="portfolio-content">
         <div class="portfolio-chart-container">
             <div class="portfolio-chart">
                 <canvas id="portfolioChart"></canvas>
@@ -120,6 +155,421 @@
 </div>
 
 <style>
+/* MODERN DASHBOARD METRICS */
+.modern-metrics-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.metric-card {
+    background: linear-gradient(135deg, var(--qlower-white) 0%, #fafbfc 100%);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(19, 124, 139, 0.08);
+    border: 1px solid rgba(19, 124, 139, 0.06);
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--qlower-primary), var(--qlower-light));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(19, 124, 139, 0.15);
+    border-color: rgba(19, 124, 139, 0.15);
+}
+
+.metric-card:hover::before {
+    transform: scaleX(1);
+}
+
+.metric-card.primary-metric {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: white;
+}
+
+.metric-card.primary-metric::before {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.metric-card.primary-metric .metric-label,
+.metric-card.primary-metric .metric-value,
+.metric-card.primary-metric .trend-period,
+.metric-card.primary-metric .metric-subtitle {
+    color: white !important;
+}
+
+.metric-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.metric-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-text-dark);
+    letter-spacing: -0.025em;
+}
+
+.metric-value {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--qlower-primary);
+    line-height: 1;
+    letter-spacing: -0.05em;
+}
+
+.primary-metric .metric-value {
+    color: white;
+}
+
+.metric-trend {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.trend-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.trend-indicator.positive {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.primary-metric .trend-indicator.positive {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.trend-period {
+    font-size: 13px;
+    color: var(--qlower-text-light);
+}
+
+.metric-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress-track {
+    flex: 1;
+    height: 8px;
+    background: var(--qlower-bg-light);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+.progress-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #28a745;
+}
+
+.metric-subtitle {
+    font-size: 13px;
+    color: var(--qlower-text-light);
+    font-style: italic;
+}
+
+.metric-action {
+    flex-shrink: 0;
+}
+
+.action-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--qlower-bg-light);
+    border: 1px solid var(--qlower-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.action-btn:hover {
+    background: var(--qlower-primary);
+    color: white;
+    border-color: var(--qlower-primary);
+    transform: scale(1.05);
+}
+
+.primary-metric .action-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.primary-metric .action-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .metric-card {
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .metric-value {
+        font-size: 28px;
+    }
+    
+    .metric-trend {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .metric-action {
+        align-self: flex-end;
+    }
+}
+
+/* Animation d'entrée */
+.metric-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideInMetric 0.6s ease forwards;
+}
+
+.metric-card:nth-child(1) { animation-delay: 0.1s; }
+.metric-card:nth-child(2) { animation-delay: 0.2s; }
+.metric-card:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes slideInMetric {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* MODERN PORTFOLIO SECTION */
+.modern-portfolio-card {
+    background: linear-gradient(135deg, var(--qlower-white) 0%, #fafbfc 100%);
+    border-radius: 24px;
+    box-shadow: 0 12px 48px rgba(19, 124, 139, 0.08);
+    border: 1px solid rgba(19, 124, 139, 0.06);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 32px;
+}
+
+.modern-portfolio-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 80px rgba(19, 124, 139, 0.12);
+}
+
+.portfolio-header {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    padding: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.portfolio-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.portfolio-header-content {
+    display: flex;
+    align-items: center;
+}
+
+.portfolio-title-section {
+    color: white;
+}
+
+.portfolio-title {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+}
+
+.portfolio-subtitle {
+    font-size: 16px;
+    opacity: 0.9;
+    margin: 4px 0 0 0;
+    font-weight: 400;
+}
+
+.portfolio-total {
+    text-align: right;
+    color: white;
+}
+
+.total-label {
+    display: block;
+    font-size: 14px;
+    opacity: 0.8;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.total-value {
+    display: block;
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.portfolio-content {
+    padding: 40px;
+}
+
+.portfolio-chart-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+}
+
+.portfolio-chart {
+    position: relative;
+    height: 320px;
+}
+
+.portfolio-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, var(--qlower-bg-light) 0%, #f1f3f4 100%);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(19, 124, 139, 0.04);
+}
+
+.legend-item:hover {
+    background: var(--qlower-white);
+    box-shadow: 0 8px 24px rgba(19, 124, 139, 0.08);
+    transform: translateX(4px);
+    border-color: rgba(19, 124, 139, 0.1);
+}
+
+.legend-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.legend-label {
+    font-weight: 600;
+    color: var(--qlower-text-dark);
+    font-size: 15px;
+}
+
+.legend-values {
+    text-align: right;
+}
+
+.legend-amount {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    font-size: 16px;
+    line-height: 1.2;
+}
+
+.legend-percentage {
+    font-size: 13px;
+    color: var(--qlower-text-light);
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .portfolio-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+        padding: 24px;
+    }
+    
+    .portfolio-content {
+        padding: 24px;
+    }
+    
+    .portfolio-chart-container {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+    
+    .portfolio-chart {
+        height: 280px;
+    }
+}
+
 /* Styles pour la barre de progression d'épargne */
 .savings-progress-container {
     padding: 20px 0;
@@ -471,6 +921,9 @@ function createPortfolioChart() {
     
     // Créer la légende personnalisée
     createCustomLegend(portfolioData, total);
+    
+    // Mettre à jour le total dans l'en-tête
+    document.getElementById('portfolioTotal').textContent = total.toLocaleString() + '€';
 }
 
 function createCustomLegend(portfolioData, total) {

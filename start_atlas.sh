@@ -9,7 +9,7 @@ if brew services list | grep postgresql@16 | grep started > /dev/null; then
 else
     echo "🔄 Démarrage de PostgreSQL..."
     brew services start postgresql@16
-    sleep 2
+    sleep 2 
 fi
 
 # Test de connexion à la base
@@ -26,18 +26,18 @@ echo ""
 echo "🎯 Atlas Platform prête !"
 echo "================================"
 echo "📊 Base de données: PostgreSQL (atlas_db)"
-echo "🌐 Lancement de Flask sur http://127.0.0.1:5000"
+echo "🌐 Lancement de Flask sur http://127.0.0.1:5001"
 echo ""
 echo "🔑 Comptes disponibles:"
 echo "  - Admin: admin@gmail.com"
 echo "  - Client: test.client@gmail.com"
 echo ""
 echo "🌐 URLs importantes:"
-echo "  - Site vitrine: http://127.0.0.1:5000"
-echo "  - Connexion: http://127.0.0.1:5000/platform/login"
-echo "  - Dashboard: http://127.0.0.1:5000/platform/dashboard"
+echo "  - Site vitrine: http://127.0.0.1:5001"
+echo "  - Connexion: http://127.0.0.1:5001/platform/login"
+echo "  - Dashboard: http://127.0.0.1:5001/platform/dashboard"
 echo ""
 
 # Lancer Flask
 echo "🚀 Démarrage de Flask..."
-python3 -m flask run --host=127.0.0.1 --port=5000
+python3 -m flask run --host=127.0.0.1 --port=5001

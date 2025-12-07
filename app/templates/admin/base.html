@@ -117,6 +117,14 @@
                             </a>
                         </li>
                         <li class="admin-nav-item">
+                            <a href="{{ url_for('platform_admin.apprentissages') }}" class="admin-nav-link {{ 'active' if 'platform_admin.apprentissages' in request.endpoint }}">
+                                <div class="admin-nav-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                Apprentissage
+                            </a>
+                        </li>
+                        <li class="admin-nav-item">
                             <a href="#" class="admin-nav-link">
                                 <div class="admin-nav-icon">
                                     <i class="fas fa-bell"></i>

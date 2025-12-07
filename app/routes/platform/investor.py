@@ -2,13 +2,14 @@
 Routes pour l'interface investisseur de la plateforme.
 """
 
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, make_response
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, make_response, send_file
 from flask_login import login_required, current_user
 from app import db
 from app.models.investor_profile import InvestorProfile
 from app.models.portfolio import Portfolio
 from app.models.subscription import Subscription, SubscriptionTier
 from app.models.payment_method import PaymentMethod
+from app.models.apprentissage import Apprentissage
 import json
 import re
 from datetime import datetime, timedelta
@@ -44,6 +45,16 @@ def dashboard():
     # Mettre à jour le portefeuille
     if current_user.portfolio:
         current_user.portfolio.update_from_profile()
+    
+    # Calculer et synchroniser les totaux patrimoniaux (même logique qu'en admin)
+    if current_user.investor_profile:
+        try:
+            from app.services.patrimoine_calculation import PatrimoineCalculationService
+            PatrimoineCalculationService.calculate_all_totaux(current_user.investor_profile, save_to_db=True)
+            db.session.refresh(current_user.investor_profile)
+            db.session.refresh(current_user)
+        except Exception as calc_error:
+            pass  # En cas d'erreur, on continue sans bloquer l'affichage
     
     return render_template('platform/investor/dashboard.html')
 
@@ -178,48 +189,21 @@ def learning():
     """
     Section apprentissage et formations.
     """
-    if current_user.is_admin:
-        return redirect(url_for('platform_admin.dashboard'))
+    # Les admins peuvent aussi consulter les formations
     
-    if not current_user.subscription or not current_user.subscription.is_active():
-        return redirect(url_for('platform_auth.login'))
+    # Vérifier les permissions (admins exempts des vérifications d'abonnement)
+    if not current_user.is_admin:
+        if not current_user.subscription or not current_user.subscription.is_active():
+            return redirect(url_for('platform_auth.login'))
+        
+        if not current_user.investor_profile:
+            flash('Veuillez d\'abord compléter votre profil investisseur.', 'warning')
+            return redirect(url_for('platform_investor.questionnaire'))
     
-    if not current_user.investor_profile:
-        flash('Veuillez d\'abord compléter votre profil investisseur.', 'warning')
-        return redirect(url_for('platform_investor.questionnaire'))
+    # Récupérer les formations actives depuis la base de données
+    apprentissages = Apprentissage.query.filter_by(actif=True).order_by(Apprentissage.ordre, Apprentissage.date_creation.desc()).all()
     
-    # Données fictives pour les formations
-    courses = [
-        {
-            'id': 1,
-            'title': 'Les bases de l\'investissement',
-            'description': 'Comprendre les fondamentaux de l\'investissement et les différents types de placements.',
-            'duration': '45 min',
-            'level': 'Débutant',
-            'thumbnail': '/static/img/course1.jpg',
-            'completed': False
-        },
-        {
-            'id': 2,
-            'title': 'Diversification de portefeuille',
-            'description': 'Apprendre à répartir ses investissements pour optimiser le rapport rendement/risque.',
-            'duration': '60 min',
-            'level': 'Intermédiaire',
-            'thumbnail': '/static/img/course2.jpg',
-            'completed': False
-        },
-        {
-            'id': 3,
-            'title': 'PEA et optimisation fiscale',
-            'description': 'Tout savoir sur le Plan d\'Épargne en Actions et l\'optimisation fiscale.',
-            'duration': '50 min',
-            'level': 'Intermédiaire',
-            'thumbnail': '/static/img/course3.jpg',
-            'completed': False
-        }
-    ]
-    
-    return render_template('platform/investor/learning.html', courses=courses)
+    return render_template('platform/investor/learning.html', apprentissages=apprentissages)
 
 @platform_investor_bp.route('/formations')
 @login_required
@@ -304,13 +288,22 @@ def investor_data():
     # Vérifier si on est en mode édition
     edit_mode = request.args.get('edit') == 'true'
     
+    # Calculer et synchroniser les totaux patrimoniaux (même logique qu'en admin)
+    try:
+        from app.services.patrimoine_calculation import PatrimoineCalculationService
+        PatrimoineCalculationService.calculate_all_totaux(current_user.investor_profile, save_to_db=True)
+        db.session.refresh(current_user.investor_profile)
+        db.session.refresh(current_user)
+    except Exception as calc_error:
+        pass  # En cas d'erreur, on continue sans bloquer l'affichage
+    
     return render_template('platform/investor/investor_data.html', edit_mode=edit_mode)
 
 @platform_investor_bp.route('/donnees-investisseur/modifier', methods=['POST'])
 @login_required
 def update_investor_data():
     """
-    Mise à jour des données investisseur.
+    Mise à jour complète des données investisseur - COPIE EXACTE de la logique admin.
     """
     if current_user.is_admin:
         return redirect(url_for('platform_admin.dashboard'))
@@ -323,43 +316,368 @@ def update_investor_data():
         return redirect(url_for('platform_investor.questionnaire'))
     
     try:
-        profile = current_user.investor_profile
+        # Récupération des données du formulaire HTML - COPIE EXACTE ADMIN
+        user = current_user
+        profile = user.investor_profile
         
-        # Mise à jour des données financières
-        profile.monthly_net_income = float(request.form.get('monthly_net_income', 0))
-        profile.current_savings = float(request.form.get('current_savings', 0))
-        profile.monthly_savings_capacity = float(request.form.get('monthly_savings_capacity', 0))
-        profile.family_situation = request.form.get('family_situation', profile.family_situation)
+        # Mise à jour des informations personnelles
+        user.first_name = request.form.get('first_name', '').strip()
+        user.last_name = request.form.get('last_name', '').strip()
         
-        # Mise à jour du profil d'investissement
-        profile.risk_tolerance = request.form.get('risk_tolerance', profile.risk_tolerance)
-        profile.investment_experience = request.form.get('investment_experience', profile.investment_experience)
-        profile.investment_horizon = request.form.get('investment_horizon', profile.investment_horizon)
-        profile.professional_situation = request.form.get('professional_situation', profile.professional_situation)
-        profile.investment_goals = request.form.get('investment_goals', profile.investment_goals)
+        # Section 1: IDENTITÉ
+        profile.civilite = request.form.get('civilite', '').strip() or None
+        date_naissance_str = request.form.get('date_naissance', '').strip()
+        if date_naissance_str:
+            from datetime import datetime
+            try:
+                profile.date_naissance = datetime.strptime(date_naissance_str, '%Y-%m-%d').date()
+            except ValueError:
+                profile.date_naissance = None
+        profile.lieu_naissance = request.form.get('lieu_naissance', '').strip() or None
+        profile.nationalite = request.form.get('nationalite', '').strip() or None
+        profile.pays_residence = request.form.get('pays_residence', '').strip() or None
+        profile.pays_residence_fiscal = request.form.get('pays_residence_fiscal', '').strip() or None
+        profile.family_situation = request.form.get('family_situation', '').strip() or None
         
-        # Mise à jour des investissements existants
-        profile.has_livret_a = 'has_livret_a' in request.form
-        profile.livret_a_value = float(request.form.get('livret_a_value', 0)) if profile.has_livret_a else 0
+        # Mise à jour du téléphone utilisateur
+        user.phone = request.form.get('phone', '').strip() or None
         
-        profile.has_pea = 'has_pea' in request.form
-        profile.pea_value = float(request.form.get('pea_value', 0)) if profile.has_pea else 0
+        # Section 2: REVENUS
+        profile.professional_situation = request.form.get('professional_situation', '').strip() or None
+        profile.professional_situation_other = request.form.get('professional_situation_other', '').strip() or None
+        profile.metier = request.form.get('metier', '').strip() or None
         
-        profile.has_per = 'has_per' in request.form
-        profile.per_value = float(request.form.get('per_value', 0)) if profile.has_per else 0
+        try:
+            profile.monthly_net_income = float(request.form.get('monthly_net_income', 0) or 0)
+        except ValueError:
+            profile.monthly_net_income = 0.0
+            
+        try:
+            profile.impots_mensuels = float(request.form.get('impots_mensuels', 0) or 0)
+        except ValueError:
+            profile.impots_mensuels = 0.0
+            
+        # Traitement des revenus complémentaires
+        income_names = request.form.getlist('revenu_complementaire_name[]')
+        income_amounts = request.form.getlist('revenu_complementaire_amount[]')
         
-        profile.has_life_insurance = 'has_life_insurance' in request.form
-        profile.life_insurance_value = float(request.form.get('life_insurance_value', 0)) if profile.has_life_insurance else 0
+        complementary_incomes = []
+        for name, amount in zip(income_names, income_amounts):
+            if name and name.strip() and amount and amount.strip():
+                try:
+                    amount_float = float(amount.strip())
+                    if amount_float >= 0:
+                        complementary_incomes.append({
+                            'name': name.strip(),
+                            'amount': amount_float
+                        })
+                except ValueError:
+                    continue
         
-        profile.has_current_account = 'has_current_account' in request.form
-        profile.current_account_value = float(request.form.get('current_account_value', 0)) if profile.has_current_account else 0
+        profile.set_revenus_complementaires_data(complementary_incomes)
+        total_complementaires = sum(income['amount'] for income in complementary_incomes)
+        profile.revenus_complementaires = total_complementaires
+        
+        # Traitement des charges mensuelles
+        charge_names = request.form.getlist('charge_mensuelle_name[]')
+        charge_amounts = request.form.getlist('charge_mensuelle_amount[]')
+        
+        monthly_charges = []
+        for name, amount in zip(charge_names, charge_amounts):
+            if name and name.strip() and amount and amount.strip():
+                try:
+                    amount_float = float(amount.strip())
+                    if amount_float >= 0:
+                        monthly_charges.append({
+                            'name': name.strip(),
+                            'amount': amount_float
+                        })
+                except ValueError:
+                    continue
+        
+        profile.set_charges_mensuelles_data(monthly_charges)
+        total_charges = sum(charge['amount'] for charge in monthly_charges)
+        profile.charges_mensuelles = total_charges
+        
+        # Traitement des liquidités personnalisées
+        liquidite_names = request.form.getlist('liquidite_personnalisee_name[]')
+        liquidite_amounts = request.form.getlist('liquidite_personnalisee_amount[]')
+        
+        liquidites_personnalisees = []
+        for name, amount in zip(liquidite_names, liquidite_amounts):
+            if name and name.strip() and amount and amount.strip():
+                try:
+                    amount_float = float(amount.strip())
+                    if amount_float > 0:
+                        liquidites_personnalisees.append({
+                            'name': name.strip(),
+                            'amount': amount_float
+                        })
+                except ValueError:
+                    continue
+        
+        profile.set_liquidites_personnalisees_data(liquidites_personnalisees)
+        
+        # Traitement des placements personnalisés
+        placement_names = request.form.getlist('placement_personnalise_name[]')
+        placement_amounts = request.form.getlist('placement_personnalise_amount[]')
+        
+        placements_personnalises = []
+        for name, amount in zip(placement_names, placement_amounts):
+            if name and name.strip() and amount and amount.strip():
+                try:
+                    amount_float = float(amount.strip())
+                    if amount_float > 0:
+                        placements_personnalises.append({
+                            'name': name.strip(),
+                            'amount': amount_float
+                        })
+                except ValueError:
+                    continue
+        
+        profile.set_placements_personnalises_data(placements_personnalises)
+        
+        try:
+            profile.monthly_savings_capacity = float(request.form.get('monthly_savings_capacity', 0) or 0)
+        except ValueError:
+            profile.monthly_savings_capacity = 0.0
+        
+        # Section 3: PATRIMOINE
+        try:
+            profile.current_savings = float(request.form.get('current_savings', 0) or 0)
+        except ValueError:
+            profile.current_savings = 0.0
+        
+        # Liquidités - Section 1
+        # Livret A
+        try:
+            profile.livret_a_value = float(request.form.get('livret_a_value', 0) or 0)
+        except ValueError:
+            profile.livret_a_value = 0.0
+        profile.has_livret_a = profile.livret_a_value > 0
+        
+        # Livret LDDS
+        try:
+            profile.ldds_value = float(request.form.get('ldds_value', 0) or 0)
+        except ValueError:
+            profile.ldds_value = 0.0
+        profile.has_ldds = profile.ldds_value > 0
+            
+        # PEL/CEL
+        try:
+            profile.pel_cel_value = float(request.form.get('pel_cel_value', 0) or 0)
+        except ValueError:
+            profile.pel_cel_value = 0.0
+        profile.has_pel_cel = profile.pel_cel_value > 0
+            
+        # Placements financiers - Section 2
+        # PEA
+        try:
+            profile.pea_value = float(request.form.get('pea_value', 0) or 0)
+        except ValueError:
+            profile.pea_value = 0.0
+        profile.has_pea = profile.pea_value > 0
+        
+        # PER
+        try:
+            profile.per_value = float(request.form.get('per_value', 0) or 0)
+        except ValueError:
+            profile.per_value = 0.0
+        profile.has_per = profile.per_value > 0
+        
+        # PEE
+        try:
+            profile.pee_value = float(request.form.get('pee_value', 0) or 0)
+        except ValueError:
+            profile.pee_value = 0.0
+        profile.has_pee = profile.pee_value > 0
+        
+        # Assurance Vie
+        try:
+            profile.life_insurance_value = float(request.form.get('life_insurance_value', 0) or 0)
+        except ValueError:
+            profile.life_insurance_value = 0.0
+        profile.has_life_insurance = profile.life_insurance_value > 0
+        
+        # CTO
+        try:
+            profile.cto_value = float(request.form.get('cto_value', 0) or 0)
+        except ValueError:
+            profile.cto_value = 0.0
+        profile.has_cto = profile.cto_value > 0
+        
+        # Private Equity
+        try:
+            profile.private_equity_value = float(request.form.get('private_equity_value', 0) or 0)
+        except ValueError:
+            profile.private_equity_value = 0.0
+        profile.has_private_equity = profile.private_equity_value > 0
+        
+        # SCPI
+        try:
+            profile.scpi_value = float(request.form.get('scpi_value', 0) or 0)
+        except ValueError:
+            profile.scpi_value = 0.0
+        profile.has_scpi = profile.scpi_value > 0
+        
+        # Section 4: OBJECTIFS
+        profile.objectif_constitution_epargne = request.form.get('objectif_constitution_epargne') == 'on'
+        profile.objectif_retraite = request.form.get('objectif_retraite') == 'on'
+        profile.objectif_transmission = request.form.get('objectif_transmission') == 'on'
+        profile.objectif_defiscalisation = request.form.get('objectif_defiscalisation') == 'on'
+        profile.objectif_immobilier = request.form.get('objectif_immobilier') == 'on'
+        
+        # Investment goals (format pour compatibilité)
+        goals = []
+        if profile.objectif_constitution_epargne:
+            goals.append("constitution_epargne")
+        if profile.objectif_retraite:
+            goals.append("retraite")
+        if profile.objectif_transmission:
+            goals.append("transmission")
+        if profile.objectif_defiscalisation:
+            goals.append("defiscalisation")
+        if profile.objectif_immobilier:
+            goals.append("immobilier")
+        profile.investment_goals = ", ".join(goals)
+        
+        # Section 5: PROFIL DE RISQUE
+        profile.profil_risque_connu = request.form.get('profil_risque_connu') == 'on'
+        profile.profil_risque_choisi = request.form.get('profil_risque_choisi', '').strip() or None
+        profile.risk_tolerance = profile.profil_risque_choisi or 'modéré'
+        
+        # Valeurs par défaut pour éviter NOT NULL constraint
+        profile.investment_experience = request.form.get('experience_investissement', '').strip() or 'intermediaire'
+        profile.investment_horizon = request.form.get('horizon_placement', '').strip() or 'moyen'
+        
+        # Section 6: QUESTIONNAIRE DE RISQUE DÉTAILLÉ
+        profile.tolerance_risque = request.form.get('tolerance_risque', '').strip() or 'moderee'
+        profile.horizon_placement = request.form.get('horizon_placement', '').strip() or 'moyen'  
+        profile.besoin_liquidite = request.form.get('besoin_liquidite', '').strip() or 'long_terme'
+        profile.experience_investissement = request.form.get('experience_investissement', '').strip() or 'intermediaire'
+        profile.attitude_volatilite = request.form.get('attitude_volatilite', '').strip() or 'attendre'
+        
+        # Nouveaux objectifs d'investissement étendus
+        profile.objectif_premiers_pas = request.form.get('objectif_premiers_pas') == 'on'
+        profile.objectif_constituer_capital = request.form.get('objectif_constituer_capital') == 'on'
+        profile.objectif_diversifier = request.form.get('objectif_diversifier') == 'on'
+        profile.objectif_optimiser_rendement = request.form.get('objectif_optimiser_rendement') == 'on'
+        profile.objectif_preparer_retraite = request.form.get('objectif_preparer_retraite') == 'on'
+        profile.objectif_securite_financiere = request.form.get('objectif_securite_financiere') == 'on'
+        profile.objectif_projet_immobilier = request.form.get('objectif_projet_immobilier') == 'on'
+        profile.objectif_revenus_complementaires = request.form.get('objectif_revenus_complementaires') == 'on'
+        profile.objectif_transmettre_capital = request.form.get('objectif_transmettre_capital') == 'on'
+        profile.objectif_proteger_famille = request.form.get('objectif_proteger_famille') == 'on'
+        
+        # Traitement des données complexes JSONB - IMMOBILIER
+        immobilier_data = []
+        bien_types = request.form.getlist('bien_type[]')
+        bien_descriptions = request.form.getlist('bien_description[]')
+        bien_valeurs = request.form.getlist('bien_valeur[]')
+        bien_surfaces = request.form.getlist('bien_surface[]')
+        credit_checkboxes = request.form.getlist('bien_has_credit[]') or []
+        credit_montants = request.form.getlist('credit_montant[]')
+        credit_taegs = request.form.getlist('credit_taeg[]')
+        credit_tags = request.form.getlist('credit_tag[]')
+        credit_durees = request.form.getlist('credit_duree[]')
+        credit_dates = request.form.getlist('credit_date[]')
+        
+        for i in range(len(bien_types)):
+            if bien_types[i].strip():
+                bien_data = {
+                    'type': bien_types[i].strip(),
+                    'description': bien_descriptions[i].strip() if i < len(bien_descriptions) else '',
+                    'valeur': float(bien_valeurs[i] or 0) if i < len(bien_valeurs) else 0,
+                    'surface': float(bien_surfaces[i] or 0) if i < len(bien_surfaces) else 0,
+                    'has_credit': str(i) in credit_checkboxes if credit_checkboxes else False,
+                    'credit_montant': float(credit_montants[i] or 0) if i < len(credit_montants) else 0,
+                    'credit_taeg': float(credit_taegs[i] or 0) if i < len(credit_taegs) else 0,
+                    'credit_tag': float(credit_tags[i] or 0) if i < len(credit_tags) else 0,
+                    'credit_duree': int(credit_durees[i] or 0) if i < len(credit_durees) else 0,
+                    'credit_date': credit_dates[i].strip() if i < len(credit_dates) else ''
+                }
+                immobilier_data.append(bien_data)
+        
+        profile.set_immobilier_data(immobilier_data)
+        
+        # Calcul des totaux immobilier et mise à jour des champs de résumé
+        total_immobilier_value = sum(bien.get('valeur', 0) for bien in immobilier_data)
+        profile.immobilier_value = total_immobilier_value
+        profile.has_immobilier = total_immobilier_value > 0
+        profile.has_real_estate = profile.has_immobilier
+        profile.real_estate_value = profile.immobilier_value
+        
+        # Cryptomonnaies détaillées
+        crypto_data = []
+        crypto_symbols = request.form.getlist('crypto_symbol[]')
+        crypto_quantities = request.form.getlist('crypto_quantity[]')
+        
+        for i in range(len(crypto_symbols)):
+            if crypto_symbols[i].strip():
+                crypto_data.append({
+                    'symbol': crypto_symbols[i].strip(),
+                    'quantity': float(crypto_quantities[i] or 0) if i < len(crypto_quantities) else 0
+                })
+        
+        profile.set_cryptomonnaies_data(crypto_data)
+        
+        # Autres biens détaillés
+        autres_biens_data = []
+        autre_bien_names = request.form.getlist('autre_bien_name[]')
+        autre_bien_descriptions = request.form.getlist('autre_bien_description[]')
+        autre_bien_valeurs = request.form.getlist('autre_bien_valeur[]')
+        
+        for i in range(len(autre_bien_names)):
+            if autre_bien_names[i].strip():
+                autres_biens_data.append({
+                    'name': autre_bien_names[i].strip(),
+                    'description': autre_bien_descriptions[i].strip() if i < len(autre_bien_descriptions) else '',
+                    'valeur': float(autre_bien_valeurs[i] or 0) if i < len(autre_bien_valeurs) else 0
+                })
+        
+        profile.set_autres_biens_data(autres_biens_data)
+        
+        # Crédits détaillés
+        credits_data = []
+        credit_ids = request.form.getlist('credit_conso_id[]')
+        credit_descriptions = request.form.getlist('credit_conso_description[]')
+        credit_montants_initiaux = request.form.getlist('credit_conso_montant_initial[]')
+        credit_taux = request.form.getlist('credit_conso_taux[]')
+        credit_durees_credit = request.form.getlist('credit_conso_duree[]')
+        credit_dates_depart = request.form.getlist('credit_conso_date_depart[]')
+        
+        arrays = [credit_ids, credit_descriptions, credit_montants_initiaux, credit_taux, credit_durees_credit, credit_dates_depart]
+        max_length = max(len(arr) for arr in arrays) if any(arrays) else 0
+        existing_credits = profile.credits_data.copy() if profile.credits_data else []
+        
+        for i in range(max_length):
+            description = credit_descriptions[i].strip() if i < len(credit_descriptions) else ''
+            
+            if description:
+                credit_id = credit_ids[i] if i < len(credit_ids) else str(i)
+                
+                new_credit = {
+                    'id': credit_id,
+                    'description': description,
+                    'montant_initial': float(credit_montants_initiaux[i] or 0) if i < len(credit_montants_initiaux) else 0,
+                    'taux': float(credit_taux[i] or 0) if i < len(credit_taux) else 0,
+                    'duree': int(credit_durees_credit[i] or 0) if i < len(credit_durees_credit) else 0,
+                    'date_depart': credit_dates_depart[i].strip() if i < len(credit_dates_depart) else ''
+                }
+                credits_data.append(new_credit)
+        
+        profile.credits_data_json = credits_data
+        
+        # Recalculer les totaux avec le service de calcul
+        from app.services.patrimoine_calculation import PatrimoineCalculationService
+        PatrimoineCalculationService.calculate_all_totaux(profile, save_to_db=True)
         
         # Mise à jour du portefeuille
         if current_user.portfolio:
             current_user.portfolio.update_from_profile()
         
         db.session.commit()
-        flash('Vos données investisseur ont été mises à jour avec succès.', 'success')
+        flash('Vos données ont été mises à jour avec succès.', 'success')
         return redirect(url_for('platform_investor.investor_data'))
         
     except ValueError as e:
@@ -909,3 +1227,119 @@ def update_user_info():
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': 'Erreur lors de la mise à jour'}), 500
+
+
+# ==========================================
+# ROUTES APPRENTISSAGE / FORMATIONS
+# ==========================================
+
+@platform_investor_bp.route('/formation/pdf/<int:id>')
+@login_required
+def learning_pdf(id):
+    """
+    Affichage sécurisé d'un PDF d'apprentissage avec lecteur intégré
+    """
+    # Les admins peuvent aussi consulter les formations
+    
+    # Vérifier les permissions (admins exempts des vérifications d'abonnement)
+    if not current_user.is_admin:
+        if not current_user.subscription or not current_user.subscription.is_active():
+            flash('Accès non autorisé. Veuillez vous abonner pour accéder aux formations.', 'error')
+            return redirect(url_for('platform_auth.login'))
+        
+        if not current_user.investor_profile:
+            flash('Veuillez d\'abord compléter votre profil investisseur.', 'warning')
+            return redirect(url_for('platform_investor.questionnaire'))
+    
+    # Récupérer la formation
+    apprentissage = Apprentissage.query.filter_by(id=id, actif=True).first_or_404()
+    
+    if not apprentissage.fichier_pdf:
+        flash('Aucun contenu PDF disponible pour cette formation.', 'error')
+        if current_user.is_admin:
+            return redirect(url_for('platform_admin.apprentissages'))
+        return redirect(url_for('platform_investor.learning'))
+    
+    try:
+        import os
+        pdf_path = os.path.join('app', 'static', 'uploads', 'apprentissages', apprentissage.fichier_pdf)
+        
+        # Vérifier que le fichier existe
+        if not os.path.exists(pdf_path):
+            flash('Fichier de formation introuvable.', 'error')
+            if current_user.is_admin:
+                return redirect(url_for('platform_admin.apprentissages'))
+            return redirect(url_for('platform_investor.learning'))
+        
+        # Utiliser le template approprié selon le type d'utilisateur (SÉCURITÉ)
+        if current_user.is_admin:
+            # Template admin pour maintenir le contexte administrateur
+            return render_template('platform/admin/learning_pdf.html', 
+                                 apprentissage=apprentissage,
+                                 pdf_url=url_for('static', filename=f'uploads/apprentissages/{apprentissage.fichier_pdf}'))
+        else:
+            # Template utilisateur standard
+            return render_template('platform/investor/learning_pdf.html', 
+                                 apprentissage=apprentissage,
+                                 pdf_url=url_for('static', filename=f'uploads/apprentissages/{apprentissage.fichier_pdf}'))
+        
+    except Exception as e:
+        flash('Erreur lors de l\'accès à la formation.', 'error')
+        if current_user.is_admin:
+            return redirect(url_for('platform_admin.apprentissages'))
+        return redirect(url_for('platform_investor.learning'))
+
+
+@platform_investor_bp.route('/api/credit/calculate', methods=['POST'])
+@login_required
+def calculate_credit_api():
+    """
+    API endpoint pour calculer en temps réel les données d'un crédit - Version utilisateur.
+    """
+    try:
+        from app.services.credit_calculation import CreditCalculationService
+        
+        data = request.get_json()
+        
+        # Validation des données d'entrée
+        required_fields = ['montant_initial', 'taux_interet', 'duree_mois']
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Champs manquants'}), 400
+        
+        # Calculs
+        monthly_payment = CreditCalculationService.calculate_monthly_payment(
+            float(data['montant_initial']),
+            float(data['taux_interet']),
+            int(data['duree_mois'])
+        )
+        
+        remaining_capital = data['montant_initial']  # Par défaut
+        if data.get('date_debut'):
+            from datetime import datetime
+            try:
+                start_date = CreditCalculationService._parse_date(data['date_debut'])
+                remaining_capital = CreditCalculationService.calculate_remaining_capital(
+                    float(data['montant_initial']),
+                    float(data['taux_interet']),
+                    int(data['duree_mois']),
+                    start_date
+                )
+            except Exception:
+                pass
+        
+        # Calculs additionnels
+        total_cost = CreditCalculationService.calculate_total_cost(
+            float(data['montant_initial']),
+            float(data['taux_interet']),
+            int(data['duree_mois'])
+        )
+        
+        return jsonify({
+            'success': True,
+            'monthly_payment': monthly_payment,
+            'remaining_capital': remaining_capital,
+            'total_cost': total_cost
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'Erreur de calcul: {str(e)}'}), 500

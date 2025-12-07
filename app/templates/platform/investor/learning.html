@@ -7,104 +7,47 @@
 {% block content %}
 <!-- Grille de formations -->
 <div class="platform-grid platform-grid-3 mb-4">
-    <!-- Formation 1 -->
-    <div class="platform-card learning-card">
-        <div class="learning-card-content">
-            <div class="learning-image-placeholder"></div>
-            <div class="learning-content">
-                <h3 class="learning-title">Les bases de l'investissement</h3>
-                <p class="learning-description">Comprendre les fondamentaux de l'investissement et les différents types de placements disponibles sur le marché financier.</p>
+    {% if apprentissages %}
+        {% for apprentissage in apprentissages %}
+        <div class="platform-card learning-card" onclick="ouvrirFormation({{ apprentissage.id }})">
+            <div class="learning-card-content">
+                <div class="learning-image-container">
+                    {% if apprentissage.image %}
+                        <img src="{{ url_for('static', filename='uploads/apprentissages/' + apprentissage.image) }}" 
+                             alt="{{ apprentissage.nom }}" 
+                             class="learning-image">
+                    {% else %}
+                        <div class="learning-image-placeholder">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="learning-content">
+                    <h3 class="learning-title">{{ apprentissage.nom }}</h3>
+                    <p class="learning-description">
+                        {% if apprentissage.description %}
+                            {{ apprentissage.description[:120] }}{% if apprentissage.description|length > 120 %}...{% endif %}
+                        {% else %}
+                            Cliquez pour découvrir cette formation.
+                        {% endif %}
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Formation 2 -->
-    <div class="platform-card learning-card">
-        <div class="learning-card-content">
-            <div class="learning-image-placeholder"></div>
-            <div class="learning-content">
-                <h3 class="learning-title">Diversification de portefeuille</h3>
-                <p class="learning-description">Apprendre à répartir ses investissements pour optimiser le rapport rendement/risque et minimiser les pertes potentielles.</p>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="platform-card text-center" style="padding: 60px 20px;">
+                <div style="font-size: 48px; color: var(--qlower-text-light); margin-bottom: 20px;">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3 style="color: var(--qlower-text-dark); margin-bottom: 16px;">Aucune formation disponible</h3>
+                <p style="color: var(--qlower-text-light); margin-bottom: 0;">
+                    Les formations seront bientôt disponibles. Revenez plus tard pour découvrir nos contenus éducatifs.
+                </p>
             </div>
         </div>
-    </div>
-
-    <!-- Formation 3 -->
-    <div class="platform-card learning-card">
-        <div class="learning-card-content">
-            <div class="learning-image-placeholder"></div>
-            <div class="learning-content">
-                <h3 class="learning-title">PEA et optimisation fiscale</h3>
-                <p class="learning-description">Tout savoir sur le Plan d'Épargne en Actions et les stratégies d'optimisation fiscale pour maximiser vos gains.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Formation 4 -->
-    <div class="platform-card learning-card">
-        <div class="learning-card-content">
-            <div class="learning-image-placeholder"></div>
-            <div class="learning-content">
-                <h3 class="learning-title">Assurance Vie stratégique</h3>
-                <p class="learning-description">Comprendre l'assurance vie, ses avantages fiscaux et comment l'utiliser dans votre stratégie patrimoniale globale.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Formation 5 -->
-    <div class="platform-card learning-card">
-        <div class="learning-card-content">
-            <div class="learning-image-placeholder"></div>
-            <div class="learning-content">
-                <h3 class="learning-title">Investissement immobilier</h3>
-                <p class="learning-description">Découvrir les différentes stratégies d'investissement immobilier et leurs avantages fiscaux spécifiques.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Formation 6 -->
-    <div class="platform-card learning-card">
-        <div class="learning-card-content">
-            <div class="learning-image-placeholder"></div>
-            <div class="learning-content">
-                <h3 class="learning-title">Analyse de performance</h3>
-                <p class="learning-description">Apprendre à analyser et suivre la performance de ses investissements avec les bons indicateurs et métriques.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Formation 7 -->
-    <div class="platform-card learning-card">
-        <div class="learning-card-content">
-            <div class="learning-image-placeholder"></div>
-            <div class="learning-content">
-                <h3 class="learning-title">Gestion des risques</h3>
-                <p class="learning-description">Identifier, évaluer et maîtriser les risques financiers pour protéger et faire fructifier votre patrimoine.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Formation 8 -->
-    <div class="platform-card learning-card">
-        <div class="learning-card-content">
-            <div class="learning-image-placeholder"></div>
-            <div class="learning-content">
-                <h3 class="learning-title">Cryptomonnaies et DeFi</h3>
-                <p class="learning-description">Introduction aux cryptomonnaies, blockchain et à la finance décentralisée pour diversifier votre portefeuille.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Formation 9 -->
-    <div class="platform-card learning-card">
-        <div class="learning-card-content">
-            <div class="learning-image-placeholder"></div>
-            <div class="learning-content">
-                <h3 class="learning-title">Préparation à la retraite</h3>
-                <p class="learning-description">Construire une stratégie d'épargne retraite efficace avec les PER, rentes viagères et autres solutions patrimoniales.</p>
-            </div>
-        </div>
-    </div>
+    {% endif %}
 </div>
 
 <style>
@@ -132,29 +75,34 @@
     overflow: hidden;
 }
 
-.learning-image-placeholder {
+.learning-image-container {
     width: 80px;
     height: 80px;
-    background: var(--qlower-primary);
     border-radius: 8px;
     flex-shrink: 0;
-    position: relative;
     overflow: hidden;
     margin-top: 8px;
     margin-left: 8px;
     align-self: center;
 }
 
-.learning-image-placeholder::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+.learning-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.learning-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--qlower-primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
 }
 
 .learning-content {
@@ -180,12 +128,25 @@
     font-size: 14px;
     color: var(--qlower-text-light);
     line-height: 1.5;
-    margin: 0;
+    margin: 0 0 8px 0;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     text-overflow: ellipsis;
+}
+
+.learning-pdf-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--qlower-primary);
+    font-weight: 500;
+}
+
+.learning-pdf-indicator i {
+    font-size: 14px;
 }
 
 /* Responsive adjustments */
@@ -204,6 +165,12 @@
 
 {% block scripts %}
 <script>
+// Fonction pour ouvrir une formation
+function ouvrirFormation(apprentissageId) {
+    // Rediriger vers la page de visualisation PDF dans la même page
+    window.location.href = `{{ url_for('platform_investor.learning_pdf', id=0) }}`.replace('0', apprentissageId);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Animation d'entrée des cartes
     const cards = document.querySelectorAll('.learning-card');
@@ -218,12 +185,14 @@ document.addEventListener('DOMContentLoaded', function() {
         card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
     });
     
-    // Clic sur les cartes
+    // Effet de hover amélioré
     cards.forEach(card => {
-        card.addEventListener('click', function() {
-            const title = this.querySelector('.learning-title').textContent;
-            console.log('Formation sélectionnée:', title);
-            // Ici on pourrait rediriger vers la page de la formation
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-6px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
         });
     });
 });

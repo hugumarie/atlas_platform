@@ -67,6 +67,7 @@ def create_app():
     from app.models.portfolio import Portfolio
     from app.models.subscription import Subscription
     from app.models.credit import Credit
+    from app.models.apprentissage import Apprentissage
     
     # Configuration du user_loader pour Flask-Login
     @login_manager.user_loader
