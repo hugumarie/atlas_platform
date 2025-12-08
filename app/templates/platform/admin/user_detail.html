@@ -1398,8 +1398,12 @@
                 <div class="revenus-compact-item-special">
                     <div class="revenus-compact-name-special">Taux d'épargne</div>
                     <div class="revenus-compact-value-special">
-                        {% set taux_epargne = (user.investor_profile.monthly_savings_capacity / user.investor_profile.monthly_net_income * 100) if user.investor_profile.monthly_net_income > 0 %}
-                        {{ "{:.1f}".format(taux_epargne) }}%
+                        {% if user.investor_profile.monthly_net_income and user.investor_profile.monthly_net_income > 0 and user.investor_profile.monthly_savings_capacity %}
+                            {% set taux_epargne = (user.investor_profile.monthly_savings_capacity / user.investor_profile.monthly_net_income * 100) %}
+                            {{ "{:.1f}".format(taux_epargne) }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -1792,7 +1796,9 @@
                         {% endif %}
                         <div class="crypto-compact-name">{{ display_symbol }}</div>
                         <div class="crypto-compact-quantity">{{ crypto.get('quantity', 0) }}</div>
-                        <div class="crypto-compact-value">-</div>
+                        <div class="crypto-compact-value">
+                            {{ "{:,.0f}".format(crypto.get('calculated_value', 0)) }}€
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -1804,8 +1810,7 @@
             </div>
             
             <script>
-            // Récupérer dynamiquement les cryptos présentes
-            const cryptoItems = document.querySelectorAll('.crypto-compact-item');
+            // Valeurs calculées côté serveur, plus d'appels API JavaScript nécessaires
             const symbolToId = {
                 'btc': 'bitcoin', 'bitcoin': 'bitcoin',
                 'eth': 'ethereum', 'ethereum': 'ethereum', 
@@ -1824,11 +1829,11 @@
                 'uni': 'uniswap', 'uniswap': 'uniswap'
             };
             
-            // Collecter les IDs des cryptos présentes
+            // Collecter les IDs des cryptos présentes (ignorer les éléments sans data-symbol)
             const cryptoIds = new Set();
             cryptoItems.forEach(item => {
                 const symbol = item.getAttribute('data-symbol');
-                if (symbol) {
+                if (symbol && symbol.trim() !== '') {  // Vérifier que data-symbol existe et n'est pas vide
                     const cryptoId = symbolToId[symbol.toLowerCase()];
                     if (cryptoId) {
                         cryptoIds.add(cryptoId);
@@ -1839,42 +1844,8 @@
             if (cryptoIds.size > 0) {
                 const idsString = Array.from(cryptoIds).join(',');
                 
-                // Appel API avec les cryptos présentes seulement
-                fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${idsString}&vs_currencies=eur`)
-                    .then(response => response.json())
-                    .then(prices => {
-                        let totalValue = 0;
-                        
-                        cryptoItems.forEach(item => {
-                            const symbol = item.getAttribute('data-symbol');
-                            const quantity = parseFloat(item.getAttribute('data-quantity')) || 0;
-                            const valueElement = item.querySelector('.crypto-compact-value');
-                            
-                            if (symbol && quantity > 0 && valueElement) {
-                                const cryptoId = symbolToId[symbol.toLowerCase()];
-                                
-                                if (cryptoId && prices[cryptoId]) {
-                                    const price = prices[cryptoId].eur;
-                                    const value = price * quantity;
-                                    
-                                    valueElement.textContent = Math.round(value).toLocaleString('fr-FR') + '€';
-                                    totalValue += value;
-                                } else {
-                                    valueElement.textContent = 'Crypto inconnue';
-                                }
-                            }
-                        });
-                        
-                        const totalElement = document.querySelector('.crypto-compact-value-total');
-                        if (totalElement && !totalElement.hasAttribute('id')) {
-                            totalElement.textContent = Math.round(totalValue).toLocaleString('fr-FR') + '€';
-                        }
-                    })
-                    .catch(error => {
-                        document.querySelectorAll('.crypto-compact-value').forEach(el => {
-                            el.textContent = 'Erreur API';
-                        });
-                    });
+                // Toutes les valeurs crypto sont maintenant calculées côté serveur
+                console.log('✅ Valeurs crypto calculées et sauvegardées côté serveur');
             }
             </script>
             {% endif %}
@@ -1904,13 +1875,28 @@
                     {% endfor %}
                 </div>
                 
-                <div class="crypto-compact-item-total">
-                    <div class="crypto-compact-name-total">Total Autres Biens</div>
-                    <div class="crypto-compact-value-total">{{ "{:,.0f}".format(user.investor_profile.calculated_total_autres_biens or 0) }}€</div>
-                </div>
             </div>
             {% endif %}
 
+            <!-- Total Autres Biens (affiché même si vide) -->
+            <div class="crypto-compact-item-total">
+                <div class="crypto-compact-name-total">Total Autres Biens</div>
+                <div class="crypto-compact-value-total">
+                {% set manual_total = user.investor_profile.autres_biens_data|map(attribute='valeur')|sum if user.investor_profile.autres_biens_data else 0 %}
+                {{ "{:,.0f}".format(manual_total) }}€
+                </div>
+            </div>
+
+            <!-- TOTAL ÉPARGNE & PATRIMOINE -->
+            <div class="crypto-compact-item-total" style="margin-top: 20px; background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%) !important;">
+                <div class="crypto-compact-name-total" style="font-size: 16px; font-weight: 700;">
+                    <i class="fas fa-piggy-bank" style="margin-right: 8px;"></i>
+                    TOTAL ÉPARGNE & PATRIMOINE
+                </div>
+                <div class="crypto-compact-value-total" style="font-size: 20px; font-weight: 900;">
+                    {{ "{:,.0f}".format(user.investor_profile.calculated_total_actifs or 0) }}€
+                </div>
+            </div>
 
         </div>
     </div>
@@ -2012,6 +1998,23 @@
         <div class="crypto-compact-item-total">
             <div class="crypto-compact-name-total" style="font-size: 18px;">PATRIMOINE TOTAL NET</div>
             <div class="crypto-compact-value-total" style="font-size: 24px; font-weight: bold;" id="patrimoineTotal">{{ "{:,.0f}".format(patrimoine_net) }}€</div>
+        </div>
+        
+        <!-- Zone de Debug des Calculs Patrimoniaux -->
+        <div class="debug-patrimoine-section" style="margin-top: 24px;">
+            <div class="debug-header">
+                <button type="button" class="debug-toggle-btn" onclick="toggleDebugPatrimoine()">
+                    <i class="fas fa-bug"></i> Debug Calculs Patrimoniaux
+                    <i class="fas fa-chevron-down debug-chevron"></i>
+                </button>
+            </div>
+            
+            <div class="debug-content" id="debugPatrimoineContent" style="display: none;">
+                <div class="debug-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Chargement des données de debug...
+                </div>
+                <div class="debug-data" id="debugPatrimoineData" style="display: none;"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -3900,6 +3903,19 @@
     color: #6f42c1 !important;
 }
 
+.autre-bien-compact-item {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: var(--qlower-bg-light);
+    border: 1px solid var(--qlower-border);
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
 .autres-biens-grid {
     display: flex;
     flex-direction: column;
@@ -3976,6 +3992,7 @@
 .autre-bien-add-content i {
     font-size: 16px;
 }
+
 
 /* Responsive autres biens */
 @media (max-width: 768px) {
@@ -4472,6 +4489,135 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ==========================================
+   STYLES POUR LA ZONE DE DEBUG PATRIMOINE
+   ========================================== */
+
+.debug-patrimoine-section {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    background: #f8f9fa;
+    overflow: hidden;
+}
+
+.debug-toggle-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.debug-toggle-btn:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #343a40 100%);
+}
+
+.debug-chevron {
+    transition: transform 0.3s ease;
+}
+
+.debug-toggle-btn.active .debug-chevron {
+    transform: rotate(180deg);
+}
+
+.debug-content {
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #dee2e6;
+}
+
+.debug-loading {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.debug-section {
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.debug-section-header {
+    background: #f1f3f4;
+    padding: 10px 15px;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.debug-section-content {
+    padding: 15px;
+}
+
+.debug-item {
+    display: grid;
+    grid-template-columns: 1fr 120px 120px;
+    gap: 15px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f3f4;
+    align-items: center;
+}
+
+.debug-item:last-child {
+    border-bottom: none;
+}
+
+.debug-item-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.debug-item-value {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.debug-item-db {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.debug-item-calcule {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.debug-difference {
+    background: #fff3e0;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+.debug-difference.positive {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.debug-difference.negative {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.debug-difference.zero {
+    background: #f5f5f5;
+    color: #424242;
+}
+
 </style>
 {% endblock %}
 
@@ -5301,23 +5447,32 @@ let cryptoPrices = {};
 
 // Fonctions pour la section CRYPTOMONNAIES
 
-// Fonction pour charger la liste des top 100 cryptos depuis CoinGecko
+// Fonction pour charger la liste des cryptos depuis le backend Binance
 async function loadCryptoList() {
     try {
-        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1');
-        const data = await response.json();
+        // Récupérer les prix depuis notre API qui lit la base de données
+        const response = await fetch('/plateforme/admin/api/crypto-prices');
+        const pricesData = await response.json();
         
-        cryptoList = data.map(coin => ({
-            id: coin.id,
-            symbol: coin.symbol.toUpperCase(),
-            name: coin.name,
-            current_price: coin.current_price,
-            price_change_percentage_24h: coin.price_change_percentage_24h
-        }));
+        // Liste des cryptos supportées avec les prix réels depuis la DB
+        cryptoList = [
+            {id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', current_price: pricesData.bitcoin?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'ethereum', symbol: 'ETH', name: 'Ethereum', current_price: pricesData.ethereum?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'binancecoin', symbol: 'BNB', name: 'BNB', current_price: pricesData.binancecoin?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'solana', symbol: 'SOL', name: 'Solana', current_price: pricesData.solana?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'cardano', symbol: 'ADA', name: 'Cardano', current_price: pricesData.cardano?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'polkadot', symbol: 'DOT', name: 'Polkadot', current_price: pricesData.polkadot?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'chainlink', symbol: 'LINK', name: 'Chainlink', current_price: pricesData.chainlink?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'avalanche-2', symbol: 'AVAX', name: 'Avalanche', current_price: pricesData['avalanche-2']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'cosmos', symbol: 'ATOM', name: 'Cosmos', current_price: pricesData.cosmos?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'stellar', symbol: 'XLM', name: 'Stellar', current_price: pricesData.stellar?.eur || 0, price_change_percentage_24h: 0}
+        ];
+        
+        console.log('Prix chargés depuis la DB:', pricesData);
         
         // Stocker les prix pour accès rapide
         cryptoPrices = {};
-        data.forEach(coin => {
+        cryptoList.forEach(coin => {
             cryptoPrices[coin.id] = {
                 price: coin.current_price,
                 change_24h: coin.price_change_percentage_24h
@@ -5332,7 +5487,7 @@ async function loadCryptoList() {
             updateExistingCryptoPrices();
         }, 500);
         
-        console.log('Liste des cryptos chargée:', cryptoList.length, 'cryptos');
+        console.log('Liste des cryptos chargée:', cryptoList.length, 'cryptos avec prix réels');
         
     } catch (error) {
         console.error('Erreur lors du chargement des cryptos:', error);
@@ -5508,15 +5663,24 @@ async function autoRefreshCryptoPrices() {
     if (selectedCryptos.length === 0) return;
     
     try {
-        const ids = selectedCryptos.join(',');
-        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=eur&include_24hr_change=true`);
-        const data = await response.json();
+        // Utiliser les prix du service backend Binance via les données utilisateur
+        console.log('Utilisation des prix backend Binance...');
         
-        // Mettre à jour les prix stockés
-        Object.keys(data).forEach(cryptoId => {
-            if (cryptoPrices[cryptoId]) {
-                cryptoPrices[cryptoId].price = data[cryptoId].eur;
-                cryptoPrices[cryptoId].change_24h = data[cryptoId].eur_24h_change || 0;
+        // Les prix sont déjà dans les données crypto existantes de l'utilisateur
+        // Ils ont été mis à jour par le service BinancePriceService
+        document.querySelectorAll('.crypto-item').forEach(item => {
+            const select = item.querySelector('.crypto-select');
+            const priceDisplay = item.querySelector('.crypto-price-display');
+            
+            if (select.value && priceDisplay.value) {
+                // Utiliser le prix déjà affiché (calculé par le backend)
+                const currentPrice = parseFloat(priceDisplay.value.replace(/\s/g, ''));
+                if (currentPrice > 0) {
+                    cryptoPrices[select.value] = {
+                        price: currentPrice,
+                        change_24h: 0
+                    };
+                }
             }
         });
         
@@ -5590,11 +5754,8 @@ async function updateViewCryptoPrices() {
             return;
         }
         
-        // Appel direct à l'API CoinGecko pour les prix en EUR
-        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=eur');
-        const prices = await response.json();
-        
-        console.log('Prix récupérés:', prices);
+        // Utiliser les données déjà sauvées par le backend Binance
+        console.log('📊 Utilisation des données crypto sauvées (backend Binance)');
         
         let total = 0;
         
@@ -6176,35 +6337,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Actualisation automatique des prix toutes les 5 minutes
     setInterval(() => {
         autoRefreshCryptoPrices();
-        // Mettre à jour aussi la visualisation
-        updateViewCryptoPrices();
+        // Note: Mode visualisation utilise les prix déjà calculés par le backend Binance
     }, 5 * 60 * 1000); // 5 minutes
     
     // Première actualisation après 30 secondes (pour laisser le temps au chargement initial)
     setTimeout(() => {
         autoRefreshCryptoPrices();
-        // Mettre à jour aussi la visualisation
-        updateViewCryptoPrices();
+        // Note: Mode visualisation utilise les prix déjà calculés par le backend Binance
     }, 30000);
     
-    // Mise à jour des prix crypto dès le chargement - plusieurs tentatives
-    setTimeout(() => {
-        updateViewCryptoPrices();
-    }, 500);
-    
-    setTimeout(() => {
-        updateViewCryptoPrices();
-    }, 2000);
-    
-    setTimeout(() => {
-        updateViewCryptoPrices();
-    }, 5000);
-    
-    // Mise à jour immédiate si on est en mode visualisation
-    const isEditMode = document.getElementById('adminEditFormExtended');
-    if (!isEditMode) {
-        updateViewCryptoPrices();
-    }
+    // Note: Prix crypto déjà calculés et affichés par le backend Binance
+    // Pas besoin d'updateViewCryptoPrices() car les valeurs sont dans le template
     
     // Initialiser la section autres biens
     calculateTotalAutresBiens();
@@ -6327,6 +6470,235 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('✅ Initialisation terminée');
     }, 500);
 });
+
+// ==========================================
+// FONCTIONS POUR LA ZONE DE DEBUG PATRIMOINE
+// ==========================================
+
+function toggleDebugPatrimoine() {
+    const content = document.getElementById('debugPatrimoineContent');
+    const btn = document.querySelector('.debug-toggle-btn');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        btn.classList.add('active');
+        loadDebugPatrimoine();
+    } else {
+        content.style.display = 'none';
+        btn.classList.remove('active');
+    }
+}
+
+function loadDebugPatrimoine() {
+    const loadingDiv = document.querySelector('.debug-loading');
+    const dataDiv = document.getElementById('debugPatrimoineData');
+    
+    loadingDiv.style.display = 'block';
+    dataDiv.style.display = 'none';
+    
+    // Utiliser les données de debug directement intégrées dans la page
+    const debugData = {{ debug_data|tojson if debug_data else 'null' }};
+    
+    setTimeout(() => {
+        loadingDiv.style.display = 'none';
+        
+        if (debugData) {
+            displayDebugData(debugData);
+            dataDiv.style.display = 'block';
+        } else {
+            dataDiv.innerHTML = `<div class="alert alert-warning">Aucune donnée de debug disponible</div>`;
+            dataDiv.style.display = 'block';
+        }
+    }, 500); // Petit délai pour l'effet loading
+}
+
+function displayDebugData(debug) {
+    const dataDiv = document.getElementById('debugPatrimoineData');
+    
+    const formatNumber = (num) => {
+        return new Intl.NumberFormat('fr-FR', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(num || 0);
+    };
+    
+    const getDifferenceClass = (diff) => {
+        if (Math.abs(diff) < 0.01) return 'zero';
+        return diff > 0 ? 'positive' : 'negative';
+    };
+    
+    const html = `
+        <div class="debug-section">
+            <div class="debug-section-header">1. Liquidités</div>
+            <div class="debug-section-content">
+                <div class="debug-item">
+                    <div class="debug-item-label">Livret A</div>
+                    <div class="debug-item-value">${formatNumber(debug.liquidites.livret_a)}€</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label">LDDS</div>
+                    <div class="debug-item-value">${formatNumber(debug.liquidites.ldds)}€</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label">PEL/CEL</div>
+                    <div class="debug-item-value">${formatNumber(debug.liquidites.pel_cel)}€</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label">Autres livrets</div>
+                    <div class="debug-item-value">${formatNumber(debug.liquidites.autres_livrets)}€</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label"><strong>TOTAL</strong></div>
+                    <div class="debug-item-value debug-item-calcule">${formatNumber(debug.liquidites.total_calcule)}€</div>
+                    <div class="debug-item-value debug-item-db">${formatNumber(debug.liquidites.total_db)}€</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-section-header">2. Placements Financiers</div>
+            <div class="debug-section-content">
+                <div class="debug-item">
+                    <div class="debug-item-label">PEA</div>
+                    <div class="debug-item-value">${formatNumber(debug.placements.pea)}€</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label">PER</div>
+                    <div class="debug-item-value">${formatNumber(debug.placements.per)}€</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label">Assurance Vie</div>
+                    <div class="debug-item-value">${formatNumber(debug.placements.life_insurance)}€</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label">PEE/PERCO</div>
+                    <div class="debug-item-value">${formatNumber(debug.placements.pee)}€</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label">SCPI</div>
+                    <div class="debug-item-value">${formatNumber(debug.placements.scpi)}€</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label">CTO</div>
+                    <div class="debug-item-value">${formatNumber(debug.placements.cto)}€</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label"><strong>TOTAL</strong></div>
+                    <div class="debug-item-value debug-item-calcule">${formatNumber(debug.placements.total_calcule)}€</div>
+                    <div class="debug-item-value debug-item-db">${formatNumber(debug.placements.total_db)}€</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-section-header">3. Immobilier Net</div>
+            <div class="debug-section-content">
+                <div class="debug-item">
+                    <div class="debug-item-label">Nombre de biens</div>
+                    <div class="debug-item-value">${debug.immobilier.nb_biens}</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label"><strong>TOTAL NET</strong></div>
+                    <div class="debug-item-value debug-item-calcule">${formatNumber(debug.immobilier.total_calcule)}€</div>
+                    <div class="debug-item-value debug-item-db">${formatNumber(debug.immobilier.total_db)}€</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-section-header">4. Cryptomonnaies</div>
+            <div class="debug-section-content">
+                <div class="debug-item">
+                    <div class="debug-item-label">Nombre de cryptos</div>
+                    <div class="debug-item-value">${debug.cryptomonnaies.nb_cryptos}</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label"><strong>TOTAL</strong></div>
+                    <div class="debug-item-value debug-item-calcule">${formatNumber(debug.cryptomonnaies.total_calcule)}€</div>
+                    <div class="debug-item-value debug-item-db">${formatNumber(debug.cryptomonnaies.total_db)}€</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-section-header">5. Autres Biens</div>
+            <div class="debug-section-content">
+                <div class="debug-item">
+                    <div class="debug-item-label">Nombre d'autres biens</div>
+                    <div class="debug-item-value">${debug.autres_biens.nb_biens}</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label"><strong>TOTAL</strong></div>
+                    <div class="debug-item-value debug-item-calcule">${formatNumber(debug.autres_biens.total_calcule)}€</div>
+                    <div class="debug-item-value debug-item-db">${formatNumber(debug.autres_biens.total_db)}€</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-section-header">6. Crédits de Consommation</div>
+            <div class="debug-section-content">
+                <div class="debug-item">
+                    <div class="debug-item-label">Nombre de crédits</div>
+                    <div class="debug-item-value">${debug.credits.nb_credits}</div>
+                    <div class="debug-item-value">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label"><strong>TOTAL</strong></div>
+                    <div class="debug-item-value debug-item-calcule">${formatNumber(debug.credits.total_calcule)}€</div>
+                    <div class="debug-item-value debug-item-db">${formatNumber(debug.credits.total_db)}€</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <div class="debug-section-header">🎯 RÉSUMÉ FINAL</div>
+            <div class="debug-section-content">
+                <div class="debug-item">
+                    <div class="debug-item-label"><strong>TOTAL ACTIFS</strong></div>
+                    <div class="debug-item-value debug-item-calcule">${formatNumber(debug.totaux_finaux.total_actifs_calcule)}€</div>
+                    <div class="debug-item-value debug-item-db">${formatNumber(debug.totaux_finaux.total_actifs_db)}€</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-item-label"><strong>PATRIMOINE NET</strong></div>
+                    <div class="debug-item-value debug-item-calcule">${formatNumber(debug.totaux_finaux.patrimoine_net_calcule)}€</div>
+                    <div class="debug-item-value debug-item-db">${formatNumber(debug.totaux_finaux.patrimoine_net_db)}€</div>
+                </div>
+                
+                <div class="debug-difference ${getDifferenceClass(debug.totaux_finaux.difference_actifs)}">
+                    <strong>Différence Total Actifs:</strong> ${formatNumber(debug.totaux_finaux.difference_actifs)}€
+                    ${Math.abs(debug.totaux_finaux.difference_actifs) < 0.01 ? '✅ Parfait !' : '⚠️ Incohérence détectée'}
+                </div>
+                
+                <div class="debug-difference ${getDifferenceClass(debug.totaux_finaux.difference_patrimoine)}">
+                    <strong>Différence Patrimoine Net:</strong> ${formatNumber(debug.totaux_finaux.difference_patrimoine)}€
+                    ${Math.abs(debug.totaux_finaux.difference_patrimoine) < 0.01 ? '✅ Parfait !' : '⚠️ Incohérence détectée'}
+                </div>
+                
+                <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 6px; font-size: 12px; color: #1976d2;">
+                    <strong>Légende:</strong> 
+                    <span style="background: #f3e5f5; color: #7b1fa2; padding: 2px 6px; border-radius: 3px; margin-right: 10px;">Calculé en temps réel</span>
+                    <span style="background: #e3f2fd; color: #1976d2; padding: 2px 6px; border-radius: 3px;">Sauvé en base</span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    dataDiv.innerHTML = html;
+}
 
 </script>
 {% endblock %}

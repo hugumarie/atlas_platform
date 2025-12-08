@@ -182,6 +182,11 @@ def login():
             
             login_user(admin_user, remember=remember_me)
             admin_user.update_last_login()
+            
+            # Hook : Recalcul local du portefeuille à la connexion (pas d'API)
+            from app.services.local_portfolio_service import LocalPortfolioService
+            LocalPortfolioService.refresh_user_portfolio_at_login(admin_user)
+            
             return redirect(url_for('platform_admin.dashboard'))
         
         # Vérification des identifiants utilisateur
@@ -199,6 +204,10 @@ def login():
             
             login_user(user, remember=remember_me)
             user.update_last_login()
+            
+            # Hook : Recalcul local du portefeuille à la connexion (pas d'API)
+            from app.services.local_portfolio_service import LocalPortfolioService
+            LocalPortfolioService.refresh_user_portfolio_at_login(user)
             
             # Redirection selon le profil
             next_page = request.args.get('next')

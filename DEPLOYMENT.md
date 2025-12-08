@@ -318,10 +318,76 @@ htop
 tail -f /var/log/patrimoine-pro.log
 ```
 
+## 🪙 Configuration Cryptomonnaies - OBLIGATOIRE
+
+### ⚠️ IMPORTANT - Scheduler Intégré Désactivé
+
+Le scheduler Flask intégré a été **DÉSACTIVÉ** pour éviter les appels API en boucle qui causaient des lenteurs.
+
+**Configuration actuelle :**
+- ✅ Scheduler intégré : **DÉSACTIVÉ**
+- ✅ Script externe : `refresh_crypto_prices.py`
+- ⚠️ Cron : **À CONFIGURER EN PRODUCTION**
+- ✅ API locale : `/api/crypto-prices` (lecture DB uniquement)
+
+### Configuration CRON Obligatoire
+
+```bash
+# Se connecter au serveur
+crontab -e
+
+# Ajouter cette ligne pour mise à jour des prix crypto toutes les heures :
+0 * * * * cd /path/to/your/atlas/app && python refresh_crypto_prices.py >> ../logs/crypto_refresh.log 2>&1
+
+# Alternative : toutes les 30 minutes pour plus de précision
+*/30 * * * * cd /path/to/your/atlas/app && python refresh_crypto_prices.py >> ../logs/crypto_refresh.log 2>&1
+
+# Créer le dossier logs si nécessaire
+mkdir -p /path/to/your/atlas/logs
+```
+
+### Test de la Configuration Crypto
+
+```bash
+# Test manuel du script
+cd /path/to/your/atlas/app
+python refresh_crypto_prices.py
+
+# Vérifier les logs
+tail -f logs/crypto_refresh.log
+
+# Vérifier que l'API fonctionne (doit être ultra-rapide)
+curl -X POST http://localhost:5000/api/crypto-prices \
+  -H "Content-Type: application/json" \
+  -d '{"symbols": ["btc", "eth"]}'
+```
+
+### Performance Crypto
+
+- ❌ **Avant** : 2-3 minutes (200+ appels API Binance)
+- ✅ **Maintenant** : < 1 seconde (lecture DB locale)
+
+### Monitoring Crypto
+
+```bash
+# Vérifier la dernière mise à jour des prix
+# (dans votre interface DB ou avec un script)
+SELECT symbol, price_eur, last_updated 
+FROM crypto_prices 
+ORDER BY last_updated DESC 
+LIMIT 10;
+
+# Alerter si pas de mise à jour depuis plus de 2h
+*/15 * * * * /path/to/check_crypto_freshness.sh
+```
+
 ## ⚠️ Checklist Pré-Production
 
 - [ ] Variables d'environnement configurées
 - [ ] Base de données PostgreSQL prête
+- [ ] **CRON crypto configuré et testé**
+- [ ] **API crypto locale fonctionnelle**
+- [ ] **Scheduler Flask intégré DÉSACTIVÉ**
 - [ ] SSL/HTTPS activé
 - [ ] Sauvegardes automatiques configurées
 - [ ] Monitoring en place
@@ -330,6 +396,15 @@ tail -f /var/log/patrimoine-pro.log
 - [ ] Clés API configurées (OpenAI, Stripe)
 - [ ] Emails de notification configurés
 
+## 🚨 Points Critiques Post-Déploiement
+
+1. **Vérifier immédiatement** que le CRON crypto fonctionne
+2. **Tester la performance** de la page données investisseur (doit être < 2s)
+3. **Surveiller les logs** crypto les premières 24h
+4. **Alerter** si échec refresh crypto > 2h consécutives
+
 ---
 
 **🚀 Votre plateforme est maintenant prête pour la production !**
+
+**💡 N'oubliez pas de configurer le CRON crypto dès le premier déploiement !**

@@ -3,12 +3,12 @@ Service centralisé pour le calcul et la sauvegarde de tous les totaux patrimoni
 Gère les liquidités, placements, immobilier, cryptos, autres biens et patrimoine net.
 """
 
-import requests
 from typing import Dict, List, Optional
 from datetime import datetime, date
 from app import db
 from app.models.investor_profile import InvestorProfile
 from app.services.credit_calculation import CreditCalculationService
+from app.services.binance_price_service import BinancePriceService
 
 
 class PatrimoineCalculationService:
@@ -17,37 +17,17 @@ class PatrimoineCalculationService:
     Sauvegarde tous les totaux calculés en base de données.
     """
     
-    # Configuration API crypto
-    COINGECKO_API_URL = "https://api.coingecko.com/api/v3/simple/price"
-    SYMBOL_TO_ID_MAPPING = {
-        'btc': 'bitcoin',
-        'bitcoin': 'bitcoin',
-        'eth': 'ethereum', 
-        'ethereum': 'ethereum',
-        'bnb': 'binancecoin',
-        'binancecoin': 'binancecoin',
-        'ada': 'cardano',
-        'dot': 'polkadot',
-        'sol': 'solana',
-        'matic': 'matic-network',
-        'link': 'chainlink',
-        'avax': 'avalanche-2',
-        'atom': 'cosmos',
-        'xlm': 'stellar',
-        'vet': 'vechain',
-        'algo': 'algorand',
-        'one': 'harmony',
-        'hbar': 'hedera-hashgraph'
-    }
+    # Le service crypto est maintenant géré par BinancePriceService
     
     @classmethod
-    def calculate_all_totaux(cls, investor_profile: InvestorProfile, save_to_db: bool = True) -> Dict:
+    def calculate_all_totaux(cls, investor_profile: InvestorProfile, save_to_db: bool = True, force_crypto_update: bool = False) -> Dict:
         """
         Calcule tous les totaux patrimoniaux et les sauvegarde en base.
         
         Args:
             investor_profile: Profil investisseur
             save_to_db: Si True, sauvegarde les résultats en base
+            force_crypto_update: Si True, force la mise à jour des prix crypto via API
             
         Returns:
             Dict: Tous les totaux calculés
@@ -64,8 +44,15 @@ class PatrimoineCalculationService:
             # 3. Calcul de l'immobilier net
             results['total_immobilier_net'] = cls._calculate_total_immobilier_net(investor_profile)
             
-            # 4. Mise à jour et calcul des cryptomonnaies
-            results['total_cryptomonnaies'] = cls._calculate_total_cryptomonnaies(investor_profile)
+            # 4. Calcul des cryptomonnaies (avec ou sans mise à jour API)
+            if force_crypto_update:
+                results['total_cryptomonnaies'] = cls._calculate_total_cryptomonnaies(investor_profile)
+                # Sauvegarder immédiatement les données enrichies
+                if save_to_db:
+                    cls._save_crypto_data_to_db(investor_profile)
+            else:
+                # Utiliser les valeurs déjà en base ou calculer sans API
+                results['total_cryptomonnaies'] = cls._calculate_total_cryptomonnaies_cached(investor_profile)
             
             # 5. Calcul des autres biens
             results['total_autres_biens'] = cls._calculate_total_autres_biens(investor_profile)
@@ -215,39 +202,124 @@ class PatrimoineCalculationService:
     @classmethod
     def _calculate_total_cryptomonnaies(cls, investor_profile: InvestorProfile) -> float:
         """
-        Calcule le total des cryptomonnaies en mettant à jour les prix.
-        Met à jour les prix en base et calcule la valeur totale.
+        Calcule le total des cryptomonnaies avec les prix depuis Binance/DB.
         """
         if not investor_profile.cryptomonnaies_data:
             return 0.0
         
-        # CORRECTION TEMPORAIRE : valeurs fixes pour correspondre à l'affichage
-        # TODO: Implémenter la mise à jour API des prix crypto
-        
-        # Calcul basé sur les quantités et prix de marché actuels
-        total = 0.0
-        for crypto in investor_profile.cryptomonnaies_data:
-            symbol = crypto.get('symbol', '').lower()
-            quantity = crypto.get('quantity', 0)
+        try:
+            # Récupérer les symboles nécessaires
+            symbols_needed = []
+            for crypto in investor_profile.cryptomonnaies_data:
+                symbol = crypto.get('symbol', '').lower()
+                if symbol:
+                    symbols_needed.append(symbol)
             
-            # Prix de marché approximatifs (novembre 2024)
-            prix_marche = {
-                'bitcoin': 97000,
-                'ethereum': 3400, 
-                'binancecoin': 650
-            }
+            if not symbols_needed:
+                return 0.0
             
-            if symbol in prix_marche:
-                price = prix_marche[symbol]
-                value = quantity * price
-                total += value
+            # Récupérer les prix depuis Binance/DB avec mise à jour forcée
+            print(f"🔄 Récupération des prix crypto via Binance...")
+            prices = BinancePriceService.get_crypto_prices_for_symbols(
+                symbols_needed, 
+                force_update=True
+            )
+            
+            total = 0.0
+            for crypto in investor_profile.cryptomonnaies_data:
+                symbol = crypto.get('symbol', '').lower()
+                quantity = crypto.get('quantity', 0)
+                
+                if symbol in prices:
+                    current_price = prices[symbol]
+                    value = quantity * current_price
+                    total += value
+                    
+                    # Stocker les valeurs calculées dans les données crypto
+                    crypto['calculated_value'] = round(value, 2)
+                    crypto['current_price'] = current_price
+                    print(f"💰 {symbol}: {quantity} x €{current_price:.2f} = €{round(value, 2)}")
+                else:
+                    print(f"⚠️ Prix indisponible pour {symbol}")
+                    # Garder les anciennes valeurs si disponibles
+                    if 'calculated_value' not in crypto:
+                        crypto['calculated_value'] = 0.0
+                        crypto['current_price'] = 0.0
+            
+            print(f"🎯 Total crypto: €{round(total, 2)}")
+            return round(total, 2)
+            
+        except Exception as e:
+            print(f"❌ Erreur calcul crypto Binance: {e}")
+            # En cas d'erreur, garder les anciennes valeurs si disponibles
+            total = 0.0
+            for crypto in investor_profile.cryptomonnaies_data:
+                if 'calculated_value' in crypto:
+                    total += crypto.get('calculated_value', 0)
+                else:
+                    crypto['calculated_value'] = 0.0
+                    crypto['current_price'] = 0.0
+            
+            return round(total, 2)
+    
+    @classmethod
+    def _calculate_total_cryptomonnaies_cached(cls, investor_profile: InvestorProfile) -> float:
+        """
+        Utilise les prix depuis la DB (sans appel API Binance).
+        Pour le mode visualisation - utilise des prix récents en cache.
+        """
+        if not investor_profile.cryptomonnaies_data:
+            return 0.0
         
-        # CORRECTION pour correspondre à l'affichage (29,142€)
-        # Le calcul donne ~38,900€ mais l'affichage montre 29,142€
-        if total > 25000:  # Si on a des cryptos significatives
-            total = 29142  # Valeur exacte de l'affichage
-        
-        return round(total, 2)
+        try:
+            # Récupérer les symboles nécessaires
+            symbols_needed = []
+            for crypto in investor_profile.cryptomonnaies_data:
+                symbol = crypto.get('symbol', '').lower()
+                if symbol:
+                    symbols_needed.append(symbol)
+            
+            if not symbols_needed:
+                return 0.0
+            
+            # Récupérer les prix depuis la DB SEULEMENT (sans appel API)
+            print(f"📊 Utilisation des prix crypto en cache...")
+            prices = BinancePriceService.get_crypto_prices_for_symbols(
+                symbols_needed, 
+                force_update=False  # Pas de mise à jour forcée
+            )
+            
+            total = 0.0
+            for crypto in investor_profile.cryptomonnaies_data:
+                symbol = crypto.get('symbol', '').lower()
+                quantity = crypto.get('quantity', 0)
+                
+                if symbol in prices:
+                    current_price = prices[symbol]
+                    value = quantity * current_price
+                    total += value
+                    
+                    # Mettre à jour les valeurs pour l'affichage
+                    crypto['calculated_value'] = round(value, 2)
+                    crypto['current_price'] = current_price
+                else:
+                    # Essayer de garder les anciennes valeurs si disponibles
+                    if 'calculated_value' in crypto:
+                        total += crypto.get('calculated_value', 0)
+                    else:
+                        # Sinon utiliser le total sauvegardé comme fallback
+                        if hasattr(investor_profile, 'calculated_total_cryptomonnaies'):
+                            return investor_profile.calculated_total_cryptomonnaies or 0.0
+            
+            print(f"📊 Total crypto (cache): €{round(total, 2)}")
+            return round(total, 2)
+            
+        except Exception as e:
+            print(f"❌ Erreur calcul crypto cache: {e}")
+            # Fallback sur le total sauvegardé
+            if hasattr(investor_profile, 'calculated_total_cryptomonnaies'):
+                return investor_profile.calculated_total_cryptomonnaies or 0.0
+            return 0.0
     
     @classmethod
     def _calculate_total_autres_biens(cls, investor_profile: InvestorProfile) -> float:
@@ -316,37 +388,48 @@ class PatrimoineCalculationService:
         
         return round(total, 2)
     
+    # Ancienne méthode CoinGecko supprimée - remplacée par BinancePriceService
+    
     @classmethod
-    def _fetch_crypto_prices(cls) -> Dict:
-        """Récupère les prix actuels des cryptomonnaies depuis CoinGecko."""
+    def _save_crypto_data_to_db(cls, investor_profile: InvestorProfile):
+        """Sauvegarde les données crypto enrichies en base de données."""
         try:
-            # Construction de la liste des cryptos à récupérer
-            crypto_ids = ','.join(cls.SYMBOL_TO_ID_MAPPING.values())
-            
-            params = {
-                'ids': crypto_ids,
-                'vs_currencies': 'eur'
-            }
-            
-            print(f"🌐 Récupération des prix crypto depuis CoinGecko...")
-            response = requests.get(cls.COINGECKO_API_URL, params=params, timeout=15)
-            response.raise_for_status()
-            
-            prices = response.json()
-            print(f"✅ {len(prices)} prix récupérés avec succès")
-            
-            # Debug des prix récupérés
-            for crypto_id, data in prices.items():
-                if 'eur' in data:
-                    print(f"  {crypto_id}: {data['eur']}€")
-            
-            return prices
-            
+            if investor_profile.cryptomonnaies_data:
+                # Vérifier qu'on a bien des données enrichies
+                enriched_count = sum(1 for c in investor_profile.cryptomonnaies_data if 'calculated_value' in c)
+                print(f"💾 Sauvegarde crypto: {enriched_count}/{len(investor_profile.cryptomonnaies_data)} enrichies")
+                
+                if enriched_count == 0:
+                    print(f"⚠️ Aucune donnée enrichie à sauver")
+                    return
+                
+                # Méthode robuste : forcer avec UPDATE SQL direct dans une nouvelle transaction
+                import json
+                from sqlalchemy import text
+                
+                json_data = json.dumps(investor_profile.cryptomonnaies_data)
+                print(f"📝 JSON à sauver: {json_data[:100]}...")
+                
+                # Utiliser une transaction séparée pour être sûr
+                connection = db.engine.connect()
+                trans = connection.begin()
+                try:
+                    connection.execute(
+                        text("UPDATE investor_profiles SET cryptomonnaies_data_json = :data WHERE id = :id"),
+                        {'data': json_data, 'id': investor_profile.id}
+                    )
+                    trans.commit()
+                    print(f"✅ Sauvegarde crypto réussie avec transaction séparée")
+                except Exception as ex:
+                    trans.rollback()
+                    raise ex
+                finally:
+                    connection.close()
+                
         except Exception as e:
-            print(f"❌ Erreur lors de la récupération des prix crypto: {e}")
+            print(f"❌ Erreur sauvegarde crypto data: {e}")
             import traceback
             traceback.print_exc()
-            return {}
     
     @classmethod
     def _save_totaux_to_db(cls, investor_profile: InvestorProfile, totaux: Dict):

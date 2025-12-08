@@ -7,6 +7,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 import os
+import click
 
 # Initialisation des extensions
 db = SQLAlchemy()
@@ -68,6 +69,7 @@ def create_app():
     from app.models.subscription import Subscription
     from app.models.credit import Credit
     from app.models.apprentissage import Apprentissage
+    from app.models.crypto_price import CryptoPrice
     
     # Configuration du user_loader pour Flask-Login
     @login_manager.user_loader
@@ -88,6 +90,8 @@ def create_app():
     app.register_blueprint(platform_investor_bp)
     app.register_blueprint(platform_admin_bp)
     
+    # API crypto intégrée dans les routes admin
+    
     # Route racine redirige vers le site vitrine
     @app.route('/')
     def index():
@@ -97,5 +101,23 @@ def create_app():
     # Création des tables de base de données
     with app.app_context():
         db.create_all()
+    
+    # Scheduler crypto désactivé - utilisation du cron externe à la place
+    # from app.scheduler import start_scheduler
+    # start_scheduler(app)
+    
+    # Ajouter les commandes CLI
+    @app.cli.command()
+    def refresh_crypto_prices():
+        """Refresh les prix crypto depuis Binance (pour cron)."""
+        from refresh_crypto_prices import PeriodicCryptoPriceRefresh
+        
+        click.echo("🔄 Démarrage du refresh des prix crypto...")
+        success = PeriodicCryptoPriceRefresh.run_refresh()
+        
+        if success:
+            click.echo("✅ Refresh terminé avec succès")
+        else:
+            click.echo("❌ Erreur lors du refresh")
     
     return app

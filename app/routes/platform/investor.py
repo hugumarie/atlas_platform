@@ -46,11 +46,11 @@ def dashboard():
     if current_user.portfolio:
         current_user.portfolio.update_from_profile()
     
-    # Calculer et synchroniser les totaux patrimoniaux (même logique qu'en admin)
+    # Recalcul local des totaux patrimoniaux (lecture DB uniquement)
     if current_user.investor_profile:
         try:
-            from app.services.patrimoine_calculation import PatrimoineCalculationService
-            PatrimoineCalculationService.calculate_all_totaux(current_user.investor_profile, save_to_db=True)
+            from app.services.local_portfolio_service import LocalPortfolioService
+            LocalPortfolioService.update_user_calculated_totals(current_user.investor_profile, save_to_db=False)
             db.session.refresh(current_user.investor_profile)
             db.session.refresh(current_user)
         except Exception as calc_error:
@@ -205,6 +205,50 @@ def learning():
     
     return render_template('platform/investor/learning.html', apprentissages=apprentissages)
 
+@platform_investor_bp.route('/api/crypto-prices')
+@login_required
+def get_crypto_prices():
+    """API endpoint pour récupérer les prix crypto depuis la DB uniquement."""
+    try:
+        from app.models.crypto_price import CryptoPrice
+        
+        # Récupérer les prix depuis la DB uniquement
+        crypto_prices = CryptoPrice.query.all()
+        
+        if not crypto_prices:
+            return jsonify({'error': 'Aucun prix disponible en base'}), 500
+        
+        # Convertir en format compatible avec le frontend JavaScript
+        formatted_prices = {}
+        
+        symbol_mapping = {
+            'bitcoin': {'symbol': 'BTC', 'name': 'Bitcoin'},
+            'ethereum': {'symbol': 'ETH', 'name': 'Ethereum'},
+            'binancecoin': {'symbol': 'BNB', 'name': 'BNB'},
+            'solana': {'symbol': 'SOL', 'name': 'Solana'},
+            'cardano': {'symbol': 'ADA', 'name': 'Cardano'},
+            'polkadot': {'symbol': 'DOT', 'name': 'Polkadot'},
+            'chainlink': {'symbol': 'LINK', 'name': 'Chainlink'},
+            'avalanche-2': {'symbol': 'AVAX', 'name': 'Avalanche'},
+            'cosmos': {'symbol': 'ATOM', 'name': 'Cosmos'},
+            'stellar': {'symbol': 'XLM', 'name': 'Stellar'},
+        }
+        
+        for crypto_price in crypto_prices:
+            symbol = crypto_price.symbol
+            if symbol in symbol_mapping:
+                formatted_prices[symbol] = {
+                    'eur': round(crypto_price.price_eur, 2),
+                    'symbol': symbol_mapping[symbol]['symbol'],
+                    'name': symbol_mapping[symbol]['name'],
+                    'price': round(crypto_price.price_eur, 2)
+                }
+        
+        return jsonify(formatted_prices)
+        
+    except Exception as e:
+        return jsonify({'error': 'Erreur serveur'}), 500
+
 @platform_investor_bp.route('/formations')
 @login_required
 def formations():
@@ -288,10 +332,10 @@ def investor_data():
     # Vérifier si on est en mode édition
     edit_mode = request.args.get('edit') == 'true'
     
-    # Calculer et synchroniser les totaux patrimoniaux (même logique qu'en admin)
+    # Recalcul local des totaux patrimoniaux (lecture DB uniquement)
     try:
-        from app.services.patrimoine_calculation import PatrimoineCalculationService
-        PatrimoineCalculationService.calculate_all_totaux(current_user.investor_profile, save_to_db=True)
+        from app.services.local_portfolio_service import LocalPortfolioService
+        LocalPortfolioService.update_user_calculated_totals(current_user.investor_profile, save_to_db=False)
         db.session.refresh(current_user.investor_profile)
         db.session.refresh(current_user)
     except Exception as calc_error:
