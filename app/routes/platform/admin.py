@@ -112,6 +112,96 @@ def users():
                          status_filter=status_filter,
                          tier_filter=tier_filter)
 
+def generate_debug_data(profile):
+    """Génère les données de debug pour les calculs patrimoniaux."""
+    try:
+        from app.services.patrimoine_calculation import PatrimoineCalculationService
+        
+        debug_data = {}
+        
+        # Debug liquidités - utiliser les valeurs déjà calculées
+        debug_data['liquidites'] = {
+            'livret_a': profile.livret_a_value if hasattr(profile, 'livret_a_value') and profile.livret_a_value else 0,
+            'ldds': profile.ldds_value if hasattr(profile, 'ldds_value') and profile.ldds_value else 0,
+            'pel_cel': profile.pel_cel_value if hasattr(profile, 'pel_cel_value') and profile.pel_cel_value else 0,
+            'autres_livrets': profile.autres_livrets_value if hasattr(profile, 'autres_livrets_value') and profile.autres_livrets_value else 0,
+            'personnalisees': len(profile.liquidites_personnalisees_data) if profile.liquidites_personnalisees_data else 0,
+            'total_calcule': profile.calculated_total_liquidites or 0,
+            'total_db': profile.calculated_total_liquidites or 0
+        }
+        
+        # Debug placements - utiliser les valeurs déjà calculées
+        debug_data['placements'] = {
+            'pea': profile.pea_value if hasattr(profile, 'pea_value') and profile.pea_value else 0,
+            'per': profile.per_value if hasattr(profile, 'per_value') and profile.per_value else 0,
+            'life_insurance': profile.life_insurance_value if hasattr(profile, 'life_insurance_value') and profile.life_insurance_value else 0,
+            'pee': profile.pee_value if hasattr(profile, 'pee_value') and profile.pee_value else 0,
+            'scpi': profile.scpi_value if hasattr(profile, 'scpi_value') and profile.scpi_value else 0,
+            'cto': profile.cto_value if hasattr(profile, 'cto_value') and profile.cto_value else 0,
+            'private_equity': profile.private_equity_value if hasattr(profile, 'private_equity_value') and profile.private_equity_value else 0,
+            'crowdfunding': profile.crowdfunding_value if hasattr(profile, 'crowdfunding_value') and profile.crowdfunding_value else 0,
+            'personnalises': len(profile.placements_personnalises_data) if profile.placements_personnalises_data else 0,
+            'total_calcule': profile.calculated_total_placements or 0,
+            'total_db': profile.calculated_total_placements or 0
+        }
+        
+        # Debug immobilier - utiliser les valeurs déjà calculées
+        debug_data['immobilier'] = {
+            'nb_biens': len(profile.immobilier_data) if profile.immobilier_data else 0,
+            'total_calcule': profile.calculated_total_immobilier_net or 0,
+            'total_db': profile.calculated_total_immobilier_net or 0
+        }
+        
+        # Debug cryptomonnaies - utiliser les valeurs déjà calculées pour éviter double appel API
+        debug_data['cryptomonnaies'] = {
+            'nb_cryptos': len(profile.cryptomonnaies_data) if profile.cryptomonnaies_data else 0,
+            'total_calcule': profile.calculated_total_cryptomonnaies or 0,  # Utiliser la valeur déjà calculée
+            'total_db': profile.calculated_total_cryptomonnaies or 0
+        }
+        
+        # Debug autres biens - utiliser les valeurs déjà calculées
+        debug_data['autres_biens'] = {
+            'nb_biens': len(profile.autres_biens_data) if profile.autres_biens_data else 0,
+            'total_calcule': profile.calculated_total_autres_biens or 0,
+            'total_db': profile.calculated_total_autres_biens or 0
+        }
+        
+        # Debug crédits - utiliser les valeurs déjà calculées
+        debug_data['credits'] = {
+            'nb_credits': len(profile.credits_data) if profile.credits_data else 0,
+            'total_calcule': profile.calculated_total_credits_consommation or 0,
+            'total_db': profile.calculated_total_credits_consommation or 0
+        }
+        
+        # Calculs finaux
+        total_actifs_calcule = (
+            debug_data['liquidites']['total_calcule'] +
+            debug_data['placements']['total_calcule'] +
+            debug_data['immobilier']['total_calcule'] +
+            debug_data['cryptomonnaies']['total_calcule'] +
+            debug_data['autres_biens']['total_calcule']
+        )
+        
+        debug_data['totaux_finaux'] = {
+            'total_actifs_calcule': total_actifs_calcule,
+            'total_actifs_db': profile.calculated_total_actifs or 0,
+            'patrimoine_net_calcule': total_actifs_calcule - debug_data['credits']['total_calcule'],
+            'patrimoine_net_db': profile.calculated_patrimoine_total_net or 0,
+            'difference_actifs': total_actifs_calcule - (profile.calculated_total_actifs or 0),
+            'difference_patrimoine': (total_actifs_calcule - debug_data['credits']['total_calcule']) - (profile.calculated_patrimoine_total_net or 0)
+        }
+        
+        debug_data['meta'] = {
+            'last_calculation': profile.last_calculation_date.isoformat() if profile.last_calculation_date else None,
+            'user_id': profile.user_id,
+            'profile_id': profile.id
+        }
+        
+        return debug_data
+        
+    except Exception as e:
+        return None
+
 @platform_admin_bp.route('/utilisateur/<int:user_id>')
 @login_required
 def user_detail(user_id):
@@ -128,32 +218,39 @@ def user_detail(user_id):
         flash('Utilisateur introuvable.', 'error')
         return redirect(url_for('platform_admin.users'))
     
+    
     # Mode édition activé par paramètre URL
     edit_mode = request.args.get('edit') == 'true'
     
-    # Enrichir les données crypto avec les prix en temps réel
-    if user.investor_profile and user.investor_profile.cryptomonnaies_data:
-        cryptomonnaies_data = enrich_crypto_with_prices(user.investor_profile.cryptomonnaies_data)
-        user.investor_profile._enriched_crypto_data = cryptomonnaies_data
+    # Les données crypto sont maintenant enrichies directement par le service Binance
     
-    # Calculer et sauvegarder les données des crédits - toujours effectuer les calculs
-    if user.investor_profile and user.investor_profile.credits_data_json:
-        credits_data = calculate_and_save_credits_data(user.investor_profile)
+    # Lecture seule - pas de recalcul des crédits
     
-    # Calcul automatique des totaux patrimoniaux pour affichage
+    # Recalcul complet des totaux patrimoniaux
     if user.investor_profile:
         try:
-            PatrimoineCalculationService.calculate_all_totaux(user.investor_profile, save_to_db=True)
-            # Rafraîchir les objets depuis la base pour récupérer les nouvelles valeurs calculées
+            from app.services.patrimoine_calculation_service import PatrimoineCalculationService
+            totaux = PatrimoineCalculationService.calculate_and_save_all_totaux(
+                user.investor_profile, 
+                save_to_db=True
+            )
+            
+            # Refresh pour avoir les nouvelles valeurs
             db.session.refresh(user.investor_profile)
-            db.session.refresh(user)
-            # Totaux patrimoniaux mis à jour
-        except Exception as calc_error:
-            print(f"Erreur lors du calcul des totaux patrimoniaux: {calc_error}")
+            
+            print(f"✅ Totaux recalculés:")
+            print(f"  - Total Autres Biens: {totaux['autres_biens']}€")
+            print(f"  - Total Actifs (ÉPARGNE & PATRIMOINE): {totaux['total_actifs']}€")
+            
+        except Exception as e:
+            print(f"Erreur recalcul patrimoine: {e}")
+    
+    debug_data = None
     
     return render_template('platform/admin/user_detail.html', 
                          user=user, 
-                         edit_mode=edit_mode)
+                         edit_mode=edit_mode,
+                         debug_data=debug_data)
 
 @platform_admin_bp.route('/utilisateur/<int:user_id>/modifier', methods=['POST'])
 @login_required
@@ -502,17 +599,34 @@ def update_user_data(user_id):
         profile.has_real_estate = profile.has_immobilier
         profile.real_estate_value = profile.immobilier_value
         
-        # Cryptomonnaies détaillées
+        # Cryptomonnaies détaillées - PRÉSERVER les calculated_value existants
         crypto_data = []
         crypto_symbols = request.form.getlist('crypto_symbol[]')
         crypto_quantities = request.form.getlist('crypto_quantity[]')
         
+        # Récupérer les données existantes pour préserver les calculated_value
+        existing_crypto_data = profile.cryptomonnaies_data or []
+        existing_crypto_dict = {c.get('symbol'): c for c in existing_crypto_data}
+        
         for i in range(len(crypto_symbols)):
             if crypto_symbols[i].strip():
-                crypto_data.append({
-                    'symbol': crypto_symbols[i].strip(),
-                    'quantity': float(crypto_quantities[i] or 0) if i < len(crypto_quantities) else 0
-                })
+                symbol = crypto_symbols[i].strip()
+                quantity = float(crypto_quantities[i] or 0) if i < len(crypto_quantities) else 0
+                
+                # Préserver les données enrichies existantes si disponibles
+                existing_crypto = existing_crypto_dict.get(symbol, {})
+                crypto_item = {
+                    'symbol': symbol,
+                    'quantity': quantity
+                }
+                
+                # Préserver calculated_value et current_price si ils existent
+                if 'calculated_value' in existing_crypto:
+                    crypto_item['calculated_value'] = existing_crypto['calculated_value']
+                if 'current_price' in existing_crypto:
+                    crypto_item['current_price'] = existing_crypto['current_price']
+                
+                crypto_data.append(crypto_item)
         
         profile.set_cryptomonnaies_data(crypto_data)
         
@@ -604,12 +718,18 @@ def update_user_data(user_id):
         
         db.session.commit()
         
-        # Recalcul automatique des totaux patrimoniaux après mise à jour
+        # NOUVEAU: Recalcul local après sauvegarde (lecture DB uniquement)
         try:
-            PatrimoineCalculationService.calculate_all_totaux(profile, save_to_db=True)
-            # Totaux patrimoniaux recalculés
+            from app.services.local_portfolio_service import LocalPortfolioService
+            
+            # Recalculer tous les totaux avec les nouvelles données
+            LocalPortfolioService.update_user_calculated_totals(profile, save_to_db=True)
+            
         except Exception as calc_error:
             print(f"Erreur lors du recalcul des totaux patrimoniaux: {calc_error}")
+        
+        # Vérification des données après sauvegarde
+        db.session.refresh(profile)
         
         # Redirection vers la vue normale après modification
         flash('Profil utilisateur mis à jour avec succès.', 'success')
@@ -854,82 +974,6 @@ def invite_prospect(prospect_id):
         return jsonify({'success': False, 'message': f'Erreur lors de l\'envoi: {str(e)}'}), 500
 
 
-def enrich_crypto_with_prices(crypto_data):
-    """
-    Enrichit les données crypto avec les prix actuels depuis l'API CoinGecko.
-    """
-    if not crypto_data:
-        return []
-    
-    try:
-        # Mapping des symbols vers les IDs CoinGecko
-        symbol_to_id = {
-            'btc': 'bitcoin',
-            'eth': 'ethereum',
-            'bnb': 'binancecoin',
-            'ada': 'cardano',
-            'sol': 'solana',
-            'usdt': 'tether',
-            'usdc': 'usd-coin',
-            'xrp': 'ripple',
-            'dot': 'polkadot',
-            'avax': 'avalanche-2',
-            'link': 'chainlink',
-            'matic': 'matic-network',
-            'ltc': 'litecoin',
-            'atom': 'cosmos',
-            'uni': 'uniswap'
-        }
-        
-        # Récupérer les symbols uniques
-        symbols = []
-        for crypto in crypto_data:
-            symbol = crypto.get('symbol', '').lower()
-            if symbol and symbol not in symbols:
-                symbols.append(symbol)
-        
-        if not symbols:
-            return crypto_data
-        
-        # Convertir en IDs CoinGecko
-        ids = []
-        for symbol in symbols:
-            coin_id = symbol_to_id.get(symbol, symbol)
-            ids.append(coin_id)
-        
-        # Appel à l'API CoinGecko
-        ids_str = ','.join(ids)
-        url = f'https://api.coingecko.com/api/v3/simple/price?ids={ids_str}&vs_currencies=eur'
-        
-        response = requests.get(url, timeout=5)
-        response.raise_for_status()
-        prices_data = response.json()
-        
-        # Enrichir les données crypto
-        enriched_data = []
-        for crypto in crypto_data:
-            symbol = crypto.get('symbol', '').lower()
-            coin_id = symbol_to_id.get(symbol, symbol)
-            
-            crypto_copy = crypto.copy()
-            if coin_id in prices_data:
-                crypto_copy['current_price'] = prices_data[coin_id].get('eur', 0)
-            else:
-                crypto_copy['current_price'] = 0
-            
-            enriched_data.append(crypto_copy)
-        
-        return enriched_data
-        
-    except Exception as e:
-        print(f"Erreur lors de la récupération des prix crypto: {e}")
-        # En cas d'erreur, retourner les données originales avec prix à 0
-        enriched_data = []
-        for crypto in crypto_data:
-            crypto_copy = crypto.copy()
-            crypto_copy['current_price'] = 0
-            enriched_data.append(crypto_copy)
-        return enriched_data
 
 
 def calculate_and_save_credits_data(investor_profile):
@@ -1001,7 +1045,7 @@ def calculate_and_save_credits_data(investor_profile):
         db.session.commit()
         pass  # Sauvegarde réussie
     except Exception as e:
-        print(f"❌ Erreur lors de la sauvegarde des calculs de crédit: {e}")
+        pass  # Erreur lors de la sauvegarde
         db.session.rollback()
     
     return credits_data
@@ -1408,3 +1452,52 @@ def apprentissage_preview(id):
     except FileNotFoundError:
         flash('Fichier PDF introuvable.', 'error')
         return redirect(url_for('platform_admin.apprentissages'))
+
+@platform_admin_bp.route('/api/crypto-prices')
+@login_required
+def get_crypto_prices():
+    """API endpoint pour récupérer les prix crypto depuis la DB uniquement."""
+    # Autoriser tous les utilisateurs connectés (pas seulement admin)
+    # if not current_user.is_admin:
+    #     return jsonify({'error': 'Accès non autorisé'}), 403
+    
+    try:
+        from app.services.global_crypto_service import GlobalCryptoService
+        from app.models.crypto_price import CryptoPrice
+        
+        # Récupérer les prix depuis la DB uniquement
+        crypto_prices = CryptoPrice.query.all()
+        
+        if not crypto_prices:
+            return jsonify({'error': 'Aucun prix disponible en base'}), 500
+        
+        # Convertir en format compatible avec le frontend JavaScript
+        formatted_prices = {}
+        
+        symbol_mapping = {
+            'bitcoin': {'symbol': 'BTC', 'name': 'Bitcoin'},
+            'ethereum': {'symbol': 'ETH', 'name': 'Ethereum'},
+            'binancecoin': {'symbol': 'BNB', 'name': 'BNB'},
+            'solana': {'symbol': 'SOL', 'name': 'Solana'},
+            'cardano': {'symbol': 'ADA', 'name': 'Cardano'},
+            'polkadot': {'symbol': 'DOT', 'name': 'Polkadot'},
+            'chainlink': {'symbol': 'LINK', 'name': 'Chainlink'},
+            'avalanche-2': {'symbol': 'AVAX', 'name': 'Avalanche'},
+            'cosmos': {'symbol': 'ATOM', 'name': 'Cosmos'},
+            'stellar': {'symbol': 'XLM', 'name': 'Stellar'},
+        }
+        
+        for crypto_price in crypto_prices:
+            symbol = crypto_price.symbol
+            if symbol in symbol_mapping:
+                formatted_prices[symbol] = {
+                    'eur': round(crypto_price.price_eur, 2),
+                    'symbol': symbol_mapping[symbol]['symbol'],
+                    'name': symbol_mapping[symbol]['name'],
+                    'price': round(crypto_price.price_eur, 2)
+                }
+        
+        return jsonify(formatted_prices)
+        
+    except Exception as e:
+        return jsonify({'error': 'Erreur serveur'}), 500
