@@ -25,7 +25,7 @@ class PeriodicCryptoPriceRefresh:
     BINANCE_API_URL = "https://api.binance.com/api/v3/ticker/price"
     EXCHANGE_RATE_API = "https://api.exchangerate-api.com/v4/latest/USD"
     
-    # Mapping complet des cryptos supportées
+    # Mapping complet des cryptos supportées - SYNCHRONISÉ avec BinancePriceService
     SUPPORTED_CRYPTOS = {
         'BTCUSDT': 'bitcoin',
         'ETHUSDT': 'ethereum', 
@@ -33,13 +33,20 @@ class PeriodicCryptoPriceRefresh:
         'SOLUSDT': 'solana',
         'ADAUSDT': 'cardano',
         'DOTUSDT': 'polkadot',
+        'MATICUSDT': 'matic-network',
         'LINKUSDT': 'chainlink',
         'AVAXUSDT': 'avalanche-2',
         'ATOMUSDT': 'cosmos',
         'XLMUSDT': 'stellar',
-        'MATICUSDT': 'matic-network',
+        'VETUSDT': 'vechain',
+        'ALGOUSDT': 'algorand',
+        'HBARUSDT': 'hedera-hashgraph',
         'LTCUSDT': 'litecoin',
-        'UNIUSDT': 'uniswap'
+        'UNIUSDT': 'uniswap',
+        'USDTUSDT': 'tether',
+        'USDCUSDT': 'usd-coin',
+        # Ajout facile de nouvelles cryptos ici
+        # 'NEWTOKENUSDT': 'new-token-id',
     }
     
     @classmethod

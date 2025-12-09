@@ -843,7 +843,7 @@
                             
                             <div class="valeur-nette-section">
                                 <div class="valeur-nette-display">
-                                    <strong>Valeur nette du bien: <span class="valeur-nette-value">0€</span></strong>
+                                    <strong>Valeur nette du bien: <span class="valeur-nette-value" data-backend-value="{{ user.investor_profile.calculated_total_immobilier_net or 0 }}">0€</span></strong>
                                 </div>
                             </div>
                         </div>
@@ -869,7 +869,7 @@
                     <div class="total-display credit-restant">
                         <i class="fas fa-home"></i> 
                         <span>Patrimoine immobilier net: </span>
-                        <span id="totalImmobilier">0€</span>
+                        <span id="totalImmobilier">{{ "{:,.0f}".format(user.investor_profile.calculated_total_immobilier_net or 0) }}€</span>
                     </div>
                 </div>
             </div>
@@ -1695,7 +1695,7 @@
                     
                     <div class="immobilier-compact-item-special">
                         <div class="immobilier-compact-name-special">Valeur nette</div>
-                        <div class="immobilier-compact-value-special immobilier-valeur-nette-display">{{ "{:,.0f}".format(bien.get('valeur', 0) - (bien.get('credit_montant', 0) if bien.get('has_credit', False) else 0)) }}€</div>
+                        <div class="immobilier-compact-value-special immobilier-valeur-nette-display">{{ "{:,.0f}".format(user.investor_profile.calculated_total_immobilier_net or 0) }}€</div>
                     </div>
                 </div>
                 
@@ -1740,7 +1740,7 @@
                     
                     <div class="immobilier-compact-item">
                         <div class="immobilier-compact-name">Montant restant du crédit à rembourser</div>
-                        <div class="immobilier-compact-value credit-restant immobilier-capital-restant-display">{{ "{:,.0f}".format(bien.get('credit_montant', 0)) }}€</div>
+                        <div class="immobilier-compact-value credit-restant immobilier-capital-restant-display">Calcul en cours...</div>
                     </div>
                 </div>
                 {% endif %}
@@ -1881,10 +1881,7 @@
             <!-- Total Autres Biens (affiché même si vide) -->
             <div class="crypto-compact-item-total">
                 <div class="crypto-compact-name-total">Total Autres Biens</div>
-                <div class="crypto-compact-value-total">
-                {% set manual_total = user.investor_profile.autres_biens_data|map(attribute='valeur')|sum if user.investor_profile.autres_biens_data else 0 %}
-                {{ "{:,.0f}".format(manual_total) }}€
-                </div>
+                <div class="crypto-compact-value-total">{{ "{:,.0f}".format(user.investor_profile.calculated_total_autres_biens or 0) }}€</div>
             </div>
 
             <!-- TOTAL ÉPARGNE & PATRIMOINE -->
@@ -5102,7 +5099,7 @@ function addImmobilierInline() {
             
             <div class="valeur-nette-section">
                 <div class="valeur-nette-display">
-                    <strong>Valeur nette du bien: <span class="valeur-nette-value">0€</span></strong>
+                    <strong>Valeur nette du bien: <span class="valeur-nette-value" data-backend-value="{{ user.investor_profile.calculated_total_immobilier_net or 0 }}">0€</span></strong>
                 </div>
             </div>
         </div>
@@ -5192,21 +5189,20 @@ function calculateCapitalRestant(item) {
 
 // Fonction pour calculer la valeur nette d'un bien
 function calculateValeurNette(item) {
-    const valeurInput = item.querySelector('.bien-valeur-input');
-    const creditCheckbox = item.querySelector('.credit-checkbox');
-    const capitalDisplay = item.querySelector('.capital-restant-display');
+    // UTILISER LA VALEUR BACKEND CALCULÉE CORRECTEMENT
     const valeurNetteValue = item.querySelector('.valeur-nette-value');
     
-    const valeurBien = parseFloat(valeurInput.value || 0);
-    let capitalRestant = 0;
-    
-    if (creditCheckbox.checked) {
-        const capitalText = capitalDisplay.value.replace(/\s/g, '');
-        capitalRestant = parseFloat(capitalText || 0);
+    if (valeurNetteValue) {
+        // Récupérer la valeur backend depuis l'attribut data
+        const backendValue = parseFloat(valeurNetteValue.getAttribute('data-backend-value') || 0);
+        
+        if (backendValue > 0) {
+            valeurNetteValue.textContent = backendValue.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+        } else {
+            // Si pas de valeur backend, afficher 0€
+            valeurNetteValue.textContent = '0€';
+        }
     }
-    
-    const valeurNette = valeurBien - capitalRestant;
-    valeurNetteValue.textContent = Math.max(0, valeurNette).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
 }
 
 // Fonction pour calculer le total immobilier
@@ -5294,10 +5290,11 @@ function calculateTotalImmobilier() {
     });
     
     
-    const totalDisplay = document.getElementById('totalImmobilier');
-    if (totalDisplay) {
-        totalDisplay.textContent = total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
-    }
+    // DÉSACTIVÉ: Le JavaScript ne doit plus écraser la valeur backend pour totalImmobilier
+    // const totalDisplay = document.getElementById('totalImmobilier');
+    // if (totalDisplay) {
+    //     totalDisplay.textContent = total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+    // }
     
     const totalCapitalRestantDisplay = document.getElementById('totalCapitalRestantImmobilier');
     if (totalCapitalRestantDisplay) {
@@ -5310,10 +5307,11 @@ function calculateTotalImmobilier() {
         totalCapitalRestantView.textContent = totalCapitalRestant.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     }
     
-    const totalImmobilierView = document.getElementById('totalImmobilierView');
-    if (totalImmobilierView) {
-        totalImmobilierView.textContent = total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    }
+    // DÉSACTIVÉ: Le JavaScript ne doit plus écraser la valeur backend correcte
+    // const totalImmobilierView = document.getElementById('totalImmobilierView');
+    // if (totalImmobilierView) {
+    //     totalImmobilierView.textContent = total.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    // }
     
     // Mettre à jour aussi les valeurs individuelles dans la section visualisation
     updateImmobilierViewValues();
@@ -5357,13 +5355,14 @@ function updateImmobilierViewValues() {
                 }
             }
             
-            const valeurNette = valeur - capitalRestant;
-            
-            // Mettre à jour la valeur nette
-            const valeurNetteDisplay = viewItem.querySelector('.immobilier-valeur-nette-display');
-            if (valeurNetteDisplay) {
-                valeurNetteDisplay.textContent = Math.max(0, valeurNette).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
-            }
+            // DÉSACTIVÉ: Ne pas écraser la valeur nette calculée par le backend
+            // const valeurNette = valeur - capitalRestant;
+            // 
+            // // Mettre à jour la valeur nette
+            // const valeurNetteDisplay = viewItem.querySelector('.immobilier-valeur-nette-display');
+            // if (valeurNetteDisplay) {
+            //     valeurNetteDisplay.textContent = Math.max(0, valeurNette).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+            // }
             
             // Mettre à jour la mensualité
             const mensualiteDisplay = viewItem.querySelector('.immobilier-mensualite-display');
@@ -5379,10 +5378,11 @@ function updateImmobilierViewValues() {
                 capitalRestantDisplay.textContent = capitalRestant.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
             }
         } else {
-            const valeurNetteDisplay = viewItem.querySelector('.immobilier-valeur-nette-display');
-            if (valeurNetteDisplay) {
-                valeurNetteDisplay.textContent = valeur.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
-            }
+            // DÉSACTIVÉ: Ne pas écraser la valeur nette pour les biens sans crédit non plus
+            // const valeurNetteDisplay = viewItem.querySelector('.immobilier-valeur-nette-display');
+            // if (valeurNetteDisplay) {
+            //     valeurNetteDisplay.textContent = valeur.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '€';
+            // }
         }
     });
 }
