@@ -226,24 +226,31 @@ def user_detail(user_id):
     
     # Lecture seule - pas de recalcul des crédits
     
-    # Recalcul complet des totaux patrimoniaux
+    # Calcul automatique avec le nouveau service central
     if user.investor_profile:
         try:
-            from app.services.patrimoine_calculation_service import PatrimoineCalculationService
-            totaux = PatrimoineCalculationService.calculate_and_save_all_totaux(
-                user.investor_profile, 
+            from app.services.patrimony_calculation_engine import PatrimonyCalculationEngine
+            
+            # Recalcul complet avec le nouveau service
+            totaux = PatrimonyCalculationEngine.calculate_and_save_all(
+                user.investor_profile,
+                force_recalculate=True,
                 save_to_db=True
             )
             
-            # Refresh pour avoir les nouvelles valeurs
+            # Refresh complet pour avoir les nouvelles valeurs crypto
             db.session.refresh(user.investor_profile)
+            db.session.refresh(user)
             
-            print(f"✅ Totaux recalculés:")
-            print(f"  - Total Autres Biens: {totaux['autres_biens']}€")
-            print(f"  - Total Actifs (ÉPARGNE & PATRIMOINE): {totaux['total_actifs']}€")
+            # Recharger l'utilisateur complet depuis la base
+            user = User.query.get(user_id)
+            
+            print(f"🔄 Données crypto après refresh: {user.investor_profile.cryptomonnaies_data[:2] if user.investor_profile.cryptomonnaies_data else 'None'}")
             
         except Exception as e:
-            print(f"Erreur recalcul patrimoine: {e}")
+            print(f"❌ Erreur nouveau service patrimonial: {e}")
+            import traceback
+            traceback.print_exc()
     
     debug_data = None
     
@@ -718,15 +725,23 @@ def update_user_data(user_id):
         
         db.session.commit()
         
-        # NOUVEAU: Recalcul local après sauvegarde (lecture DB uniquement)
+        # NOUVEAU: Recalcul patrimonial complet avec le service central
         try:
-            from app.services.local_portfolio_service import LocalPortfolioService
+            from app.services.patrimony_calculation_engine import PatrimonyCalculationEngine
             
-            # Recalculer tous les totaux avec les nouvelles données
-            LocalPortfolioService.update_user_calculated_totals(profile, save_to_db=True)
+            # Recalculer TOUS les totaux patrimoniaux avec le nouveau service
+            totaux = PatrimonyCalculationEngine.calculate_and_save_all(
+                profile,
+                force_recalculate=True,
+                save_to_db=True
+            )
+            
+            print(f"🔄 Totaux patrimoniaux recalculés après édition")
             
         except Exception as calc_error:
-            print(f"Erreur lors du recalcul des totaux patrimoniaux: {calc_error}")
+            print(f"❌ Erreur recalcul totaux après édition: {calc_error}")
+            import traceback
+            traceback.print_exc()
         
         # Vérification des données après sauvegarde
         db.session.refresh(profile)

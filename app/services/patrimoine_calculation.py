@@ -173,19 +173,11 @@ class PatrimoineCalculationService:
                             else:
                                 start_date = credit_date_debut
                             
-                            # Utilisation des valeurs exactes calculées pour correspondre aux données attendues
-                            if credit_date_debut == '2025-10' and credit_initial == 215000:
-                                capital_restant = 212882  # Valeur exacte pour appartement
-                                valeur_nette = 37118  # 250000 - 212882
-                            elif credit_date_debut == '2025-01' and credit_initial == 347000:
-                                capital_restant = 324804  # Valeur exacte pour résidence principale  
-                                valeur_nette = 175196  # 500000 - 324804
-                            else:
-                                # Calcul générique pour autres cas
-                                capital_restant = CreditCalculationService.calculate_remaining_capital(
-                                    credit_initial, credit_taux, credit_duree_mois, start_date
-                                )
-                                valeur_nette = valeur - capital_restant
+                            # Calcul dynamique pour tous les cas
+                            capital_restant = CreditCalculationService.calculate_remaining_capital(
+                                credit_initial, credit_taux, credit_duree_mois, start_date
+                            )
+                            valeur_nette = valeur - capital_restant
                         except Exception as e:
                             print(f"Erreur calcul crédit immobilier: {e}")
                             # En cas d'erreur, utiliser le montant initial

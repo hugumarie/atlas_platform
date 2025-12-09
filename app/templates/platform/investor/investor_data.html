@@ -1456,17 +1456,10 @@
                         {% set credit_duree_annees = bien.get('credit_duree', 25) %}
                         {% set credit_date = bien.get('credit_date', '2025-01') %}
                         
-                        {# Estimation simple du capital restant (à ajuster selon les calculs réels) #}
-                        {% if credit_date == '2025-10' and credit_initial == 215000 %}
-                            {% set capital_restant = 212882 %} {# Valeur exacte pour appartement #}
-                            {% set mensualite = 1059 %}
-                        {% elif credit_date == '2025-01' and credit_initial == 347000 %}
-                            {% set capital_restant = 324804 %} {# Valeur exacte pour résidence principale #}
-                            {% set mensualite = 2018 %}
-                        {% else %}
-                            {% set capital_restant = credit_initial * 0.9 %} {# Approximation par défaut #}
-                            {% set mensualite = 0 %}
-                        {% endif %}
+                        {# Calcul générique basé sur une estimation par défaut #}
+                        {# Approximation: après quelques mois, environ 98% du capital initial reste #}
+                        {% set capital_restant = credit_initial * 0.98 %}
+                        {% set mensualite = ((credit_initial * 0.02) / 12)|round(0) %}
                         {% set valeur_nette = bien.valeur - capital_restant %}
                     {% else %}
                         {% set capital_restant = 0 %}

@@ -38,6 +38,15 @@ echo "  - Connexion: http://127.0.0.1:5001/platform/login"
 echo "  - Dashboard: http://127.0.0.1:5001/platform/dashboard"
 echo ""
 
+# Mise à jour des prix crypto
+echo "💰 Mise à jour des prix crypto..."
+if python refresh_crypto_prices.py; then
+    echo "✅ Prix crypto mis à jour avec succès"
+else
+    echo "⚠️ Erreur mise à jour crypto, continuer quand même..."
+fi
+echo ""
+
 # Lancer Flask
 echo "🚀 Démarrage de Flask..."
 python3 -m flask run --host=127.0.0.1 --port=5001
