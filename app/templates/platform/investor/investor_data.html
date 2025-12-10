@@ -1244,13 +1244,7 @@
             </div>
         </div>
         <div class="platform-card-body">
-            <!-- Initialisation des totaux -->
-            {% set total_liquidites = 0 %}
-            {% set total_placements = 0 %}
-            {% set total_immobilier_brut = 0 %}
-            {% set total_credits_immobilier = 0 %}
-            {% set total_crypto = 0 %}
-            {% set total_autres_biens = 0 %}
+            <!-- Note: Tous les totaux proviennent exclusivement des champs calculated_total_* de la BDD -->
             
             <!-- Sous-section LIQUIDITÉS -->
             {% set has_liquidites = false %}
@@ -1271,7 +1265,6 @@
                             <div class="data-label">Livret A</div>
                             <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.livret_a_value) }}€</div>
                         </div>
-                        {% set total_liquidites = total_liquidites + current_user.investor_profile.livret_a_value %}
                     {% endif %}
                     
                     {% if current_user.investor_profile.ldds_value %}
@@ -1279,7 +1272,6 @@
                             <div class="data-label">LDDS</div>
                             <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.ldds_value) }}€</div>
                         </div>
-                        {% set total_liquidites = total_liquidites + current_user.investor_profile.ldds_value %}
                     {% endif %}
                     
                     {% if current_user.investor_profile.pel_cel_value %}
@@ -1287,7 +1279,6 @@
                             <div class="data-label">PEL/CEL</div>
                             <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.pel_cel_value) }}€</div>
                         </div>
-                        {% set total_liquidites = total_liquidites + current_user.investor_profile.pel_cel_value %}
                     {% endif %}
                     
                     {% if current_user.investor_profile.current_account_value %}
@@ -1295,7 +1286,6 @@
                             <div class="data-label">Compte courant</div>
                             <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.current_account_value) }}€</div>
                         </div>
-                        {% set total_liquidites = total_liquidites + current_user.investor_profile.current_account_value %}
                     {% endif %}
                     
                     {% if current_user.investor_profile.liquidites_personnalisees_data %}
@@ -1304,7 +1294,6 @@
                             <div class="data-label">{{ liquidite.name }}</div>
                             <div class="data-value">{{ "{:,.0f}".format(liquidite.amount) }}€</div>
                         </div>
-                        {% set total_liquidites = total_liquidites + liquidite.amount %}
                         {% endfor %}
                     {% endif %}
                     
@@ -1335,7 +1324,6 @@
                             <div class="data-label">PEA</div>
                             <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.pea_value) }}€</div>
                         </div>
-                        {% set total_placements = total_placements + current_user.investor_profile.pea_value %}
                     {% endif %}
                     
                     {% if current_user.investor_profile.per_value %}
@@ -1343,7 +1331,6 @@
                             <div class="data-label">PER</div>
                             <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.per_value) }}€</div>
                         </div>
-                        {% set total_placements = total_placements + current_user.investor_profile.per_value %}
                     {% endif %}
                     
                     {% if current_user.investor_profile.life_insurance_value %}
@@ -1351,7 +1338,6 @@
                             <div class="data-label">Assurance Vie</div>
                             <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.life_insurance_value) }}€</div>
                         </div>
-                        {% set total_placements = total_placements + current_user.investor_profile.life_insurance_value %}
                     {% endif %}
                     
                     {% if current_user.investor_profile.cto_value %}
@@ -1359,7 +1345,6 @@
                             <div class="data-label">CTO</div>
                             <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.cto_value) }}€</div>
                         </div>
-                        {% set total_placements = total_placements + current_user.investor_profile.cto_value %}
                     {% endif %}
                     
                     {% if current_user.investor_profile.pee_perco_value %}
@@ -1367,7 +1352,6 @@
                             <div class="data-label">PEE/PERCO</div>
                             <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.pee_perco_value) }}€</div>
                         </div>
-                        {% set total_placements = total_placements + current_user.investor_profile.pee_perco_value %}
                     {% endif %}
                     
                     {% if current_user.investor_profile.private_equity_value %}
@@ -1375,7 +1359,6 @@
                             <div class="data-label">Private Equity</div>
                             <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.private_equity_value) }}€</div>
                         </div>
-                        {% set total_placements = total_placements + current_user.investor_profile.private_equity_value %}
                     {% endif %}
                     
                     {% if current_user.investor_profile.scpi_value %}
@@ -1383,7 +1366,6 @@
                             <div class="data-label">SCPI</div>
                             <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.scpi_value) }}€</div>
                         </div>
-                        {% set total_placements = total_placements + current_user.investor_profile.scpi_value %}
                     {% endif %}
                     
                     {% if current_user.investor_profile.placements_personnalises_data %}
@@ -1392,7 +1374,6 @@
                             <div class="data-label">{{ placement.name }}</div>
                             <div class="data-value">{{ "{:,.0f}".format(placement.amount) }}€</div>
                         </div>
-                        {% set total_placements = total_placements + placement.amount %}
                         {% endfor %}
                     {% endif %}
                     
@@ -1405,14 +1386,14 @@
             {% endif %}
             
             <!-- Sous-section IMMOBILIER -->
-            {% if current_user.investor_profile.immobilier_data %}
+            {% if immobilier_with_calculations %}
             <div class="revenue-subsection">
                 <h4 class="revenue-subsection-title">
                     <i class="fas fa-home"></i>
                     Immobilier
                 </h4>
                 
-                {% for bien in current_user.investor_profile.immobilier_data %}
+                {% for bien in immobilier_with_calculations %}
                 <div class="dynamic-section">
                     <div class="dynamic-section-title">
                         {% if bien.type == 'residence_principale' %}
@@ -1450,25 +1431,10 @@
                     {% endif %}
                     {% endif %}
                     
-                    {% if bien.has_credit and bien.credit_montant %}
-                        {# Calcul approximatif du capital restant basé sur les données disponibles #}
-                        {% set credit_initial = bien.credit_montant %}
-                        {% set credit_duree_annees = bien.get('credit_duree', 25) %}
-                        {% set credit_date = bien.get('credit_date', '2025-01') %}
-                        
-                        {# Calcul générique basé sur une estimation par défaut #}
-                        {# Approximation: après quelques mois, environ 98% du capital initial reste #}
-                        {% set capital_restant = credit_initial * 0.98 %}
-                        {% set mensualite = ((credit_initial * 0.02) / 12)|round(0) %}
-                        {% set valeur_nette = bien.valeur - capital_restant %}
-                    {% else %}
-                        {% set capital_restant = 0 %}
-                        {% set mensualite = 0 %}
-                        {% set valeur_nette = bien.valeur %}
-                    {% endif %}
+                    {# Utilisation des valeurs précalculées par la route avec CreditCalculationService #}
                     <div class="liquidites-compact-item-total" style="margin-top: 8px;">
                         <div class="liquidites-compact-name-total">Valeur nette</div>
-                        <div class="liquidites-compact-value-total">{{ "{:,.0f}".format(valeur_nette) }}€</div>
+                        <div class="liquidites-compact-value-total">{{ "{:,.0f}".format(bien.calculated_valeur_nette) }}€</div>
                     </div>
                     
                     {% if bien.has_credit %}
@@ -1521,27 +1487,23 @@
                     </div>
                     {% endif %}
                     
-                    {% if mensualite %}
+                    {% if bien.calculated_mensualite > 0 %}
                     <div class="dynamic-item">
                         <div class="data-item">
                             <div class="data-label">Mensualité</div>
-                            <div class="data-value">{{ "{:,.0f}".format(mensualite) }}€</div>
+                            <div class="data-value">{{ "{:,.0f}".format(bien.calculated_mensualite) }}€</div>
                         </div>
                     </div>
                     {% endif %}
                     
-                    {% if capital_restant %}
+                    {% if bien.calculated_capital_restant > 0 %}
                     <div class="liquidites-compact-item-total" style="margin-top: 8px; background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);">
                         <div class="liquidites-compact-name-total">Montant restant du crédit à rembourser</div>
-                        <div class="liquidites-compact-value-total">{{ "{:,.0f}".format(capital_restant) }}€</div>
+                        <div class="liquidites-compact-value-total">{{ "{:,.0f}".format(bien.calculated_capital_restant) }}€</div>
                     </div>
-                    {% if capital_restant %}
-                        {% set total_credits_immobilier = total_credits_immobilier + capital_restant %}
-                    {% endif %}
                     {% endif %}
                     {% endif %}
                 </div>
-                {% set total_immobilier_brut = total_immobilier_brut + bien.valeur %}
                 {% endfor %}
                 
                 <div class="liquidites-compact-item-total">
@@ -1584,7 +1546,7 @@
                     
                     <div class="liquidites-compact-item-total">
                         <div class="liquidites-compact-name-total">Total Cryptomonnaies</div>
-                        <div class="liquidites-compact-value-total" id="totalCryptoValue">{{ "{:,.0f}".format(total_crypto) }}€</div>
+                        <div class="liquidites-compact-value-total" id="totalCryptoValue">0€</div>
                     </div>
                 </div>
             </div>
@@ -1603,7 +1565,6 @@
                         <div class="data-label">{{ bien.name }}</div>
                         <div class="data-value">{{ "{:,.0f}".format(bien.valeur) }}€</div>
                     </div>
-                    {% set total_autres_biens = total_autres_biens + bien.valeur %}
                     {% endfor %}
                     
                     <div class="liquidites-compact-item-total">

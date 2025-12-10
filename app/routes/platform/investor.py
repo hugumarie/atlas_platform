@@ -341,7 +341,67 @@ def investor_data():
     except Exception as calc_error:
         pass  # En cas d'erreur, on continue sans bloquer l'affichage
     
-    return render_template('platform/investor/investor_data.html', edit_mode=edit_mode)
+    # Calcul des valeurs nettes par bien immobilier avec CreditCalculationService
+    immobilier_with_calculations = []
+    if current_user.investor_profile.immobilier_data:
+        from app.services.credit_calculation import CreditCalculationService
+        from datetime import datetime, date
+        
+        for bien in current_user.investor_profile.immobilier_data:
+            bien_copy = dict(bien)
+            
+            # Calculs précis si le bien a un crédit
+            if bien.get('has_credit', False) and bien.get('credit_montant', 0) > 0:
+                montant_initial = float(bien.get('credit_montant', 0))
+                taux_interet = float(bien.get('credit_taeg', 2.5))
+                duree_annees = int(bien.get('credit_duree', 25))
+                duree_mois = duree_annees * 12
+                
+                # Parse de la date de début
+                date_debut_str = bien.get('credit_date', '')
+                try:
+                    if date_debut_str:
+                        if '-' in date_debut_str and len(date_debut_str) >= 7:
+                            date_debut = datetime.strptime(date_debut_str[:7] + '-01', '%Y-%m-%d').date()
+                        else:
+                            date_debut = date.today()
+                    else:
+                        date_debut = date.today()
+                except (ValueError, TypeError):
+                    date_debut = date.today()
+                
+                # Calculs précis avec CreditCalculationService
+                mensualite = CreditCalculationService.calculate_monthly_payment(
+                    principal=montant_initial,
+                    annual_rate=taux_interet,
+                    duration_months=duree_mois
+                )
+                
+                capital_restant = CreditCalculationService.calculate_remaining_capital(
+                    principal=montant_initial,
+                    annual_rate=taux_interet,
+                    duration_months=duree_mois,
+                    start_date=date_debut,
+                    current_date=date.today()
+                )
+                
+                valeur_nette = bien.get('valeur', 0) - capital_restant
+                
+                # Ajouter les calculs au bien
+                bien_copy['calculated_mensualite'] = round(mensualite, 0)
+                bien_copy['calculated_capital_restant'] = round(capital_restant, 0)
+                bien_copy['calculated_valeur_nette'] = round(valeur_nette, 0)
+            else:
+                # Pas de crédit = valeur nette = valeur totale
+                bien_copy['calculated_mensualite'] = 0
+                bien_copy['calculated_capital_restant'] = 0
+                bien_copy['calculated_valeur_nette'] = bien.get('valeur', 0)
+            
+            immobilier_with_calculations.append(bien_copy)
+    
+    return render_template('platform/investor/investor_data.html', 
+                         edit_mode=edit_mode,
+                         immobilier_with_calculations=immobilier_with_calculations)
 
 @platform_investor_bp.route('/donnees-investisseur/modifier', methods=['POST'])
 @login_required
