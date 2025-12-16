@@ -332,10 +332,10 @@ def investor_data():
     # Vérifier si on est en mode édition
     edit_mode = request.args.get('edit') == 'true'
     
-    # Recalcul local des totaux patrimoniaux (lecture DB uniquement)
+    # Recalcul complet des totaux patrimoniaux avec PatrimonyCalculationEngine V2.0
     try:
-        from app.services.local_portfolio_service import LocalPortfolioService
-        LocalPortfolioService.update_user_calculated_totals(current_user.investor_profile, save_to_db=False)
+        from app.services.patrimony_calculation_engine import PatrimonyCalculationEngine
+        PatrimonyCalculationEngine.calculate_and_save_all(current_user.investor_profile, force_recalculate=True, save_to_db=True)
         db.session.refresh(current_user.investor_profile)
         db.session.refresh(current_user)
     except Exception as calc_error:
