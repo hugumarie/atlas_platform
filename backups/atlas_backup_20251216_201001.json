@@ -1,0 +1,89 @@
+{
+  "backup_date": "2025-12-16T20:10:01.684150",
+  "users": [
+    {
+      "id": 1,
+      "email": "admin@gmail.com",
+      "first_name": "Admin",
+      "last_name": "Système",
+      "date_created": "2025-11-12T20:47:26.769589+01:00",
+      "investor_profile": null
+    },
+    {
+      "id": 2,
+      "email": "test.client@gmail.com",
+      "first_name": "Hugues",
+      "last_name": "MARIE",
+      "date_created": "2025-09-30T13:09:41.246738+02:00",
+      "investor_profile": {
+        "monthly_net_income": 4000.0,
+        "current_savings": 0.0,
+        "monthly_savings_capacity": 1000.0,
+        "family_situation": "Célibataire",
+        "professional_situation": "Salarié",
+        "risk_tolerance": "modéré",
+        "investment_experience": "intermediaire",
+        "investment_horizon": "moyen",
+        "investment_goals": "",
+        "has_livret_a": true,
+        "livret_a_value": 4700.0,
+        "calculated_total_immobilier_net": 36380.59,
+        "calculated_total_actifs": 86453.58,
+        "calculated_patrimoine_total_net": 84694.08,
+        "last_updated": "2025-12-16T20:08:56.465500+01:00",
+        "immobilier_data": [
+          {
+            "type": "investissement_locatif",
+            "valeur": 250000.0,
+            "surface": 43.0,
+            "credit_tag": 0.0,
+            "has_credit": true,
+            "credit_date": "2025-10",
+            "credit_taeg": 3.35,
+            "description": "",
+            "credit_duree": 25,
+            "credit_montant": 215000.0
+          }
+        ],
+        "cryptomonnaies_data": [
+          {
+            "symbol": "bitcoin",
+            "quantity": 0.1,
+            "last_updated": "2025-12-16T19:08:56.470946",
+            "current_price": 79221.265,
+            "calculated_value": 7922.1265
+          },
+          {
+            "symbol": "binancecoin",
+            "quantity": 1.5,
+            "last_updated": "2025-12-16T19:08:56.470961",
+            "current_price": 762.1578,
+            "calculated_value": 1143.2367
+          },
+          {
+            "symbol": "ethereum",
+            "quantity": 0.5,
+            "last_updated": "2025-12-16T19:08:56.470968",
+            "current_price": 2853.8756,
+            "calculated_value": 1426.9378
+          },
+          {
+            "symbol": "solana",
+            "quantity": 10.0,
+            "last_updated": "2025-12-16T19:08:56.470977",
+            "current_price": 118.06939999999999,
+            "calculated_value": 1180.694
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "email": "hugues.marie925@gmail.com",
+      "first_name": "axel",
+      "last_name": "sani",
+      "date_created": "2025-11-28T15:51:32.829756+01:00",
+      "investor_profile": null
+    }
+  ]
+}
