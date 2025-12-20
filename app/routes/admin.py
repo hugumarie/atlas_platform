@@ -15,6 +15,7 @@ admin_bp = Blueprint('admin', __name__)
 @admin_bp.route('/dashboard')
 @login_required
 def dashboard():
+    print("*** ROUTE ADMIN.PY DASHBOARD EXECUTEE ***")
     """
     Dashboard administrateur avec statistiques générales.
     """

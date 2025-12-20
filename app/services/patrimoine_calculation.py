@@ -87,24 +87,39 @@ class PatrimoineCalculationService:
         """Calcule le total des liquidités."""
         total = 0.0
         
+        print(f"🔍 DEBUG _calculate_total_liquidites:")
+        
         # Liquidités standards - vérifier que les attributs existent
         if hasattr(investor_profile, 'has_livret_a') and investor_profile.has_livret_a and hasattr(investor_profile, 'livret_a_value') and investor_profile.livret_a_value:
+            print(f"  - Livret A: {investor_profile.livret_a_value}€")
             total += investor_profile.livret_a_value
             
         if hasattr(investor_profile, 'has_ldds') and investor_profile.has_ldds and hasattr(investor_profile, 'ldds_value') and investor_profile.ldds_value:
+            print(f"  - LDDS: {investor_profile.ldds_value}€")
             total += investor_profile.ldds_value
             
         if hasattr(investor_profile, 'has_pel_cel') and investor_profile.has_pel_cel and hasattr(investor_profile, 'pel_cel_value') and investor_profile.pel_cel_value:
+            print(f"  - PEL/CEL: {investor_profile.pel_cel_value}€")
             total += investor_profile.pel_cel_value
             
+        # IMPORTANT: Épargne courante (current_savings)
+        if hasattr(investor_profile, 'current_savings') and investor_profile.current_savings:
+            print(f"  - Épargne courante: {investor_profile.current_savings}€")
+            total += investor_profile.current_savings
+            
         if hasattr(investor_profile, 'has_autres_livrets') and investor_profile.has_autres_livrets and hasattr(investor_profile, 'autres_livrets_value') and investor_profile.autres_livrets_value:
+            print(f"  - Autres livrets: {investor_profile.autres_livrets_value}€")
             total += investor_profile.autres_livrets_value
         
         # Liquidités personnalisées
         if investor_profile.liquidites_personnalisees_data:
+            print(f"  - Liquidités personnalisées:")
             for liquidite in investor_profile.liquidites_personnalisees_data:
-                total += liquidite.get('amount', 0)
+                valeur = liquidite.get('amount', 0)
+                print(f"    * {liquidite.get('name', 'N/A')}: {valeur}€")
+                total += valeur
         
+        print(f"  ✅ Total liquidités calculé: {total}€")
         return round(total, 2)
     
     @classmethod
@@ -318,15 +333,27 @@ class PatrimoineCalculationService:
         """Calcule le total des autres biens."""
         total = 0.0
         
+        print(f"🔍 DEBUG _calculate_total_autres_biens:")
+        
         # Autres biens standard
         if hasattr(investor_profile, 'has_autres_biens') and investor_profile.has_autres_biens and hasattr(investor_profile, 'autres_biens_value') and investor_profile.autres_biens_value:
+            print(f"  - Autres biens standard: {investor_profile.autres_biens_value}€")
             total += investor_profile.autres_biens_value
         
         # Autres biens détaillés
-        if investor_profile.autres_biens_data:
-            for bien in investor_profile.autres_biens_data:
-                total += bien.get('valeur', 0)
+        print(f"  - autres_biens_data existe: {hasattr(investor_profile, 'autres_biens_data')}")
+        if hasattr(investor_profile, 'autres_biens_data'):
+            autres_biens_data = investor_profile.autres_biens_data
+            print(f"  - autres_biens_data contenu: {autres_biens_data}")
+            if autres_biens_data:
+                for bien in autres_biens_data:
+                    valeur = bien.get('valeur', 0)
+                    print(f"    * {bien.get('name', 'N/A')}: {valeur}€")
+                    total += valeur
+            else:
+                print(f"  - autres_biens_data est vide ou None")
         
+        print(f"  ✅ Total autres biens calculé: {total}€")
         return round(total, 2)
     
     @classmethod
@@ -427,6 +454,9 @@ class PatrimoineCalculationService:
     def _save_totaux_to_db(cls, investor_profile: InvestorProfile, totaux: Dict):
         """Sauvegarde tous les totaux calculés en base de données."""
         try:
+            print(f"💾 SAUVEGARDE EN BASE:")
+            print(f"  - Avant: liquidites={investor_profile.calculated_total_liquidites}")
+            
             # Sauvegarde des totaux principaux
             investor_profile.calculated_total_liquidites = totaux['total_liquidites']
             investor_profile.calculated_total_placements = totaux['total_placements']
@@ -438,10 +468,19 @@ class PatrimoineCalculationService:
             investor_profile.calculated_patrimoine_total_net = totaux['patrimoine_total_net']
             investor_profile.last_calculation_date = datetime.utcnow()
             
+            print(f"  - Après: liquidites={investor_profile.calculated_total_liquidites}")
+            print(f"  - Appel db.session.commit()...")
+            
             # Commit des changements
             db.session.commit()
             
-            # Totaux sauvegardés silencieusement
+            print(f"  ✅ db.session.commit() réussi !")
+            
+            # Vérification
+            db.session.refresh(investor_profile)
+            print(f"  - Vérif DB: liquidites={investor_profile.calculated_total_liquidites}")
+            print(f"  - Vérif DB: actifs={investor_profile.calculated_total_actifs}")
+            print(f"  ✅ SAUVEGARDE TERMINÉE")
             
         except Exception as e:
             print(f"Erreur lors de la sauvegarde des totaux: {e}")

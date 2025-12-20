@@ -10,6 +10,7 @@ from app.models.portfolio import Portfolio
 from app.models.subscription import Subscription, SubscriptionTier
 from app.models.payment_method import PaymentMethod
 from app.models.apprentissage import Apprentissage
+from app.models.investment_plan import InvestmentPlan, InvestmentPlanLine, AVAILABLE_ENVELOPES
 import json
 import re
 from datetime import datetime, timedelta
@@ -24,39 +25,37 @@ import io
 platform_investor_bp = Blueprint('platform_investor', __name__, url_prefix='/plateforme')
 
 @platform_investor_bp.route('/dashboard')
-@login_required
+@login_required  
 def dashboard():
-    """
-    Dashboard principal de l'investisseur.
-    """
     if current_user.is_admin:
         return redirect(url_for('platform_admin.dashboard'))
     
-    # Vérifier l'abonnement actif
     if not current_user.subscription or not current_user.subscription.is_active():
-        flash('Votre abonnement a expiré. Veuillez renouveler.', 'error')
         return redirect(url_for('platform_auth.login'))
     
-    # Vérifier si le questionnaire a été complété
     if not current_user.investor_profile:
-        flash('Veuillez d\'abord compléter votre profil investisseur.', 'warning')
         return redirect(url_for('platform_investor.questionnaire'))
     
-    # Mettre à jour le portefeuille
-    if current_user.portfolio:
-        current_user.portfolio.update_from_profile()
+    # LECTURE PURE DE LA BASE DE DONNÉES - AUCUN CALCUL
+    profile = current_user.investor_profile
+    patrimoine_total_net = profile.calculated_patrimoine_total_net
+    total_immobilier_net = profile.calculated_total_immobilier_net
     
-    # Recalcul local des totaux patrimoniaux (lecture DB uniquement)
-    if current_user.investor_profile:
-        try:
-            from app.services.local_portfolio_service import LocalPortfolioService
-            LocalPortfolioService.update_user_calculated_totals(current_user.investor_profile, save_to_db=False)
-            db.session.refresh(current_user.investor_profile)
-            db.session.refresh(current_user)
-        except Exception as calc_error:
-            pass  # En cas d'erreur, on continue sans bloquer l'affichage
+    patrimoine_repartition = {
+        'liquidites': profile.calculated_total_liquidites or 0,
+        'placements': profile.calculated_total_placements or 0, 
+        'immobilier': profile.calculated_total_immobilier_net or 0,
+        'crypto': profile.calculated_total_cryptomonnaies or 0,
+        'autres_biens': profile.calculated_total_autres_biens or 0
+    }
+
+    investment_plan = InvestmentPlan.query.filter_by(user_id=current_user.id, is_active=True).first()
     
-    return render_template('platform/investor/dashboard.html')
+    return render_template('platform/investor/dashboard.html',
+                         investment_plan=investment_plan,
+                         patrimoine_repartition=patrimoine_repartition, 
+                         patrimoine_total_net=patrimoine_total_net,
+                         total_immobilier_net=total_immobilier_net)
 
 @platform_investor_bp.route('/questionnaire', methods=['GET', 'POST'])
 @login_required
@@ -208,46 +207,68 @@ def learning():
 @platform_investor_bp.route('/api/crypto-prices')
 @login_required
 def get_crypto_prices():
-    """API endpoint pour récupérer les prix crypto depuis la DB uniquement."""
+    """API endpoint pour récupérer TOUS les prix crypto depuis la DB uniquement."""
     try:
         from app.models.crypto_price import CryptoPrice
+        from datetime import datetime, timedelta
         
-        # Récupérer les prix depuis la DB uniquement
+        # Récupérer TOUS les prix en base de données (peu importe l'âge)
         crypto_prices = CryptoPrice.query.all()
         
-        if not crypto_prices:
-            return jsonify({'error': 'Aucun prix disponible en base'}), 500
+        # Utiliser UNIQUEMENT les prix en base de données, pas d'appel API
+        # Les prix sont mis à jour uniquement au démarrage via start_atlas.sh
+        print(f"📊 API crypto: {len(crypto_prices)} prix disponibles en base (tous)")
         
-        # Convertir en format compatible avec le frontend JavaScript
+        # Convertir TOUS les prix en format compatible avec le frontend
         formatted_prices = {}
-        
-        symbol_mapping = {
-            'bitcoin': {'symbol': 'BTC', 'name': 'Bitcoin'},
-            'ethereum': {'symbol': 'ETH', 'name': 'Ethereum'},
-            'binancecoin': {'symbol': 'BNB', 'name': 'BNB'},
-            'solana': {'symbol': 'SOL', 'name': 'Solana'},
-            'cardano': {'symbol': 'ADA', 'name': 'Cardano'},
-            'polkadot': {'symbol': 'DOT', 'name': 'Polkadot'},
-            'chainlink': {'symbol': 'LINK', 'name': 'Chainlink'},
-            'avalanche-2': {'symbol': 'AVAX', 'name': 'Avalanche'},
-            'cosmos': {'symbol': 'ATOM', 'name': 'Cosmos'},
-            'stellar': {'symbol': 'XLM', 'name': 'Stellar'},
-        }
         
         for crypto_price in crypto_prices:
             symbol = crypto_price.symbol
-            if symbol in symbol_mapping:
-                formatted_prices[symbol] = {
-                    'eur': round(crypto_price.price_eur, 2),
-                    'symbol': symbol_mapping[symbol]['symbol'],
-                    'name': symbol_mapping[symbol]['name'],
-                    'price': round(crypto_price.price_eur, 2)
-                }
+            # Retourner tous les symboles, pas seulement un mapping limité
+            formatted_prices[symbol] = {
+                'eur': round(crypto_price.price_eur, 6),  # Plus de précision pour les petites cryptos
+                'price': round(crypto_price.price_eur, 6),
+                'symbol': symbol.upper(),
+                'updated_at': crypto_price.updated_at.isoformat(),
+                'age_minutes': int((datetime.utcnow() - crypto_price.updated_at).total_seconds() / 60)
+            }
         
+        print(f"✅ Retour de {len(formatted_prices)} prix crypto récents")
         return jsonify(formatted_prices)
         
     except Exception as e:
+        print(f"❌ Erreur API crypto prices: {e}")
         return jsonify({'error': 'Erreur serveur'}), 500
+
+@platform_investor_bp.route('/api/crypto-price/<symbol>')
+@login_required
+def get_single_crypto_price(symbol):
+    """API endpoint pour récupérer le prix d'une crypto spécifique depuis la DB Binance."""
+    try:
+        from app.services.binance_price_service import BinancePriceService
+        
+        # Récupérer le prix depuis la DB UNIQUEMENT, sans appel API
+        price_eur = BinancePriceService.get_crypto_price_from_db(symbol.lower(), max_age_minutes=1440)  # 24h max
+        
+        if price_eur is not None:
+            return jsonify({
+                'success': True,
+                'symbol': symbol,
+                'price': round(price_eur, 6),
+                'currency': 'EUR',
+                'source': 'binance_db'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': f'Prix indisponible pour {symbol}'
+            }), 404
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': 'Erreur serveur'
+        }), 500
 
 @platform_investor_bp.route('/formations')
 @login_required
@@ -350,8 +371,8 @@ def investor_data():
         for bien in current_user.investor_profile.immobilier_data:
             bien_copy = dict(bien)
             
-            # Calculs précis si le bien a un crédit
-            if bien.get('has_credit', False) and bien.get('credit_montant', 0) > 0:
+            # Calculs précis si le bien a un crédit (détection basée sur le montant)
+            if bien.get('credit_montant', 0) > 0:
                 montant_initial = float(bien.get('credit_montant', 0))
                 taux_interet = float(bien.get('credit_taeg', 2.5))
                 duree_annees = int(bien.get('credit_duree', 25))
@@ -409,6 +430,7 @@ def update_investor_data():
     """
     Mise à jour complète des données investisseur - COPIE EXACTE de la logique admin.
     """
+    print(f"🚀 START UPDATE_INVESTOR_DATA - User: {current_user.id}")
     if current_user.is_admin:
         return redirect(url_for('platform_admin.dashboard'))
     
@@ -507,8 +529,13 @@ def update_investor_data():
         liquidite_names = request.form.getlist('liquidite_personnalisee_name[]')
         liquidite_amounts = request.form.getlist('liquidite_personnalisee_amount[]')
         
+        print(f"🔍 DEBUG liquidités personnalisées:")
+        print(f"  - liquidite_names: {liquidite_names}")
+        print(f"  - liquidite_amounts: {liquidite_amounts}")
+        
         liquidites_personnalisees = []
         for name, amount in zip(liquidite_names, liquidite_amounts):
+            print(f"  - Traitement: {name} = {amount}")
             if name and name.strip() and amount and amount.strip():
                 try:
                     amount_float = float(amount.strip())
@@ -517,9 +544,12 @@ def update_investor_data():
                             'name': name.strip(),
                             'amount': amount_float
                         })
+                        print(f"  ✅ Ajouté: {name.strip()} = {amount_float}€")
                 except ValueError:
+                    print(f"  ❌ Erreur conversion: {amount}")
                     continue
         
+        print(f"  📋 liquidites_personnalisees final: {liquidites_personnalisees}")
         profile.set_liquidites_personnalisees_data(liquidites_personnalisees)
         
         # Traitement des placements personnalisés
@@ -651,27 +681,66 @@ def update_investor_data():
         profile.risk_tolerance = profile.profil_risque_choisi or 'modéré'
         
         # Valeurs par défaut pour éviter NOT NULL constraint
-        profile.investment_experience = request.form.get('experience_investissement', '').strip() or 'intermediaire'
+        # investment_experience et experience_investissement sont le même champ - suppression de la duplication
         profile.investment_horizon = request.form.get('horizon_placement', '').strip() or 'moyen'
         
+        # MAPPER EXPERIENCE EN PREMIER (avant calculs de risque)
+        # Valeurs exactes autorisées par contrainte: débutant, débutante, intermédiaire, intermediaire, confirmé, confirmée, expert, experte
+        experience_form = request.form.get('experience_investissement', '').strip()
+        print(f"🔍 FORM VALUE: '{experience_form}'")
+        
+        if experience_form == 'debutant':
+            mapped_value = 'débutant'  # Utiliser valeur avec accent
+        elif experience_form == 'intermediaire':
+            mapped_value = 'intermédiaire'  # Utiliser valeur avec accent
+        elif experience_form == 'confirme':
+            mapped_value = 'confirmé'  # Utiliser valeur avec accent
+        else:
+            mapped_value = 'intermédiaire'  # Défaut sûr
+        
+        profile.experience_investissement = mapped_value
+        profile.investment_experience = mapped_value
+        print(f"🔍 MAPPED TO: '{mapped_value}'")
+        print(f"🔍 PROFILE FIELDS: exp_invest='{profile.experience_investissement}', invest_exp='{profile.investment_experience}'")
+        
         # Section 6: QUESTIONNAIRE DE RISQUE DÉTAILLÉ
-        profile.tolerance_risque = request.form.get('tolerance_risque', '').strip() or 'moderee'
+        profile.tolerance_risque = request.form.get('tolerance_baisse', '').strip() or 'moderee'
         profile.horizon_placement = request.form.get('horizon_placement', '').strip() or 'moyen'  
-        profile.besoin_liquidite = request.form.get('besoin_liquidite', '').strip() or 'long_terme'
-        profile.experience_investissement = request.form.get('experience_investissement', '').strip() or 'intermediaire'
+        profile.besoin_liquidite = request.form.get('besoin_liquidite', '').strip() or 'non'
         profile.attitude_volatilite = request.form.get('attitude_volatilite', '').strip() or 'attendre'
         
+        # CALCUL DU PROFIL DE RISQUE AUTOMATIQUE
+        try:
+            from app.services.risk_profile_calculator import RiskProfileCalculator
+            
+            # Collecte des réponses au questionnaire
+            risk_responses = {
+                'baisse_acceptable': profile.tolerance_risque,
+                'horizon_placement': profile.horizon_placement,
+                'besoin_liquidite': profile.besoin_liquidite, 
+                'experience_marches': profile.experience_investissement,
+                'attitude_volatilite': profile.attitude_volatilite
+            }
+            
+            # Calcul du profil de risque
+            risk_calculation = RiskProfileCalculator.calculate_profile(risk_responses)
+            profile.risk_tolerance = risk_calculation['profile']
+            
+        except Exception as risk_calc_error:
+            # En cas d'erreur, garder la valeur par défaut
+            profile.risk_tolerance = 'modéré'
+        
         # Nouveaux objectifs d'investissement étendus
-        profile.objectif_premiers_pas = request.form.get('objectif_premiers_pas') == 'on'
-        profile.objectif_constituer_capital = request.form.get('objectif_constituer_capital') == 'on'
-        profile.objectif_diversifier = request.form.get('objectif_diversifier') == 'on'
-        profile.objectif_optimiser_rendement = request.form.get('objectif_optimiser_rendement') == 'on'
-        profile.objectif_preparer_retraite = request.form.get('objectif_preparer_retraite') == 'on'
-        profile.objectif_securite_financiere = request.form.get('objectif_securite_financiere') == 'on'
-        profile.objectif_projet_immobilier = request.form.get('objectif_projet_immobilier') == 'on'
-        profile.objectif_revenus_complementaires = request.form.get('objectif_revenus_complementaires') == 'on'
-        profile.objectif_transmettre_capital = request.form.get('objectif_transmettre_capital') == 'on'
-        profile.objectif_proteger_famille = request.form.get('objectif_proteger_famille') == 'on'
+        profile.objectif_premiers_pas = request.form.get('objectif_premiers_pas') == 'true'
+        profile.objectif_constituer_capital = request.form.get('objectif_constituer_capital') == 'true'
+        profile.objectif_diversifier = request.form.get('objectif_diversifier') == 'true'
+        profile.objectif_optimiser_rendement = request.form.get('objectif_optimiser_rendement') == 'true'
+        profile.objectif_preparer_retraite = request.form.get('objectif_preparer_retraite') == 'true'
+        profile.objectif_securite_financiere = request.form.get('objectif_securite_financiere') == 'true'
+        profile.objectif_projet_immobilier = request.form.get('objectif_projet_immobilier') == 'true'
+        profile.objectif_revenus_complementaires = request.form.get('objectif_revenus_complementaires') == 'true'
+        profile.objectif_transmettre_capital = request.form.get('objectif_transmettre_capital') == 'true'
+        profile.objectif_proteger_famille = request.form.get('objectif_proteger_famille') == 'true'
         
         # Traitement des données complexes JSONB - IMMOBILIER
         immobilier_data = []
@@ -679,27 +748,44 @@ def update_investor_data():
         bien_descriptions = request.form.getlist('bien_description[]')
         bien_valeurs = request.form.getlist('bien_valeur[]')
         bien_surfaces = request.form.getlist('bien_surface[]')
-        credit_checkboxes = request.form.getlist('bien_has_credit[]') or []
+        # Les checkboxes cochées sont envoyées avec leur valeur, les non-cochées ne sont pas envoyées
+        # Nous devons utiliser une approche différente pour identifier quels biens ont des crédits
+        
+        # Récupérer toutes les données des formulaires
         credit_montants = request.form.getlist('credit_montant[]')
         credit_taegs = request.form.getlist('credit_taeg[]')
-        credit_tags = request.form.getlist('credit_tag[]')
         credit_durees = request.form.getlist('credit_duree[]')
         credit_dates = request.form.getlist('credit_date[]')
         
+        print(f"🏠 Bien types: {bien_types}")
+        print(f"🏠 Credit montants: {credit_montants}")
+        print(f"🏠 Credit taegs: {credit_taegs}")
+        print(f"🏠 Credit durees: {credit_durees}")
+        
         for i in range(len(bien_types)):
             if bien_types[i].strip():
+                # Détecter si un bien a un crédit en regardant si les champs crédit ont des valeurs
+                credit_montant = float(credit_montants[i] or 0) if i < len(credit_montants) else 0
+                credit_taeg = float(credit_taegs[i] or 0) if i < len(credit_taegs) else 0
+                credit_duree = int(credit_durees[i] or 0) if i < len(credit_durees) else 0
+                credit_date = credit_dates[i].strip() if i < len(credit_dates) else ''
+                
+                # Un bien a un crédit si au moins le montant est > 0
+                has_credit = credit_montant > 0
+                
                 bien_data = {
                     'type': bien_types[i].strip(),
                     'description': bien_descriptions[i].strip() if i < len(bien_descriptions) else '',
                     'valeur': float(bien_valeurs[i] or 0) if i < len(bien_valeurs) else 0,
                     'surface': float(bien_surfaces[i] or 0) if i < len(bien_surfaces) else 0,
-                    'has_credit': str(i) in credit_checkboxes if credit_checkboxes else False,
-                    'credit_montant': float(credit_montants[i] or 0) if i < len(credit_montants) else 0,
-                    'credit_taeg': float(credit_taegs[i] or 0) if i < len(credit_taegs) else 0,
-                    'credit_tag': float(credit_tags[i] or 0) if i < len(credit_tags) else 0,
-                    'credit_duree': int(credit_durees[i] or 0) if i < len(credit_durees) else 0,
-                    'credit_date': credit_dates[i].strip() if i < len(credit_dates) else ''
+                    'has_credit': has_credit,
+                    'credit_montant': credit_montant,
+                    'credit_taeg': credit_taeg,
+                    'credit_duree': credit_duree,
+                    'credit_date': credit_date
                 }
+                
+                print(f"🏠 Bien {i}: {bien_data['type']}, has_credit={has_credit}, montant={credit_montant}€, taeg={credit_taeg}%")
                 immobilier_data.append(bien_data)
         
         profile.set_immobilier_data(immobilier_data)
@@ -728,16 +814,19 @@ def update_investor_data():
         # Autres biens détaillés
         autres_biens_data = []
         autre_bien_names = request.form.getlist('autre_bien_name[]')
-        autre_bien_descriptions = request.form.getlist('autre_bien_description[]')
         autre_bien_valeurs = request.form.getlist('autre_bien_valeur[]')
+        
+        print(f"🔍 DEBUG autres_biens - names: {autre_bien_names}")
+        print(f"🔍 DEBUG autres_biens - valeurs: {autre_bien_valeurs}")
         
         for i in range(len(autre_bien_names)):
             if autre_bien_names[i].strip():
+                valeur = float(autre_bien_valeurs[i] or 0) if i < len(autre_bien_valeurs) else 0
                 autres_biens_data.append({
                     'name': autre_bien_names[i].strip(),
-                    'description': autre_bien_descriptions[i].strip() if i < len(autre_bien_descriptions) else '',
-                    'valeur': float(autre_bien_valeurs[i] or 0) if i < len(autre_bien_valeurs) else 0
+                    'valeur': valeur
                 })
+                print(f"✅ Autre bien ajouté: {autre_bien_names[i]} = {valeur}€")
         
         profile.set_autres_biens_data(autres_biens_data)
         
@@ -746,11 +835,13 @@ def update_investor_data():
         credit_ids = request.form.getlist('credit_conso_id[]')
         credit_descriptions = request.form.getlist('credit_conso_description[]')
         credit_montants_initiaux = request.form.getlist('credit_conso_montant_initial[]')
+        credit_montants_restants = request.form.getlist('credit_conso_montant_restant[]')
+        credit_mensualites = request.form.getlist('credit_conso_mensualite[]')
         credit_taux = request.form.getlist('credit_conso_taux[]')
         credit_durees_credit = request.form.getlist('credit_conso_duree[]')
         credit_dates_depart = request.form.getlist('credit_conso_date_depart[]')
         
-        arrays = [credit_ids, credit_descriptions, credit_montants_initiaux, credit_taux, credit_durees_credit, credit_dates_depart]
+        arrays = [credit_ids, credit_descriptions, credit_montants_initiaux, credit_montants_restants, credit_mensualites, credit_taux, credit_durees_credit, credit_dates_depart]
         max_length = max(len(arr) for arr in arrays) if any(arrays) else 0
         existing_credits = profile.credits_data.copy() if profile.credits_data else []
         
@@ -760,27 +851,183 @@ def update_investor_data():
             if description:
                 credit_id = credit_ids[i] if i < len(credit_ids) else str(i)
                 
+                montant_initial = float(credit_montants_initiaux[i] or 0) if i < len(credit_montants_initiaux) else 0
+                taux = float(credit_taux[i] or 0) if i < len(credit_taux) else 0
+                duree = int(credit_durees_credit[i] or 0) if i < len(credit_durees_credit) else 0
+                mensualite = float(credit_mensualites[i] or 0) if i < len(credit_mensualites) else 0
+                date_depart = credit_dates_depart[i].strip() if i < len(credit_dates_depart) else ''
+                
+                # Calcul du montant restant avec la formule simplifiée si pas déjà renseigné
+                montant_restant = float(credit_montants_restants[i] or 0) if i < len(credit_montants_restants) else 0
+                
+                # Si le montant restant n'est pas renseigné, le calculer automatiquement
+                if montant_restant == 0 and montant_initial > 0 and mensualite > 0 and date_depart:
+                    try:
+                        from datetime import datetime, date
+                        from app.services.credit_calculation import CreditCalculationService
+                        
+                        # Parse de la date de début
+                        if '-' in date_depart and len(date_depart) >= 7:
+                            start_date = datetime.strptime(date_depart[:7] + '-01', '%Y-%m-%d').date()
+                        else:
+                            start_date = date.today()
+                        
+                        # Calcul du nombre de mois écoulés
+                        months_elapsed = CreditCalculationService._calculate_months_elapsed(start_date, date.today())
+                        
+                        # Formule simplifiée : montant restant = montant initial - (mensualité × nb mois)
+                        capital_repaid = mensualite * months_elapsed
+                        montant_restant = max(0, montant_initial - capital_repaid)
+                        
+                    except Exception as calc_error:
+                        print(f"⚠️ Erreur calcul montant restant crédit {description}: {calc_error}")
+                        montant_restant = montant_initial
+                
                 new_credit = {
                     'id': credit_id,
                     'description': description,
-                    'montant_initial': float(credit_montants_initiaux[i] or 0) if i < len(credit_montants_initiaux) else 0,
-                    'taux': float(credit_taux[i] or 0) if i < len(credit_taux) else 0,
-                    'duree': int(credit_durees_credit[i] or 0) if i < len(credit_durees_credit) else 0,
-                    'date_depart': credit_dates_depart[i].strip() if i < len(credit_dates_depart) else ''
+                    'montant_initial': montant_initial,
+                    'montant_restant': montant_restant,
+                    'mensualite': mensualite,
+                    'taux': taux,
+                    'duree': duree,
+                    'date_depart': date_depart
                 }
                 credits_data.append(new_credit)
         
         profile.credits_data_json = credits_data
         
-        # Recalculer les totaux avec le service de calcul
-        from app.services.patrimoine_calculation import PatrimoineCalculationService
-        PatrimoineCalculationService.calculate_all_totaux(profile, save_to_db=True)
-        
+        # ============ RECALCUL DES VALEURS NETTES APRÈS SAUVEGARDE ============
+        # Recalculer les valeurs nettes des biens immobiliers avec les nouvelles données
+        if current_user.investor_profile.immobilier_data:
+            from app.services.credit_calculation import CreditCalculationService
+            from datetime import datetime, date
+            
+            immobilier_updated = []
+            for bien in current_user.investor_profile.immobilier_data:
+                bien_copy = dict(bien)
+                
+                # Recalculer la valeur nette avec les données fraîches
+                if bien.get('credit_montant', 0) > 0:
+                    montant_initial = float(bien.get('credit_montant', 0))
+                    taux_interet = float(bien.get('credit_taeg', 2.5))
+                    duree_annees = int(bien.get('credit_duree', 25))
+                    duree_mois = duree_annees * 12
+                    
+                    # Parse de la date de début
+                    date_debut_str = bien.get('credit_date', '')
+                    try:
+                        if date_debut_str and '-' in date_debut_str and len(date_debut_str) >= 7:
+                            date_debut = datetime.strptime(date_debut_str[:7] + '-01', '%Y-%m-%d').date()
+                        else:
+                            date_debut = date.today()
+                    except (ValueError, TypeError):
+                        date_debut = date.today()
+                    
+                    # Calculs précis
+                    capital_restant = CreditCalculationService.calculate_remaining_capital(
+                        principal=montant_initial,
+                        annual_rate=taux_interet,
+                        duration_months=duree_mois,
+                        start_date=date_debut,
+                        current_date=date.today()
+                    )
+                    
+                    valeur_nette = bien.get('valeur', 0) - capital_restant
+                    bien_copy['calculated_valeur_nette'] = round(valeur_nette, 0)
+                    print(f"🏠 Recalcul bien {bien.get('type', 'N/A')}: valeur={bien.get('valeur', 0)}€, capital_restant={capital_restant:.0f}€, valeur_nette={valeur_nette:.0f}€")
+                else:
+                    bien_copy['calculated_valeur_nette'] = bien.get('valeur', 0)
+                    print(f"🏠 Bien sans crédit {bien.get('type', 'N/A')}: valeur_nette={bien.get('valeur', 0)}€")
+                
+                immobilier_updated.append(bien_copy)
+            
+            # Sauvegarder les valeurs recalculées
+            profile.set_immobilier_data(immobilier_updated)
+            print(f"✅ Recalcul terminé pour {len(immobilier_updated)} biens immobiliers")
+
         # Mise à jour du portefeuille
         if current_user.portfolio:
             current_user.portfolio.update_from_profile()
         
+        # Récupérer les totaux calculés par JavaScript si disponibles
+        js_total_actifs = request.form.get('calculated_total_actifs_js')
+        js_patrimoine_net = request.form.get('calculated_patrimoine_net_js')
+        js_total_dettes = request.form.get('calculated_total_dettes_js')
+        
+        print(f"🔍 DEBUG Champs cachés reçus du formulaire:")
+        print(f"  - js_total_actifs: {js_total_actifs}")
+        print(f"  - js_patrimoine_net: {js_patrimoine_net}")
+        print(f"  - js_total_dettes: {js_total_dettes}")
+        
+        if js_total_actifs and js_patrimoine_net and js_total_dettes:
+            print(f"🎯 Utilisation des totaux calculés par JavaScript:")
+            print(f"  - Total Actifs JS: {js_total_actifs}€")
+            print(f"  - Patrimoine Net JS: {js_patrimoine_net}€")
+            print(f"  - Total Dettes JS: {js_total_dettes}€")
+            
+            # D'abord calculer les totaux individuels avec le service
+            from app.services.patrimoine_calculation import PatrimoineCalculationService
+            totaux = PatrimoineCalculationService.calculate_all_totaux(profile, save_to_db=False)
+            
+            # Puis écraser avec les totaux JS qui sont corrects (incluent les cryptos)
+            profile.calculated_total_liquidites = totaux['total_liquidites']
+            profile.calculated_total_placements = totaux['total_placements']
+            profile.calculated_total_autres_biens = totaux['total_autres_biens']
+            profile.calculated_total_immobilier_net = totaux['total_immobilier_net']
+            profile.calculated_total_cryptomonnaies = totaux['total_cryptomonnaies']
+            profile.calculated_total_actifs = float(js_total_actifs)
+            profile.calculated_patrimoine_total_net = float(js_patrimoine_net)
+            profile.calculated_total_credits_consommation = float(js_total_dettes)
+            
+        else:
+            # Seulement si pas de valeurs JS, utiliser le service de calcul
+            print(f"🧮 Pas de totaux JS, calcul via PatrimoineCalculationService...")
+            from app.services.patrimoine_calculation import PatrimoineCalculationService
+            from datetime import datetime
+            totaux = PatrimoineCalculationService.calculate_all_totaux(profile, save_to_db=True)
+        
+        # FORCER LA SAUVEGARDE DES BONNES VALEURS EN BASE
+        if 'totaux' in locals():
+            print(f"🔧 FORÇAGE des bonnes valeurs en base:")
+            profile.calculated_total_liquidites = totaux['total_liquidites']
+            profile.calculated_total_placements = totaux['total_placements'] 
+            profile.calculated_total_immobilier_net = totaux['total_immobilier_net']
+            profile.calculated_total_autres_biens = totaux['total_autres_biens']
+            profile.calculated_total_cryptomonnaies = totaux['total_cryptomonnaies']
+            profile.calculated_total_actifs = totaux['total_actifs']
+            profile.calculated_total_credits_consommation = totaux['total_credits_consommation']
+            profile.calculated_patrimoine_total_net = totaux['patrimoine_total_net']
+            print(f"  ✅ Total Liquidités: {totaux['total_liquidites']}€ → SAUVÉ")
+            print(f"  ✅ Total Placements: {totaux['total_placements']}€ → SAUVÉ") 
+            print(f"  ✅ Total Autres Biens: {totaux['total_autres_biens']}€ → SAUVÉ")
+            print(f"  ✅ Total Actifs: {totaux['total_actifs']}€ → SAUVÉ")
+            print(f"  ✅ PATRIMOINE NET: {totaux['patrimoine_total_net']}€ → SAUVÉ")
+        
+        # Sauvegarder les totaux calculés en base
+        profile.calculated_total_liquidites = totaux['total_liquidites']
+        profile.calculated_total_placements = totaux['total_placements']
+        profile.calculated_total_immobilier_net = totaux['total_immobilier_net']
+        profile.calculated_total_autres_biens = totaux['total_autres_biens']
+        profile.calculated_total_cryptomonnaies = totaux['total_cryptomonnaies']
+        profile.calculated_total_credits_consommation = totaux['total_credits_consommation']
+        profile.calculated_total_actifs = totaux['total_actifs']
+        profile.calculated_patrimoine_total_net = totaux['patrimoine_total_net']
+        profile.last_calculation_date = datetime.utcnow()
+        
         db.session.commit()
+        
+        # 🔍 VÉRIFICATION FINALE - Relire les données depuis la base
+        print(f"🔍 VÉRIFICATION FINALE après commit:")
+        db.session.refresh(profile)
+        print(f"  ✅ DB calculated_total_liquidites: {profile.calculated_total_liquidites}€")
+        print(f"  ✅ DB calculated_total_placements: {profile.calculated_total_placements}€")
+        print(f"  ✅ DB calculated_total_autres_biens: {profile.calculated_total_autres_biens}€")
+        print(f"  ✅ DB calculated_total_actifs: {profile.calculated_total_actifs}€")
+        print(f"  ✅ DB calculated_patrimoine_total_net: {profile.calculated_patrimoine_total_net}€")
+        print(f"  ✅ DB calculated_total_credits_consommation: {profile.calculated_total_credits_consommation}€")
+        print(f"🎯 SAUVEGARDE TERMINÉE - Redirection vers visualisation")
+        
         flash('Vos données ont été mises à jour avec succès.', 'success')
         return redirect(url_for('platform_investor.investor_data'))
         
@@ -789,7 +1036,13 @@ def update_investor_data():
         return redirect(url_for('platform_investor.investor_data', edit='true'))
     except Exception as e:
         db.session.rollback()
-        flash('Erreur lors de la mise à jour. Veuillez réessayer.', 'error')
+        print(f"🚨 ERREUR SAUVEGARDE PROFIL: {e}")
+        print(f"🔍 DEBUG - AVANT COMMIT:")
+        print(f"   experience_investissement: '{profile.experience_investissement}'")
+        print(f"   investment_experience: '{profile.investment_experience}'")
+        import traceback
+        traceback.print_exc()
+        flash(f'Erreur lors de la mise à jour: {str(e)}', 'error')
         return redirect(url_for('platform_investor.investor_data', edit='true'))
 
 @platform_investor_bp.route('/assistant')
@@ -1447,3 +1700,90 @@ def calculate_credit_api():
         
     except Exception as e:
         return jsonify({'error': f'Erreur de calcul: {str(e)}'}), 500
+
+
+@platform_investor_bp.route('/plan-investissement')
+@login_required
+def investment_plan():
+    """
+    Page de gestion du plan d'investissement pour l'utilisateur connecté.
+    """
+    # Récupérer ou créer le plan d'investissement
+    investment_plan = InvestmentPlan.query.filter_by(user_id=current_user.id, is_active=True).first()
+    if not investment_plan:
+        investment_plan = InvestmentPlan(
+            user_id=current_user.id,
+            name="Mon plan d'investissement",
+            is_active=True
+        )
+        db.session.add(investment_plan)
+        db.session.commit()
+    
+    # Récupérer le montant mensuel depuis le profil investisseur
+    monthly_amount = 0
+    if current_user.investor_profile and current_user.investor_profile.monthly_savings_capacity:
+        monthly_amount = current_user.investor_profile.monthly_savings_capacity
+    
+    return render_template('platform/investor/investment_plan.html', 
+                         investment_plan=investment_plan,
+                         monthly_amount=monthly_amount,
+                         available_envelopes=AVAILABLE_ENVELOPES)
+
+
+@platform_investor_bp.route('/plan-investissement/save', methods=['POST'])
+@login_required
+def save_investment_plan():
+    """
+    Sauvegarder le plan d'investissement de l'utilisateur connecté.
+    """
+    try:
+        data = request.get_json()
+        lines_data = data.get('lines', [])
+        
+        # Validation : vérifier que la somme des pourcentages ne dépasse pas 100%
+        total_percentage = sum(float(line.get('percentage', 0)) for line in lines_data)
+        if total_percentage > 100:
+            return jsonify({
+                'success': False, 
+                'message': f'La somme des pourcentages ({total_percentage}%) dépasse 100%'
+            }), 400
+        
+        # Récupérer ou créer le plan
+        plan = InvestmentPlan.query.filter_by(user_id=current_user.id, is_active=True).first()
+        if not plan:
+            plan = InvestmentPlan(user_id=current_user.id, name="Mon plan d'investissement")
+            db.session.add(plan)
+            db.session.flush()  # Pour obtenir l'ID
+        
+        # Supprimer toutes les anciennes lignes
+        InvestmentPlanLine.query.filter_by(plan_id=plan.id).delete()
+        
+        # Ajouter les nouvelles lignes
+        for index, line_data in enumerate(lines_data):
+            if not line_data.get('description', '').strip():
+                continue  # Ignorer les lignes vides
+                
+            line = InvestmentPlanLine(
+                plan_id=plan.id,
+                support_envelope=line_data.get('support_envelope', ''),
+                description=line_data.get('description', ''),
+                reference=line_data.get('reference', ''),
+                percentage=float(line_data.get('percentage', 0)),
+                order_index=index
+            )
+            db.session.add(line)
+        
+        # Mettre à jour la date du plan
+        plan.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Plan d\'investissement sauvegardé avec succès',
+            'plan': plan.to_dict()
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Erreur lors de la sauvegarde: {str(e)}'}), 500

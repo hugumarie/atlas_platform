@@ -5,81 +5,104 @@
 {% block page_title %}Tableau de bord{% endblock %}
 
 {% block content %}
-<!-- Métriques principales - Design moderne une par ligne -->
-<div class="modern-metrics-container mb-4">
-    <!-- Patrimoine total -->
-    <div class="metric-card primary-metric">
-        <div class="metric-content">
-            <div class="metric-label">Patrimoine total net</div>
-            <div class="metric-value" id="currentPatrimony">
-                {% if current_user.investor_profile and current_user.investor_profile.calculated_patrimoine_total_net %}
-                    {{ "{:,.0f}".format(current_user.investor_profile.calculated_patrimoine_total_net) }}€
-                {% elif current_user.investor_profile %}
-                    {{ "{:,.0f}".format(current_user.investor_profile.current_savings) }}€
-                {% else %}
-                    45 250€
-                {% endif %}
-            </div>
-            <div class="metric-trend">
-                <span class="trend-indicator positive">
-                    <i class="fas fa-arrow-up"></i>
-                    +12.5%
-                </span>
-                <span class="trend-period">ce mois</span>
-            </div>
-        </div>
-        <div class="metric-action">
-            <a href="{{ url_for('platform_investor.investor_data') }}" class="action-btn">
+<!-- Section principale avec les deux nouvelles boîtes -->
+<div class="dashboard-new-section">
+    <!-- Boîte Patrimoine (1/3 gauche) -->
+    <div class="dashboard-card patrimoine-card">
+        <div class="card-header">
+            <h3>Patrimoine total net</h3>
+            <a href="{{ url_for('platform_investor.investor_data') }}" class="card-action-btn" title="Voir les données investisseur">
                 <i class="fas fa-eye"></i>
             </a>
         </div>
-    </div>
-
-    <!-- Objectif épargne -->
-    <div class="metric-card">
-        <div class="metric-content">
-            <div class="metric-label">Objectif d'épargne mensuel</div>
-            <div class="metric-value" id="monthlySavingsGoal">
-                {% if current_user.investor_profile %}
-                    {{ "{:,.0f}".format(current_user.investor_profile.monthly_savings_capacity) }}€
+        <div class="card-body">
+            <div class="patrimoine-value">
+                {% if patrimoine_total_net %}
+                    {{ "{:,.0f}".format(patrimoine_total_net) }}€
                 {% else %}
-                    850€
+                    Aucune donnée
                 {% endif %}
             </div>
-            <div class="metric-progress">
-                <div class="progress-track">
-                    <div class="progress-fill" style="width: 75%"></div>
+        </div>
+    </div>
+
+    <!-- Boîte Actions à Réaliser (2/3 droite) -->
+    <div class="dashboard-card actions-card">
+        <div class="card-header">
+            <h3>Actions à réaliser</h3>
+        </div>
+        <div class="card-body">
+            <div class="no-actions">
+                <div class="no-actions-icon">
+                    <i class="fas fa-check-circle"></i>
                 </div>
-                <span class="progress-text">75% atteint</span>
+                <div class="no-actions-text">
+                    <h4>Aucune action à réaliser</h4>
+                    <p>Votre portefeuille est à jour</p>
+                </div>
             </div>
-        </div>
-        <div class="metric-action">
-            <a href="#" class="action-btn">
-                <i class="fas fa-cog"></i>
-            </a>
         </div>
     </div>
+</div>
 
-    <!-- Revenu mensuel -->
-    <div class="metric-card">
-        <div class="metric-content">
-            <div class="metric-label">Revenu mensuel net</div>
-            <div class="metric-value" id="monthlyIncome">
-                {% if current_user.investor_profile %}
-                    {{ "{:,.0f}".format(current_user.investor_profile.monthly_net_income) }}€
-                {% else %}
-                    3 200€
+<!-- Métriques principales - Design moderne une par ligne -->
+<div class="modern-metrics-container mb-4">
+</div>
+
+<!-- Boîte Plan d'investissement -->
+<div class="platform-card mb-4">
+    <div class="platform-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 class="platform-card-title">
+            <i class="fas fa-chart-pie text-primary"></i>
+            Plan d'investissement
+        </h3>
+        <a href="{{ url_for('platform_investor.investment_plan') }}" class="platform-eye-btn" title="Voir le plan d'investissement">
+            <i class="fas fa-eye"></i>
+        </a>
+    </div>
+    <div class="platform-card-body">
+        {% if investment_plan and investment_plan.lines %}
+            <div class="investment-plan-content">
+                {% for line in investment_plan.lines|sort(attribute='order_index') %}
+                <div class="plan-investment-item">
+                    <div class="plan-investment-info">
+                        <div class="plan-investment-name">
+                            <span class="plan-investment-envelope">{{ line.support_envelope }}</span>
+                            {{ line.description }}
+                            {% if line.reference %}
+                            <span class="plan-investment-reference">{{ line.reference }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="plan-investment-allocation">
+                        <span class="plan-allocation-percentage">{{ line.percentage }}%</span>
+                        <span class="plan-allocation-amount">{{ "%.0f"|format(line.computed_amount) }}€</span>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                {% if investment_plan.lines|length > 5 %}
+                <div class="plan-investment-more">
+                    <span>+ {{ investment_plan.lines|length - 5 }} autres investissements</span>
+                </div>
                 {% endif %}
+                
+                <div class="plan-total-section">
+                    <span class="plan-total-label">Total mensuel alloué</span>
+                    <span class="plan-total-value">{{ "%.0f"|format(investment_plan.lines|sum(attribute='computed_amount')) }}€</span>
+                </div>
             </div>
-            <div class="metric-subtitle">
-                Capacité d'investissement disponible
+        {% else %}
+            <div class="no-plan-configured">
+                <div class="no-plan-configured-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="no-plan-configured-text">
+                    <h4>Aucun plan configuré</h4>
+                    <p>Contactez votre conseiller pour configurer votre plan d'investissement personnalisé</p>
+                </div>
             </div>
-        </div>
-        <div class="metric-action">
-            <a href="#" class="action-btn">
-                <i class="fas fa-plus"></i>
-            </a>
-        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -109,20 +132,6 @@
                     <div class="savings-progress-fill" id="savingsProgressFill"></div>
                 </div>
                 <div class="savings-progress-percentage" id="savingsProgressPercentage">0%</div>
-            </div>
-            <div class="savings-progress-months">
-                <span>Jan</span>
-                <span>Fév</span>
-                <span>Mar</span>
-                <span>Avr</span>
-                <span>Mai</span>
-                <span>Jun</span>
-                <span>Jul</span>
-                <span>Aoû</span>
-                <span>Sep</span>
-                <span>Oct</span>
-                <span>Nov</span>
-                <span>Déc</span>
             </div>
         </div>
     </div>
@@ -154,7 +163,678 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+console.log("*** TEMPLATE PLATFORM INVESTOR DASHBOARD CHARGE ***");
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des statistiques au chargement
+    animateStatsCards();
+    
+    // Animation de la barre de progression
+    animateSavingsProgress();
+    
+    // Créer le camembert
+    createPortfolioChart();
+    
+    // Animations d'entrée pour les nouvelles cartes
+    animateNewCards();
+});
+
+function animateNewCards() {
+    const cards = document.querySelectorAll('.dashboard-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+}
+
+function animateStatsCards() {
+    const statValues = document.querySelectorAll('.platform-stat-value');
+    statValues.forEach((stat, index) => {
+        setTimeout(() => {
+            stat.style.opacity = '1';
+            stat.style.transform = 'scale(1)';
+        }, index * 150);
+        
+        stat.style.opacity = '0';
+        stat.style.transform = 'scale(0.8)';
+        stat.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    });
+}
+
+function animateSavingsProgress() {
+    // Données réelles basées sur l'utilisateur
+    const monthlyGoal = {% if current_user.investor_profile %}{{ current_user.investor_profile.monthly_savings_capacity }}{% else %}850{% endif %};
+    
+    // Calculer le nombre de mois réellement écoulés depuis l'inscription
+    const registrationDate = new Date('{{ current_user.date_created.strftime("%Y-%m-%d") if current_user.date_created else "2024-01-01" }}');
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const registrationYear = registrationDate.getFullYear();
+    
+    // Calcul des mois complets écoulés depuis l'inscription
+    // Inscription 30 septembre -> mois complets: octobre (9), novembre (10), décembre (11) = 3 mois
+    const registrationMonth = registrationDate.getMonth(); // septembre = 8
+    const currentMonth = now.getMonth(); // décembre = 11
+    
+    let monthsSinceRegistration;
+    if (currentYear === registrationYear) {
+        // Même année: compter les mois depuis le mois suivant l'inscription
+        monthsSinceRegistration = currentMonth - registrationMonth; // 11 - 8 = 3
+    } else {
+        // Année différente: calcul classique
+        monthsSinceRegistration = (now.getFullYear() - registrationDate.getFullYear()) * 12;
+        monthsSinceRegistration += now.getMonth() - registrationDate.getMonth();
+        if (now.getDate() < registrationDate.getDate()) {
+            monthsSinceRegistration--;
+        }
+    }
+    
+    // Assurer qu'on a au moins 0 mois
+    monthsSinceRegistration = Math.max(monthsSinceRegistration, 0);
+    
+    // Calculer l'objectif annuel selon l'année d'inscription
+    let annualGoal;
+    if (currentYear === registrationYear) {
+        // Première année : objectif basé sur les mois réellement écoulés depuis l'inscription
+        // Si on s'inscrit le 30 septembre, on compte octobre, novembre, décembre = 3 mois
+        const monthsFromRegistration = Math.max(monthsSinceRegistration, 1); // Au minimum 1 mois
+        annualGoal = monthlyGoal * monthsFromRegistration;
+    } else {
+        // Années suivantes : 12 mois complets
+        annualGoal = monthlyGoal * 12;
+    }
+    
+    const currentSavings = monthlyGoal * monthsSinceRegistration;
+    const progressPercentage = Math.min((currentSavings / annualGoal) * 100, 100);
+    
+    // Debug console (à supprimer plus tard)
+    console.log('Date inscription:', registrationDate);
+    console.log('Date actuelle:', now);
+    console.log('Mois écoulés:', monthsSinceRegistration);
+    console.log('Objectif annuel:', annualGoal);
+    console.log('Épargne actuelle:', currentSavings);
+    console.log('Pourcentage:', progressPercentage);
+    
+    // Mettre à jour les valeurs
+    document.getElementById('targetYearlySavings').textContent = annualGoal.toLocaleString() + '€';
+    
+    // Animation de la barre et du montant
+    let currentAmount = 0;
+    const duration = 2000; // 2 secondes
+    const steps = 60;
+    const amountStep = currentSavings / steps;
+    const progressStep = progressPercentage / steps;
+    
+    const progressBar = document.getElementById('savingsProgressFill');
+    const progressText = document.getElementById('savingsProgressPercentage');
+    const currentAmountElement = document.getElementById('currentYearlySavings');
+    
+    let step = 0;
+    const interval = setInterval(() => {
+        step++;
+        currentAmount += amountStep;
+        
+        // Mettre à jour la barre
+        progressBar.style.width = (progressStep * step) + '%';
+        
+        // Mettre à jour le texte
+        progressText.textContent = Math.round(progressStep * step) + '%';
+        currentAmountElement.textContent = Math.round(currentAmount).toLocaleString() + '€';
+        
+        if (step >= steps) {
+            clearInterval(interval);
+            // Valeurs finales exactes
+            progressBar.style.width = progressPercentage + '%';
+            progressText.textContent = Math.round(progressPercentage) + '%';
+            currentAmountElement.textContent = currentSavings.toLocaleString() + '€';
+        }
+    }, duration / steps);
+}
+
+function createPortfolioChart() {
+    const ctx = document.getElementById('portfolioChart').getContext('2d');
+    
+    // Vraies données patrimoniales regroupées par catégories (valeurs fraîches depuis DB)
+    const patrimoineData = {
+        liquidites: {{ patrimoine_repartition.liquidites or 0 }},
+        placements: {{ patrimoine_repartition.placements or 0 }},
+        immobilier: {{ patrimoine_repartition.immobilier or 0 }},
+        crypto: {{ patrimoine_repartition.crypto or 0 }},
+        autres_biens: {{ patrimoine_repartition.autres_biens or 0 }}
+    };
+    
+    // Créer les données du portfolio avec les vraies valeurs regroupées
+    const portfolioData = {};
+    
+    if (patrimoineData.liquidites > 0) {
+        portfolioData['Liquidités'] = { amount: patrimoineData.liquidites, color: '#7A90A4' };
+    }
+    if (patrimoineData.placements > 0) {
+        portfolioData['Placements'] = { amount: patrimoineData.placements, color: '#137C8B' };
+    }
+    if (patrimoineData.immobilier > 0) {
+        portfolioData['Immobilier'] = { amount: patrimoineData.immobilier, color: '#B8CBD0' };
+    }
+    if (patrimoineData.crypto > 0) {
+        portfolioData['Cryptomonnaies'] = { amount: patrimoineData.crypto, color: '#709CA7' };
+    }
+    if (patrimoineData.autres_biens > 0) {
+        portfolioData['Autres biens'] = { amount: patrimoineData.autres_biens, color: '#344D59' };
+    }
+    
+    // Si aucune donnée, utiliser des données par défaut
+    if (Object.keys(portfolioData).length === 0) {
+        portfolioData['Pas de données'] = { amount: 1, color: '#dee2e6' };
+    }
+    
+    const labels = Object.keys(portfolioData);
+    const amounts = Object.values(portfolioData).map(item => item.amount);
+    const colors = Object.values(portfolioData).map(item => item.color);
+    const total = amounts.reduce((sum, amount) => sum + amount, 0);
+    
+    // Créer le graphique
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: amounts,
+                backgroundColor: colors,
+                borderWidth: 3,
+                borderColor: '#ffffff',
+                hoverBorderWidth: 4,
+                hoverBorderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false // On utilise notre propre légende
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#137C8B',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function(context) {
+                            const amount = context.parsed;
+                            const percentage = ((amount / total) * 100).toFixed(1);
+                            return `${amount.toLocaleString()}€ (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '60%',
+            animation: {
+                animateRotate: true,
+                duration: 1500,
+                easing: 'easeInOutCubic'
+            }
+        }
+    });
+    
+    // Créer la légende personnalisée
+    createCustomLegend(portfolioData, total);
+    
+    // Mettre à jour le total dans l'en-tête
+    document.getElementById('portfolioTotal').textContent = total.toLocaleString() + '€';
+}
+
+function createCustomLegend(portfolioData, total) {
+    const legendContainer = document.getElementById('portfolioLegend');
+    legendContainer.innerHTML = '';
+    
+    Object.entries(portfolioData).forEach(([label, data]) => {
+        const percentage = ((data.amount / total) * 100).toFixed(1);
+        
+        const legendItem = document.createElement('div');
+        legendItem.className = 'legend-item';
+        
+        legendItem.innerHTML = `
+            <div class="legend-info">
+                <div class="legend-color" style="background-color: ${data.color};"></div>
+                <span class="legend-label">${label}</span>
+            </div>
+            <div class="legend-values">
+                <div class="legend-amount">${data.amount.toLocaleString()}€</div>
+                <div class="legend-percentage">${percentage}%</div>
+            </div>
+        `;
+        
+        legendContainer.appendChild(legendItem);
+    });
+}
+</script>
+
 <style>
+/* Nouvelles boîtes en haut */
+.dashboard-new-section {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 24px;
+    margin-bottom: 8px;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-dark));
+    color: white;
+    padding: 14px 20px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.card-action-btn {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    font-size: 0.9rem;
+}
+
+.card-action-btn:hover {
+    background: rgba(255,255,255,0.3);
+    color: white;
+    transform: scale(1.05);
+}
+
+.card-status-icon {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.platform-eye-btn {
+    background: rgba(19, 124, 139, 0.1);
+    color: var(--qlower-primary);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.platform-eye-btn:hover {
+    background: var(--qlower-primary);
+    color: white;
+    transform: scale(1.05);
+    text-decoration: none;
+}
+
+.card-body {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Patrimoine Card */
+.patrimoine-card .card-body {
+    text-align: center;
+}
+
+.patrimoine-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--qlower-primary);
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+}
+
+.patrimoine-trend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 1rem;
+}
+
+.trend-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+}
+
+.trend-indicator.positive {
+    color: #28a745;
+}
+
+.trend-period {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Investment Plan Card */
+.investment-list {
+    max-height: 140px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.investment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+}
+
+.investment-item:last-child {
+    border-bottom: none;
+}
+
+.investment-item:hover {
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+    padding: 8px 12px;
+    margin: 0 -12px;
+    border-radius: 8px;
+}
+
+.investment-info {
+    flex: 1;
+}
+
+.investment-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.investment-envelope {
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-dark));
+    color: white;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.investment-reference {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-family: 'Courier New', monospace;
+}
+
+.investment-allocation {
+    text-align: right;
+    min-width: 80px;
+}
+
+.allocation-percentage {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--qlower-primary);
+    margin-bottom: 1px;
+}
+
+.allocation-amount {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.investment-more {
+    text-align: center;
+    padding: 8px 0;
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.8rem;
+    border-top: 1px dashed #dee2e6;
+    margin-top: 4px;
+}
+
+/* Actions à Réaliser Card */
+.no-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #6c757d;
+    height: 100%;
+    width: 100%;
+}
+
+.no-actions-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    color: var(--qlower-primary);
+}
+
+.no-actions-text h4 {
+    margin-bottom: 4px;
+    color: #495057;
+    font-size: 1rem;
+}
+
+.no-actions-text p {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+/* Plan d'investissement principal */
+.investment-plan-content {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.plan-investment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+}
+
+.plan-investment-item:last-child {
+    border-bottom: none;
+}
+
+.plan-investment-item:hover {
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+    padding: 8px 16px;
+    margin: 0 -16px;
+    border-radius: 8px;
+}
+
+.plan-investment-info {
+    flex: 1;
+}
+
+.plan-investment-name {
+    font-weight: 600;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.plan-investment-envelope {
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-dark));
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.plan-investment-reference {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-family: 'Courier New', monospace;
+    margin-left: 8px;
+    font-weight: 500;
+}
+
+.plan-investment-allocation {
+    text-align: right;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.plan-allocation-percentage {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--qlower-primary);
+    margin-right: 8px;
+}
+
+.plan-allocation-amount {
+    font-size: 1rem;
+    color: var(--qlower-primary);
+    font-weight: 700;
+}
+
+.plan-investment-more {
+    text-align: center;
+    padding: 16px 0;
+    color: #6c757d;
+    font-style: italic;
+    border-top: 1px dashed #dee2e6;
+    margin-top: 12px;
+}
+
+.plan-total-section {
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-dark));
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-top: 16px;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.plan-total-label {
+    font-size: 0.85rem;
+    color: white;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.plan-total-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: white;
+}
+
+/* No Plan Configured */
+.no-plan-configured {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #6c757d;
+    padding: 40px 20px;
+}
+
+.no-plan-configured-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    color: #dee2e6;
+}
+
+.no-plan-configured-text h4 {
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+.no-plan-configured-text p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.no-plan-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    color: #dee2e6;
+}
+
+.no-plan-text h4 {
+    margin-bottom: 4px;
+    color: #495057;
+    font-size: 1rem;
+}
+
+.no-plan-text p {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
 /* MODERN DASHBOARD METRICS */
 .modern-metrics-container {
     display: flex;
@@ -199,22 +879,6 @@
     transform: scaleX(1);
 }
 
-.metric-card.primary-metric {
-    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
-    color: white;
-}
-
-.metric-card.primary-metric::before {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.metric-card.primary-metric .metric-label,
-.metric-card.primary-metric .metric-value,
-.metric-card.primary-metric .trend-period,
-.metric-card.primary-metric .metric-subtitle {
-    color: white !important;
-}
-
 .metric-content {
     flex: 1;
     display: flex;
@@ -236,41 +900,6 @@
     color: var(--qlower-primary);
     line-height: 1;
     letter-spacing: -0.05em;
-}
-
-.primary-metric .metric-value {
-    color: white;
-}
-
-.metric-trend {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.trend-indicator {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.trend-indicator.positive {
-    background: rgba(40, 167, 69, 0.1);
-    color: #28a745;
-}
-
-.primary-metric .trend-indicator.positive {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-}
-
-.trend-period {
-    font-size: 13px;
-    color: var(--qlower-text-light);
 }
 
 .metric-progress {
@@ -330,60 +959,6 @@
     color: white;
     border-color: var(--qlower-primary);
     transform: scale(1.05);
-}
-
-.primary-metric .action-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: white;
-}
-
-.primary-metric .action-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: scale(1.05);
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .metric-card {
-        padding: 20px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-    }
-    
-    .metric-value {
-        font-size: 28px;
-    }
-    
-    .metric-trend {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    .metric-action {
-        align-self: flex-end;
-    }
-}
-
-/* Animation d'entrée */
-.metric-card {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: slideInMetric 0.6s ease forwards;
-}
-
-.metric-card:nth-child(1) { animation-delay: 0.1s; }
-.metric-card:nth-child(2) { animation-delay: 0.2s; }
-.metric-card:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes slideInMetric {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 /* MODERN PORTFOLIO SECTION */
@@ -548,28 +1123,6 @@
     font-weight: 500;
 }
 
-@media (max-width: 768px) {
-    .portfolio-header {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-        padding: 24px;
-    }
-    
-    .portfolio-content {
-        padding: 24px;
-    }
-    
-    .portfolio-chart-container {
-        grid-template-columns: 1fr;
-        gap: 32px;
-    }
-    
-    .portfolio-chart {
-        height: 280px;
-    }
-}
-
 /* Styles pour la barre de progression d'épargne */
 .savings-progress-container {
     padding: 20px 0;
@@ -666,78 +1219,109 @@
     margin-top: 8px;
 }
 
-/* Styles pour le camembert */
-.portfolio-chart-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    align-items: center;
+/* Scrollbar Styling */
+.investment-list::-webkit-scrollbar {
+    width: 6px;
 }
 
-.portfolio-chart {
-    position: relative;
-    height: 300px;
+.investment-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
 }
 
-.portfolio-legend {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.investment-list::-webkit-scrollbar-thumb {
+    background: var(--qlower-light);
+    border-radius: 3px;
 }
 
-.legend-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    background: var(--qlower-bg-light);
-    border-radius: 8px;
-    transition: all 0.2s ease;
+.investment-list::-webkit-scrollbar-thumb:hover {
+    background: var(--qlower-primary);
 }
 
-.legend-item:hover {
-    background: var(--qlower-white);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.legend-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.legend-color {
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
-    flex-shrink: 0;
-}
-
-.legend-label {
-    font-weight: 500;
-    color: var(--qlower-text-dark);
-    font-size: 14px;
-}
-
-.legend-values {
-    text-align: right;
-}
-
-.legend-amount {
-    font-weight: 600;
-    color: var(--qlower-dark);
-    font-size: 14px;
-}
-
-.legend-percentage {
-    font-size: 12px;
-    color: var(--qlower-text-light);
+/* Responsive */
+@media (max-width: 1024px) {
+    .dashboard-new-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .patrimoine-value {
+        font-size: 2.5rem;
+    }
+    
+    .portfolio-chart-container {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+    
+    .portfolio-chart {
+        height: 280px;
+    }
 }
 
 @media (max-width: 768px) {
-    .portfolio-chart-container {
-        grid-template-columns: 1fr;
-        gap: 24px;
+    .dashboard-new-section {
+        gap: 16px;
+    }
+    
+    .card-header {
+        padding: 16px 20px;
+    }
+    
+    .card-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .patrimoine-card .card-body {
+        padding: 32px 20px;
+    }
+    
+    .patrimoine-value {
+        font-size: 2.2rem;
+    }
+    
+    .investment-item {
+        padding: 12px 0;
+    }
+    
+    .investment-name {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .investment-envelope {
+        align-self: flex-start;
+    }
+    
+    .metric-card {
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .metric-value {
+        font-size: 28px;
+    }
+    
+    .metric-action {
+        align-self: flex-end;
+    }
+    
+    .portfolio-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+        padding: 24px;
+    }
+    
+    .portfolio-content {
+        padding: 24px;
     }
     
     .savings-progress-info {
@@ -750,205 +1334,22 @@
         font-size: 10px;
     }
 }
-</style>
-{% endblock %}
 
-{% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Animation des statistiques au chargement
-    animateStatsCards();
-    
-    // Animation de la barre de progression
-    animateSavingsProgress();
-    
-    // Créer le camembert
-    createPortfolioChart();
-});
-
-function animateStatsCards() {
-    const statValues = document.querySelectorAll('.platform-stat-value');
-    statValues.forEach((stat, index) => {
-        setTimeout(() => {
-            stat.style.opacity = '1';
-            stat.style.transform = 'scale(1)';
-        }, index * 150);
-        
-        stat.style.opacity = '0';
-        stat.style.transform = 'scale(0.8)';
-        stat.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-    });
+/* Animation d'entrée */
+.metric-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideInMetric 0.6s ease forwards;
 }
 
-function animateSavingsProgress() {
-    // Données simulées basées sur l'utilisateur
-    const monthlyGoal = {% if current_user.investor_profile %}{{ current_user.investor_profile.monthly_savings_capacity }}{% else %}850{% endif %};
-    const annualGoal = monthlyGoal * 12;
-    
-    // Calculer le nombre de mois depuis l'inscription (simulation: janvier à octobre = 9 mois)
-    const registrationDate = new Date('{{ current_user.date_created.strftime("%Y-%m-%d") if current_user.date_created else "2024-01-01" }}');
-    const now = new Date();
-    
-    // Pour la simulation, on considère que l'utilisateur épargne depuis janvier jusqu'à octobre de cette année
-    // Janvier = mois 0, octobre = mois 9, donc 10 mois écoulés mais on simule 9 mois d'épargne effective
-    const monthsSinceRegistration = 9; // Simulation: janvier à septembre inclus = 9 mois
-    
-    const currentSavings = monthlyGoal * monthsSinceRegistration;
-    const progressPercentage = (currentSavings / annualGoal) * 100;
-    
-    // Mettre à jour les valeurs
-    document.getElementById('targetYearlySavings').textContent = annualGoal.toLocaleString() + '€';
-    
-    // Animation de la barre et du montant
-    let currentAmount = 0;
-    const duration = 2000; // 2 secondes
-    const steps = 60;
-    const amountStep = currentSavings / steps;
-    const progressStep = progressPercentage / steps;
-    
-    const progressBar = document.getElementById('savingsProgressFill');
-    const progressText = document.getElementById('savingsProgressPercentage');
-    const currentAmountElement = document.getElementById('currentYearlySavings');
-    
-    let step = 0;
-    const interval = setInterval(() => {
-        step++;
-        currentAmount += amountStep;
-        
-        // Mettre à jour la barre
-        progressBar.style.width = (progressStep * step) + '%';
-        
-        // Mettre à jour le texte
-        progressText.textContent = Math.round(progressStep * step) + '%';
-        currentAmountElement.textContent = Math.round(currentAmount).toLocaleString() + '€';
-        
-        if (step >= steps) {
-            clearInterval(interval);
-            // Valeurs finales exactes
-            progressBar.style.width = progressPercentage + '%';
-            progressText.textContent = Math.round(progressPercentage) + '%';
-            currentAmountElement.textContent = currentSavings.toLocaleString() + '€';
-        }
-    }, duration / steps);
-}
+.metric-card:nth-child(1) { animation-delay: 0.1s; }
+.metric-card:nth-child(2) { animation-delay: 0.2s; }
 
-function createPortfolioChart() {
-    const ctx = document.getElementById('portfolioChart').getContext('2d');
-    
-    // Données réelles de l'utilisateur avec palette Atlas
-    const portfolioData = {};
-    
-    {% if current_user.investor_profile %}
-        {% if current_user.investor_profile.has_livret_a and current_user.investor_profile.livret_a_value > 0 %}
-            portfolioData['Livret A'] = { amount: {{ current_user.investor_profile.livret_a_value }}, color: '#137C8B' };
-        {% endif %}
-        
-        {% if current_user.investor_profile.has_pea and current_user.investor_profile.pea_value > 0 %}
-            portfolioData['PEA'] = { amount: {{ current_user.investor_profile.pea_value }}, color: '#709CA7' };
-        {% endif %}
-        
-        {% if current_user.investor_profile.has_per and current_user.investor_profile.per_value > 0 %}
-            portfolioData['PER'] = { amount: {{ current_user.investor_profile.per_value }}, color: '#B8CBD0' };
-        {% endif %}
-        
-        {% if current_user.investor_profile.has_life_insurance and current_user.investor_profile.life_insurance_value > 0 %}
-            portfolioData['Assurance Vie'] = { amount: {{ current_user.investor_profile.life_insurance_value }}, color: '#7A90A4' };
-        {% endif %}
-        
-        {% if current_user.investor_profile.has_current_account and current_user.investor_profile.current_account_value > 0 %}
-            portfolioData['Compte courant'] = { amount: {{ current_user.investor_profile.current_account_value }}, color: '#344D59' };
-        {% endif %}
-    {% endif %}
-    
-    // Si aucune donnée, utiliser des données d'exemple
-    if (Object.keys(portfolioData).length === 0) {
-        portfolioData['Livret A'] = { amount: 15000, color: '#137C8B' };
-        portfolioData['PEA'] = { amount: 12000, color: '#709CA7' };
-        portfolioData['PER'] = { amount: 8000, color: '#B8CBD0' };
-        portfolioData['Assurance Vie'] = { amount: 6000, color: '#7A90A4' };
-        portfolioData['Compte courant'] = { amount: 4250, color: '#344D59' };
+@keyframes slideInMetric {
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
-    
-    const labels = Object.keys(portfolioData);
-    const amounts = Object.values(portfolioData).map(item => item.amount);
-    const colors = Object.values(portfolioData).map(item => item.color);
-    const total = amounts.reduce((sum, amount) => sum + amount, 0);
-    
-    // Créer le graphique
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: amounts,
-                backgroundColor: colors,
-                borderWidth: 3,
-                borderColor: '#ffffff',
-                hoverBorderWidth: 4,
-                hoverBorderColor: '#ffffff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false // On utilise notre propre légende
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#ffffff',
-                    bodyColor: '#ffffff',
-                    borderColor: '#137C8B',
-                    borderWidth: 1,
-                    callbacks: {
-                        label: function(context) {
-                            const amount = context.parsed;
-                            const percentage = ((amount / total) * 100).toFixed(1);
-                            return `${amount.toLocaleString()}€ (${percentage}%)`;
-                        }
-                    }
-                }
-            },
-            cutout: '60%',
-            animation: {
-                animateRotate: true,
-                duration: 1500,
-                easing: 'easeInOutCubic'
-            }
-        }
-    });
-    
-    // Créer la légende personnalisée
-    createCustomLegend(portfolioData, total);
-    
-    // Mettre à jour le total dans l'en-tête
-    document.getElementById('portfolioTotal').textContent = total.toLocaleString() + '€';
 }
-
-function createCustomLegend(portfolioData, total) {
-    const legendContainer = document.getElementById('portfolioLegend');
-    legendContainer.innerHTML = '';
-    
-    Object.entries(portfolioData).forEach(([label, data]) => {
-        const percentage = ((data.amount / total) * 100).toFixed(1);
-        
-        const legendItem = document.createElement('div');
-        legendItem.className = 'legend-item';
-        
-        legendItem.innerHTML = `
-            <div class="legend-info">
-                <div class="legend-color" style="background-color: ${data.color};"></div>
-                <span class="legend-label">${label}</span>
-            </div>
-            <div class="legend-values">
-                <div class="legend-amount">${data.amount.toLocaleString()}€</div>
-                <div class="legend-percentage">${percentage}%</div>
-            </div>
-        `;
-        
-        legendContainer.appendChild(legendItem);
-    });
-}
-</script>
+</style>
 {% endblock %}

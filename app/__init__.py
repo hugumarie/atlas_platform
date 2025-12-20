@@ -101,6 +101,42 @@ def create_app():
     # Création des tables de base de données
     with app.app_context():
         db.create_all()
+        
+        # Chargement initial des prix crypto (version silencieuse pour app factory)
+        # La version complète avec logs détaillés est dans run.py
+        try:
+            from app.services.binance_price_service import BinancePriceService
+            from app.models.crypto_price import CryptoPrice
+            from datetime import datetime, timedelta
+            import os
+            
+            # Seulement si pas lancé via run.py (éviter double chargement)
+            if not os.environ.get('ATLAS_DIRECT_LAUNCH'):
+                # Vérifier si nous avons des prix récents (moins de 30 minutes)
+                thirty_minutes_ago = datetime.utcnow() - timedelta(minutes=30)
+                recent_prices_count = CryptoPrice.query.filter(
+                    CryptoPrice.updated_at >= thirty_minutes_ago
+                ).count()
+                
+                # Si nous n'avons pas suffisamment de prix récents, faire un refresh silencieux
+                if recent_prices_count < 40:  # Moins de 40 cryptos avec des prix récents
+                    print(f"🔄 Atlas: Chargement des prix crypto...")
+                    
+                    success = BinancePriceService.update_crypto_prices_in_db()
+                    
+                    if success:
+                        final_count = CryptoPrice.query.filter(
+                            CryptoPrice.updated_at >= thirty_minutes_ago
+                        ).count()
+                        print(f"✅ Atlas: {final_count} prix crypto récupérés")
+                    else:
+                        print(f"⚠️ Atlas: Échec chargement crypto")
+                else:
+                    print(f"✅ Atlas: {recent_prices_count} prix crypto disponibles")
+                
+        except Exception as e:
+            print(f"⚠️ Atlas: Erreur initialisation crypto: {e}")
+            # Ne pas faire planter l'app si le chargement crypto échoue
     
     # Scheduler crypto désactivé - utilisation du cron externe à la place
     # from app.scheduler import start_scheduler

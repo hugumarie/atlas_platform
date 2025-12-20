@@ -1,0 +1,1479 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ user.first_name }} {{ user.last_name }} - Atlas Admin{% endblock %}
+
+{% block page_title %}
+<div class="page-title-responsive">
+    <span>Profil Utilisateur : {{ user.first_name }} {{ user.last_name }}</span>
+    <a href="{{ url_for('platform_admin.users') }}" class="admin-btn admin-btn-secondary">
+        <i class="fas fa-arrow-left"></i>
+        Retour à la liste
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- SOUS-MENU DE NAVIGATION -->
+<div class="user-detail-submenu mb-4">
+    <div class="platform-card">
+        <div class="platform-card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="submenu-option">
+                        <h5><i class="fas fa-user-chart text-primary me-2"></i>Données Investisseur</h5>
+                        <p class="text-muted mb-3">Visualiser et éditer le profil patrimonial complet</p>
+                        <a href="{{ url_for('platform_admin.user_detail', user_id=user.id) }}" 
+                           class="admin-btn admin-btn-primary">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Accéder aux données investisseur
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="submenu-option">
+                        <h5><i class="fas fa-bullseye text-success me-2"></i>Plan d'Investissement</h5>
+                        <p class="text-muted mb-3">Gérer et personnaliser le plan d'investissement</p>
+                        <a href="{{ url_for('platform_admin.user_investment_plan', user_id=user.id) }}" 
+                           class="admin-btn admin-btn-success">
+                            <i class="fas fa-route me-2"></i>
+                            Accéder au plan d'investissement
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.investor_profile %}
+
+{% if edit_mode %}
+<!-- MODE ÉDITION ADMIN ÉTENDU -->
+<div class="edit-mode-container">
+    <div class="edit-header mb-4">
+        <div class="alert alert-warning">
+            <i class="fas fa-user-shield me-2"></i>
+            <strong>Mode édition administrateur :</strong> Vous modifiez le profil complet de {{ user.first_name }} {{ user.last_name }}.
+        </div>
+    </div>
+    
+    <form id="adminEditFormExtended" method="POST" action="{{ url_for('platform_admin.update_user_data', user_id=user.id) }}">
+        
+        <!-- Section 1: INFORMATIONS PERSONNELLES -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-user text-primary"></i>
+                    INFORMATIONS PERSONNELLES
+                </h3>
+                <p class="platform-card-subtitle">Informations personnelles complètes</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="financial-edit-grid">
+                    <!-- Ligne 1: Civilité + Nom + Prénom + Situation familiale -->
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Civilité *</label>
+                        <select class="form-control" name="civilite" required>
+                            <option value="">Choisir...</option>
+                            <option value="M." {{ 'selected' if user.investor_profile.civilite == 'M.' }}>M.</option>
+                            <option value="Mme" {{ 'selected' if user.investor_profile.civilite == 'Mme' }}>Mme</option>
+                        </select>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Nom *</label>
+                        <input type="text" class="form-control" name="last_name" 
+                               value="{{ user.last_name }}" required>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Prénom *</label>
+                        <input type="text" class="form-control" name="first_name" 
+                               value="{{ user.first_name }}" required>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Situation familiale *</label>
+                        <select class="form-control" name="family_situation" required>
+                            <option value="">Choisir...</option>
+                            <option value="Célibataire" {{ 'selected' if user.investor_profile.family_situation == 'Célibataire' }}>Célibataire</option>
+                            <option value="Marié(e)" {{ 'selected' if user.investor_profile.family_situation == 'Marié(e)' }}>Marié(e)</option>
+                            <option value="Pacsé(e)" {{ 'selected' if user.investor_profile.family_situation == 'Pacsé(e)' }}>Pacsé(e)</option>
+                            <option value="En concubinage" {{ 'selected' if user.investor_profile.family_situation == 'En concubinage' }}>En concubinage</option>
+                            <option value="En couple" {{ 'selected' if user.investor_profile.family_situation == 'En couple' }}>En couple</option>
+                            <option value="En couple avec enfants" {{ 'selected' if user.investor_profile.family_situation == 'En couple avec enfants' }}>En couple avec enfants</option>
+                            <option value="Autre" {{ 'selected' if user.investor_profile.family_situation == 'Autre' }}>Autre</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Ligne 2: Email + Téléphone + Nationalité -->
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Email</label>
+                        <input type="email" class="form-control" value="{{ user.email }}" disabled>
+                        <small class="text-muted">L'email ne peut pas être modifié</small>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Numéro de téléphone</label>
+                        <input type="tel" class="form-control" name="phone" 
+                               value="{{ user.phone or '' }}" placeholder="Ex: +33 1 23 45 67 89">
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Nationalité *</label>
+                        <select class="form-control" name="nationalite" required>
+                            <option value="">Choisir...</option>
+                            <option value="Française" {{ 'selected' if user.investor_profile.nationalite == 'Française' }}>Française</option>
+                            <option value="Union Européenne" {{ 'selected' if user.investor_profile.nationalite == 'Union Européenne' }}>Union Européenne</option>
+                            <option value="Autre" {{ 'selected' if user.investor_profile.nationalite == 'Autre' }}>Autre</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Ligne 3: Date de naissance + Lieu de naissance + Pays résidence -->
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Date de naissance *</label>
+                        <input type="date" class="form-control" name="date_naissance" 
+                               value="{{ user.investor_profile.date_naissance.strftime('%Y-%m-%d') if user.investor_profile.date_naissance }}">
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Lieu de naissance</label>
+                        <input type="text" class="form-control" name="lieu_naissance" 
+                               value="{{ user.investor_profile.lieu_naissance or '' }}" placeholder="Ville, Pays">
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Pays de résidence *</label>
+                        <input type="text" class="form-control" name="pays_residence" 
+                               value="{{ user.investor_profile.pays_residence or 'France' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: OBJECTIFS D'INVESTISSEMENT -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-bullseye text-primary"></i>
+                    OBJECTIFS D'INVESTISSEMENT
+                </h3>
+                <p class="platform-card-subtitle">Cochez un ou plusieurs objectifs qui correspondent à votre situation</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="objectifs-grid">
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_premiers_pas" {{ 'checked' if user.investor_profile.objectif_premiers_pas }}>
+                            <span class="objectif-text">Faire mes premiers pas dans l'investissement</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_constituer_capital" {{ 'checked' if user.investor_profile.objectif_constituer_capital }}>
+                            <span class="objectif-text">Constituer progressivement un capital</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_diversifier" {{ 'checked' if user.investor_profile.objectif_diversifier }}>
+                            <span class="objectif-text">Diversifier mes placements</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_optimiser_rendement" {{ 'checked' if user.investor_profile.objectif_optimiser_rendement }}>
+                            <span class="objectif-text">Optimiser le rendement de mon épargne</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_preparer_retraite" {{ 'checked' if user.investor_profile.objectif_preparer_retraite }}>
+                            <span class="objectif-text">Préparer ma retraite</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_securite_financiere" {{ 'checked' if user.investor_profile.objectif_securite_financiere }}>
+                            <i class="fas fa-check-circle text-atlas me-2"></i><span class="objectif-text">Assurer ma sécurité financière à long terme</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_projet_immobilier" {{ 'checked' if user.investor_profile.objectif_projet_immobilier }}>
+                            <span class="objectif-text">Financer un projet immobilier / résidence principale</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_revenus_complementaires" {{ 'checked' if user.investor_profile.objectif_revenus_complementaires }}>
+                            <i class="fas fa-check-circle text-atlas me-2"></i><span class="objectif-text">Générer des revenus complémentaires réguliers</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_transmettre_capital" {{ 'checked' if user.investor_profile.objectif_transmettre_capital }}>
+                            <span class="objectif-text">Transmettre un capital à mes proches</span>
+                        </label>
+                    </div>
+                    <div class="objectif-item">
+                        <label class="objectif-label">
+                            <input type="checkbox" name="objectif_proteger_famille" {{ 'checked' if user.investor_profile.objectif_proteger_famille }}>
+                            <span class="objectif-text">Protéger ma famille en cas d'imprévu</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: PROFIL DE RISQUE -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-check-circle text-atlas"></i>
+                    PROFIL DE RISQUE
+                </h3>
+                <p class="platform-card-subtitle">Évaluation de votre profil d'investisseur</p>
+            </div>
+            <div class="platform-card-body">
+                <!-- Question 1: Tolérance au risque -->
+                <div class="risk-question-section mb-4">
+                    <div class="risk-question-header">
+                        <h5><i class="fas fa-bullseye text-primary"></i> 1. Tolérance au risque</h5>
+                        <p>Quelle baisse maximale de la valeur de vos avoirs seriez-vous prêt à accepter sur une année ?</p>
+                    </div>
+                    <div class="risk-answers">
+                        <label class="risk-answer-label">
+                            <input type="radio" name="tolerance_risque" value="faible" onchange="updateRiskProfile()">
+                            <span>Jusqu'à –5 %</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="tolerance_risque" value="moderee" onchange="updateRiskProfile()" checked>
+                            <span>Jusqu'à –15 %</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="tolerance_risque" value="elevee" onchange="updateRiskProfile()">
+                            <span>Jusqu'à –30 % ou plus</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 2: Horizon de placement -->
+                <div class="risk-question-section mb-4">
+                    <div class="risk-question-header">
+                        <h5><i class="fas fa-clock text-primary"></i> 2. Horizon de placement</h5>
+                        <p>Sur quelle durée envisagez-vous vos placements ?</p>
+                    </div>
+                    <div class="risk-answers">
+                        <label class="risk-answer-label">
+                            <input type="radio" name="horizon_placement" value="court" onchange="updateRiskProfile()">
+                            <span>Moins de 2 ans</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="horizon_placement" value="moyen" onchange="updateRiskProfile()" checked>
+                            <span>2 à 5 ans</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="horizon_placement" value="long" onchange="updateRiskProfile()">
+                            <span>Plus de 5 ans</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 3: Besoin de liquidité -->
+                <div class="risk-question-section mb-4">
+                    <div class="risk-question-header">
+                        <h5><i class="fas fa-money-bill-wave text-primary"></i> 3. Besoin de liquidité</h5>
+                        <p>Avez-vous besoin de pouvoir récupérer rapidement une partie de vos placements ?</p>
+                    </div>
+                    <div class="risk-answers">
+                        <label class="risk-answer-label">
+                            <input type="radio" name="besoin_liquidite" value="court_terme" onchange="updateRiskProfile()">
+                            <span>Oui, à court terme</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="besoin_liquidite" value="long_terme" onchange="updateRiskProfile()" checked>
+                            <span>Non, je peux laisser mon argent investi plusieurs années</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 4: Expérience / connaissance -->
+                <div class="risk-question-section mb-4">
+                    <div class="risk-question-header">
+                        <h5><i class="fas fa-brain text-primary"></i> 4. Expérience / connaissance en investissement</h5>
+                        <p>Comment évalueriez-vous votre expérience en matière d'investissement ?</p>
+                    </div>
+                    <div class="risk-answers">
+                        <label class="risk-answer-label">
+                            <input type="radio" name="experience_investissement" value="debutant" onchange="updateRiskProfile()">
+                            <span>Débutant – Je découvre l'investissement</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="experience_investissement" value="intermediaire" onchange="updateRiskProfile()" checked>
+                            <span>Intermédiaire – J'ai déjà quelques placements</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="experience_investissement" value="confirme" onchange="updateRiskProfile()">
+                            <span>Confirmé – Je suis à l'aise avec les marchés et la gestion du risque</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Question 5: Attitude face à la volatilité -->
+                <div class="risk-question-section mb-4">
+                    <div class="risk-question-header">
+                        <h5><i class="fas fa-comments text-primary"></i> 5. Attitude face à la volatilité</h5>
+                        <p>Comment réagiriez-vous si la valeur de vos placements baissait fortement ?</p>
+                    </div>
+                    <div class="risk-answers">
+                        <label class="risk-answer-label">
+                            <input type="radio" name="attitude_volatilite" value="vendre" onchange="updateRiskProfile()">
+                            <span>Je vendrais pour limiter les pertes</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="attitude_volatilite" value="attendre" onchange="updateRiskProfile()" checked>
+                            <span>J'attendrais que ça remonte</span>
+                        </label>
+                        <label class="risk-answer-label">
+                            <input type="radio" name="attitude_volatilite" value="investir_plus" onchange="updateRiskProfile()">
+                            <span>J'en profiterais pour investir davantage</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Affichage du profil calculé -->
+                <div class="risk-profile-result">
+                    <div class="risk-profile-badge-atlas">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Votre profil d'investisseur : </span>
+                        <strong id="profileRisqueActuel">Équilibré</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: REVENUS -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    REVENUS
+                </h3>
+                <p class="platform-card-subtitle">L'ensemble de vos flux mensuels, entrants et sortants</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="financial-edit-grid">
+                    <!-- Ligne 1: Situation professionnelle + Métier -->
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Situation professionnelle *</label>
+                        <select class="form-control" name="professional_situation" id="professionalSituation" onchange="toggleProfessionalSituationOther()" required>
+                            <option value="">Choisir...</option>
+                            <option value="Salarié" {{ 'selected' if user.investor_profile.professional_situation == 'Salarié' }}>Salarié</option>
+                            <option value="Fonctionnaire" {{ 'selected' if user.investor_profile.professional_situation == 'Fonctionnaire' }}>Fonctionnaire</option>
+                            <option value="Indépendant" {{ 'selected' if user.investor_profile.professional_situation == 'Indépendant' }}>Indépendant</option>
+                            <option value="Étudiant" {{ 'selected' if user.investor_profile.professional_situation == 'Étudiant' }}>Étudiant</option>
+                            <option value="Retraité" {{ 'selected' if user.investor_profile.professional_situation == 'Retraité' }}>Retraité</option>
+                            <option value="Sans Emploi" {{ 'selected' if user.investor_profile.professional_situation == 'Sans Emploi' }}>Sans Emploi</option>
+                            <option value="Autre" {{ 'selected' if user.investor_profile.professional_situation == 'Autre' }}>Autre</option>
+                        </select>
+                        <input type="text" class="form-control mt-2" name="professional_situation_other" id="professionalSituationOther" 
+                               placeholder="Précisez votre situation..." style="display: none;">
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Métier</label>
+                        <input type="text" class="form-control" name="metier" 
+                               value="{{ user.investor_profile.metier or '' }}" placeholder="Ex: Développeur, Enseignant, Manager...">
+                    </div>
+                    
+                    <!-- Ligne 2: Revenu mensuel net + Impôts mensuels -->
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Revenu mensuel net *</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="monthly_net_income" id="monthlyNetIncome"
+                                   value="{{ user.investor_profile.monthly_net_income }}" step="0.01" min="0" required>
+                            <span class="input-group-text">€</span>
+                        </div>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Impôts mensuels</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="impots_mensuels" id="impotsMensuels"
+                                   value="{{ user.investor_profile.impots_mensuels or 0 }}" step="0.01" min="0">
+                            <span class="input-group-text">€</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Ligne 3: Capacité d'épargne + Taux d'épargne -->
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Capacité d'épargne mensuelle *</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="monthly_savings_capacity" id="monthlySavingsCapacity"
+                                   value="{{ user.investor_profile.monthly_savings_capacity }}" step="0.01" min="0" required>
+                            <span class="input-group-text">€</span>
+                        </div>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Taux d'épargne</label>
+                        <div class="taux-epargne-display" id="tauxEpargneDisplay">
+                            <span id="tauxEpargneValue">0.0</span>%
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Revenus complémentaires (dynamique) -->
+                <div class="mt-4">
+                    <h4 class="financial-section-title"><i class="fas fa-plus-circle text-atlas"></i> Revenus complémentaires</h4>
+                    <div class="revenus-edit-grid" id="revenusGrid">
+                        {% for revenu in user.investor_profile.revenus_complementaires_data %}
+                        <div class="revenu-edit-item">
+                            <button type="button" class="revenu-delete-btn" onclick="removeRevenuItem(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <div class="revenu-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Type de revenu</label>
+                                    <input type="text" class="form-control revenu-complementaire-input" name="revenu_complementaire_name[]" 
+                                           value="{{ revenu.get('name', '') }}" placeholder="Ex: Loyers, Dividendes...">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Montant mensuel</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control revenu-complementaire-input" name="revenu_complementaire_amount[]" 
+                                               value="{{ revenu.get('amount', 0) }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="patrimoine-edit-item add-revenu-grid-item" id="addRevenuGridItem">
+                            <div class="patrimoine-checkbox add-revenu-checkbox" onclick="addRevenuInline()">
+                                <div class="add-revenu-content">
+                                    <i class="fas fa-plus text-atlas"></i>
+                                    <span>Ajouter un revenu</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charges mensuelles (dynamique) -->
+                <div class="mt-4">
+                    <h4 class="financial-section-title"><i class="fas fa-minus-circle text-atlas"></i> Charges mensuelles</h4>
+                    <div class="charges-edit-grid" id="chargesGrid">
+                        {% for charge in user.investor_profile.charges_mensuelles_data %}
+                        <div class="charge-edit-item">
+                            <button type="button" class="charge-delete-btn" onclick="removeChargeItem(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <div class="charge-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Type de charge</label>
+                                    <input type="text" class="form-control charge-mensuelle-input" name="charge_mensuelle_name[]" 
+                                           value="{{ charge.get('name', '') }}" placeholder="Ex: Loyer, Crédit auto...">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Montant mensuel</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control charge-mensuelle-input" name="charge_mensuelle_amount[]" 
+                                               value="{{ charge.get('amount', 0) }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="patrimoine-edit-item add-charge-grid-item" id="addChargeGridItem">
+                            <div class="patrimoine-checkbox add-charge-checkbox" onclick="addChargeInline()">
+                                <div class="add-charge-content">
+                                    <i class="fas fa-plus text-atlas"></i>
+                                    <span>Ajouter une charge</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: EPARGNE -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    EPARGNE
+                </h3>
+                <p class="platform-card-subtitle">Dressez ici un état des lieux de vos avoirs financiers et immobiliers</p>
+            </div>
+            <div class="platform-card-body">
+                <!-- Sous-section Liquidités -->
+                <div class="mb-4">
+                    <h4 class="financial-section-title">Liquidités</h4>
+                    <div class="epargne-liquidites-grid" id="epargneLiquiditesGrid">
+                        <!-- Livret A -->
+                        <div class="epargne-liquidite-item">
+                            <div class="epargne-liquidite-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Livret A</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="livret_a_value" id="epargne_livret_a"
+                                               value="{{ user.investor_profile.livret_a_value or 0 }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- LDDS -->
+                        <div class="epargne-liquidite-item">
+                            <div class="epargne-liquidite-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Livret de Développement Durable et Solidaire (LDDS)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="ldds_value" id="epargne_ldds"
+                                               value="{{ user.investor_profile.ldds_value or 0 }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- PEL/CEL -->
+                        <div class="epargne-liquidite-item">
+                            <div class="epargne-liquidite-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Plan Épargne Logement / Compte Épargne Logement (PEL/CEL)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="pel_cel_value" id="epargne_pel_cel"
+                                               value="{{ user.investor_profile.pel_cel_value or 0 }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Liquidités personnalisées existantes -->
+                        {% for liquidite in user.investor_profile.liquidites_personnalisees_data %}
+                        <div class="epargne-liquidite-item epargne-liquidite-custom">
+                            <button type="button" class="epargne-liquidite-delete-btn" onclick="removeEpargneLiquiditeItem(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <div class="epargne-liquidite-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Type de liquidité</label>
+                                    <input type="text" class="form-control" name="liquidite_personnalisee_name[]" 
+                                           value="{{ liquidite.get('name', '') }}" placeholder="Nom de la liquidité">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Montant</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="liquidite_personnalisee_amount[]" 
+                                               value="{{ liquidite.get('amount', 0) }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Bouton d'ajout -->
+                        <div class="epargne-liquidite-item epargne-add-liquidite-item" id="epargneLiquiditeAddItem">
+                            <div class="epargne-add-liquidite-content" onclick="addEpargneLiquiditeInline()">
+                                <i class="fas fa-plus"></i>
+                                <span>Ajouter une liquidité</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Total Liquidités EPARGNE -->
+                    <div class="total-section">
+                        <div class="total-display">
+                            <i class="fas fa-coins"></i> 
+                            <span>Total Liquidités: </span>
+                            <span id="totalEpargneLiquidites">{{ "{:,.0f}".format(user.investor_profile.calculated_total_liquidites or 0) }}€</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sous-section Placements financiers -->
+                <div class="mb-4">
+                    <h4 class="financial-section-title">Placements financiers</h4>
+                    <div class="epargne-placements-grid" id="epargnePlacementsGrid">
+                        <!-- PEA -->
+                        <div class="epargne-placement-item">
+                            <div class="epargne-placement-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Plan d'Épargne en Actions (PEA)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="pea_value" id="epargne_pea"
+                                               value="{{ user.investor_profile.pea_value or 0 }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CTO -->
+                        <div class="epargne-placement-item">
+                            <div class="epargne-placement-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Compte Titres Ordinaire (CTO)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="cto_value" id="epargne_cto"
+                                               value="{{ user.investor_profile.cto_value or 0 }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Assurance-vie -->
+                        <div class="epargne-placement-item">
+                            <div class="epargne-placement-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Assurance-vie (AV)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="life_insurance_value" id="epargne_av"
+                                               value="{{ user.investor_profile.life_insurance_value or 0 }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- PER -->
+                        <div class="epargne-placement-item">
+                            <div class="epargne-placement-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Plan d'Épargne Retraite (PER)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="per_value" id="epargne_per"
+                                               value="{{ user.investor_profile.per_value or 0 }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- PEE/PERCO -->
+                        <div class="epargne-placement-item">
+                            <div class="epargne-placement-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Plan d'Épargne Entreprise (PEE / PERCO)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="pee_value" id="epargne_pee"
+                                               value="{{ user.investor_profile.pee_value or 0 }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Private Equity -->
+                        <div class="epargne-placement-item">
+                            <div class="epargne-placement-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Private Equity (PE)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="private_equity_value" id="epargne_pe"
+                                               value="{{ user.investor_profile.private_equity_value or 0 }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Parts de SCPI -->
+                        <div class="epargne-placement-item">
+                            <div class="epargne-placement-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Parts de SCPI</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="scpi_value" id="epargne_scpi"
+                                               value="{{ user.investor_profile.scpi_value or 0 }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Placements personnalisés existants -->
+                        {% for placement in user.investor_profile.placements_personnalises_data %}
+                        <div class="epargne-placement-item epargne-placement-custom">
+                            <button type="button" class="epargne-placement-delete-btn" onclick="removeEpargnePlacementItem(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <div class="epargne-placement-content">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Type de placement</label>
+                                    <input type="text" class="form-control" name="placement_personnalise_name[]" 
+                                           value="{{ placement.get('name', '') }}" placeholder="Ex: Crowdfunding">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Montant</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" name="placement_personnalise_amount[]" 
+                                               value="{{ placement.get('amount', 0) }}" step="0.01" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Bouton d'ajout -->
+                        <div class="epargne-placement-item epargne-add-placement-item" id="epargnePlacementAddItem">
+                            <div class="epargne-add-placement-content" onclick="addEpargnePlacementInline()">
+                                <i class="fas fa-plus"></i>
+                                <span>Ajouter un placement</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Total Placements financiers EPARGNE -->
+                    <div class="total-section">
+                        <div class="total-display">
+                            <i class="fas fa-chart-line"></i> 
+                            <span>Total Placements financiers: </span>
+                            <span id="totalEpargnePlacements">{{ "{:,.0f}".format(user.investor_profile.calculated_total_placements or 0) }}€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Immobilier -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-home text-primary"></i>
+                    IMMOBILIER
+                </h3>
+                <p class="platform-card-subtitle">Patrimoine immobilier et crédits associés</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="immobilier-grid" id="immobilierGrid">
+                    {% for bien in user.investor_profile.immobilier_data or [] %}
+                    <div class="immobilier-item">
+                        <button type="button" class="immobilier-delete-btn" onclick="removeImmobilierItem(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="immobilier-content">
+                            <div class="immobilier-header">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Type de bien</label>
+                                    <select class="form-control bien-type-select" name="bien_type[]">
+                                        <option value="">Choisir...</option>
+                                        <option value="residence_principale" {{ 'selected' if bien.get('type') == 'residence_principale' }}>Résidence principale</option>
+                                        <option value="residence_secondaire" {{ 'selected' if bien.get('type') == 'residence_secondaire' }}>Résidence secondaire</option>
+                                        <option value="investissement_locatif" {{ 'selected' if bien.get('type') == 'investissement_locatif' }}>Investissement locatif</option>
+                                    </select>
+                                </div>
+                                <div class="financial-edit-item description-field" style="display: {{ 'block' if bien.get('type') == 'investissement_locatif' else 'none' }};">
+                                    <label class="financial-label">Description</label>
+                                    <input type="text" class="form-control" name="bien_description[]" 
+                                           value="{{ bien.get('description', '') }}" placeholder="Ex: Appartement, Maison...">
+                                </div>
+                            </div>
+                            
+                            <div class="immobilier-values">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Valeur estimée</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control bien-valeur-input" name="bien_valeur[]" 
+                                               value="{{ bien.get('valeur', 0) }}" step="1000" min="0">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Surface (m²)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control bien-surface-input" name="bien_surface[]" 
+                                               value="{{ bien.get('surface', 0) }}" step="1" min="0">
+                                        <span class="input-group-text">m²</span>
+                                    </div>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Prix au m²</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control prix-m2-display" readonly>
+                                        <span class="input-group-text">€/m²</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="credit-section">
+                                <div class="credit-checkbox-container">
+                                    <input type="checkbox" class="credit-checkbox" name="bien_has_credit[]" value="{{ loop.index0 }}" 
+                                           {{ 'checked' if bien.get('has_credit', False) }}>
+                                    <label class="credit-label">J'ai un crédit immobilier lié à ce bien</label>
+                                </div>
+                                
+                                <div class="credit-details" style="display: {{ 'block' if bien.get('has_credit', False) else 'none' }};">
+                                    <div class="credit-row">
+                                        <div class="financial-edit-item">
+                                            <label class="financial-label">Montant du crédit initial</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control credit-montant-input" name="credit_montant[]" 
+                                                       value="{{ bien.get('credit_montant', 0) }}" step="1000" min="0">
+                                                <span class="input-group-text">€</span>
+                                            </div>
+                                        </div>
+                                        <div class="financial-edit-item">
+                                            <label class="financial-label">Durée (années)</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control credit-duree-input" name="credit_duree[]" 
+                                                       value="{{ bien.get('credit_duree', 0) }}" step="1" min="0" max="50">
+                                                <span class="input-group-text">ans</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="credit-row">
+                                        <div class="financial-edit-item">
+                                            <label class="financial-label">Taux TAG (%)</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control credit-tag-input" name="credit_tag[]" 
+                                                       value="{{ bien.get('credit_tag', 0) }}" step="0.01" min="0" max="20">
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="financial-edit-item">
+                                            <label class="financial-label">Taux TAEG (%)</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control credit-taeg-input" name="credit_taeg[]" 
+                                                       value="{{ bien.get('credit_taeg', 0) }}" step="0.01" min="0" max="20">
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="credit-row">
+                                        <div class="financial-edit-item">
+                                            <label class="financial-label">Date de départ</label>
+                                            <input type="month" class="form-control credit-date-input" name="credit_date[]" 
+                                                   value="{{ bien.get('credit_date', '') }}">
+                                        </div>
+                                        <div class="financial-edit-item">
+                                            <label class="financial-label">Mensualités</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control mensualites-display" readonly>
+                                                <span class="input-group-text">€/mois</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="credit-row">
+                                        <div class="financial-edit-item">
+                                            <label class="financial-label">Montant restant du crédit à rembourser</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control capital-restant-display" readonly>
+                                                <span class="input-group-text">€</span>
+                                            </div>
+                                        </div>
+                                        <div class="financial-edit-item">
+                                            <label class="financial-label">Total payé</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control total-paye-display" readonly>
+                                                <span class="input-group-text">€</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="valeur-nette-section">
+                                <div class="valeur-nette-display">
+                                    <strong>Valeur nette du bien: <span class="valeur-nette-value" data-backend-value="{{ user.investor_profile.calculated_total_immobilier_net or 0 }}">0€</span></strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="immobilier-add-item" id="immobilierAddItem">
+                        <div class="immobilier-add-content" onclick="addImmobilierInline()">
+                            <i class="fas fa-plus"></i>
+                            <span>Ajouter un bien immobilier</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Total Immobilier -->
+                <div class="total-section">
+                    <div class="total-display">
+                        <i class="fas fa-credit-card"></i> 
+                        <span>Total Montant Restant (crédits immobiliers): </span>
+                        <span id="totalCapitalRestantImmobilier">0€</span>
+                    </div>
+
+                    <div class="total-display credit-restant">
+                        <i class="fas fa-home"></i> 
+                        <span>Patrimoine immobilier net: </span>
+                        <span id="totalImmobilier">{{ "{:,.0f}".format(user.investor_profile.calculated_total_immobilier_net or 0) }}€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Cryptomonnaies -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fab fa-bitcoin text-primary"></i>
+                    CRYPTOMONNAIES
+                </h3>
+                <p class="platform-card-subtitle">Portefeuille de cryptomonnaies - Valorisation en temps réel</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="crypto-grid" id="cryptoGrid">
+                    {% for crypto in user.investor_profile.cryptomonnaies_data or [] %}
+                    <div class="crypto-item">
+                        <button type="button" class="crypto-delete-btn" onclick="removeCryptoItem(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="crypto-content">
+                            <div class="crypto-row">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Cryptomonnaie</label>
+                                    <select class="form-control crypto-select" name="crypto_symbol[]" onchange="updateCryptoPrice(this)" data-selected="{{ crypto.get('symbol', '') }}">
+                                        <option value="">Choisir une crypto...</option>
+                                        <!-- Options seront remplies par JavaScript -->
+                                    </select>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Quantité possédée</label>
+                                    <input type="number" class="form-control crypto-quantity" name="crypto_quantity[]" 
+                                           value="{{ crypto.get('quantity', 0) }}" step="0.00000001" min="0" onchange="calculateCryptoValue(this)">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Prix unitaire</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control crypto-price-display" readonly>
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Valeur totale</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control crypto-total-display" readonly>
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="crypto-add-item" id="cryptoAddItem">
+                        <div class="crypto-add-content" onclick="addCryptoInline()">
+                            <i class="fab fa-bitcoin"></i>
+                            <span>Ajouter une cryptomonnaie</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Total Cryptomonnaies -->
+                <div class="total-section">
+                    <div class="total-display">
+                        <i class="fab fa-bitcoin"></i> 
+                        <span>Total Cryptomonnaies: </span>
+                        <span id="totalCryptomonnaies">{{ "{:,.0f}".format(user.investor_profile.calculated_total_cryptomonnaies or 0) }}€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Autres biens -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-gem text-purple"></i>
+                    AUTRES BIENS
+                </h3>
+                <p class="platform-card-subtitle">Œuvres d'art, voitures de collection, bijoux, etc.</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="autres-biens-grid" id="autresBiensGrid">
+                    {% for bien in user.investor_profile.autres_biens_data or [] %}
+                    <div class="autre-bien-item">
+                        <button type="button" class="autre-bien-delete-btn" onclick="removeAutreBienItem(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="autre-bien-content">
+                            <div class="autre-bien-row">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Type de bien</label>
+                                    <input type="text" class="form-control autre-bien-name" name="autre_bien_name[]" 
+                                           value="{{ bien.get('name', '') }}" placeholder="Ex: Œuvre d'art, Bateau, Voiture de collection...">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Description (optionnelle)</label>
+                                    <input type="text" class="form-control autre-bien-description" name="autre_bien_description[]" 
+                                           value="{{ bien.get('description', '') }}" placeholder="Ex: Tableau de Monet, Ferrari 250 GT...">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Valeur estimée</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control autre-bien-valeur" name="autre_bien_valeur[]" 
+                                               value="{{ bien.get('valeur', 0) }}" step="100" min="0" onchange="calculateTotalAutresBiens()">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="autre-bien-add-item" id="autreBienAddItem">
+                        <div class="autre-bien-add-content" onclick="addAutreBienInline()">
+                            <i class="fas fa-plus"></i>
+                            <span>Ajouter un autre bien</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Total Autres biens -->
+                <div class="total-section">
+                    <div class="total-display">
+                        <i class="fas fa-gem"></i> 
+                        <span>Total Autres biens: </span>
+                        <span id="totalAutresBiens">0€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Crédits -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-credit-card text-danger"></i>
+                    CRÉDITS (hors crédit immobilier)
+                </h3>
+                <p class="platform-card-subtitle">Crédits à la consommation et autres emprunts en cours</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="credits-grid" id="creditsGrid">
+                    {% for credit in user.investor_profile.credits_data or [] %}
+                    <div class="credit-item">
+                        <button type="button" class="credit-delete-btn" onclick="removeCreditItem(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="credit-content">
+                            <!-- ID unique pour identifier ce crédit -->
+                            <input type="hidden" name="credit_conso_id[]" value="{{ credit.get('id', loop.index0) }}">
+                            <div class="credit-row">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Description</label>
+                                    <input type="text" class="form-control credit-description" name="credit_conso_description[]" 
+                                           value="{{ credit.description or '' }}" placeholder="Ex: Crédit auto, Prêt travaux, Crédit conso...">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Montant initial</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control credit-montant-initial" name="credit_conso_montant_initial[]" 
+                                               value="{{ credit.montant_initial or 0 }}" step="100" min="0" onchange="calculateCreditRestant(this)">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Taux (%)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control credit-taux" name="credit_conso_taux[]" 
+                                               value="{{ credit.taux or 0 }}" step="0.01" min="0" max="25" onchange="calculateCreditRestant(this)">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="credit-row">
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Durée (années)</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control credit-duree" name="credit_conso_duree[]" 
+                                               value="{{ credit.duree or 0 }}" step="1" min="0" max="30" onchange="calculateCreditRestant(this)">
+                                        <span class="input-group-text">ans</span>
+                                    </div>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Date de départ</label>
+                                    <input type="month" class="form-control credit-date-depart" name="credit_conso_date_depart[]" 
+                                           value="{{ credit.date_depart or '' }}" onchange="calculateCreditRestant(this)">
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Mensualité</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control credit-mensualite" readonly 
+                                               value="{{ '{:,.0f}'.format(credit.get('mensualite', 0)) if credit.get('mensualite') else '0' }}">
+                                        <span class="input-group-text">€/mois</span>
+                                    </div>
+                                </div>
+                                <div class="financial-edit-item">
+                                    <label class="financial-label">Montant restant du crédit à rembourser</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control credit-capital-restant" readonly
+                                               value="{{ '{:,.0f}'.format(credit.get('capital_restant', credit.get('montant_restant', credit.get('montant_initial', 0)))) }}">
+                                        <span class="input-group-text">€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="credit-add-item" id="creditAddItem">
+                        <div class="credit-add-content" onclick="addCreditInline()">
+                            <i class="fas fa-plus"></i>
+                            <span>Ajouter un crédit</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Total Crédits -->
+                <div class="total-section">
+                    <div class="total-display">
+                        <i class="fas fa-credit-card"></i> 
+                        <span>Montant de crédit total à rembourser: </span>
+                        <span id="totalCredits">{{ "{:,.0f}".format(user.investor_profile.calculated_total_credits_consommation or 0) }}€</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="edit-actions">
+            <a href="{{ url_for('platform_admin.user_detail', user_id=user.id) }}" class="admin-btn admin-btn-secondary">
+                <i class="fas fa-times"></i>
+                Annuler
+            </a>
+            <button type="submit" class="admin-btn admin-btn-primary">
+                <i class="fas fa-save"></i>
+                Sauvegarder les modifications
+            </button>
+        </div>
+    </form>
+</div>
+
+{% else %}
+<!-- MODE VISUALISATION -->
+<div class="view-mode-container">
+    <!-- Navigation principale avec 2 options -->
+    <div class="main-navigation-section">
+        <div class="platform-card mb-4">
+            <div class="platform-card-header text-center">
+                <h3 class="platform-card-title justify-content-center">
+                    <i class="fas fa-user-cog text-primary"></i>
+                    GESTION UTILISATEUR : {{ user.first_name }} {{ user.last_name }}
+                </h3>
+                <p class="platform-card-subtitle">Choisissez la section à consulter</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="navigation-buttons-grid">
+                    <a href="{{ url_for('platform_admin.user_investor_data', user_id=user.id) }}" class="navigation-button investor-data-btn">
+                        <div class="button-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="button-content">
+                            <h4 class="button-title">Données Investisseurs</h4>
+                            <p class="button-description">Consulter le profil complet, patrimoine, objectifs et données financières</p>
+                        </div>
+                        <div class="button-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ url_for('platform_admin.user_investment_plan', user_id=user.id) }}" class="navigation-button investment-plan-btn">
+                        <div class="button-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="button-content">
+                            <h4 class="button-title">Plan d'Investissement</h4>
+                            <p class="button-description">Définir et gérer la stratégie d'investissement mensuelle</p>
+                        </div>
+                        <div class="button-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- Actions rapides -->
+                <div class="quick-actions mt-4">
+                    <a href="{{ url_for('platform_admin.user_detail', user_id=user.id, edit='true') }}" class="admin-btn admin-btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Modifier les données
+                    </a>
+                    {% if user.subscription %}
+                    <button class="admin-btn admin-btn-warning" onclick="manageSubscription({{ user.id }})">
+                        <i class="fas fa-crown"></i>
+                        Gérer l'abonnement
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<!-- Utilisateur sans profil investisseur -->
+<div class="platform-card">
+    <div class="platform-card-body text-center">
+        <i class="fas fa-user-slash text-muted" style="font-size: 48px; margin-bottom: 16px;"></i>
+        <h4>Profil investisseur non complété</h4>
+        <p class="text-muted">Cet utilisateur n'a pas encore complété son profil investisseur.</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- CSS Styles for Navigation Buttons -->
+<style>
+/* Navigation buttons styling */
+.navigation-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.navigation-button {
+    display: flex;
+    align-items: center;
+    padding: 24px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 2px solid #e9ecef;
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 120px;
+}
+
+.navigation-button:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(19, 124, 139, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.navigation-button:hover:before {
+    left: 100%;
+}
+
+.navigation-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(19, 124, 139, 0.15);
+    border-color: var(--qlower-primary);
+    text-decoration: none;
+    color: inherit;
+}
+
+.button-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-light));
+    border-radius: 12px;
+    margin-right: 20px;
+    color: white;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.button-content {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.button-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.button-description {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.button-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(19, 124, 139, 0.1);
+    border-radius: 50%;
+    color: var(--qlower-primary);
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.navigation-button:hover .button-arrow {
+    background: var(--qlower-primary);
+    color: white;
+    transform: translateX(4px);
+}
+
+/* Specific button styling */
+.investor-data-btn .button-icon {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.investment-plan-btn .button-icon {
+    background: linear-gradient(135deg, #007bff, #6610f2);
+}
+
+/* Quick actions */
+.quick-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-top: 24px;
+    border-top: 1px solid #e9ecef;
+}
+
+.admin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.admin-btn-primary {
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-light));
+    color: white;
+    border-color: var(--qlower-primary);
+}
+
+.admin-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(19, 124, 139, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.admin-btn-warning {
+    background: linear-gradient(135deg, #ffc107, #ffb300);
+    color: #212529;
+    border-color: #ffc107;
+}
+
+.admin-btn-warning:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    color: #212529;
+    text-decoration: none;
+}
+
+.admin-btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: white;
+    border-color: #6c757d;
+}
+
+.admin-btn-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .navigation-buttons-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .navigation-button {
+        padding: 20px;
+        min-height: 100px;
+    }
+    
+    .button-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+        margin-right: 16px;
+    }
+    
+    .button-title {
+        font-size: 16px;
+    }
+    
+    .button-description {
+        font-size: 13px;
+    }
+    
+    .quick-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .admin-btn {
+        justify-content: center;
+    }
+}
+
+/* Platform card styling */
+.platform-card {
+    background: var(--qlower-white);
+    border-radius: 16px;
+    border: 1px solid var(--qlower-border);
+    box-shadow: 0 2px 10px rgba(19, 124, 139, 0.1);
+    overflow: hidden;
+}
+
+.platform-card-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 24px;
+    border-bottom: 1px solid var(--qlower-border);
+}
+
+.platform-card-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    margin: 0;
+}
+
+.platform-card-subtitle {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 8px 0 0 0;
+    font-weight: 500;
+}
+
+.platform-card-body {
+    padding: 32px;
+}
+
+/* CSS Variables */
+:root {
+    --qlower-white: #ffffff;
+    --qlower-primary: #137c8b;
+    --qlower-light: #4db8c7;
+    --qlower-dark: #2c3e50;
+    --qlower-border: #e9ecef;
+    --qlower-bg-light: #f8f9fa;
+}
+</style>
+
+{% endblock %}

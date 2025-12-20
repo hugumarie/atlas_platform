@@ -15,6 +15,7 @@ investor_bp = Blueprint('investor', __name__)
 @investor_bp.route('/dashboard')
 @login_required
 def dashboard():
+    print("*** ROUTE INVESTOR.PY DASHBOARD EXECUTEE ***")
     """
     Dashboard principal de l'investisseur.
     """
@@ -26,9 +27,7 @@ def dashboard():
         flash('Veuillez d\'abord compléter votre profil investisseur.', 'warning')
         return redirect(url_for('investor.questionnaire'))
     
-    # Mettre à jour le portefeuille
-    if current_user.portfolio:
-        current_user.portfolio.update_from_profile()
+    # Pas de mise à jour automatique du portefeuille
     
     return render_template('investor/dashboard.html')
 

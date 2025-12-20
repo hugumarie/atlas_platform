@@ -18,36 +18,127 @@ class BinancePriceService:
     BINANCE_API_URL = "https://api.binance.com/api/v3/ticker/price"
     EXCHANGE_RATE_API = "https://api.exchangerate-api.com/v4/latest/USD"
     
-    # Mapping des symboles crypto vers Binance
+    # Mapping des symboles crypto vers Binance (liste complète)
     SYMBOL_TO_BINANCE = {
+        # Top cryptos
         'bitcoin': 'BTCUSDT',
         'btc': 'BTCUSDT',
         'ethereum': 'ETHUSDT', 
         'eth': 'ETHUSDT',
         'binancecoin': 'BNBUSDT',
         'bnb': 'BNBUSDT',
+        'ripple': 'XRPUSDT',
+        'xrp': 'XRPUSDT',
         'solana': 'SOLUSDT',
         'sol': 'SOLUSDT',
         'cardano': 'ADAUSDT',
         'ada': 'ADAUSDT',
-        'polkadot': 'DOTUSDT',
-        'dot': 'DOTUSDT',
-        'matic-network': 'MATICUSDT',
-        'matic': 'MATICUSDT',
-        'chainlink': 'LINKUSDT',
-        'link': 'LINKUSDT',
         'avalanche-2': 'AVAXUSDT',
         'avax': 'AVAXUSDT',
+        'dogecoin': 'DOGEUSDT',
+        'doge': 'DOGEUSDT',
+        'tron': 'TRXUSDT',
+        'trx': 'TRXUSDT',
+        'polkadot': 'DOTUSDT',
+        'dot': 'DOTUSDT',
+        
+        # DeFi & Infrastructure
+        'chainlink': 'LINKUSDT',
+        'link': 'LINKUSDT',
+        'uniswap': 'UNIUSDT',
+        'uni': 'UNIUSDT',
+        'aave': 'AAVEUSDT',
+        'compound-governance-token': 'COMPUSDT',
+        'comp': 'COMPUSDT',
+        'maker': 'MKRUSDT',
+        'mkr': 'MKRUSDT',
+        'sushiswap': 'SUSHIUSDT',
+        'sushi': 'SUSHIUSDT',
+        'curve-dao-token': 'CRVUSDT',
+        'crv': 'CRVUSDT',
+        '1inch': '1INCHUSDT',
+        
+        # Stablecoins
+        'tether': 'USDCUSDT',  # Note: USDT pair contre USDC
+        'usdt': 'USDCUSDT',
+        'usd-coin': 'USDCUSDT',
+        'usdc': 'USDCUSDT',
+        'binance-usd': 'BUSDUSDT',
+        'busd': 'BUSDUSDT',
+        'dai': 'DAIUSDT',
+        'terrausd': 'USTUSDT',
+        'ust': 'USTUSDT',
+        
+        # Gaming & NFT
+        'axie-infinity': 'AXSUSDT',
+        'axs': 'AXSUSDT',
+        'the-sandbox': 'SANDUSDT',
+        'sand': 'SANDUSDT',
+        'decentraland': 'MANAUSDT',
+        'mana': 'MANAUSDT',
+        'enjincoin': 'ENJUSDT',
+        'enj': 'ENJUSDT',
+        'gala': 'GALAUSDT',
+        'flow': 'FLOWUSDT',
+        
+        # Altcoins Populaires
+        'litecoin': 'LTCUSDT',
+        'ltc': 'LTCUSDT',
+        'bitcoin-cash': 'BCHUSDT',
+        'bch': 'BCHUSDT',
+        'ethereum-classic': 'ETCUSDT',
+        'etc': 'ETCUSDT',
+        'monero': 'XMRUSDT',
+        'xmr': 'XMRUSDT',
+        'zcash': 'ZECUSDT',
+        'zec': 'ZECUSDT',
+        'dash': 'DASHUSDT',
+        'neo': 'NEOUSDT',
+        'iota': 'IOTAUSDT',
+        'miota': 'IOTAUSDT',
+        
+        # Autres projets
+        'polygon': 'MATICUSDT',
+        'matic': 'MATICUSDT',
+        'fantom': 'FTMUSDT',
+        'ftm': 'FTMUSDT',
         'cosmos': 'ATOMUSDT',
         'atom': 'ATOMUSDT',
-        'stellar': 'XLMUSDT',
-        'xlm': 'XLMUSDT',
-        'vechain': 'VETUSDT',
-        'vet': 'VETUSDT',
         'algorand': 'ALGOUSDT',
         'algo': 'ALGOUSDT',
+        'vechain': 'VETUSDT',
+        'vet': 'VETUSDT',
+        'theta-token': 'THETAUSDT',
+        'theta': 'THETAUSDT',
+        'filecoin': 'FILUSDT',
+        'fil': 'FILUSDT',
+        'internet-computer': 'ICPUSDT',
+        'icp': 'ICPUSDT',
         'hedera-hashgraph': 'HBARUSDT',
-        'hbar': 'HBARUSDT'
+        'hbar': 'HBARUSDT',
+        'elrond-egd-2': 'EGLDUSDT',
+        'egld': 'EGLDUSDT',
+        
+        # Autres cryptos supportées
+        'stellar': 'XLMUSDT',
+        'xlm': 'XLMUSDT',
+        
+        # Top 50 cryptos supplémentaires (seulement les pairs existantes sur Binance)
+        'wrapped-bitcoin': 'WBTCUSDT',
+        'shiba-inu': 'SHIBUSDT',
+        'near': 'NEARUSDT',
+        'aptos': 'APTUSDT',
+        'arbitrum': 'ARBUSDT',
+        'first-digital-usd': 'FDUSDUSDT',
+        'optimism': 'OPUSDT',
+        'immutable-x': 'IMXUSDT',
+        'render-token': 'RNDRUSDT',
+        'the-graph': 'GRTUSDT',
+        'injective-protocol': 'INJUSDT',
+        'sei-network': 'SEIUSDT',
+        'bittensor': 'TAOUSDT',
+        'rune': 'RUNEUSDT',
+        'stacks': 'STXUSDT'
     }
     
     @classmethod 
@@ -71,11 +162,8 @@ class BinancePriceService:
             Dict: {"bitcoin": 78525.0, "ethereum": 3600.0, ...}
         """
         try:
-            print(f"🔄 Récupération des prix Binance...")
-            
             # 1. Récupérer le taux USD/EUR
             usd_to_eur = cls.get_usd_to_eur_rate()
-            print(f"💱 Taux USD->EUR: {usd_to_eur:.4f}")
             
             # 2. Récupérer tous les prix Binance
             response = requests.get(cls.BINANCE_API_URL, timeout=10)
@@ -89,15 +177,16 @@ class BinancePriceService:
             
             # 4. Convertir vers nos symboles avec prix EUR
             prices = {}
+            missing_pairs = []
+            
             for crypto_symbol, binance_pair in cls.SYMBOL_TO_BINANCE.items():
                 if binance_pair in binance_prices:
                     price_usd = binance_prices[binance_pair]
                     price_eur = price_usd * usd_to_eur
                     prices[crypto_symbol] = price_eur
+                else:
+                    missing_pairs.append(f"{crypto_symbol} -> {binance_pair}")
             
-            print(f"✅ {len(prices)} prix récupérés depuis Binance")
-            for symbol, price in prices.items():
-                print(f"💰 {symbol}: €{price:.2f}")
             
             return prices
             
@@ -150,10 +239,8 @@ class BinancePriceService:
                         db.session.add(crypto_price)
                     
                     updated_count += 1
-                    print(f"💰 {crypto_symbol}: €{price_eur:.2f}")
             
             db.session.commit()
-            print(f"✅ {updated_count} prix crypto mis à jour en base")
             return True
             
         except Exception as e:
@@ -177,10 +264,15 @@ class BinancePriceService:
             # Normaliser le symbole
             symbol = symbol.lower()
             
-            crypto_price = CryptoPrice.query.filter_by(symbol=symbol).first()
+            # Protection contre les erreurs de session DB en cours
+            from sqlalchemy.exc import InvalidRequestError, PendingRollbackError
+            try:
+                crypto_price = CryptoPrice.query.filter_by(symbol=symbol).first()
+            except (InvalidRequestError, PendingRollbackError):
+                # Session DB corrompue, ne pas essayer de lire
+                return None
             
             if not crypto_price:
-                print(f"⚠️ Prix non trouvé en DB pour {symbol}")
                 return None
             
             # Vérifier l'âge des données
@@ -188,13 +280,13 @@ class BinancePriceService:
             age = datetime.utcnow() - crypto_price.updated_at
             
             if age > max_age:
-                print(f"⚠️ Prix trop ancien pour {symbol}: {age}")
+                # Prix trop ancien (silencieux pendant les erreurs DB)
                 return None
             
             return crypto_price.price_eur
             
         except Exception as e:
-            print(f"❌ Erreur lecture DB crypto {symbol}: {e}")
+            # Suppression du log pour éviter le spam pendant les erreurs DB
             return None
     
     @classmethod
@@ -220,16 +312,12 @@ class BinancePriceService:
             price = cls.get_crypto_price_from_db(symbol, max_age_minutes=5)
             
             if price is None and not force_update:
-                # Prix pas trouvé/trop ancien, essayer une mise à jour
-                print(f"🔄 Mise à jour nécessaire pour {symbol}")
-                cls.update_crypto_prices_in_db()
-                price = cls.get_crypto_price_from_db(symbol, max_age_minutes=1)
+                # Prix pas trouvé/trop ancien, utiliser valeur de cache étendue (24h) SILENCIEUSEMENT
+                price = cls.get_crypto_price_from_db(symbol, max_age_minutes=1440)  # 24h cache
             
             if price is not None:
                 result[symbol] = price
-                print(f"💰 {symbol}: €{price:.2f}")
-            else:
-                print(f"❌ Prix indisponible pour {symbol}")
+            # Suppression des logs pour éviter le spam pendant les erreurs DB
         
         return result
     

@@ -22,6 +22,25 @@
     <style>
     /* ATLAS DESIGN SYSTEM FOR PLATFORM */
     
+    /*
+    COLOR STYLE GUIDE:
+    
+    🟢 ASSETS & POSITIVE ACTIONS:
+    - Use --asset-success (#28a745) and --asset-success-light (#20c997)
+    - For: positive trends, success messages, asset values, confirmations
+    
+    🔴 DEBTS & NEGATIVE ACTIONS:  
+    - Use --debt-primary (#dc3545) and --debt-secondary (#fd7e14)
+    - For: debt amounts, credit balances, delete buttons, error messages
+    - Background: --debt-gradient (red to orange)
+    
+    🔵 PLATFORM BRANDING:
+    - Use --qlower-primary (#137C8B) and --qlower-light (#709CA7) 
+    - For: Atlas brand elements, navigation, primary actions
+    
+    Always use CSS variables instead of hardcoded hex values!
+    */
+    
     :root {
         /* Atlas Color Palette - Same as site */
         --qlower-primary: #137C8B;
@@ -44,6 +63,21 @@
         --platform-sidebar-text: var(--qlower-white);
         --platform-sidebar-text-muted: rgba(255, 255, 255, 0.7);
         --platform-sidebar-active: rgba(255, 255, 255, 0.2);
+        
+        /* Debt/Credit standardized colors (red-orange spectrum) */
+        --debt-primary: #dc3545;        /* Main debt/credit color */
+        --debt-secondary: #fd7e14;      /* Secondary debt/credit accent */
+        --debt-gradient: linear-gradient(135deg, var(--debt-primary) 0%, var(--debt-secondary) 100%);
+        --debt-light-bg: #fee;          /* Light debt background */
+        --debt-lighter-bg: #fdd;        /* Lighter debt background */
+        --debt-border: var(--debt-primary);
+        --debt-text: var(--debt-primary);
+        --debt-text-white: #ffffff;
+        
+        /* Success/Positive colors for assets */
+        --asset-success: #28a745;
+        --asset-success-light: #20c997;
+        --asset-gradient: linear-gradient(90deg, var(--asset-success) 0%, var(--asset-success-light) 100%);
     }
 
     /* Global Reset */
@@ -427,11 +461,11 @@
     }
 
     .platform-flash-success {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        background: var(--asset-gradient);
     }
 
     .platform-flash-error {
-        background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        background: var(--debt-gradient);
     }
 
     .platform-flash-info {
@@ -487,12 +521,16 @@
     /* UTILITY CLASSES */
     .text-primary { color: var(--qlower-primary) !important; }
     .text-secondary { color: var(--qlower-text-light) !important; }
-    .text-success { color: #28a745 !important; }
-    .text-danger { color: #dc3545 !important; }
+    .text-success { color: var(--asset-success) !important; }
+    .text-danger { color: var(--debt-primary) !important; }
+    .text-debt { color: var(--debt-text) !important; }
     .text-warning { color: #ffc107 !important; }
 
     .bg-primary { background-color: var(--qlower-primary) !important; }
     .bg-light { background-color: var(--qlower-bg-light) !important; }
+    .bg-debt { background: var(--debt-gradient) !important; }
+    .bg-debt-light { background-color: var(--debt-light-bg) !important; }
+    .bg-asset-success { background: var(--asset-gradient) !important; }
 
     .border-primary { border-color: var(--qlower-primary) !important; }
 
@@ -586,6 +624,14 @@
                                     <i class="fas fa-user-tie"></i>
                                 </div>
                                 Données investisseur
+                            </a>
+                        </li>
+                        <li class="platform-nav-item">
+                            <a href="{{ url_for('platform_investor.investment_plan') }}" class="platform-nav-link {{ 'active' if request.endpoint == 'platform_investor.investment_plan' }}">
+                                <div class="platform-nav-icon">
+                                    <i class="fas fa-chart-pie"></i>
+                                </div>
+                                Plan d'investissement
                             </a>
                         </li>
                         <li class="platform-nav-item">

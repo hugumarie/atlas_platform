@@ -1,0 +1,778 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Plan d'investissement - {{ user.first_name }} {{ user.last_name }} - Atlas Admin{% endblock %}
+
+{% block page_title %}
+<div class="page-title-responsive">
+    <span>Plan d'investissement : {{ user.first_name }} {{ user.last_name }}</span>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('platform_admin.user_detail', user_id=user.id) }}" class="admin-btn admin-btn-secondary">
+            <i class="fas fa-user-chart me-2"></i>
+            Profil investisseur
+        </a>
+        <a href="{{ url_for('platform_admin.users') }}" class="admin-btn admin-btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Retour à la liste
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- Montant mensuel d'investissement -->
+<div class="admin-card mb-4">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">
+            Montant d'investissement mensuel
+        </h3>
+    </div>
+    <div class="admin-card-body">
+        <div class="monthly-amount-display">
+            <div class="amount-value" id="monthly-amount-display">{{ "%.0f"|format(monthly_amount) }} €</div>
+        </div>
+    </div>
+</div>
+
+<!-- Plan d'investissement -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">
+            Répartition du plan d'investissement
+        </h3>
+    </div>
+    <div class="admin-card-body">
+        <!-- Contrôle des pourcentages moderne -->
+        <div class="modern-percentage-control">
+            <div class="percentage-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="total-percentage">0.0</div>
+                    <div class="stat-label">Utilisé</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <div class="stat-value" id="remaining-percentage">100.0</div>
+                    <div class="stat-label">Restant</div>
+                </div>
+            </div>
+            <div class="modern-progress-bar">
+                <div class="progress-track">
+                    <div class="progress-fill" id="percentage-bar-fill"></div>
+                    <div class="progress-indicator" id="progress-indicator"></div>
+                </div>
+                <div class="progress-labels">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+            <div id="percentage-error" class="error-message" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                La somme des pourcentages ne peut pas dépasser 100%
+            </div>
+        </div>
+
+        <!-- Tableau moderne des lignes d'investissement -->
+        <div class="modern-investment-table">
+            <div class="table-header">
+                <div class="header-cell envelope">Support</div>
+                <div class="header-cell description">Description</div>
+                <div class="header-cell reference">Référence</div>
+                <div class="header-cell percentage">%</div>
+                <div class="header-cell amount">Montant</div>
+                <div class="header-cell actions">Actions</div>
+            </div>
+            <div class="table-body" id="investment-lines-modern">
+                {% if investment_plan.lines %}
+                    {% for line in investment_plan.lines|sort(attribute='order_index') %}
+                    <div class="table-row investment-line" data-line-id="{{ line.id }}">
+                        <div class="table-cell envelope">
+                            <select class="modern-select envelope-select" name="support_envelope" required>
+                                <option value="">Choisir...</option>
+                                {% for envelope_code, envelope_name in available_envelopes %}
+                                <option value="{{ envelope_code }}" {{ 'selected' if line.support_envelope == envelope_code }}>
+                                    {{ envelope_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="table-cell description">
+                            <input type="text" class="modern-input" name="description" 
+                                   value="{{ line.description }}" placeholder="ETF World" required>
+                        </div>
+                        <div class="table-cell reference">
+                            <input type="text" class="modern-input" name="reference" 
+                                   value="{{ line.reference or '' }}" placeholder="IE00B4L5Y983">
+                        </div>
+                        <div class="table-cell percentage">
+                            <input type="number" class="modern-input percentage-input" name="percentage" 
+                                   value="{{ line.percentage }}" placeholder="50" min="0" max="100" step="0.1" required>
+                        </div>
+                        <div class="table-cell amount">
+                            <div class="amount-display modern-amount">{{ "%.2f"|format(line.computed_amount) }} €</div>
+                        </div>
+                        <div class="table-cell actions">
+                            <button type="button" class="modern-delete-btn remove-line" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Ligne vide par défaut -->
+                    <div class="table-row investment-line">
+                        <div class="table-cell envelope">
+                            <select class="modern-select envelope-select" name="support_envelope" required>
+                                <option value="">Choisir...</option>
+                                {% for envelope_code, envelope_name in available_envelopes %}
+                                <option value="{{ envelope_code }}">{{ envelope_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="table-cell description">
+                            <input type="text" class="modern-input" name="description" 
+                                   placeholder="ETF World" required>
+                        </div>
+                        <div class="table-cell reference">
+                            <input type="text" class="modern-input" name="reference" 
+                                   placeholder="IE00B4L5Y983">
+                        </div>
+                        <div class="table-cell percentage">
+                            <input type="number" class="modern-input percentage-input" name="percentage" 
+                                   placeholder="50" min="0" max="100" step="0.1" required>
+                        </div>
+                        <div class="table-cell amount">
+                            <div class="amount-display modern-amount">0.00 €</div>
+                        </div>
+                        <div class="table-cell actions">
+                            <button type="button" class="modern-delete-btn remove-line" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Bouton ajouter une ligne -->
+        <div class="add-line-section">
+            <button class="modern-add-btn" onclick="addInvestmentLine()">
+                <i class="fas fa-plus"></i>
+                Ajouter une ligne
+            </button>
+        </div>
+
+        <!-- Actions modernes -->
+        <div class="modern-actions">
+            <div class="total-summary">
+                <div class="total-label">Total alloué</div>
+                <div class="total-value" id="total-amount">{{ "%.2f"|format(investment_plan.lines|sum(attribute='computed_amount')) }} €</div>
+            </div>
+            <button type="button" class="modern-save-btn" onclick="savePlan()">
+                <i class="fas fa-save"></i>
+                Enregistrer le plan
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Template pour nouvelle ligne (caché) -->
+<template id="investment-line-template">
+    <div class="table-row investment-line">
+        <div class="table-cell envelope">
+            <select class="modern-select envelope-select" name="support_envelope" required>
+                <option value="">Choisir...</option>
+                {% for envelope_code, envelope_name in available_envelopes %}
+                <option value="{{ envelope_code }}">{{ envelope_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="table-cell description">
+            <input type="text" class="modern-input" name="description" 
+                   placeholder="ETF World" required>
+        </div>
+        <div class="table-cell reference">
+            <input type="text" class="modern-input" name="reference" 
+                   placeholder="IE00B4L5Y983">
+        </div>
+        <div class="table-cell percentage">
+            <input type="number" class="modern-input percentage-input" name="percentage" 
+                   placeholder="50" min="0" max="100" step="0.1" required>
+        </div>
+        <div class="table-cell amount">
+            <div class="amount-display modern-amount">0.00 €</div>
+        </div>
+        <div class="table-cell actions">
+            <button type="button" class="modern-delete-btn remove-line" title="Supprimer">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </div>
+</template>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Variables globales
+const monthlyAmount = {{ monthly_amount|default(0) }};
+const userId = {{ user.id }};
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    setupEventListeners();
+    calculateAllAmounts();
+    updatePercentageDisplay();
+});
+
+// Configuration des event listeners
+function setupEventListeners() {
+    // Listener pour les changements de pourcentage
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('percentage-input')) {
+            calculateAllAmounts();
+            updatePercentageDisplay();
+            validatePercentages();
+        }
+    });
+    
+    // Listener pour la suppression de ligne
+    document.addEventListener('click', function(e) {
+        const deleteBtn = e.target.closest('.remove-line');
+        if (deleteBtn) {
+            const row = deleteBtn.closest('.table-row');
+            if (row) {
+                removeInvestmentLine(row);
+            }
+        }
+    });
+}
+
+// Ajouter une nouvelle ligne d'investissement
+function addInvestmentLine() {
+    const template = document.getElementById('investment-line-template');
+    const tbody = document.getElementById('investment-lines-modern');
+    const newRow = template.content.cloneNode(true);
+    tbody.appendChild(newRow);
+    
+    calculateAllAmounts();
+    updatePercentageDisplay();
+}
+
+// Supprimer une ligne d'investissement
+function removeInvestmentLine(row) {
+    if (document.querySelectorAll('.investment-line').length > 1) {
+        row.remove();
+        calculateAllAmounts();
+        updatePercentageDisplay();
+        validatePercentages();
+    } else {
+        alert('Au moins une ligne doit être conservée.');
+    }
+}
+
+// Calculer tous les montants
+function calculateAllAmounts() {
+    const lines = document.querySelectorAll('.investment-line');
+    let totalAmount = 0;
+    
+    lines.forEach(line => {
+        const percentageInput = line.querySelector('.percentage-input');
+        const amountDisplay = line.querySelector('.amount-display');
+        
+        const percentage = parseFloat(percentageInput.value) || 0;
+        const amount = (monthlyAmount * percentage / 100);
+        
+        amountDisplay.textContent = amount.toFixed(2) + ' €';
+        totalAmount += amount;
+    });
+    
+    // Mettre à jour le total
+    document.getElementById('total-amount').textContent = totalAmount.toFixed(2) + ' €';
+}
+
+// Mettre à jour l'affichage des pourcentages
+function updatePercentageDisplay() {
+    const lines = document.querySelectorAll('.investment-line');
+    let totalPercentage = 0;
+    
+    lines.forEach(line => {
+        const percentageInput = line.querySelector('.percentage-input');
+        const percentage = parseFloat(percentageInput.value) || 0;
+        totalPercentage += percentage;
+    });
+    
+    const remaining = Math.max(0, 100 - totalPercentage);
+    
+    document.getElementById('total-percentage').textContent = totalPercentage.toFixed(1);
+    document.getElementById('remaining-percentage').textContent = remaining.toFixed(1);
+    
+    // Mise à jour de la barre de progression moderne
+    const progressBar = document.getElementById('percentage-bar-fill');
+    const progressIndicator = document.getElementById('progress-indicator');
+    const progressWidth = Math.min(100, totalPercentage);
+    progressBar.style.width = progressWidth + '%';
+    progressIndicator.style.left = progressWidth + '%';
+    
+    // Couleur de la barre selon le pourcentage
+    const remainingElement = document.getElementById('remaining-percentage');
+    if (totalPercentage > 100) {
+        progressBar.style.background = 'linear-gradient(90deg, #ff4757, #ff3742)';
+        remainingElement.style.color = '#ff4757';
+    } else if (totalPercentage > 90) {
+        progressBar.style.background = 'linear-gradient(90deg, #ffa726, #ff9800)';
+        remainingElement.style.color = '#ff9800';
+    } else {
+        progressBar.style.background = 'linear-gradient(90deg, #66bb6a, #4caf50)';
+        remainingElement.style.color = '#4caf50';
+    }
+}
+
+// Valider les pourcentages
+function validatePercentages() {
+    const lines = document.querySelectorAll('.investment-line');
+    let totalPercentage = 0;
+    
+    lines.forEach(line => {
+        const percentageInput = line.querySelector('.percentage-input');
+        const percentage = parseFloat(percentageInput.value) || 0;
+        totalPercentage += percentage;
+    });
+    
+    const errorDiv = document.getElementById('percentage-error');
+    if (totalPercentage > 100) {
+        errorDiv.style.display = 'block';
+        return false;
+    } else {
+        errorDiv.style.display = 'none';
+        return true;
+    }
+}
+
+// Sauvegarder le plan
+function savePlan() {
+    if (!validatePercentages()) {
+        alert('La somme des pourcentages ne peut pas dépasser 100%');
+        return;
+    }
+    
+    const lines = [];
+    const investmentLines = document.querySelectorAll('.investment-line');
+    
+    investmentLines.forEach(line => {
+        const envelope = line.querySelector('[name="support_envelope"]').value;
+        const description = line.querySelector('[name="description"]').value;
+        const reference = line.querySelector('[name="reference"]').value;
+        const percentage = parseFloat(line.querySelector('[name="percentage"]').value) || 0;
+        
+        if (envelope && description && percentage > 0) {
+            lines.push({
+                support_envelope: envelope,
+                description: description,
+                reference: reference,
+                percentage: percentage
+            });
+        }
+    });
+    
+    if (lines.length === 0) {
+        alert('Veuillez ajouter au moins une ligne valide.');
+        return;
+    }
+    
+    // Désactiver le bouton pendant la sauvegarde
+    const saveBtn = event.target;
+    const originalText = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sauvegarde...';
+    
+    // Envoyer les données
+    fetch(`/plateforme/admin/utilisateur/${userId}/plan-investissement/save`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            lines: lines
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Succès
+            alert('Plan d\'investissement sauvegardé avec succès !');
+            
+            // Optionnel : recharger la page pour voir les données mises à jour
+            // window.location.reload();
+        } else {
+            // Erreur
+            alert('Erreur : ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur de connexion lors de la sauvegarde.');
+    })
+    .finally(() => {
+        // Réactiver le bouton
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
+    });
+}
+</script>
+
+<style>
+/* Styles spécifiques pour le plan d'investissement moderne */
+.monthly-amount-display {
+    text-align: center;
+    padding: 10px;
+}
+
+.amount-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--qlower-primary);
+    margin-bottom: 8px;
+}
+
+/* Contrôle des pourcentages moderne */
+.modern-percentage-control {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid #e3e6ea;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.percentage-stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--qlower-primary);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-divider {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, #ddd, transparent);
+}
+
+.modern-progress-bar {
+    margin-bottom: 16px;
+}
+
+.progress-track {
+    height: 12px;
+    background: #e9ecef;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #66bb6a, #4caf50);
+    border-radius: 6px;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+}
+
+.progress-indicator {
+    position: absolute;
+    top: -4px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 3px solid #4caf50;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.error-message {
+    background: linear-gradient(135deg, #ffe6e6, #ffcccc);
+    color: #d32f2f;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    border-left: 4px solid #f44336;
+}
+
+/* Tableau moderne */
+.modern-investment-table {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1.5fr 100px 120px 80px;
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-dark));
+    color: white;
+    padding: 0;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.header-cell {
+    padding: 12px 8px;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.header-cell:last-child {
+    border-right: none;
+}
+
+.table-body {
+    background: white;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1.5fr 100px 120px 80px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+}
+
+.table-row:hover {
+    background: linear-gradient(135deg, #f8f9ff, #f0f4ff);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.table-cell {
+    padding: 12px 8px;
+    display: flex;
+    align-items: center;
+}
+
+/* Inputs et selects modernes */
+.modern-input, .modern-select {
+    width: 100%;
+    border: 2px solid #e3e6ea;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    background: white;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.modern-input:focus, .modern-select:focus {
+    border-color: var(--qlower-primary);
+    box-shadow: 0 0 0 3px rgba(19, 124, 139, 0.1);
+    outline: none;
+}
+
+.modern-input:hover, .modern-select:hover {
+    border-color: var(--qlower-light);
+}
+
+.modern-amount {
+    background: linear-gradient(135deg, #f0f4ff, #e3f2fd);
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--qlower-primary);
+    text-align: center;
+    border: 2px solid transparent;
+    width: 100%;
+}
+
+.modern-delete-btn {
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    border: 2px solid transparent;
+    color: #d32f2f;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modern-delete-btn:hover {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+/* Bouton ajouter une ligne */
+.add-line-section {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.modern-add-btn {
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-dark));
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 3px 12px rgba(19, 124, 139, 0.3);
+}
+
+.modern-add-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.4);
+    background: linear-gradient(135deg, var(--qlower-dark), #2c5f6b);
+}
+
+.modern-add-btn:active {
+    transform: translateY(0);
+}
+
+/* Actions modernes */
+.modern-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 16px;
+    border: 1px solid #e3e6ea;
+}
+
+.total-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.total-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.total-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--qlower-primary);
+}
+
+.modern-save-btn {
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-dark));
+    border: none;
+    color: white;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(19, 124, 139, 0.3);
+}
+
+.modern-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(19, 124, 139, 0.4);
+    background: linear-gradient(135deg, var(--qlower-dark), #2c5f6b);
+}
+
+.modern-save-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .table-header, .table-row {
+        grid-template-columns: 1.8fr 1.8fr 1.2fr 90px 100px 70px;
+    }
+}
+
+@media (max-width: 768px) {
+    .amount-value {
+        font-size: 2rem;
+    }
+    
+    .percentage-stats {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .stat-divider {
+        width: 40px;
+        height: 2px;
+        align-self: center;
+    }
+    
+    .table-header, .table-row {
+        grid-template-columns: 1fr;
+        text-align: left;
+    }
+    
+    .table-cell {
+        padding: 12px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .header-cell {
+        padding: 12px;
+    }
+    
+    .modern-actions {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}

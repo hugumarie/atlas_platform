@@ -9,6 +9,7 @@ from app.models.user import User
 from app.models.investor_profile import InvestorProfile
 from app.models.subscription import Subscription
 from app.models.apprentissage import Apprentissage
+from app.models.investment_plan import InvestmentPlan, InvestmentPlanLine, AVAILABLE_ENVELOPES
 from sqlalchemy import or_
 from flask import jsonify
 import requests
@@ -25,6 +26,7 @@ platform_admin_bp = Blueprint('platform_admin', __name__, url_prefix='/plateform
 @platform_admin_bp.route('/dashboard')
 @login_required
 def dashboard():
+    print("*** ROUTE PLATFORM/ADMIN/DASHBOARD EXECUTEE ***")
     """
     Dashboard administrateur avec statistiques générales.
     """
@@ -1516,3 +1518,180 @@ def get_crypto_prices():
         
     except Exception as e:
         return jsonify({'error': 'Erreur serveur'}), 500
+
+
+# ===== ROUTES PLAN D'INVESTISSEMENT =====
+
+@platform_admin_bp.route('/api/utilisateur/<int:user_id>/plan-investissement')
+@login_required
+def get_user_investment_plan_api(user_id):
+    """
+    API pour récupérer le plan d'investissement d'un utilisateur.
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    user = User.query.filter_by(id=user_id, is_admin=False, is_prospect=False).first()
+    if not user:
+        return jsonify({'success': False, 'message': 'Utilisateur introuvable'}), 404
+    
+    try:
+        # Récupérer ou créer le plan actif
+        plan = InvestmentPlan.query.filter_by(user_id=user_id, is_active=True).first()
+        if not plan:
+            # Créer un plan par défaut
+            plan = InvestmentPlan(user_id=user_id, name="Plan principal")
+            db.session.add(plan)
+            db.session.commit()
+        
+        # Récupérer le montant mensuel depuis le profil
+        monthly_amount = 0
+        if user.investor_profile and user.investor_profile.monthly_savings_capacity:
+            monthly_amount = user.investor_profile.monthly_savings_capacity
+        
+        return jsonify({
+            'success': True,
+            'plan': plan.to_dict(),
+            'monthly_amount': monthly_amount,
+            'available_envelopes': AVAILABLE_ENVELOPES
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Erreur: {str(e)}'}), 500
+
+
+
+@platform_admin_bp.route('/utilisateur/<int:user_id>/plan-investissement/ligne/<int:line_id>', methods=['DELETE'])
+@login_required
+def delete_investment_plan_line(user_id, line_id):
+    """
+    Supprimer une ligne de plan d'investissement.
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    try:
+        # Vérifier que la ligne appartient bien au bon utilisateur
+        line = InvestmentPlanLine.query.join(InvestmentPlan).filter(
+            InvestmentPlanLine.id == line_id,
+            InvestmentPlan.user_id == user_id
+        ).first()
+        
+        if not line:
+            return jsonify({'success': False, 'message': 'Ligne introuvable'}), 404
+        
+        db.session.delete(line)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Ligne supprimée avec succès'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Erreur: {str(e)}'}), 500
+
+@platform_admin_bp.route('/utilisateur/<int:user_id>/plan-investissement', methods=['GET'])
+@login_required
+def user_investment_plan(user_id):
+    """
+    Page de gestion du plan d'investissement pour un utilisateur.
+    """
+    if not current_user.is_admin:
+        flash('Accès non autorisé.', 'error')
+        return redirect(url_for('site_pages.index'))
+    
+    # Récupérer l'utilisateur
+    user = User.query.filter_by(id=user_id, is_admin=False, is_prospect=False).first()
+    if not user:
+        flash('Utilisateur introuvable.', 'error')
+        return redirect(url_for('platform_admin.users'))
+    
+    # Récupérer ou créer le plan d'investissement
+    investment_plan = InvestmentPlan.query.filter_by(user_id=user_id, is_active=True).first()
+    if not investment_plan:
+        investment_plan = InvestmentPlan(
+            user_id=user_id,
+            name="Plan d'investissement principal",
+            is_active=True
+        )
+        db.session.add(investment_plan)
+        db.session.commit()
+    
+    # Récupérer le montant mensuel depuis le profil investisseur
+    monthly_amount = 0
+    if user.investor_profile and user.investor_profile.monthly_savings_capacity:
+        monthly_amount = user.investor_profile.monthly_savings_capacity
+    
+    return render_template('platform/admin/user_investment_plan.html', 
+                         user=user, 
+                         investment_plan=investment_plan,
+                         monthly_amount=monthly_amount,
+                         available_envelopes=AVAILABLE_ENVELOPES)
+
+@platform_admin_bp.route('/utilisateur/<int:user_id>/plan-investissement/save', methods=['POST'])
+@login_required
+def save_investment_plan(user_id):
+    """
+    Sauvegarde le plan d'investissement d'un utilisateur.
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    user = User.query.filter_by(id=user_id, is_admin=False, is_prospect=False).first()
+    if not user:
+        return jsonify({'success': False, 'message': 'Utilisateur introuvable'}), 404
+    
+    try:
+        data = request.get_json()
+        lines_data = data.get('lines', [])
+        
+        # Validation : vérifier que la somme des pourcentages ne dépasse pas 100%
+        total_percentage = sum(float(line.get('percentage', 0)) for line in lines_data)
+        if total_percentage > 100:
+            return jsonify({
+                'success': False, 
+                'message': f'La somme des pourcentages ({total_percentage:.1f}%) dépasse 100%'
+            }), 400
+        
+        # Récupérer ou créer le plan
+        investment_plan = InvestmentPlan.query.filter_by(user_id=user_id, is_active=True).first()
+        if not investment_plan:
+            investment_plan = InvestmentPlan(
+                user_id=user_id,
+                name="Plan d'investissement principal",
+                is_active=True
+            )
+            db.session.add(investment_plan)
+            db.session.flush()  # Pour obtenir l'ID
+        
+        # Supprimer toutes les anciennes lignes
+        InvestmentPlanLine.query.filter_by(plan_id=investment_plan.id).delete()
+        
+        # Créer les nouvelles lignes
+        for i, line_data in enumerate(lines_data):
+            if not line_data.get('support_envelope') or not line_data.get('description'):
+                continue  # Ignorer les lignes incomplètes
+                
+            line = InvestmentPlanLine(
+                plan_id=investment_plan.id,
+                support_envelope=line_data.get('support_envelope', ''),
+                description=line_data.get('description', ''),
+                reference=line_data.get('reference', ''),
+                percentage=float(line_data.get('percentage', 0)),
+                order_index=i
+            )
+            db.session.add(line)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Plan d\'investissement sauvegardé avec succès',
+            'plan': investment_plan.to_dict()
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Erreur lors de la sauvegarde: {str(e)}'}), 500

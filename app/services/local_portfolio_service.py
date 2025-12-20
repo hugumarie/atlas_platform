@@ -180,7 +180,7 @@ class LocalPortfolioService:
             print(f"Erreur recalcul autres totaux: {e}")
     
     @classmethod
-    def refresh_user_portfolio_at_login(cls, user):
+    def refresh_user_portfolio_at_login_DISABLED(cls, user):
         """
         Recalcule le portefeuille utilisateur à la connexion.
         Utilise UNIQUEMENT les prix en DB, pas d'appels API.

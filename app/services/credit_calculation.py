@@ -78,21 +78,12 @@ class CreditCalculationService:
         if months_elapsed >= duration_months:
             return 0.0
         
-        if annual_rate == 0:
-            # Si taux = 0%, amortissement linéaire
-            monthly_payment = principal / duration_months
-            return round(principal - (monthly_payment * months_elapsed), 2)
+        # Approche simplifiée : capital remboursé = nb mois × mensualité  
+        monthly_payment = CreditCalculationService.calculate_monthly_payment(principal, annual_rate, duration_months)
+        capital_repaid = monthly_payment * months_elapsed
         
-        # Conversion du taux annuel en taux mensuel
-        monthly_rate = annual_rate / 100 / 12
-        
-        # Formule du capital restant
-        # CRD = P * [(1+r)^n - (1+r)^m] / [(1+r)^n - 1]
-        # où P = capital initial, r = taux mensuel, n = durée totale, m = mois écoulés
-        numerator = principal * (math.pow(1 + monthly_rate, duration_months) - math.pow(1 + monthly_rate, months_elapsed))
-        denominator = math.pow(1 + monthly_rate, duration_months) - 1
-        
-        return round(numerator / denominator, 2)
+        # Capital restant = capital initial - capital remboursé
+        return round(max(0, principal - capital_repaid), 2)
     
     @staticmethod
     def calculate_amortization_schedule(principal: float, annual_rate: float, duration_months: int,
