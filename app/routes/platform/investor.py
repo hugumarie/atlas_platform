@@ -14,12 +14,12 @@ from app.models.investment_plan import InvestmentPlan, InvestmentPlanLine, AVAIL
 import json
 import re
 from datetime import datetime, timedelta
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.lib.units import mm
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+# from reportlab.lib.pagesizes import A4
+# from reportlab.lib import colors
+# from reportlab.lib.units import mm
+# from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+# from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+# from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 import io
 
 platform_investor_bp = Blueprint('platform_investor', __name__, url_prefix='/plateforme')
@@ -1218,8 +1218,11 @@ def change_plan():
         return jsonify({'success': False, 'message': 'Erreur lors du changement de plan'}), 500
 
 @platform_investor_bp.route('/profil/facture/<int:year>/<int:month>')
-@login_required
+@login_required  
 def generate_invoice(year, month):
+    """Fonctionnalité PDF temporairement désactivée pour déploiement"""
+    flash('La génération de factures PDF est temporairement indisponible.', 'warning')
+    return redirect(url_for('platform_investor.profile'))
     """
     Génère une facture PDF pour le mois et l'année spécifiés.
     """
