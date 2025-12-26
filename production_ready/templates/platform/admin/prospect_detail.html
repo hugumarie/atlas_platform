@@ -1,0 +1,601 @@
+m{% extends "admin/base.html" %}
+
+{% block title %}{{ prospect.first_name }} {{ prospect.last_name }} - Atlas Admin{% endblock %}
+
+{% block page_title %}
+<div class="page-title-responsive">
+    <span>Profil Prospect : {{ prospect.first_name }} {{ prospect.last_name }}</span>
+    <a href="{{ url_for('platform_admin.prospects') }}" class="admin-btn admin-btn-secondary">
+        <i class="fas fa-arrow-left"></i>
+        Retour à la liste
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+
+{% if edit_mode %}
+<!-- MODE ÉDITION ADMIN -->
+<div class="edit-mode-container">
+    <div class="edit-header mb-4">
+        <div class="alert alert-warning">
+            <i class="fas fa-user-shield me-2"></i>
+            <strong>Mode édition administrateur :</strong> Vous modifiez les données de {{ prospect.first_name }} {{ prospect.last_name }}.
+        </div>
+    </div>
+    
+    <form id="adminEditForm">
+        <!-- Informations personnelles -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-user text-primary"></i>
+                    Informations personnelles
+                </h3>
+                <p class="platform-card-subtitle">Données de base du prospect</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="financial-edit-grid">
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Prénom</label>
+                        <input type="text" class="form-control" name="first_name" 
+                               value="{{ prospect.first_name }}" required>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Nom</label>
+                        <input type="text" class="form-control" name="last_name" 
+                               value="{{ prospect.last_name }}" required>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Email</label>
+                        <input type="email" class="form-control" name="email" 
+                               value="{{ prospect.email }}" required>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Téléphone</label>
+                        <input type="tel" class="form-control" name="phone" 
+                               value="{{ prospect.phone or '' }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations de suivi prospect -->
+        <div class="platform-card mb-4">
+            <div class="platform-card-header">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-chart-line text-primary"></i>
+                    Suivi prospect
+                </h3>
+                <p class="platform-card-subtitle">Statut et informations de suivi</p>
+            </div>
+            <div class="platform-card-body">
+                <div class="financial-edit-grid">
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Statut</label>
+                        <select class="form-control" name="status">
+                            <option value="nouveau" {{ 'selected' if prospect.prospect_status == 'nouveau' }}>Nouveau</option>
+                            <option value="contacté" {{ 'selected' if prospect.prospect_status == 'contacté' }}>Contacté</option>
+                            <option value="qualifié" {{ 'selected' if prospect.prospect_status == 'qualifié' }}>Qualifié</option>
+                            <option value="converti" {{ 'selected' if prospect.prospect_status == 'converti' }}>Converti</option>
+                            <option value="perdu" {{ 'selected' if prospect.prospect_status == 'perdu' }}>Perdu</option>
+                        </select>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Source</label>
+                        <select class="form-control" name="source">
+                            <option value="site_vitrine" {{ 'selected' if prospect.prospect_source == 'site_vitrine' }}>Site vitrine</option>
+                            <option value="recommandation" {{ 'selected' if prospect.prospect_source == 'recommandation' }}>Recommandation</option>
+                            <option value="publicité" {{ 'selected' if prospect.prospect_source == 'publicité' }}>Publicité</option>
+                            <option value="autre" {{ 'selected' if prospect.prospect_source == 'autre' }}>Autre</option>
+                        </select>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Statut RDV</label>
+                        <select class="form-control" name="appointment_status">
+                            <option value="en_attente" {{ 'selected' if prospect.appointment_status == 'en_attente' }}>En attente</option>
+                            <option value="confirmé" {{ 'selected' if prospect.appointment_status == 'confirmé' }}>Confirmé</option>
+                            <option value="terminé" {{ 'selected' if prospect.appointment_status == 'terminé' }}>Terminé</option>
+                            <option value="annulé" {{ 'selected' if prospect.appointment_status == 'annulé' }}>Annulé</option>
+                        </select>
+                    </div>
+                    <div class="financial-edit-item">
+                        <label class="financial-label">Assigné à</label>
+                        <input type="text" class="form-control" name="assigned_to" 
+                               value="{{ prospect.assigned_to or '' }}" placeholder="Nom du conseiller">
+                    </div>
+                </div>
+                <div class="financial-edit-grid mt-3">
+                    <div class="financial-edit-item" style="grid-column: 1 / -1;">
+                        <label class="financial-label">Notes</label>
+                        <textarea class="form-control" name="notes" rows="4" 
+                                  placeholder="Notes sur le prospect, historique des contacts...">{{ prospect.prospect_notes or '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="edit-actions">
+            <a href="{{ url_for('platform_admin.prospect_detail', prospect_id=prospect.id) }}" class="admin-btn admin-btn-secondary">
+                <i class="fas fa-times"></i>
+                Annuler
+            </a>
+            <button type="submit" class="admin-btn admin-btn-primary">
+                <i class="fas fa-save"></i>
+                Sauvegarder les modifications
+            </button>
+        </div>
+    </form>
+</div>
+
+{% else %}
+<!-- MODE VISUALISATION -->
+<div class="view-mode-container">
+    <!-- Actions rapides -->
+    <div class="admin-actions mb-4">
+        <a href="{{ url_for('platform_admin.prospect_detail', prospect_id=prospect.id, edit='true') }}" class="admin-btn admin-btn-primary">
+            <i class="fas fa-edit"></i>
+            Modifier les données
+        </a>
+        {% if prospect.prospect_status != 'converti' %}
+        <button class="admin-btn admin-btn-success" onclick="convertProspect({{ prospect.id }})">
+            <i class="fas fa-envelope"></i>
+            Envoyer invitation
+        </button>
+        {% endif %}
+    </div>
+
+    <!-- Informations prospect -->
+    <div class="platform-card mb-4">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-user text-primary"></i>
+                Informations personnelles
+            </h3>
+            <p class="platform-card-subtitle">Données de base du prospect</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="user-info-grid">
+                <div class="user-info-item">
+                    <div class="info-label">Nom complet</div>
+                    <div class="info-value">{{ prospect.first_name }} {{ prospect.last_name }}</div>
+                </div>
+                <div class="user-info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">{{ prospect.email }}</div>
+                </div>
+                <div class="user-info-item">
+                    <div class="info-label">Téléphone</div>
+                    <div class="info-value">{{ prospect.phone or 'Non renseigné' }}</div>
+                </div>
+                <div class="user-info-item">
+                    <div class="info-label">Date création</div>
+                    <div class="info-value">{{ prospect.date_created.strftime('%d/%m/%Y à %H:%M') }}</div>
+                </div>
+                {% if prospect.last_contact %}
+                <div class="user-info-item">
+                    <div class="info-label">Dernier contact</div>
+                    <div class="info-value">{{ prospect.last_contact.strftime('%d/%m/%Y à %H:%M') }}</div>
+                </div>
+                {% endif %}
+                <div class="user-info-item">
+                    <div class="info-label">Statut</div>
+                    <div class="info-value">
+                        <span class="status-badge status-active">
+                            Prospect
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suivi prospect -->
+    <div class="platform-card mb-4">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-chart-line text-primary"></i>
+                Suivi prospect
+            </h3>
+            <p class="platform-card-subtitle">Statut et informations de suivi</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="financial-view-grid">
+                <div class="financial-view-item">
+                    <div class="financial-label">Statut prospect</div>
+                    <div class="financial-value">{{ prospect.prospect_status|title }}</div>
+                </div>
+                <div class="financial-view-item">
+                    <div class="financial-label">Source</div>
+                    <div class="financial-value">{{ prospect.prospect_source.replace('_', ' ')|title }}</div>
+                </div>
+                {% if prospect.assigned_to %}
+                <div class="financial-view-item">
+                    <div class="financial-label">Assigné à</div>
+                    <div class="financial-value">{{ prospect.assigned_to }}</div>
+                </div>
+                {% endif %}
+                {% if prospect.appointment_requested %}
+                <div class="financial-view-item">
+                    <div class="financial-label">Statut RDV</div>
+                    <div class="financial-value">{{ prospect.appointment_status.replace('_', ' ')|title }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes -->
+    {% if prospect.prospect_notes %}
+    <div class="platform-card mb-4">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-sticky-note text-primary"></i>
+                Notes
+            </h3>
+            <p class="platform-card-subtitle">Historique et commentaires</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="objectives-content">
+                <div class="objectives-text">{{ prospect.prospect_notes|replace('\n', '<br>')|safe }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Système d'invitation -->
+    {% if prospect.prospect_status != 'converti' %}
+    <div class="platform-card mb-4">
+        <div class="platform-card-header">
+            <h3 class="platform-card-title">
+                <i class="fas fa-envelope text-primary"></i>
+                Système d'invitation
+            </h3>
+            <p class="platform-card-subtitle">Gestion des invitations</p>
+        </div>
+        <div class="platform-card-body">
+            <div class="financial-view-grid">
+                <div class="financial-view-item">
+                    <div class="financial-label">Statut invitation</div>
+                    <div class="financial-value">
+                        {% if prospect.invitation_sent_at %}
+                            Invitation envoyée
+                        {% else %}
+                            Aucune invitation
+                        {% endif %}
+                    </div>
+                </div>
+                {% if prospect.invitation_sent_at %}
+                <div class="financial-view-item">
+                    <div class="financial-label">Envoyée le</div>
+                    <div class="financial-value">{{ prospect.invitation_sent_at.strftime('%d/%m/%Y') }}</div>
+                </div>
+                {% endif %}
+                {% if prospect.invitation_expires_at %}
+                <div class="financial-view-item">
+                    <div class="financial-label">Expire le</div>
+                    <div class="financial-value">{{ prospect.invitation_expires_at.strftime('%d/%m/%Y') }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endif %}
+
+<!-- Import des styles de la page profil -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/investor_data.css') }}">
+
+<style>
+/* Styles spécifiques admin */
+.admin-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.user-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.user-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: var(--qlower-bg-light);
+    border-radius: 8px;
+}
+
+.info-label {
+    font-weight: 500;
+    color: var(--qlower-text-light);
+    font-size: 14px;
+}
+
+.info-value {
+    font-weight: 600;
+    color: var(--qlower-dark);
+    font-size: 16px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 24px 0;
+    border-top: 1px solid var(--qlower-border);
+    margin-top: 24px;
+}
+
+.alert {
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.alert-warning {
+    background: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+/* Styles spécifiques pour le mode visualisation */
+.financial-view-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.financial-view-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    background: var(--qlower-bg-light);
+    border-radius: 12px;
+    border: 1px solid var(--qlower-border);
+}
+
+.financial-label {
+    font-weight: 500;
+    color: var(--qlower-text-light);
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.financial-value {
+    font-weight: 700;
+    color: var(--qlower-dark);
+    font-size: 20px;
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+}
+
+/* Platform Card specifics */
+.platform-card {
+    background: var(--qlower-white);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--qlower-border);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.platform-card-header {
+    padding: 24px 24px 0;
+    border-bottom: 1px solid var(--qlower-border);
+    margin-bottom: 24px;
+}
+
+.platform-card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.platform-card-subtitle {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    margin: 0 0 24px 0;
+}
+
+.platform-card-body {
+    padding: 0 24px 24px;
+}
+
+/* Objectives */
+.objectives-content {
+    margin-top: 0;
+}
+
+.objectives-text {
+    background: var(--qlower-bg-light);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--qlower-border);
+    color: var(--qlower-dark);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Form Controls */
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--qlower-dark);
+    background-color: var(--qlower-white);
+    background-clip: padding-box;
+    border: 2px solid var(--qlower-border);
+    border-radius: 12px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.form-control:focus {
+    color: var(--qlower-dark);
+    background-color: var(--qlower-white);
+    border-color: var(--qlower-primary);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(19, 124, 139, 0.1);
+}
+
+/* Financial Edit Grid */
+.financial-edit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.financial-edit-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.financial-label {
+    font-weight: 600;
+    color: var(--qlower-dark);
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .financial-view-grid,
+    .user-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .financial-edit-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .edit-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+</style>
+
+<script>
+// Gestion du formulaire d'édition admin
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('adminEditForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            fetch(`/plateforme/admin/prospect/{{ prospect.id }}/modifier`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Prospect mis à jour avec succès !');
+                    window.location.href = '{{ url_for("platform_admin.prospect_detail", prospect_id=prospect.id) }}';
+                } else {
+                    alert('Erreur: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la sauvegarde');
+            });
+        });
+    }
+});
+
+function convertProspect(prospectId) {
+    if (confirm('Envoyer une invitation à ce prospect pour créer son compte Atlas ?')) {
+        fetch(`/plateforme/admin/prospect/${prospectId}/convert`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Invitation envoyée avec succès ! Le prospect va recevoir un email pour créer son compte.');
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'envoi de l\'invitation');
+        });
+    }
+}
+
+function inviteProspect(prospectId) {
+    if (confirm('Envoyer une invitation à ce prospect pour créer son compte ?')) {
+        fetch(`/plateforme/admin/prospect/${prospectId}/invite`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Invitation envoyée avec succès !');
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de l\'envoi de l\'invitation');
+        });
+    }
+}
+</script>
+{% endblock %}

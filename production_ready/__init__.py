@@ -23,10 +23,10 @@ def create_app():
     app = Flask(__name__)
     
     # Configuration
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'votre-cle-secrete-très-longue-et-complexe')
+    app.config['SECRET_KEY'] = 'votre-cle-secrete-très-longue-et-complexe'
     
     # Configuration PostgreSQL
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://huguesmarie:@localhost:5432/atlas_db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://huguesmarie:@localhost:5432/atlas_db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = 'app/static/uploads'
     

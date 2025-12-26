@@ -1,0 +1,607 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ apprentissage.nom }} - Formation Atlas Admin{% endblock %}
+
+{% block page_title %}{{ apprentissage.nom }}{% endblock %}
+
+{% block head %}
+<style>
+/* Header de formation */
+.formation-header {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--qlower-border);
+    margin-bottom: 8px;
+    box-shadow: 0 2px 12px rgba(19, 124, 139, 0.04);
+    overflow: hidden;
+}
+
+.formation-header-nav {
+    padding: 8px 20px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.formation-back-btn {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    font-size: 14px;
+}
+
+.formation-back-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+    color: white;
+    text-decoration: none;
+}
+
+.formation-breadcrumb {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.breadcrumb-current {
+    font-weight: 600;
+    color: white;
+}
+
+.formation-hero {
+    padding: 8px 20px;
+}
+
+.formation-content-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.formation-hero-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--qlower-bg-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(19, 124, 139, 0.1);
+}
+
+.formation-hero-placeholder {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%);
+    color: white;
+    font-size: 24px;
+}
+
+.formation-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.formation-hero-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.formation-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--qlower-primary);
+    margin: 0 0 4px 0;
+    line-height: 1.3;
+}
+
+.formation-description {
+    font-size: 14px;
+    color: var(--qlower-text-dark);
+    line-height: 1.4;
+    margin: 0 0 6px 0;
+}
+
+.formation-meta {
+    display: flex;
+    gap: 12px;
+}
+
+.formation-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(19, 124, 139, 0.1);
+    color: var(--qlower-primary);
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-badge {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+    margin-left: 8px;
+}
+
+/* PDF Viewer */
+.pdf-viewer-container {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 120px);
+    min-height: 800px;
+    border: 1px solid var(--qlower-border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: #f8f9fa;
+    box-shadow: 0 4px 24px rgba(19, 124, 139, 0.06);
+}
+
+.pdf-toolbar {
+    background: rgba(248, 249, 250, 0.95);
+    border-bottom: 1px solid rgba(19, 124, 139, 0.08);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    backdrop-filter: blur(10px);
+    min-height: 44px;
+}
+
+.pdf-toolbar-title {
+    font-weight: 500;
+    color: var(--qlower-text-light);
+    margin: 0;
+    flex: 1;
+    min-width: 200px;
+    font-size: 14px;
+}
+
+.pdf-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pdf-btn {
+    background: rgba(19, 124, 139, 0.1);
+    color: var(--qlower-primary);
+    border: 1px solid rgba(19, 124, 139, 0.2);
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.pdf-btn:hover {
+    background: rgba(19, 124, 139, 0.15);
+    border-color: var(--qlower-primary);
+}
+
+.pdf-btn:disabled {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--qlower-text-light);
+    border-color: rgba(0, 0, 0, 0.1);
+    cursor: not-allowed;
+}
+
+.pdf-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--qlower-bg-light);
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+.pdf-page-input {
+    width: 60px;
+    text-align: center;
+    border: 1px solid var(--qlower-border);
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 14px;
+}
+
+.pdf-scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px;
+    background: #f5f5f5;
+    max-height: calc(100% - 50px);
+}
+
+.pdf-pages {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 0 40px 0;
+}
+
+.pdf-page {
+    border: 1px solid #ddd;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    background: white;
+    max-width: 100%;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.pdf-page:hover {
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+    transform: translateY(-2px);
+}
+
+.pdf-page-info {
+    font-size: 12px;
+    color: var(--qlower-text-light);
+}
+
+.pdf-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--qlower-text-light);
+    font-size: 16px;
+}
+
+.pdf-error {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--qlower-text-light);
+}
+
+.formation-info {
+    background: var(--qlower-white);
+    border: 1px solid var(--qlower-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.formation-description {
+    color: var(--qlower-text-dark);
+    line-height: 1.6;
+    margin: 12px 0 0 0;
+}
+
+/* Désactiver la sélection et le clic droit */
+.pdf-viewer-container {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .formation-content-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .formation-hero-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .formation-title {
+        font-size: 24px;
+    }
+    
+    .formation-description {
+        font-size: 16px;
+    }
+    
+    .formation-hero {
+        padding: 20px 16px;
+    }
+    
+    .formation-header-nav {
+        padding: 16px;
+    }
+    
+    .pdf-viewer-container {
+        height: calc(100vh - 200px);
+        min-height: 600px;
+    }
+    
+    .pdf-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px 16px;
+    }
+    
+    .pdf-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .pdf-nav {
+        flex-wrap: wrap;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header de la formation -->
+<div class="formation-header">
+    <div class="formation-header-nav">
+        <a href="{{ url_for('platform_admin.apprentissages') }}" class="formation-back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="formation-breadcrumb">
+            <span class="breadcrumb-item">Admin</span>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-item">Formations</span>
+            <i class="fas fa-chevron-right"></i>
+            <span class="breadcrumb-current">{{ apprentissage.nom }}</span>
+        </div>
+    </div>
+    
+    <div class="formation-hero">
+        <div class="formation-content-header">
+            {% if apprentissage.image %}
+            <div class="formation-hero-image">
+                <img src="{{ url_for('static', filename='uploads/apprentissages/' + apprentissage.image) }}" 
+                     alt="{{ apprentissage.nom }}" 
+                     class="formation-image">
+            </div>
+            {% else %}
+            <div class="formation-hero-image formation-hero-placeholder">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            {% endif %}
+            
+            <div class="formation-hero-content">
+                <h1 class="formation-title">{{ apprentissage.nom }}</h1>
+                {% if apprentissage.description %}
+                <p class="formation-description">{{ apprentissage.description }}</p>
+                {% endif %}
+                <div class="formation-meta">
+                    <span class="formation-badge">
+                        <i class="fas fa-file-pdf"></i>
+                        Formation PDF
+                    </span>
+                    <span class="formation-badge admin-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        Mode Admin
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lecteur PDF -->
+<div class="pdf-viewer-container">
+    <div class="pdf-toolbar">
+        <div class="pdf-toolbar-title">Contenu de la formation - Vue Admin</div>
+        <div class="pdf-controls">
+            <span id="pageInfo" class="pdf-page-info">Chargement...</span>
+            <button id="zoomOut" class="pdf-btn">
+                <i class="fas fa-search-minus"></i>
+            </button>
+            <button id="zoomIn" class="pdf-btn">
+                <i class="fas fa-search-plus"></i>
+            </button>
+            <button id="fitWidth" class="pdf-btn">
+                <i class="fas fa-arrows-alt-h"></i>
+                Ajuster
+            </button>
+        </div>
+    </div>
+    
+    <div class="pdf-loading" id="pdfLoading">
+        <i class="fas fa-spinner fa-spin me-2"></i>
+        Chargement du document...
+    </div>
+    
+    <div class="pdf-scroll-container" id="pdfContainer" style="display: none;">
+        <div id="pdfPages" class="pdf-pages"></div>
+    </div>
+    
+    <div class="pdf-error" id="pdfError">
+        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 16px; color: #dc3545;"></i>
+        <h4>Erreur de chargement</h4>
+        <p>Impossible de charger le document PDF. Veuillez réessayer plus tard.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+// Configuration PDF.js
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let pdfDoc = null;
+let scale = 1.0;
+let totalPages = 0;
+let renderedPages = 0;
+
+// Désactiver le menu contextuel (clic droit)
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+
+// Désactiver certains raccourcis clavier
+document.addEventListener('keydown', function(e) {
+    // Désactiver Ctrl+S (Sauvegarder), Ctrl+P (Imprimer), etc.
+    if (e.ctrlKey && (e.keyCode === 83 || e.keyCode === 80 || e.keyCode === 85)) {
+        e.preventDefault();
+        return false;
+    }
+    // Désactiver F12 (DevTools)
+    if (e.keyCode === 123) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+// Désactiver la sélection de texte et le glisser-déposer
+document.onselectstart = function() { return false; };
+document.ondragstart = function() { return false; };
+
+// Fonction pour rendre toutes les pages
+function renderAllPages() {
+    const loadingEl = document.getElementById('pdfLoading');
+    const containerEl = document.getElementById('pdfContainer');
+    const pagesContainer = document.getElementById('pdfPages');
+    
+    loadingEl.style.display = 'flex';
+    containerEl.style.display = 'none';
+    pagesContainer.innerHTML = '';
+    
+    renderedPages = 0;
+    
+    // Créer toutes les pages
+    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        renderPage(pageNum);
+    }
+}
+
+// Fonction pour rendre une page spécifique
+function renderPage(pageNumber) {
+    pdfDoc.getPage(pageNumber).then(function(page) {
+        const viewport = page.getViewport({ scale: scale });
+        
+        // Créer un canvas pour cette page
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        canvas.className = 'pdf-page';
+        
+        const renderContext = {
+            canvasContext: ctx,
+            viewport: viewport
+        };
+        
+        page.render(renderContext).promise.then(function() {
+            // Ajouter la page au conteneur
+            const pagesContainer = document.getElementById('pdfPages');
+            pagesContainer.appendChild(canvas);
+            
+            renderedPages++;
+            
+            // Si toutes les pages sont rendues, afficher le conteneur
+            if (renderedPages === totalPages) {
+                document.getElementById('pdfLoading').style.display = 'none';
+                document.getElementById('pdfContainer').style.display = 'block';
+                updateUI();
+            }
+        });
+    }).catch(function(error) {
+        console.error('Erreur lors du rendu de la page ' + pageNumber + ':', error);
+        renderedPages++;
+        if (renderedPages === totalPages) {
+            showError();
+        }
+    });
+}
+
+// Mettre à jour l'interface utilisateur
+function updateUI() {
+    document.getElementById('pageInfo').textContent = `${totalPages} page${totalPages > 1 ? 's' : ''}`;
+}
+
+// Afficher une erreur
+function showError() {
+    document.getElementById('pdfLoading').style.display = 'none';
+    document.getElementById('pdfContainer').style.display = 'none';
+    document.getElementById('pdfError').style.display = 'block';
+}
+
+// Ajuster la largeur de toutes les pages
+function fitToWidth() {
+    if (!pdfDoc) return;
+    
+    const containerWidth = document.getElementById('pdfContainer').clientWidth - 40;
+    
+    pdfDoc.getPage(1).then(function(page) {
+        const viewport = page.getViewport({ scale: 1 });
+        scale = containerWidth / viewport.width;
+        renderAllPages();
+    });
+}
+
+// Gestionnaires d'événements pour les boutons
+document.getElementById('zoomIn').addEventListener('click', function() {
+    scale *= 1.2;
+    renderAllPages();
+});
+
+document.getElementById('zoomOut').addEventListener('click', function() {
+    scale /= 1.2;
+    renderAllPages();
+});
+
+document.getElementById('fitWidth').addEventListener('click', fitToWidth);
+
+// Charger le PDF
+const pdfUrl = '{{ pdf_url }}';
+
+pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+    pdfDoc = pdf;
+    totalPages = pdf.numPages;
+    
+    // Ajuster automatiquement la largeur au chargement
+    const containerWidth = document.getElementById('pdfContainer').clientWidth || 800;
+    
+    pdf.getPage(1).then(function(page) {
+        const viewport = page.getViewport({ scale: 1 });
+        scale = Math.min((containerWidth - 40) / viewport.width, 1.5);
+        renderAllPages();
+    });
+    
+}).catch(function(error) {
+    console.error('Erreur lors du chargement du PDF:', error);
+    showError();
+});
+
+// Ajustement automatique lors du redimensionnement
+window.addEventListener('resize', function() {
+    if (pdfDoc) {
+        setTimeout(fitToWidth, 100);
+    }
+});
+
+// Ajustement initial
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        if (pdfDoc && totalPages > 0) {
+            fitToWidth();
+        }
+    }, 500);
+});
+</script>
+{% endblock %}

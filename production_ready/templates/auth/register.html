@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Inscription - Patrimoine Pro{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Créer votre compte
+                    </h3>
+                    <p class="mb-0 mt-2">Commencez votre parcours d'investissement</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Avantages de l'inscription -->
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-gift me-2"></i>
+                        <strong>7 jours d'essai gratuit</strong> puis 20€/mois
+                    </div>
+                    
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="first_name" class="form-label">
+                                        <i class="fas fa-user me-1"></i>Prénom *
+                                    </label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="last_name" class="form-label">
+                                        <i class="fas fa-user me-1"></i>Nom *
+                                    </label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope me-1"></i>Email *
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">
+                                <i class="fas fa-phone me-1"></i>Téléphone
+                            </label>
+                            <input type="tel" class="form-control" id="phone" name="phone">
+                            <div class="form-text">Pour vos appels mensuels avec nos conseillers</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Mot de passe *
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                            <div class="form-text">Minimum 6 caractères</div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                J'accepte les <a href="#" class="text-primary">conditions d'utilisation</a> 
+                                et la <a href="#" class="text-primary">politique de confidentialité</a> *
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-rocket me-2"></i>Créer mon compte
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center">
+                        <p class="mb-0">Déjà un compte ? 
+                            <a href="{{ url_for('auth.login') }}" class="text-primary">Se connecter</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Avantages après inscription -->
+            <div class="card mt-4 border-0">
+                <div class="card-body">
+                    <h5 class="text-center mb-3">Ce qui vous attend après inscription :</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4 text-center">
+                            <i class="fas fa-clipboard-list fa-2x text-primary mb-2"></i>
+                            <p class="small">Questionnaire de profil</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="fas fa-chart-pie fa-2x text-success mb-2"></i>
+                            <p class="small">Dashboard personnalisé</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="fas fa-graduation-cap fa-2x text-info mb-2"></i>
+                            <p class="small">Formations & outils</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validation du formulaire
+    const form = document.querySelector('form');
+    const password = document.getElementById('password');
+    
+    form.addEventListener('submit', function(e) {
+        if (password.value.length < 6) {
+            e.preventDefault();
+            alert('Le mot de passe doit contenir au moins 6 caractères.');
+            return false;
+        }
+    });
+    
+    // Animation des avantages
+    const advantages = document.querySelectorAll('.card-body .col-md-4');
+    advantages.forEach((item, index) => {
+        setTimeout(() => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            item.style.transition = 'all 0.5s ease';
+            
+            setTimeout(() => {
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+            }, 100);
+        }, index * 200);
+    });
+});
+</script>
+{% endblock %}

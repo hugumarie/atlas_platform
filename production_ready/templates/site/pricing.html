@@ -1,0 +1,1377 @@
+{% extends "site/base_new.html" %}
+
+{% block title %}Tarifs - Atlas{% endblock %}
+
+{% block head %}
+<!-- Google Fonts - Encode Sans Condensed for hero -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+/* EXACT REPLICA OF INDEX DESIGN SYSTEM */
+
+/* Color Variables - Same as index */
+:root {
+    --qlower-primary: #137C8B;
+    --qlower-dark: #344D59;
+    --qlower-light: #709CA7;
+    --qlower-tertiary-color: #B8CBD0;
+    --qlower-quaternary-color: #7A90A4;
+    --qlower-bg-light: #f8f9fa;
+    --qlower-text-dark: #344D59;
+    --qlower-text-light: #7A90A4;
+    --qlower-border: #e5e7eb;
+    --qlower-white: #ffffff;
+}
+
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Navigation styles - Same as index */
+.qlower-navbar *, 
+.qlower-nav-container *, 
+.qlower-nav-menu *, 
+.qlower-nav-item *, 
+.qlower-nav-link *,
+.qlower-nav-actions * {
+    border: none !important;
+    outline: none !important;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--qlower-text-dark);
+    background-color: var(--qlower-white);
+    overflow-x: hidden;
+}
+
+/* Navigation - Same as index */
+.qlower-navbar {
+    background: transparent;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 12px 24px;
+    border: none;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.qlower-nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    background: var(--qlower-white);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    min-height: 56px;
+    border: none;
+    outline: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.qlower-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    letter-spacing: -0.025em;
+}
+
+.qlower-logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.qlower-logo-icon::before {
+    content: 'A';
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.qlower-nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+    height: 100%;
+}
+
+.qlower-nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.qlower-nav-link {
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+.qlower-nav-link:hover {
+    background-color: #f9fafb;
+    color: var(--qlower-primary);
+}
+
+.qlower-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 100%;
+}
+
+.qlower-btn-demo {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: auto;
+}
+
+.qlower-btn-demo:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+    color: var(--qlower-white);
+    background: linear-gradient(135deg, #0f6b75 0%, #5d8a94 100%);
+}
+
+.qlower-btn-espace {
+    background: var(--qlower-dark);
+    color: var(--qlower-white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: auto;
+}
+
+.qlower-btn-espace:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(52, 77, 89, 0.3);
+    color: var(--qlower-white);
+    background: #2a3d47;
+}
+
+/* HERO SECTION - Green background */
+.qlower-hero {
+    padding: 140px 0 80px;
+    background: var(--qlower-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.qlower-hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    text-align: center;
+}
+
+.qlower-hero h1 {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--qlower-white);
+    margin-bottom: 24px;
+    letter-spacing: -0.025em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.qlower-hero-subtitle {
+    font-size: 20px;
+    color: var(--qlower-white);
+    margin-bottom: 40px;
+    line-height: 1.5;
+    font-weight: 400;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* SECTIONS SYSTEM */
+.qlower-section {
+    padding: 100px 0;
+}
+
+.qlower-section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.qlower-section-header {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+.qlower-section-title {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--qlower-dark);
+    margin-bottom: 20px;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+}
+
+.qlower-section-subtitle {
+    font-size: 20px;
+    color: var(--qlower-text-light);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* PRICING CARDS SYSTEM */
+.qlower-pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+}
+
+.qlower-pricing-card {
+    background: var(--qlower-white);
+    border: 2px solid var(--qlower-border);
+    border-radius: 20px;
+    padding: 40px 32px;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.qlower-pricing-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    border-color: var(--qlower-primary);
+}
+
+.qlower-pricing-popular {
+    border-color: var(--qlower-primary);
+    box-shadow: 0 15px 40px rgba(19, 124, 139, 0.15);
+    transform: scale(1.05);
+}
+
+.qlower-pricing-popular:hover {
+    transform: scale(1.05) translateY(-8px);
+}
+
+.qlower-pricing-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+    padding: 8px 24px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.qlower-pricing-header h3 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--qlower-dark);
+    margin-bottom: 8px;
+}
+
+.qlower-pricing-subtitle {
+    font-size: 16px;
+    color: var(--qlower-text-light);
+    margin-bottom: 32px;
+}
+
+.qlower-pricing-price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 40px;
+}
+
+.qlower-pricing-currency {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--qlower-primary);
+}
+
+.qlower-pricing-amount {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--qlower-dark);
+    line-height: 1;
+}
+
+.qlower-pricing-period {
+    font-size: 18px;
+    color: var(--qlower-text-light);
+    font-weight: 500;
+}
+
+.qlower-pricing-amount-custom {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--qlower-primary);
+}
+
+.qlower-pricing-features {
+    text-align: left;
+    margin-bottom: 40px;
+}
+
+.qlower-pricing-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.qlower-pricing-feature i {
+    color: var(--qlower-primary);
+    font-size: 16px;
+    width: 16px;
+    flex-shrink: 0;
+}
+
+.qlower-pricing-feature span {
+    font-size: 16px;
+    color: var(--qlower-text-dark);
+    font-weight: 500;
+}
+
+.qlower-pricing-btn {
+    display: block;
+    width: 100%;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.qlower-pricing-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(19, 124, 139, 0.3);
+    color: var(--qlower-white);
+}
+
+.qlower-pricing-btn-outline {
+    background: transparent;
+    color: var(--qlower-primary);
+    border: 2px solid var(--qlower-primary);
+}
+
+.qlower-pricing-btn-outline:hover {
+    background: var(--qlower-primary);
+    color: var(--qlower-white);
+}
+
+/* COMPARISON TABLE */
+.qlower-comparison-table {
+    background: var(--qlower-white);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.qlower-comparison-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.qlower-comparison-table th,
+.qlower-comparison-table td {
+    padding: 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--qlower-border);
+}
+
+.qlower-comparison-table th {
+    background: var(--qlower-bg-light);
+    font-weight: 600;
+    color: var(--qlower-dark);
+}
+
+.qlower-comparison-table .feature-name {
+    font-weight: 500;
+    color: var(--qlower-text-dark);
+}
+
+.qlower-comparison-table .check-yes {
+    color: var(--qlower-primary);
+    font-size: 18px;
+}
+
+.qlower-comparison-table .check-no {
+    color: var(--qlower-text-light);
+    font-size: 18px;
+}
+
+/* FAQ ACCORDION */
+.qlower-faq-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.qlower-faq-item {
+    background: var(--qlower-white);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.qlower-faq-item:hover {
+    border-color: var(--qlower-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.qlower-faq-question {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.qlower-faq-question:hover {
+    background-color: #f8f9fa;
+}
+
+.qlower-faq-question h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin: 0;
+    flex: 1;
+    padding-right: 12px;
+}
+
+.qlower-faq-question i {
+    color: var(--qlower-primary);
+    font-size: 14px;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.qlower-faq-item.active .qlower-faq-question i {
+    transform: rotate(180deg);
+}
+
+.qlower-faq-answer {
+    padding: 0 24px 16px;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.qlower-faq-item.active .qlower-faq-answer {
+    max-height: 150px;
+    padding: 0 24px 20px;
+}
+
+.qlower-faq-answer p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--qlower-text-dark);
+    margin: 0;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* CTA SECTION */
+.qlower-cta-section {
+    background: var(--qlower-bg-light);
+    padding: 100px 0;
+}
+
+.qlower-cta-content {
+    text-align: center;
+}
+
+.qlower-cta-title {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--qlower-dark);
+    margin-bottom: 20px;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+}
+
+.qlower-cta-subtitle {
+    font-size: 20px;
+    color: var(--qlower-text-light);
+    margin-bottom: 48px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+}
+
+.qlower-cta-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.qlower-btn-cta-primary {
+    background: var(--qlower-primary);
+    color: var(--qlower-white);
+    padding: 18px 36px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(19, 124, 139, 0.2);
+}
+
+.qlower-btn-cta-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 35px rgba(19, 124, 139, 0.4);
+    color: var(--qlower-white);
+    background: #0f6b75;
+}
+
+.qlower-btn-cta-secondary {
+    background: transparent;
+    color: var(--qlower-dark);
+    padding: 18px 36px;
+    border: 2px solid var(--qlower-dark);
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.qlower-btn-cta-secondary:hover {
+    background: var(--qlower-dark);
+    color: var(--qlower-white);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 35px rgba(52, 77, 89, 0.2);
+}
+
+/* Footer - Same as index */
+.qlower-footer {
+    background: var(--qlower-primary);
+    padding: 60px 24px 24px;
+    margin-top: 0;
+}
+
+.qlower-footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--qlower-white);
+    border-radius: 20px;
+    padding: 48px 40px 32px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.qlower-footer-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 60px;
+    margin-bottom: 40px;
+}
+
+.qlower-footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.qlower-footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.qlower-footer-logo span {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    letter-spacing: -0.025em;
+}
+
+.qlower-footer-description {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--qlower-text-light);
+    margin: 0;
+    max-width: 280px;
+}
+
+.qlower-footer-social {
+    display: flex;
+    gap: 16px;
+}
+
+.qlower-social-link {
+    width: 40px;
+    height: 40px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--qlower-text-light);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.qlower-social-link:hover {
+    background: var(--qlower-primary);
+    color: var(--qlower-white);
+    transform: translateY(-2px);
+}
+
+.qlower-footer-links {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+}
+
+.qlower-footer-column h6 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin-bottom: 20px;
+}
+
+.qlower-footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.qlower-footer-column li {
+    margin-bottom: 12px;
+}
+
+.qlower-footer-link {
+    font-size: 15px;
+    color: var(--qlower-text-light);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: block;
+    padding: 4px 0;
+}
+
+.qlower-footer-link:hover {
+    color: var(--qlower-primary);
+    padding-left: 8px;
+}
+
+.qlower-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 32px;
+    border-top: 1px solid var(--qlower-border);
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.qlower-footer-bottom p {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qlower-footer-bottom i {
+    color: var(--qlower-primary);
+}
+
+/* RESPONSIVE */
+@media (max-width: 991px) {
+    .qlower-nav-menu {
+        display: none;
+    }
+    
+    .qlower-nav-actions {
+        display: none;
+    }
+    
+    .qlower-pricing-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .qlower-pricing-popular {
+        transform: none;
+    }
+    
+    .qlower-pricing-popular:hover {
+        transform: translateY(-8px);
+    }
+    
+    .qlower-footer-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .qlower-footer-links {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+}
+
+@media (max-width: 767px) {
+    .qlower-navbar {
+        padding: 8px 16px;
+    }
+    
+    .qlower-nav-container {
+        padding: 0 16px;
+        height: 48px;
+    }
+    
+    .qlower-hero {
+        padding: 100px 0 60px;
+    }
+    
+    .qlower-hero h1 {
+        font-size: 36px;
+    }
+    
+    .qlower-section-title {
+        font-size: 36px;
+    }
+    
+    .qlower-comparison-table {
+        overflow-x: auto;
+    }
+    
+    .qlower-footer-container {
+        padding: 32px 24px 24px;
+    }
+    
+    .qlower-footer-links {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .qlower-footer-bottom {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 479px) {
+    .qlower-nav-container,
+    .qlower-section-container {
+        padding: 0 16px;
+    }
+    
+    .qlower-hero h1 {
+        font-size: 28px;
+    }
+    
+    .qlower-cta-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .qlower-btn-cta-primary,
+    .qlower-btn-cta-secondary {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Navigation - Same as index -->
+<nav class="qlower-navbar">
+    <div class="qlower-nav-container">
+        <a href="{{ url_for('site_pages.index') }}" class="qlower-logo">
+            <div class="qlower-logo-icon"></div>
+            <span>Atlas</span>
+        </a>
+        
+        <div class="qlower-nav-menu">
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.about') }}" class="qlower-nav-link">À propos</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">
+                    Nos Offres
+                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+                </a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="#" class="qlower-nav-link">
+                    Ressources
+                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="qlower-nav-actions">
+            <div class="qlower-nav-item">
+                <a href="#" class="qlower-nav-link">
+                    FR
+                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+                </a>
+            </div>
+            <a href="#rdv" class="qlower-btn-demo">Prendre RDV</a>
+            <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="qlower-hero">
+    <div class="qlower-hero-container">
+        <h1>Des tarifs transparents pour tous les profils</h1>
+        <p class="qlower-hero-subtitle">
+            Choisissez la formule qui correspond à vos besoins et objectifs patrimoniaux. Pas de frais cachés, pas d'engagement.
+        </p>
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="qlower-section">
+    <div class="qlower-section-container">
+        <div class="qlower-section-header">
+            <h2 class="qlower-section-title">Nos abonnements</h2>
+            <p class="qlower-section-subtitle">
+                Trois formules conçues pour accompagner votre évolution patrimoniale
+            </p>
+        </div>
+        
+        <div class="qlower-pricing-grid">
+            <div class="qlower-pricing-card">
+                <div class="qlower-pricing-header">
+                    <h3>INITIA</h3>
+                    <p class="qlower-pricing-subtitle">Pour débuter sereinement</p>
+                    <div class="qlower-pricing-price">
+                        <span class="qlower-pricing-currency">€</span>
+                        <span class="qlower-pricing-amount">24,99</span>
+                        <span class="qlower-pricing-period">/mois</span>
+                    </div>
+                </div>
+                <div class="qlower-pricing-features">
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Analyse patrimoniale de base</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Recommandations personnalisées</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Suivi de 3 investissements</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Assistant IA de base</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Support par email</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Formations vidéo essentielles</span>
+                    </div>
+                </div>
+                <a href="#rdv" class="qlower-pricing-btn">Choisir INITIA</a>
+            </div>
+            
+            <div class="qlower-pricing-card qlower-pricing-popular">
+                <div class="qlower-pricing-badge">Le plus populaire</div>
+                <div class="qlower-pricing-header">
+                    <h3>OPTIMA</h3>
+                    <p class="qlower-pricing-subtitle">Pour structurer votre patrimoine</p>
+                    <div class="qlower-pricing-price">
+                        <span class="qlower-pricing-currency">€</span>
+                        <span class="qlower-pricing-amount">49,99</span>
+                        <span class="qlower-pricing-period">/mois</span>
+                    </div>
+                </div>
+                <div class="qlower-pricing-features">
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Analyse patrimoniale avancée</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Optimisation fiscale complète</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Suivi illimité d'investissements</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Assistant IA avancé 24/7</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Conseiller dédié (1h/mois)</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Alertes en temps réel</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Formations complètes</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Rapports mensuels détaillés</span>
+                    </div>
+                </div>
+                <a href="#rdv" class="qlower-pricing-btn">Choisir OPTIMA</a>
+            </div>
+            
+            <div class="qlower-pricing-card">
+                <div class="qlower-pricing-header">
+                    <h3>ULTIMA</h3>
+                    <p class="qlower-pricing-subtitle">Gestion complète déléguée</p>
+                    <div class="qlower-pricing-price">
+                        <span class="qlower-pricing-amount-custom">Sur devis</span>
+                    </div>
+                </div>
+                <div class="qlower-pricing-features">
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Gestion déléguée complète</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Conseiller patrimonial dédié</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Stratégies avancées sur mesure</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Support prioritaire 24/7</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Rapports personnalisés</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Accès exclusifs aux IPO</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Conseils fiscaux experts</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('site_pages.contact') }}" class="qlower-pricing-btn qlower-pricing-btn-outline">Nous contacter</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Comparison Table Section -->
+<section class="qlower-section" style="background: var(--qlower-bg-light);">
+    <div class="qlower-section-container">
+        <div class="qlower-section-header">
+            <h2 class="qlower-section-title">Comparatif détaillé</h2>
+            <p class="qlower-section-subtitle">
+                Toutes les fonctionnalités en un coup d'œil pour vous aider à choisir
+            </p>
+        </div>
+        
+        <div class="qlower-comparison-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fonctionnalités</th>
+                        <th>INITIA</th>
+                        <th>OPTIMA</th>
+                        <th>ULTIMA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="feature-name">Analyse patrimoniale</td>
+                        <td><i class="fas fa-check check-yes"></i> Base</td>
+                        <td><i class="fas fa-check check-yes"></i> Avancée</td>
+                        <td><i class="fas fa-check check-yes"></i> Complète</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Nombre d'investissements suivis</td>
+                        <td>3</td>
+                        <td>Illimité</td>
+                        <td>Illimité</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Assistant IA</td>
+                        <td><i class="fas fa-check check-yes"></i> Base</td>
+                        <td><i class="fas fa-check check-yes"></i> Avancé 24/7</td>
+                        <td><i class="fas fa-check check-yes"></i> Premium 24/7</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Optimisation fiscale</td>
+                        <td><i class="fas fa-times check-no"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Conseiller dédié</td>
+                        <td><i class="fas fa-times check-no"></i></td>
+                        <td>1h/mois</td>
+                        <td>Illimité</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Formations</td>
+                        <td>Essentielles</td>
+                        <td>Complètes</td>
+                        <td>Premium + Masterclass</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Rapports</td>
+                        <td>Trimestriels</td>
+                        <td>Mensuels</td>
+                        <td>Hebdomadaires personnalisés</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Support</td>
+                        <td>Email</td>
+                        <td>Email + Chat</td>
+                        <td>Prioritaire 24/7</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Gestion déléguée</td>
+                        <td><i class="fas fa-times check-no"></i></td>
+                        <td><i class="fas fa-times check-no"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="qlower-section">
+    <div class="qlower-section-container">
+        <div class="qlower-section-header">
+            <h2 class="qlower-section-title">Questions fréquentes sur nos tarifs</h2>
+            <p class="qlower-section-subtitle">
+                Tout ce que vous devez savoir sur nos abonnements
+            </p>
+        </div>
+        
+        <div class="qlower-faq-grid">
+            <div class="qlower-faq-item">
+                <div class="qlower-faq-question">
+                    <h4>Puis-je changer d'abonnement à tout moment ?</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="qlower-faq-answer">
+                    <p>Oui, vous pouvez passer d'un plan à un autre à tout moment. Le changement prend effet immédiatement et votre facturation est ajustée au prorata.</p>
+                </div>
+            </div>
+            
+            <div class="qlower-faq-item">
+                <div class="qlower-faq-question">
+                    <h4>Y a-t-il des frais cachés ou des commissions ?</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="qlower-faq-answer">
+                    <p>Non, nos tarifs sont transparents. Nous ne prenons aucune commission sur vos investissements et n'avons aucun frais caché. Le prix affiché est le prix final.</p>
+                </div>
+            </div>
+            
+            <div class="qlower-faq-item">
+                <div class="qlower-faq-question">
+                    <h4>Comment fonctionne la période d'essai ?</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="qlower-faq-answer">
+                    <p>Nous offrons 7 jours d'essai gratuit sur tous nos plans. Aucune carte bancaire requise pour commencer. Vous pouvez annuler à tout moment pendant la période d'essai.</p>
+                </div>
+            </div>
+            
+            <div class="qlower-faq-item">
+                <div class="qlower-faq-question">
+                    <h4>Que se passe-t-il si j'annule mon abonnement ?</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="qlower-faq-answer">
+                    <p>Vous gardez l'accès jusqu'à la fin de votre période payée. Vos données sont conservées 90 jours pour vous permettre de réactiver facilement votre compte.</p>
+                </div>
+            </div>
+            
+            <div class="qlower-faq-item">
+                <div class="qlower-faq-question">
+                    <h4>Comment fonctionne le plan ULTIMA sur devis ?</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="qlower-faq-answer">
+                    <p>Le plan ULTIMA est personnalisé selon votre patrimoine et vos besoins. Nous établissons un devis sur mesure après un entretien avec notre équipe.</p>
+                </div>
+            </div>
+            
+            <div class="qlower-faq-item">
+                <div class="qlower-faq-question">
+                    <h4>Les conseils sont-ils vraiment indépendants ?</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="qlower-faq-answer">
+                    <p>Totalement. Nous ne vendons aucun produit financier et ne recevons aucune rétrocommission. Nos conseils sont uniquement basés sur vos intérêts.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="qlower-cta-section">
+    <div class="qlower-section-container">
+        <div class="qlower-cta-content">
+            <h2 class="qlower-cta-title">Prêt à commencer ?</h2>
+            <p class="qlower-cta-subtitle">
+                Rejoignez plus de 10 000 investisseurs qui optimisent leur patrimoine avec Atlas
+            </p>
+            <div class="qlower-cta-actions">
+                <a href="#rdv" class="qlower-btn-cta-primary">Commencer l'essai gratuit</a>
+                <a href="{{ url_for('site_pages.about') }}" class="qlower-btn-cta-secondary">En savoir plus</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="qlower-footer">
+    <div class="qlower-footer-container">
+        <div class="qlower-footer-content">
+            <div class="qlower-footer-brand">
+                <div class="qlower-footer-logo">
+                    <div class="qlower-logo-icon"></div>
+                    <span>Atlas</span>
+                </div>
+                <p class="qlower-footer-description">
+                    Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
+                </p>
+                <div class="qlower-footer-social">
+                    <a href="#" class="qlower-social-link"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="qlower-footer-links">
+                <div class="qlower-footer-column">
+                    <h6>Produit</h6>
+                    <ul>
+                        <li><a href="#" class="qlower-footer-link">Nos Offres</a></li>
+                        <li><a href="#" class="qlower-footer-link">Fonctionnalités</a></li>
+                        <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
+                        <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Ressources</h6>
+                    <ul>
+                        <li><a href="#" class="qlower-footer-link">Blog</a></li>
+                        <li><a href="#" class="qlower-footer-link">Guides</a></li>
+                        <li><a href="#" class="qlower-footer-link">FAQ</a></li>
+                        <li><a href="{{ url_for('site_pages.contact') }}" class="qlower-footer-link">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Entreprise</h6>
+                    <ul>
+                        <li><a href="{{ url_for('site_pages.about') }}" class="qlower-footer-link">À propos</a></li>
+                        <li><a href="#" class="qlower-footer-link">Devenir Partenaire</a></li>
+                        <li><a href="#" class="qlower-footer-link">Carrières</a></li>
+                        <li><a href="#" class="qlower-footer-link">Presse</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Légal</h6>
+                    <ul>
+                        <li><a href="#" class="qlower-footer-link">CGU</a></li>
+                        <li><a href="#" class="qlower-footer-link">Confidentialité</a></li>
+                        <li><a href="#" class="qlower-footer-link">Cookies</a></li>
+                        <li><a href="#" class="qlower-footer-link">Mentions légales</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="qlower-footer-bottom">
+            <p>&copy; 2024 Atlas. Tous droits réservés.</p>
+            <p>
+                <i class="fas fa-shield-alt"></i>
+                Données sécurisées et cryptées • Agréé AMF & ACPR
+            </p>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Navigation scroll effect - same as index
+const navbar = document.querySelector('.qlower-navbar');
+const navContainer = navbar.querySelector('.qlower-nav-container');
+
+window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    
+    if (currentScrollY > 100) {
+        navContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+        navContainer.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.2)';
+        navContainer.style.backdropFilter = 'blur(15px)';
+    } else {
+        navContainer.style.backgroundColor = 'rgba(255, 255, 255, 1)';
+        navContainer.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.15)';
+        navContainer.style.backdropFilter = 'blur(10px)';
+    }
+    
+    navbar.style.transform = 'translateY(0)';
+});
+
+// FAQ Accordion functionality
+document.querySelectorAll('.qlower-faq-question').forEach(question => {
+    question.addEventListener('click', function() {
+        const faqItem = this.closest('.qlower-faq-item');
+        const isActive = faqItem.classList.contains('active');
+        
+        // Close all other FAQ items
+        document.querySelectorAll('.qlower-faq-item').forEach(item => {
+            if (item !== faqItem) {
+                item.classList.remove('active');
+            }
+        });
+        
+        // Toggle current FAQ item
+        faqItem.classList.toggle('active', !isActive);
+    });
+});
+
+// Initialize first FAQ as open
+document.addEventListener('DOMContentLoaded', function() {
+    const firstFaq = document.querySelector('.qlower-faq-item');
+    if (firstFaq) {
+        firstFaq.classList.add('active');
+    }
+});
+
+// Smooth entrance animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+            
+            const cards = entry.target.querySelectorAll('.qlower-pricing-card, .qlower-faq-item');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.qlower-section').forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(30px)';
+    section.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    observer.observe(section);
+});
+
+document.querySelectorAll('.qlower-pricing-card, .qlower-faq-item').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(30px)';
+    card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+});
+</script>
+{% endblock %}

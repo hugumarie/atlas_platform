@@ -1,0 +1,941 @@
+{% extends "site/base_new.html" %}
+
+{% block title %}À propos - Atlas{% endblock %}
+
+{% block head %}
+<!-- Google Fonts - Encode Sans Condensed for hero -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+/* EXACT REPLICA OF INDEX DESIGN SYSTEM */
+
+/* Color Variables - Same as index */
+:root {
+    --qlower-primary: #137C8B;
+    --qlower-dark: #344D59;
+    --qlower-light: #709CA7;
+    --qlower-tertiary-color: #B8CBD0;
+    --qlower-quaternary-color: #7A90A4;
+    --qlower-bg-light: #f8f9fa;
+    --qlower-text-dark: #344D59;
+    --qlower-text-light: #7A90A4;
+    --qlower-border: #e5e7eb;
+    --qlower-white: #ffffff;
+}
+
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Navigation styles - Same as index */
+.qlower-navbar *, 
+.qlower-nav-container *, 
+.qlower-nav-menu *, 
+.qlower-nav-item *, 
+.qlower-nav-link *,
+.qlower-nav-actions * {
+    border: none !important;
+    outline: none !important;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--qlower-text-dark);
+    background-color: var(--qlower-white);
+    overflow-x: hidden;
+}
+
+/* Navigation - Same as index */
+.qlower-navbar {
+    background: transparent;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 12px 24px;
+    border: none;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.qlower-nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    background: var(--qlower-white);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    min-height: 56px;
+    border: none;
+    outline: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.qlower-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    letter-spacing: -0.025em;
+}
+
+.qlower-logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.qlower-logo-icon::before {
+    content: 'A';
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.qlower-nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+    height: 100%;
+}
+
+.qlower-nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.qlower-nav-link {
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+.qlower-nav-link:hover {
+    background-color: #f9fafb;
+    color: var(--qlower-primary);
+}
+
+.qlower-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 100%;
+}
+
+.qlower-btn-demo {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: auto;
+}
+
+.qlower-btn-demo:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+    color: var(--qlower-white);
+    background: linear-gradient(135deg, #0f6b75 0%, #5d8a94 100%);
+}
+
+.qlower-btn-espace {
+    background: var(--qlower-dark);
+    color: var(--qlower-white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: auto;
+}
+
+.qlower-btn-espace:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(52, 77, 89, 0.3);
+    color: var(--qlower-white);
+    background: #2a3d47;
+}
+
+/* HERO SECTION - Green background */
+.qlower-hero {
+    padding: 140px 0 80px;
+    background: var(--qlower-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.qlower-hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    text-align: center;
+}
+
+.qlower-hero h1 {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--qlower-white);
+    margin-bottom: 24px;
+    letter-spacing: -0.025em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.qlower-hero-subtitle {
+    font-size: 20px;
+    color: var(--qlower-white);
+    margin-bottom: 40px;
+    line-height: 1.5;
+    font-weight: 400;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* SECTIONS SYSTEM */
+.qlower-section {
+    padding: 100px 0;
+}
+
+.qlower-section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.qlower-section-header {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+.qlower-section-title {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--qlower-dark);
+    margin-bottom: 20px;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+}
+
+.qlower-section-subtitle {
+    font-size: 20px;
+    color: var(--qlower-text-light);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* CARDS SYSTEM */
+.qlower-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+}
+
+.qlower-card {
+    background: var(--qlower-white);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.qlower-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+.qlower-card-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    color: var(--qlower-white);
+    font-size: 32px;
+}
+
+.qlower-card h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    margin-bottom: 16px;
+}
+
+.qlower-card p {
+    font-size: 16px;
+    color: var(--qlower-text-light);
+    line-height: 1.6;
+}
+
+/* TEAM SECTION */
+.qlower-team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px;
+}
+
+.qlower-team-member {
+    background: var(--qlower-white);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.qlower-team-member:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+.qlower-team-avatar {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: var(--qlower-white);
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.qlower-team-member h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin-bottom: 8px;
+}
+
+.qlower-team-role {
+    font-size: 16px;
+    color: var(--qlower-primary);
+    font-weight: 500;
+    margin-bottom: 16px;
+}
+
+.qlower-team-bio {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    line-height: 1.5;
+}
+
+/* VALUES SECTION - Green background */
+.qlower-values-section {
+    background: var(--qlower-primary);
+    position: relative;
+}
+
+.qlower-values-section .qlower-section-title {
+    color: var(--qlower-white);
+}
+
+.qlower-values-section .qlower-section-subtitle {
+    color: var(--qlower-tertiary-color);
+}
+
+.qlower-values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+}
+
+.qlower-value-card {
+    text-align: center;
+    color: var(--qlower-white);
+}
+
+.qlower-value-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 24px;
+}
+
+.qlower-value-card h4 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.qlower-value-card p {
+    font-size: 16px;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+/* Footer - Same as index */
+.qlower-footer {
+    background: var(--qlower-primary);
+    padding: 60px 24px 24px;
+    margin-top: 0;
+}
+
+.qlower-footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--qlower-white);
+    border-radius: 20px;
+    padding: 48px 40px 32px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.qlower-footer-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 60px;
+    margin-bottom: 40px;
+}
+
+.qlower-footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.qlower-footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.qlower-footer-logo span {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    letter-spacing: -0.025em;
+}
+
+.qlower-footer-description {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--qlower-text-light);
+    margin: 0;
+    max-width: 280px;
+}
+
+.qlower-footer-social {
+    display: flex;
+    gap: 16px;
+}
+
+.qlower-social-link {
+    width: 40px;
+    height: 40px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--qlower-text-light);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.qlower-social-link:hover {
+    background: var(--qlower-primary);
+    color: var(--qlower-white);
+    transform: translateY(-2px);
+}
+
+.qlower-footer-links {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+}
+
+.qlower-footer-column h6 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin-bottom: 20px;
+}
+
+.qlower-footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.qlower-footer-column li {
+    margin-bottom: 12px;
+}
+
+.qlower-footer-link {
+    font-size: 15px;
+    color: var(--qlower-text-light);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: block;
+    padding: 4px 0;
+}
+
+.qlower-footer-link:hover {
+    color: var(--qlower-primary);
+    padding-left: 8px;
+}
+
+.qlower-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 32px;
+    border-top: 1px solid var(--qlower-border);
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.qlower-footer-bottom p {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qlower-footer-bottom i {
+    color: var(--qlower-primary);
+}
+
+/* RESPONSIVE */
+@media (max-width: 991px) {
+    .qlower-nav-menu {
+        display: none;
+    }
+    
+    .qlower-nav-actions {
+        display: none;
+    }
+    
+    .qlower-footer-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .qlower-footer-links {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+}
+
+@media (max-width: 767px) {
+    .qlower-navbar {
+        padding: 8px 16px;
+    }
+    
+    .qlower-nav-container {
+        padding: 0 16px;
+        height: 48px;
+    }
+    
+    .qlower-hero {
+        padding: 100px 0 60px;
+    }
+    
+    .qlower-hero h1 {
+        font-size: 36px;
+    }
+    
+    .qlower-section-title {
+        font-size: 36px;
+    }
+    
+    .qlower-footer-container {
+        padding: 32px 24px 24px;
+    }
+    
+    .qlower-footer-links {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .qlower-footer-bottom {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 479px) {
+    .qlower-nav-container,
+    .qlower-section-container {
+        padding: 0 16px;
+    }
+    
+    .qlower-hero h1 {
+        font-size: 28px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Navigation - Same as index -->
+<nav class="qlower-navbar">
+    <div class="qlower-nav-container">
+        <a href="{{ url_for('site_pages.index') }}" class="qlower-logo">
+            <div class="qlower-logo-icon"></div>
+            <span>Atlas</span>
+        </a>
+        
+        <div class="qlower-nav-menu">
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.about') }}" class="qlower-nav-link">À propos</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">
+                    Nos Offres
+                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+                </a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="#" class="qlower-nav-link">
+                    Ressources
+                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="qlower-nav-actions">
+            <div class="qlower-nav-item">
+                <a href="#" class="qlower-nav-link">
+                    FR
+                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+                </a>
+            </div>
+            <a href="#rdv" class="qlower-btn-demo">Prendre RDV</a>
+            <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="qlower-hero">
+    <div class="qlower-hero-container">
+        <h1>L'équipe qui révolutionne le conseil patrimonial</h1>
+        <p class="qlower-hero-subtitle">
+            Découvrez l'équipe passionnée derrière Atlas et notre mission de démocratiser l'accès au conseil financier de qualité.
+        </p>
+    </div>
+</section>
+
+<!-- Mission Section -->
+<section class="qlower-section">
+    <div class="qlower-section-container">
+        <div class="qlower-section-header">
+            <h2 class="qlower-section-title">Notre mission</h2>
+            <p class="qlower-section-subtitle">
+                Démocratiser l'accès au conseil patrimonial grâce à la technologie et l'expertise humaine
+            </p>
+        </div>
+        
+        <div class="qlower-cards-grid">
+            <div class="qlower-card">
+                <div class="qlower-card-icon">
+                    <i class="fas fa-democratize"></i>
+                </div>
+                <h3>Accessibilité pour tous</h3>
+                <p>Nous croyons que chacun mérite d'avoir accès à des conseils financiers de qualité, quel que soit son niveau de patrimoine ou d'expérience.</p>
+            </div>
+            
+            <div class="qlower-card">
+                <div class="qlower-card-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3>Innovation continue</h3>
+                <p>Nous combinons les dernières technologies avec l'expertise humaine pour offrir une expérience client exceptionnelle et personnalisée.</p>
+            </div>
+            
+            <div class="qlower-card">
+                <div class="qlower-card-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Transparence totale</h3>
+                <p>Nos conseils sont indépendants, nos frais transparents et nos recommandations toujours alignées avec vos intérêts.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="qlower-section" style="background: var(--qlower-bg-light);">
+    <div class="qlower-section-container">
+        <div class="qlower-section-header">
+            <h2 class="qlower-section-title">Notre équipe</h2>
+            <p class="qlower-section-subtitle">
+                Des experts passionnés dédiés à votre réussite financière
+            </p>
+        </div>
+        
+        <div class="qlower-team-grid">
+            <div class="qlower-team-member">
+                <div class="qlower-team-avatar">JD</div>
+                <h4>Jean Dupont</h4>
+                <div class="qlower-team-role">CEO & Fondateur</div>
+                <p class="qlower-team-bio">15 ans d'expérience en gestion de patrimoine et fintech. Ancien directeur chez BNP Paribas Private Banking.</p>
+            </div>
+            
+            <div class="qlower-team-member">
+                <div class="qlower-team-avatar">ML</div>
+                <h4>Marie Laurent</h4>
+                <div class="qlower-team-role">CTO</div>
+                <p class="qlower-team-bio">Expert en IA et machine learning. Ancienne lead developer chez Lydia et créatrice de notre algorithme de recommandations.</p>
+            </div>
+            
+            <div class="qlower-team-member">
+                <div class="qlower-team-avatar">PM</div>
+                <h4>Pierre Martin</h4>
+                <div class="qlower-team-role">Directeur Conseil</div>
+                <p class="qlower-team-bio">Conseiller en gestion de patrimoine certifié AMF. 12 ans d'expérience en conseil patrimonial et optimisation fiscale.</p>
+            </div>
+            
+            <div class="qlower-team-member">
+                <div class="qlower-team-avatar">SF</div>
+                <h4>Sophie Fernandez</h4>
+                <div class="qlower-team-role">Head of Product</div>
+                <p class="qlower-team-bio">Spécialiste UX/UI avec une expertise en fintech. Responsable de l'expérience utilisateur de la plateforme Atlas.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section class="qlower-section qlower-values-section">
+    <div class="qlower-section-container">
+        <div class="qlower-section-header">
+            <h2 class="qlower-section-title">Nos valeurs</h2>
+            <p class="qlower-section-subtitle">
+                Les principes qui guident notre action au quotidien
+            </p>
+        </div>
+        
+        <div class="qlower-values-grid">
+            <div class="qlower-value-card">
+                <div class="qlower-value-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h4>Transparence</h4>
+                <p>Des frais clairs, des recommandations justifiées et aucune commission cachée sur les produits proposés.</p>
+            </div>
+            
+            <div class="qlower-value-card">
+                <div class="qlower-value-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h4>Accessibilité</h4>
+                <p>Un service de qualité accessible à tous, indépendamment du niveau de patrimoine ou de connaissance financière.</p>
+            </div>
+            
+            <div class="qlower-value-card">
+                <div class="qlower-value-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h4>Innovation</h4>
+                <p>Les dernières technologies au service de vos finances : IA, automation et interface intuitive.</p>
+            </div>
+            
+            <div class="qlower-value-card">
+                <div class="qlower-value-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h4>Humain</h4>
+                <p>La technologie au service de l'humain, avec un accompagnement personnalisé par nos experts.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="qlower-footer">
+    <div class="qlower-footer-container">
+        <div class="qlower-footer-content">
+            <div class="qlower-footer-brand">
+                <div class="qlower-footer-logo">
+                    <div class="qlower-logo-icon"></div>
+                    <span>Atlas</span>
+                </div>
+                <p class="qlower-footer-description">
+                    Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
+                </p>
+                <div class="qlower-footer-social">
+                    <a href="#" class="qlower-social-link"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="qlower-footer-links">
+                <div class="qlower-footer-column">
+                    <h6>Produit</h6>
+                    <ul>
+                        <li><a href="#" class="qlower-footer-link">Nos Offres</a></li>
+                        <li><a href="#" class="qlower-footer-link">Fonctionnalités</a></li>
+                        <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
+                        <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Ressources</h6>
+                    <ul>
+                        <li><a href="#" class="qlower-footer-link">Blog</a></li>
+                        <li><a href="#" class="qlower-footer-link">Guides</a></li>
+                        <li><a href="#" class="qlower-footer-link">FAQ</a></li>
+                        <li><a href="{{ url_for('site_pages.contact') }}" class="qlower-footer-link">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Entreprise</h6>
+                    <ul>
+                        <li><a href="{{ url_for('site_pages.about') }}" class="qlower-footer-link">À propos</a></li>
+                        <li><a href="#" class="qlower-footer-link">Devenir Partenaire</a></li>
+                        <li><a href="#" class="qlower-footer-link">Carrières</a></li>
+                        <li><a href="#" class="qlower-footer-link">Presse</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Légal</h6>
+                    <ul>
+                        <li><a href="#" class="qlower-footer-link">CGU</a></li>
+                        <li><a href="#" class="qlower-footer-link">Confidentialité</a></li>
+                        <li><a href="#" class="qlower-footer-link">Cookies</a></li>
+                        <li><a href="#" class="qlower-footer-link">Mentions légales</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="qlower-footer-bottom">
+            <p>&copy; 2024 Atlas. Tous droits réservés.</p>
+            <p>
+                <i class="fas fa-shield-alt"></i>
+                Données sécurisées et cryptées • Agréé AMF & ACPR
+            </p>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Navigation scroll effect - same as index
+const navbar = document.querySelector('.qlower-navbar');
+const navContainer = navbar.querySelector('.qlower-nav-container');
+
+window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    
+    if (currentScrollY > 100) {
+        navContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+        navContainer.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.2)';
+        navContainer.style.backdropFilter = 'blur(15px)';
+    } else {
+        navContainer.style.backgroundColor = 'rgba(255, 255, 255, 1)';
+        navContainer.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.15)';
+        navContainer.style.backdropFilter = 'blur(10px)';
+    }
+    
+    navbar.style.transform = 'translateY(0)';
+});
+
+// Smooth entrance animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+            
+            const cards = entry.target.querySelectorAll('.qlower-card, .qlower-team-member, .qlower-value-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.qlower-section').forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(30px)';
+    section.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    observer.observe(section);
+});
+
+document.querySelectorAll('.qlower-card, .qlower-team-member, .qlower-value-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(30px)';
+    card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+});
+</script>
+{% endblock %}

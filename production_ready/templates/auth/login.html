@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion - Patrimoine Pro{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="mb-0">
+                        <i class="fas fa-sign-in-alt me-2"></i>Connexion
+                    </h3>
+                    <p class="mb-0 mt-2">Accédez à votre espace personnel</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope me-1"></i>Email
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" required 
+                                   value="{{ request.form.email if request.form.email }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Mot de passe
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                            <label class="form-check-label" for="remember_me">
+                                Se souvenir de moi
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center">
+                        <a href="#" class="text-muted small">Mot de passe oublié ?</a>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="mb-2">Pas encore de compte ?</p>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-user-plus me-2"></i>Créer un compte
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Accès admin -->
+            <div class="card mt-4 border-0 bg-light">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Accès Administrateur</h6>
+                    <p class="small text-muted mb-2">
+                        Email: admin@gmail.com<br>
+                        Mot de passe: admin
+                    </p>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="fillAdminCredentials()">
+                        <i class="fas fa-user-shield me-1"></i>Remplir automatiquement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fillAdminCredentials() {
+    document.getElementById('email').value = 'admin@gmail.com';
+    document.getElementById('password').value = 'admin';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus automatique sur le champ email
+    document.getElementById('email').focus();
+    
+    // Validation du formulaire
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        if (!email || !password) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs.');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}
