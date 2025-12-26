@@ -8,7 +8,7 @@ set -e
 SERVER_IP="167.172.108.93"
 APP_NAME="atlas"
 LOCAL_DB_NAME="atlas_db"
-LOCAL_DB_USER="postgres"
+LOCAL_DB_USER=""
 BACKUP_DIR="./backups"
 DATE=$(date +%Y%m%d_%H%M%S)
 
@@ -40,7 +40,7 @@ if ! ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 "dokku@$SERVER_IP" "app
 fi
 
 # DB locale
-if ! psql -U "$LOCAL_DB_USER" -h localhost -d "$LOCAL_DB_NAME" -c "SELECT 1;" > /dev/null 2>&1; then
+if ! psql -d "$LOCAL_DB_NAME" -c "SELECT 1;" > /dev/null 2>&1; then
     echo "❌ Impossible de se connecter à la DB locale"
     exit 1
 fi
@@ -72,7 +72,7 @@ echo "🚀 Démarrage déploiement initial..."
 mkdir -p "$BACKUP_DIR"
 
 echo "💾 Sauvegarde base locale..."
-pg_dump -U "$LOCAL_DB_USER" -h localhost -d "$LOCAL_DB_NAME" > "$BACKUP_DIR/initial_deploy_${DATE}.sql"
+pg_dump -d "$LOCAL_DB_NAME" > "$BACKUP_DIR/initial_deploy_${DATE}.sql"
 
 # Vérifier taille backup
 LOCAL_SIZE=$(wc -l < "$BACKUP_DIR/initial_deploy_${DATE}.sql")
