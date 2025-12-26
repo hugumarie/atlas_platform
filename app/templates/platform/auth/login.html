@@ -454,8 +454,7 @@ body {
     <div class="qlower-login-card">
         <div class="qlower-login-header">
             <div class="qlower-login-logo">
-                <div class="qlower-login-logo-icon"></div>
-                <span class="qlower-login-logo-text">Atlas</span>
+                <img src="{{ url_for('static', filename='images/logo-atlas.png') }}" alt="Atlas Logo" style="height: 60px; width: auto;">
             </div>
             <h1 class="qlower-login-title">Connexion</h1>
             <p class="qlower-login-subtitle">Accédez à votre espace personnel</p>
@@ -507,29 +506,6 @@ body {
                 <a href="#">Mot de passe oublié ?</a>
             </div>
             
-            <div class="qlower-divider">
-                <span>ou</span>
-            </div>
-            
-            <div class="qlower-register-section">
-                <p class="qlower-register-text">Pas encore de compte ?</p>
-                <a href="{{ url_for('platform_auth.register') }}" class="qlower-register-button">
-                    <i class="fas fa-user-plus"></i>
-                    Créer un compte
-                </a>
-            </div>
-            
-            <div class="qlower-admin-section">
-                <h6 class="qlower-admin-title">Accès Administrateur</h6>
-                <div class="qlower-admin-credentials">
-                    <strong>Email:</strong> admin@gmail.com<br>
-                    <strong>Mot de passe:</strong> admin
-                </div>
-                <button type="button" class="qlower-admin-button" onclick="fillAdminCredentials()">
-                    <i class="fas fa-user-shield"></i>
-                    Remplir automatiquement
-                </button>
-            </div>
         </div>
     </div>
 </div>
