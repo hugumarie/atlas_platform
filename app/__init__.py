@@ -107,7 +107,6 @@ def create_app():
             from app.services.binance_price_service import BinancePriceService
             from app.models.crypto_price import CryptoPrice
             from datetime import datetime, timedelta
-            import os
             
             # Seulement si pas lancé via run.py (éviter double chargement)
             if not os.environ.get('ATLAS_DIRECT_LAUNCH'):
