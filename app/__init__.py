@@ -42,7 +42,6 @@ def create_app():
     app.config['TEMPLATES_AUTO_RELOAD'] = True
     
     # Configuration DEBUG pour auto-reload du code Python
-    import os
     if os.environ.get('FLASK_ENV') != 'production':
         app.config['DEBUG'] = True
         app.config['ENV'] = 'development'
