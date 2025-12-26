@@ -1,64 +1,76 @@
-# Fichiers Python
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
-.Python
-*.so
-.venv/
-venv/
-ENV/
+# Atlas .gitignore
+
+# Variables d'environnement (SECRETS)
+.env
+.env.local
+.env.production
+.env.development
+*.env
 
 # Base de données
 *.db
 *.sqlite
 *.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Flask
 instance/
-
-# Configuration et secrets
-.env
-.env.local
-.env.production
-config.py
-secret_key.txt
-
-# Logs
+.webassets-cache
 *.log
-logs/
 
-# IDE
+# Backups et exports
+backups/
+exports/
+*.sql
+*.dump
+
+# Scripts temporaires avec secrets
+*_config.env
+*atlas_config*
+deploy_real_*
+fix_atlas_*
+debug_atlas_*
+manual_*
+force_*
+check_*
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# macOS
-.DS_Store
-
-# Windows
-Thumbs.db
-ehthumbs.db
-
-# Fichiers de développement
-test_*.py
-debug_*.py
+# Temporary files
+*.tmp
+*.temp
 temp/
 tmp/
 
-# Uploads utilisateur
-uploads/
-static/uploads/
+# Logs
+logs/
+*.log
 
-# Cache Flask
-flask_session/
-
-# Node modules (si présents)
-node_modules/
-npm-debug.log*
-
-# Coverage
-.coverage
-htmlcov/
-
-# Pytest
-.pytest_cache/
+# Production builds
+dist/
+build/
+EOF < /dev/null
