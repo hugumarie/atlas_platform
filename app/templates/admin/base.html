@@ -193,6 +193,9 @@
             <!-- Header -->
             <header class="admin-header">
                 <div class="admin-header-left">
+                    <button class="admin-mobile-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <h1>{% block page_title %}Administration{% endblock %}</h1>
                 </div>
                 <div class="admin-header-right">
@@ -252,12 +255,17 @@
     `;
     document.head.appendChild(style);
 
-    // Mobile sidebar toggle (if needed)
+    // Mobile sidebar toggle
     function toggleSidebar() {
         const sidebar = document.querySelector('.admin-sidebar');
-        sidebar.style.transform = sidebar.style.transform === 'translateX(0px)' 
-            ? 'translateX(-100%)' 
-            : 'translateX(0px)';
+        const mobileToggle = document.querySelector('.admin-mobile-toggle');
+        sidebar.classList.toggle('active');
+        const icon = mobileToggle.querySelector('i');
+        if (sidebar.classList.contains('active')) {
+            icon.className = 'fas fa-times';
+        } else {
+            icon.className = 'fas fa-bars';
+        }
     }
     </script>
     

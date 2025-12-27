@@ -2471,3 +2471,46 @@
             gap: 12px;
         }
     }
+
+    /* MOBILE ADMIN NAVIGATION */
+    @media (max-width: 991px) {
+        .admin-mobile-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--qlower-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .admin-mobile-toggle:hover {
+            background: #0f6b75;
+            transform: scale(1.05);
+        }
+
+        .admin-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .admin-sidebar.active {
+            transform: translateX(0);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-main {
+            margin-left: 0;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .admin-mobile-toggle {
+            display: none;
+        }
+    }
