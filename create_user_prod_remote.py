@@ -6,7 +6,7 @@ Usage: python3 create_user_prod_remote.py email@example.com [prenom] [nom]
 
 import sys
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 sys.path.append('.')
 
 from app import create_app, db
@@ -55,7 +55,7 @@ def create_user(email, first_name=None, last_name=None):
                 is_active=True,
                 is_prospect=False,  # Client, pas prospect
                 user_type='client',
-                date_created=datetime.utcnow()
+                date_created=datetime.now(timezone.utc)
             )
             user.set_password('atlas2024')  # Mot de passe temporaire
             
@@ -66,56 +66,57 @@ def create_user(email, first_name=None, last_name=None):
             subscription = Subscription(
                 user_id=user.id,
                 tier='trial',
-                status='trial',
-                start_date=datetime.utcnow(),
-                end_date=datetime.utcnow() + timedelta(days=7),  # 7 jours de trial
+                status='active',  # Abonnement actif
+                start_date=datetime.now(timezone.utc),
+                end_date=datetime.now(timezone.utc) + timedelta(days=30),  # 30 jours de trial
                 is_active=True
             )
             
             db.session.add(subscription)
             
-            # 3. Créer le profil investisseur par défaut
+            # 3. Créer le profil investisseur complet par défaut
             investor_profile = InvestorProfile(
                 user_id=user.id,
                 
                 # Informations financières par défaut
-                monthly_net_income=3000.0,
-                current_savings=10000.0,
-                monthly_savings_capacity=500.0,
-                annual_savings_target=6000.0,
+                monthly_net_income=3500.0,
+                current_savings=15000.0,
+                monthly_savings_capacity=600.0,
                 
                 # Informations personnelles par défaut
                 family_situation='celibataire',
                 professional_situation='salarie',
-                age=30,
                 
-                # Profil de risque conservateur par défaut
+                # Profil de risque par défaut
                 risk_tolerance='modere',
                 investment_experience='debutant',
                 investment_horizon='moyen_terme',
-                investment_goals='croissance_reguliere',
+                investment_goals='Constituer un capital pour des projets futurs',
                 
-                # Épargne traditionnelle
+                # Épargne traditionnelle active
                 has_livret_a=True,
-                livret_a_value=15000.0,
+                livret_a_value=20000.0,
                 
-                # Patrimoine de base
-                total_liquidites=25000.0,
-                total_placements=0.0,
-                total_immobilier_net=0.0,
-                total_cryptomonnaies=0.0,
-                total_autres_biens=0.0,
-                
-                # Totaux calculés
-                calculated_total_liquidites=25000.0,
-                calculated_total_placements=0.0,
+                # Patrimoine complet et actif
+                calculated_total_liquidites=20000.0,
+                calculated_total_placements=5000.0,
                 calculated_total_immobilier_net=0.0,
                 calculated_total_cryptomonnaies=0.0,
                 calculated_total_autres_biens=0.0,
                 calculated_total_actifs=25000.0,
                 calculated_patrimoine_total_net=25000.0,
                 
-                last_updated=datetime.utcnow()
+                # Profil risque détaillé
+                tolerance_risque='moderee',
+                horizon_placement='moyen',
+                experience_investissement='debutant',
+                
+                # Objectifs d'investissement
+                objectif_constituer_capital=True,
+                objectif_premiers_pas=True,
+                
+                last_updated=datetime.now(timezone.utc),
+                date_completed=datetime.now(timezone.utc)
             )
             
             db.session.add(investor_profile)
@@ -130,6 +131,7 @@ def create_user(email, first_name=None, last_name=None):
             print(f"   📅 Trial jusqu'au: {subscription.end_date.strftime('%d/%m/%Y')}")
             print(f"   💰 Patrimoine initial: 25,000€")
             print(f"   📊 Profil de risque: Modéré")
+            print(f"   ✅ Statut: ACTIF et prêt à configurer")
             
             print(f"\n💡 PROCHAINES ÉTAPES:")
             print(f"   1. L'utilisateur peut se connecter avec atlas2024")
