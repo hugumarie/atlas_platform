@@ -2563,6 +2563,12 @@
             cursor: pointer;
             margin-right: 1rem;
             transition: all 0.3s ease;
+            z-index: 10001;
+        }
+
+        .admin-mobile-toggle i {
+            color: white !important;
+            font-size: 16px;
         }
 
         .admin-mobile-toggle:hover {
