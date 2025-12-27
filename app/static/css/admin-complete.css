@@ -2472,8 +2472,84 @@
         }
     }
 
-    /* MOBILE ADMIN NAVIGATION */
+    /* MOBILE ADMIN RESPONSIVE */
     @media (max-width: 991px) {
+        /* Grid responsive pour dashboard */
+        .admin-grid-4,
+        .admin-grid-3,
+        .admin-grid-2 {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+        }
+
+        /* Cards responsive */
+        .admin-card {
+            margin-bottom: 1rem;
+        }
+
+        .admin-card-header {
+            padding: 1rem !important;
+        }
+
+        .admin-card-body {
+            padding: 1rem !important;
+        }
+
+        /* Stats responsive */
+        .admin-stat-value {
+            font-size: 2rem !important;
+        }
+
+        .admin-stat-label {
+            font-size: 0.875rem !important;
+        }
+
+        /* Tables responsive */
+        .admin-table {
+            font-size: 0.875rem;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 0.5rem;
+        }
+
+        /* Header responsive */
+        .admin-header {
+            padding: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .admin-header-left h1 {
+            font-size: 1.5rem;
+            margin-left: 0.5rem;
+        }
+
+        .admin-header-right {
+            margin-top: 0.5rem;
+        }
+
+        /* Content responsive */
+        .admin-content {
+            padding: 1rem;
+        }
+
+        /* User menu responsive */
+        .admin-user-menu {
+            font-size: 0.875rem;
+        }
+
+        .admin-user-info {
+            display: none;
+        }
+
+        .admin-user-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+
+        /* Mobile Navigation */
         .admin-mobile-toggle {
             display: flex;
             align-items: center;
