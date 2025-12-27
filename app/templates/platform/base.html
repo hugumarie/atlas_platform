@@ -489,10 +489,46 @@
         }
     }
 
+    /* MOBILE TOGGLE BUTTON */
+    .platform-mobile-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--qlower-dark);
+        font-size: 20px;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        margin-right: 16px;
+    }
+
+    .platform-mobile-toggle:hover {
+        background: var(--qlower-bg-light);
+        color: var(--qlower-primary);
+    }
+
     /* RESPONSIVE */
     @media (max-width: 1024px) {
+        .platform-mobile-toggle {
+            display: block;
+        }
+        
         .platform-sidebar {
             transform: translateX(-100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            z-index: 1000;
+            background: var(--platform-sidebar-bg);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .platform-sidebar.active {
+            transform: translateX(0);
         }
         
         .platform-main {
@@ -501,6 +537,11 @@
         
         .platform-content {
             padding: 20px;
+        }
+        
+        .platform-header-left {
+            display: flex;
+            align-items: center;
         }
     }
 
@@ -695,6 +736,9 @@
             <!-- Header -->
             <header class="platform-header">
                 <div class="platform-header-left">
+                    <button class="platform-mobile-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <h1>{% block page_title %}Tableau de bord{% endblock %}</h1>
                 </div>
                 <div class="platform-header-right">
@@ -757,13 +801,36 @@
     `;
     document.head.appendChild(style);
 
-    // Mobile sidebar toggle (if needed)
+    // Mobile sidebar toggle
     function toggleSidebar() {
         const sidebar = document.querySelector('.platform-sidebar');
-        sidebar.style.transform = sidebar.style.transform === 'translateX(0px)' 
-            ? 'translateX(-100%)' 
-            : 'translateX(0px)';
+        const mobileToggle = document.querySelector('.platform-mobile-toggle');
+        
+        sidebar.classList.toggle('active');
+        
+        // Change icon based on state
+        const icon = mobileToggle.querySelector('i');
+        if (sidebar.classList.contains('active')) {
+            icon.className = 'fas fa-times';
+        } else {
+            icon.className = 'fas fa-bars';
+        }
     }
+    
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        const sidebar = document.querySelector('.platform-sidebar');
+        const mobileToggle = document.querySelector('.platform-mobile-toggle');
+        
+        if (window.innerWidth <= 1024 && 
+            sidebar.classList.contains('active') && 
+            !sidebar.contains(event.target) && 
+            !mobileToggle.contains(event.target)) {
+            
+            sidebar.classList.remove('active');
+            mobileToggle.querySelector('i').className = 'fas fa-bars';
+        }
+    });
     </script>
     
     {% block scripts %}{% endblock %}
