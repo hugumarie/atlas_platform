@@ -42,7 +42,7 @@ def create_user(email, first_name=None, last_name=None):
         print(f"   Nom: {first_name} {last_name}")
         print(f"   Email: {email}")
         print(f"   Type: Client")
-        print(f"   Plan: Premium ACTIF")
+        print(f"   Plan: Optima ACTIF")
         print(f"   Mot de passe: AtlasUser2025!")
         print(f"   Patrimoine: 0€ (vierge à configurer)")
         
@@ -63,10 +63,10 @@ def create_user(email, first_name=None, last_name=None):
             db.session.add(user)
             db.session.flush()  # Pour obtenir l'ID
             
-            # 2. Créer l'abonnement premium actif
+            # 2. Créer l'abonnement Optima actif
             subscription = Subscription(
                 user_id=user.id,
-                tier='premium',
+                tier='optima',
                 status='active',
                 start_date=datetime.now(timezone.utc),
                 end_date=datetime.now(timezone.utc) + timedelta(days=365),  # 1 an
@@ -119,10 +119,10 @@ def create_user(email, first_name=None, last_name=None):
             print(f"✅ {first_name} {last_name} ({email})")
             print(f"\n📋 DÉTAILS DU COMPTE:")
             print(f"   🔑 Mot de passe: AtlasUser2025!")
-            print(f"   📅 Abonnement premium jusqu'au: {subscription.end_date.strftime('%d/%m/%Y')}")
+            print(f"   📅 Abonnement Optima jusqu'au: {subscription.end_date.strftime('%d/%m/%Y')}")
             print(f"   💰 Patrimoine initial: 0€ (vierge)")
             print(f"   📊 Profil: Minimal à compléter")
-            print(f"   ✅ Statut: PREMIUM ACTIF")
+            print(f"   ✅ Statut: OPTIMA ACTIF")
             
             print(f"\n💡 PROCHAINES ÉTAPES:")
             print(f"   1. L'utilisateur peut se connecter immédiatement")
