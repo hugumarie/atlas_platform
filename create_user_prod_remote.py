@@ -41,9 +41,10 @@ def create_user(email, first_name=None, last_name=None):
         print(f"\n📋 UTILISATEUR À CRÉER:")
         print(f"   Nom: {first_name} {last_name}")
         print(f"   Email: {email}")
-        print(f"   Type: Client (prospect converti)")
-        print(f"   Plan: Trial (7 jours)")
-        print(f"   Mot de passe: atlas2024 (temporaire)")
+        print(f"   Type: Client")
+        print(f"   Plan: Premium ACTIF")
+        print(f"   Mot de passe: AtlasUser2025!")
+        print(f"   Patrimoine: 0€ (vierge à configurer)")
         
         try:
             # 1. Créer l'utilisateur
@@ -57,66 +58,56 @@ def create_user(email, first_name=None, last_name=None):
                 user_type='client',
                 date_created=datetime.now(timezone.utc)
             )
-            user.set_password('atlas2024')  # Mot de passe temporaire
+            user.set_password('AtlasUser2025!')  # Mot de passe permanent
             
             db.session.add(user)
             db.session.flush()  # Pour obtenir l'ID
             
-            # 2. Créer l'abonnement trial
+            # 2. Créer l'abonnement premium actif
             subscription = Subscription(
                 user_id=user.id,
-                tier='trial',
-                status='active',  # Abonnement actif
+                tier='premium',
+                status='active',
                 start_date=datetime.now(timezone.utc),
-                end_date=datetime.now(timezone.utc) + timedelta(days=30),  # 30 jours de trial
+                end_date=datetime.now(timezone.utc) + timedelta(days=365),  # 1 an
                 is_active=True
             )
             
             db.session.add(subscription)
             
-            # 3. Créer le profil investisseur complet par défaut
+            # 3. Créer le profil investisseur minimal (vierge)
             investor_profile = InvestorProfile(
                 user_id=user.id,
                 
-                # Informations financières par défaut
-                monthly_net_income=3500.0,
-                current_savings=15000.0,
-                monthly_savings_capacity=600.0,
+                # Informations financières minimales
+                monthly_net_income=0.0,
+                current_savings=0.0,
+                monthly_savings_capacity=0.0,
                 
-                # Informations personnelles par défaut
+                # Informations personnelles vides
                 family_situation='celibataire',
                 professional_situation='salarie',
                 
-                # Profil de risque par défaut
+                # Profil de risque minimal
                 risk_tolerance='modere',
                 investment_experience='debutant',
                 investment_horizon='moyen_terme',
-                investment_goals='Constituer un capital pour des projets futurs',
+                investment_goals='À définir',
                 
-                # Épargne traditionnelle active
-                has_livret_a=True,
-                livret_a_value=20000.0,
+                # Épargne à zéro
+                has_livret_a=False,
+                livret_a_value=0.0,
                 
-                # Patrimoine complet et actif
-                calculated_total_liquidites=20000.0,
-                calculated_total_placements=5000.0,
+                # Patrimoine à zéro
+                calculated_total_liquidites=0.0,
+                calculated_total_placements=0.0,
                 calculated_total_immobilier_net=0.0,
                 calculated_total_cryptomonnaies=0.0,
                 calculated_total_autres_biens=0.0,
-                calculated_total_actifs=25000.0,
-                calculated_patrimoine_total_net=25000.0,
+                calculated_total_actifs=0.0,
+                calculated_patrimoine_total_net=0.0,
                 
-                # Profil risque détaillé
-                tolerance_risque='moderee',
-                horizon_placement='moyen',
-                experience_investissement='debutant',
-                
-                # Objectifs d'investissement
-                objectif_constituer_capital=True,
-                objectif_premiers_pas=True,
-                
-                last_updated=datetime.now(timezone.utc),
-                date_completed=datetime.now(timezone.utc)
+                last_updated=datetime.now(timezone.utc)
             )
             
             db.session.add(investor_profile)
@@ -127,17 +118,17 @@ def create_user(email, first_name=None, last_name=None):
             print(f"\n✅ UTILISATEUR CRÉÉ AVEC SUCCÈS!")
             print(f"✅ {first_name} {last_name} ({email})")
             print(f"\n📋 DÉTAILS DU COMPTE:")
-            print(f"   🔑 Mot de passe: atlas2024 (temporaire)")
-            print(f"   📅 Trial jusqu'au: {subscription.end_date.strftime('%d/%m/%Y')}")
-            print(f"   💰 Patrimoine initial: 25,000€")
-            print(f"   📊 Profil de risque: Modéré")
-            print(f"   ✅ Statut: ACTIF et prêt à configurer")
+            print(f"   🔑 Mot de passe: AtlasUser2025!")
+            print(f"   📅 Abonnement premium jusqu'au: {subscription.end_date.strftime('%d/%m/%Y')}")
+            print(f"   💰 Patrimoine initial: 0€ (vierge)")
+            print(f"   📊 Profil: Minimal à compléter")
+            print(f"   ✅ Statut: PREMIUM ACTIF")
             
             print(f"\n💡 PROCHAINES ÉTAPES:")
-            print(f"   1. L'utilisateur peut se connecter avec atlas2024")
-            print(f"   2. Il devrait changer son mot de passe")
-            print(f"   3. Il peut compléter son profil investisseur")
-            print(f"   4. À la fin du trial, proposer un plan premium")
+            print(f"   1. L'utilisateur peut se connecter immédiatement")
+            print(f"   2. Compléter ses informations personnelles")
+            print(f"   3. Saisir ses données patrimoniales")
+            print(f"   4. Configurer ses objectifs d'investissement")
             
             # Statistiques actuelles
             total_users = User.query.filter_by(is_admin=False, is_prospect=False).count()
