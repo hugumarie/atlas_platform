@@ -201,6 +201,61 @@ body {
     background: #2a3d47;
 }
 
+/* Hamburger Menu Button */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 24px;
+    height: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    z-index: 10001;
+}
+
+.hamburger span {
+    width: 24px;
+    height: 2px;
+    background: var(--qlower-text-dark);
+    border-radius: 3px;
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    position: relative;
+    transform-origin: 2px 1px;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg);
+}
+
+.mobile-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 998;
+    display: none;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.mobile-backdrop.active {
+    display: block;
+}
+
 /* HERO SECTION - Green background */
 .qlower-hero {
     padding: 140px 0 80px;
@@ -754,12 +809,142 @@ body {
 
 /* RESPONSIVE */
 @media (max-width: 991px) {
+    /* Hide desktop menu, show hamburger */
     .qlower-nav-menu {
         display: none;
     }
     
     .qlower-nav-actions {
         display: none;
+    }
+    
+    .hamburger {
+        display: flex;
+    }
+    
+    /* Mobile menu overlay */
+    .qlower-nav-menu.mobile-active {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .qlower-nav-menu.mobile-active .qlower-nav-item {
+        opacity: 0;
+        animation: fadeInUp 0.5s ease-out forwards;
+        width: auto;
+        height: auto;
+        display: block;
+        margin: 0;
+    }
+    
+    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(1) { animation-delay: 0.1s; }
+    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(2) { animation-delay: 0.2s; }
+    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(3) { animation-delay: 0.3s; }
+    .qlower-nav-menu.mobile-active .mobile-actions { animation-delay: 0.4s; }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .qlower-nav-menu.mobile-active .qlower-nav-link {
+        color: var(--qlower-text-dark);
+        font-size: 1.5rem;
+        font-weight: 600;
+        text-decoration: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        display: block;
+        text-align: center;
+        min-width: 200px;
+    }
+    
+    .qlower-nav-menu.mobile-active .qlower-nav-link:hover {
+        color: var(--qlower-primary);
+        background: rgba(19, 124, 139, 0.1);
+    }
+    
+    /* Hide dropdown icons in mobile */
+    .qlower-nav-menu.mobile-active .qlower-nav-link i {
+        display: none;
+    }
+    
+    /* Mobile action buttons */
+    .mobile-actions {
+        display: flex !important;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+        opacity: 0;
+        animation: fadeInUp 0.5s ease-out forwards;
+        animation-delay: 0.4s;
+    }
+    
+    .mobile-action-btn {
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        border: 2px solid;
+    }
+    
+    .mobile-action-btn.primary {
+        background: var(--qlower-primary);
+        color: white;
+        border-color: var(--qlower-primary);
+    }
+    
+    .mobile-action-btn.primary:hover {
+        background: #0f6b75;
+        border-color: #0f6b75;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .mobile-action-btn.secondary {
+        background: transparent;
+        color: var(--qlower-text-dark);
+        border-color: var(--qlower-text-dark);
+    }
+    
+    .mobile-action-btn.secondary:hover {
+        background: var(--qlower-text-dark);
+        color: white;
+        transform: translateY(-2px);
     }
     
     .qlower-pricing-grid {
@@ -863,34 +1048,37 @@ body {
         
         <div class="qlower-nav-menu">
             <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">Nos Offres</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.contact') }}" class="qlower-nav-link">Contact</a>
+            </div>
+            <div class="qlower-nav-item">
                 <a href="{{ url_for('site_pages.about') }}" class="qlower-nav-link">À propos</a>
             </div>
-            <div class="qlower-nav-item">
-                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">
-                    Nos Offres
-                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
-                </a>
-            </div>
-            <div class="qlower-nav-item">
-                <a href="#" class="qlower-nav-link">
-                    Ressources
-                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
-                </a>
+            
+            <!-- Mobile actions - only visible on mobile -->
+            <div class="mobile-actions">
+                <a href="#rdv" class="mobile-action-btn primary">Prendre RDV</a>
+                <a href="/plateforme/connexion" class="mobile-action-btn secondary">Mon espace</a>
             </div>
         </div>
         
         <div class="qlower-nav-actions">
-            <div class="qlower-nav-item">
-                <a href="#" class="qlower-nav-link">
-                    FR
-                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
-                </a>
-            </div>
             <a href="#rdv" class="qlower-btn-demo">Prendre RDV</a>
             <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
         </div>
+        
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </div>
 </nav>
+
+<!-- Mobile backdrop overlay -->
+<div class="mobile-backdrop"></div>
 
 <!-- Hero Section -->
 <section class="qlower-hero">
@@ -1370,6 +1558,37 @@ document.querySelectorAll('.qlower-pricing-card, .qlower-faq-item').forEach(card
     card.style.opacity = '0';
     card.style.transform = 'translateY(30px)';
     card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+});
+
+// Modern hamburger menu toggle
+function toggleMobileMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileMenu = document.querySelector('.qlower-nav-menu');
+    const backdrop = document.querySelector('.mobile-backdrop');
+    
+    hamburger.classList.toggle('active');
+    mobileMenu.classList.toggle('mobile-active');
+    backdrop.classList.toggle('active');
+    
+    // Prevent body scroll when menu is open
+    document.body.style.overflow = mobileMenu.classList.contains('mobile-active') ? 'hidden' : '';
+}
+
+// Close menu when clicking backdrop
+document.addEventListener('DOMContentLoaded', function() {
+    const backdrop = document.querySelector('.mobile-backdrop');
+    if (backdrop) {
+        backdrop.addEventListener('click', toggleMobileMenu);
+    }
+    
+    // Close menu when clicking on mobile links
+    document.querySelectorAll('.qlower-nav-menu.mobile-active .qlower-nav-link').forEach(link => {
+        link.addEventListener('click', function() {
+            if (document.querySelector('.qlower-nav-menu').classList.contains('mobile-active')) {
+                toggleMobileMenu();
+            }
+        });
+    });
 });
 </script>
 {% endblock %}
