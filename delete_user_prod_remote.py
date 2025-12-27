@@ -10,6 +10,7 @@ sys.path.append('.')
 
 from app import create_app, db
 from app.models.user import User
+from app.models.investment_plan import InvestmentPlan
 
 def delete_user(email):
     """Supprime un utilisateur de la base de données de production."""
@@ -43,15 +44,28 @@ def delete_user(email):
         if user.subscription:
             print(f"   Abonnement: {user.subscription.tier} ({user.subscription.status})")
         
+        # Vérifier les plans d'investissement
+        investment_plans = InvestmentPlan.query.filter_by(user_id=user.id).all()
+        if investment_plans:
+            print(f"   Plans d'investissement: {len(investment_plans)}")
+        
         print(f"\n⚠️  SUPPRESSION AUTOMATIQUE (mode serveur)")
         
         if user.is_admin:
             print(f"🚨 ERREUR: Impossible de supprimer un administrateur via ce script!")
             return
         
-        # Supprimer l'utilisateur
+        # Supprimer l'utilisateur avec ses dépendances
         try:
             username = f"{user.first_name} {user.last_name}"
+            
+            # 1. Supprimer d'abord les plans d'investissement
+            if investment_plans:
+                print(f"🗑️ Suppression de {len(investment_plans)} plan(s) d'investissement...")
+                for plan in investment_plans:
+                    db.session.delete(plan)
+            
+            # 2. Supprimer l'utilisateur (cascade pour le reste)
             db.session.delete(user)
             db.session.commit()
             
