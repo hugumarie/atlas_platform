@@ -82,6 +82,7 @@ def create_prospect():
             
             # Champs spécifiques aux prospects
             user_type='prospect',
+            is_prospect=True,  # CRITIQUE : Marquer comme prospect
             prospect_source='site_vitrine',
             prospect_status='nouveau',
             appointment_requested=True,

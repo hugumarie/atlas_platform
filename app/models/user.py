@@ -208,11 +208,21 @@ class User(UserMixin, db.Model):
         if not self.invitation_token or not self.invitation_expires_at:
             return False
         
-        return (
-            self.can_create_account and 
-            datetime.utcnow() < self.invitation_expires_at and
-            self.is_prospect_type()
-        )
+        try:
+            # Gérer le problème de timezone pour la comparaison
+            now_utc = datetime.utcnow()
+            expires_at = self.invitation_expires_at
+            if expires_at.tzinfo is not None:
+                expires_at = expires_at.replace(tzinfo=None)
+            
+            return (
+                self.can_create_account and 
+                now_utc < expires_at and
+                self.is_prospect_type()
+            )
+        except Exception as e:
+            print(f"Erreur dans is_invitation_valid: {e}")
+            return False
     
     def get_invitation_status(self):
         """
@@ -221,16 +231,29 @@ class User(UserMixin, db.Model):
         Returns:
             str: Statut de l'invitation
         """
-        if not self.invitation_token:
-            return 'non_envoyée'
-        
-        if not self.can_create_account:
-            return 'utilisée'
-        
-        if datetime.utcnow() > self.invitation_expires_at:
-            return 'expirée'
-        
-        return 'valide'
+        try:
+            if not self.invitation_token:
+                return 'non_envoyée'
+            
+            if not self.can_create_account:
+                return 'utilisée'
+            
+            # Gérer le problème de timezone pour la comparaison
+            if not self.invitation_expires_at:
+                return 'expirée'
+            
+            now_utc = datetime.utcnow()
+            expires_at = self.invitation_expires_at
+            if expires_at.tzinfo is not None:
+                expires_at = expires_at.replace(tzinfo=None)
+            
+            if now_utc > expires_at:
+                return 'expirée'
+            
+            return 'valide'
+        except Exception as e:
+            print(f"Erreur dans get_invitation_status: {e}")
+            return 'erreur'
     
     def __repr__(self):
         return f'<User {self.email}>'

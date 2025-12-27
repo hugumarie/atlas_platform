@@ -139,10 +139,6 @@ m{% extends "admin/base.html" %}
             Modifier les données
         </a>
         {% if prospect.prospect_status != 'converti' %}
-        <button class="admin-btn admin-btn-success" onclick="convertProspect({{ prospect.id }})">
-            <i class="fas fa-user-check"></i>
-            Convertir en client
-        </button>
         <button class="admin-btn admin-btn-info" onclick="inviteProspect({{ prospect.id }})">
             <i class="fas fa-envelope"></i>
             Envoyer invitation

@@ -975,15 +975,45 @@ def invite_prospect(prospect_id):
         # Générer et envoyer l'invitation
         token = prospect.generate_invitation_token()
         
-        # TODO: Envoyer l'email d'invitation ici
-        # send_invitation_email(prospect.email, token)
+        # Envoyer l'email d'invitation avec domaine de test vérifié
+        try:
+            from app.services.email_service import MailerSendService
+            mailer = MailerSendService("mlsn.c07089a1533a350ffe3c5430eda53efd48be1cfa29ec0da10839456535c46d94")
+            
+            invitation_url = url_for('site_pages.invitation_signup', token=token, _external=True)
+            
+            email_content = f"""
+            <h2>Invitation Atlas Finance</h2>
+            <p>Bonjour {prospect.first_name},</p>
+            <p>Vous êtes invité(e) à créer votre compte Atlas Finance.</p>
+            <p><a href="{invitation_url}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Créer mon compte</a></p>
+            <p>Ce lien est valide pendant 7 jours.</p>
+            <p>L'équipe Atlas Finance</p>
+            """
+            
+            mailer.send_email(
+                to_email=prospect.email,
+                to_name=f"{prospect.first_name} {prospect.last_name}",
+                subject="Invitation Atlas Finance - Créez votre compte",
+                html_content=email_content,
+                text_content=f"Bonjour {prospect.first_name}, vous êtes invité à créer votre compte Atlas Finance. Lien: {invitation_url}",
+                from_email=f"noreply@test-xkjn41mx7dp4z781.mlsender.net",  # Domaine de test vérifié
+                from_name="Atlas Finance"
+            )
+            print(f"📧 Email d'invitation envoyé à {prospect.email}")
+        except Exception as email_error:
+            print(f"Erreur envoi email: {email_error}")
+            # Continue même si l'email échoue
         
         db.session.commit()
         
+        invitation_url = url_for('site_pages.invitation_signup', token=token, _external=True)
+        
         return jsonify({
             'success': True,
-            'message': 'Invitation envoyée avec succès',
-            'invitation_url': url_for('site_pages.invitation_signup', token=token, _external=True)
+            'message': f'Invitation générée. Lien: {invitation_url}',
+            'invitation_url': invitation_url,
+            'show_link': True  # Pour afficher le lien dans l'interface
         })
         
     except Exception as e:

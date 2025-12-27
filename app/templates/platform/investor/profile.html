@@ -119,7 +119,7 @@
         </div>
         <div class="platform-card-body">
             <div class="payment-methods">
-                {% if current_user.payment_methods %}
+                {% if current_user.payment_methods and current_user.payment_methods|length > 0 %}
                     {% for payment_method in current_user.payment_methods %}
                     <div class="payment-card {{ 'payment-default' if payment_method.is_default }}">
                         <div class="payment-info">
