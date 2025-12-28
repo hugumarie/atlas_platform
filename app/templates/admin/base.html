@@ -19,6 +19,38 @@
     <!-- Atlas Admin CSS -->
     <link href="{{ url_for('static', filename='css/admin-complete.css') }}?v={{ range(1000, 9999) | random }}" rel="stylesheet">
     
+    <!-- Force responsive admin styles -->
+    <style>
+    @media (max-width: 991px) {
+        .admin-grid-4, .admin-grid-3, .admin-grid-2 {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+        }
+        .admin-mobile-toggle {
+            display: flex !important;
+            background: #137C8B !important;
+            color: white !important;
+        }
+        .admin-mobile-toggle i {
+            color: white !important;
+            font-size: 16px !important;
+        }
+        .admin-sidebar {
+            transform: translateX(-100%) !important;
+        }
+        .admin-sidebar.active {
+            transform: translateX(0) !important;
+        }
+        .admin-main {
+            margin-left: 0 !important;
+        }
+        .admin-content {
+            padding: 1rem !important;
+        }
+    }
+    </style>
+    
     
     {% block head %}{% endblock %}
 </head>
@@ -267,6 +299,23 @@
             icon.className = 'fas fa-bars';
         }
     }
+
+    // Fermer sidebar en cliquant en dehors
+    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.admin-sidebar');
+            const mobileToggle = document.querySelector('.admin-mobile-toggle');
+            
+            if (sidebar && sidebar.classList.contains('active')) {
+                // Si on clique en dehors de la sidebar et du bouton toggle
+                if (!sidebar.contains(event.target) && !mobileToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                    const icon = mobileToggle.querySelector('i');
+                    icon.className = 'fas fa-bars';
+                }
+            }
+        });
+    });
     </script>
     
     {% block scripts %}{% endblock %}

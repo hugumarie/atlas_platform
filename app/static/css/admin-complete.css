@@ -2475,9 +2475,12 @@
     /* MOBILE ADMIN RESPONSIVE */
     @media (max-width: 991px) {
         /* Grid responsive pour dashboard */
+        .admin-grid,
         .admin-grid-4,
         .admin-grid-3,
-        .admin-grid-2 {
+        .admin-grid-2,
+        .admin-grid-1 {
+            display: grid !important;
             grid-template-columns: 1fr !important;
             gap: 1rem !important;
         }
@@ -2568,7 +2571,14 @@
 
         .admin-mobile-toggle i {
             color: white !important;
-            font-size: 16px;
+            font-size: 16px !important;
+            display: block !important;
+            opacity: 1 !important;
+        }
+
+        .admin-mobile-toggle .fa-times {
+            color: white !important;
+            font-weight: 900 !important;
         }
 
         .admin-mobile-toggle:hover {
@@ -2579,6 +2589,7 @@
         .admin-sidebar {
             transform: translateX(-100%);
             transition: transform 0.3s ease;
+            z-index: 9999;
         }
 
         .admin-sidebar.active {
@@ -2586,8 +2597,43 @@
             box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
         }
 
+        /* Overlay pour fermer menu en cliquant à côté */
+        .admin-sidebar.active::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 280px;
+            width: calc(100vw - 280px);
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+        }
+
         .admin-main {
             margin-left: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        /* Très petits écrans - smartphones */
+        .admin-content {
+            padding: 0.75rem !important;
+        }
+
+        .admin-card {
+            margin-bottom: 0.75rem;
+        }
+
+        .admin-stat-value {
+            font-size: 1.75rem !important;
+        }
+
+        .admin-header {
+            padding: 0.75rem;
+        }
+
+        .admin-header-left h1 {
+            font-size: 1.25rem;
         }
     }
 

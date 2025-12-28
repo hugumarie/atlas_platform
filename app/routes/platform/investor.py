@@ -1082,14 +1082,16 @@ def chat_api():
         return jsonify({'error': 'Message vide'}), 400
     
     try:
-        # Appel à l'API OpenAI avec Coach Patrimoine
-        from openai import OpenAI
+        # Appel à l'API OpenAI avec Coach Patrimoine - Version simple
+        import requests
         from datetime import datetime
         import os
+        import json
         
-        # Utiliser la clé API depuis les variables d'environnement en production
-        api_key = os.getenv('OPENAI_API_KEY', "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")
-        client = OpenAI(api_key=api_key)
+        # Utiliser la clé API depuis les variables d'environnement
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key:
+            return jsonify({'error': 'Configuration OpenAI manquante'}), 500
         
         # Instructions complètes de Coach Patrimoine
         system_prompt = """Tu es "Coach Patrimoine", un assistant d'éducation financière pour débutants en France.
@@ -1125,17 +1127,34 @@ Format de réponse:
 Conformité: "Information éducative uniquement. Pas de recommandation personnalisée. Les marchés comportent des risques de perte en capital. Pour tout arbitrage fiscal ou patrimonial important, consulter un professionnel agréé."
 """
         
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",  # Modèle économique et performant
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message}
+        # Appel direct à l'API OpenAI via requests
+        headers = {
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        data = {
+            'model': 'gpt-4o-mini',
+            'messages': [
+                {'role': 'system', 'content': system_prompt},
+                {'role': 'user', 'content': user_message}
             ],
-            max_tokens=800,
-            temperature=0.7
+            'max_tokens': 800,
+            'temperature': 0.7
+        }
+        
+        response = requests.post(
+            'https://api.openai.com/v1/chat/completions',
+            headers=headers,
+            json=data,
+            timeout=30
         )
         
-        ai_response = response.choices[0].message.content
+        if response.status_code == 200:
+            result = response.json()
+            ai_response = result['choices'][0]['message']['content']
+        else:
+            return jsonify({'error': f'Erreur API OpenAI: {response.status_code}'}), 500
         
         return jsonify({
             'response': ai_response,
@@ -1143,9 +1162,13 @@ Conformité: "Information éducative uniquement. Pas de recommandation personnal
         })
         
     except Exception as e:
-        # En cas d'erreur API, fallback sur message par défaut
+        # En cas d'erreur API, afficher l'erreur réelle pour debug
+        import traceback
+        error_details = str(e)
+        print(f"🚨 Erreur chatbot: {error_details}")
+        print(f"🚨 Traceback: {traceback.format_exc()}")
         return jsonify({
-            'response': 'Désolé, je rencontre un problème technique. Veuillez réessayer dans quelques instants.',
+            'response': f'Erreur technique: {error_details}',
             'timestamp': datetime.now().strftime('%H:%M')
         })
 
