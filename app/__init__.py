@@ -30,6 +30,10 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['UPLOAD_FOLDER'] = 'app/static/uploads'
     
+    # Configuration uploads - Pas de limite de taille
+    app.config['MAX_CONTENT_LENGTH'] = None  # Aucune limite de taille
+    app.config['UPLOAD_EXTENSIONS'] = ['.pdf', '.png', '.jpg', '.jpeg', '.gif']
+    
     # Configuration PostgreSQL avancée
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'pool_size': 10,
