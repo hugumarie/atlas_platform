@@ -78,12 +78,22 @@ class CreditCalculationService:
         if months_elapsed >= duration_months:
             return 0.0
         
-        # Approche simplifiée : capital remboursé = nb mois × mensualité  
-        monthly_payment = CreditCalculationService.calculate_monthly_payment(principal, annual_rate, duration_months)
-        capital_repaid = monthly_payment * months_elapsed
+        # Vraie formule d'amortissement pour le capital restant
+        monthly_rate = annual_rate / 100 / 12
         
-        # Capital restant = capital initial - capital remboursé
-        return round(max(0, principal - capital_repaid), 2)
+        if monthly_rate == 0:
+            # Si taux = 0%, amortissement linéaire
+            monthly_payment = principal / duration_months
+            capital_repaid = monthly_payment * months_elapsed
+            return round(max(0, principal - capital_repaid), 2)
+        
+        # Formule du capital restant : C_n = C_0 * [(1+r)^N - (1+r)^n] / [(1+r)^N - 1]
+        # où C_0 = capital initial, r = taux mensuel, N = durée totale, n = mois écoulés
+        numerator = principal * (math.pow(1 + monthly_rate, duration_months) - math.pow(1 + monthly_rate, months_elapsed))
+        denominator = math.pow(1 + monthly_rate, duration_months) - 1
+        
+        remaining_capital = numerator / denominator
+        return round(max(0, remaining_capital), 2)
     
     @staticmethod
     def calculate_amortization_schedule(principal: float, annual_rate: float, duration_months: int,
@@ -133,6 +143,48 @@ class CreditCalculationService:
                 break
         
         return schedule
+    
+    @staticmethod
+    def calculate_credit_details(principal: float, annual_rate: float, duration_months: int, 
+                               start_date: date, current_date: Optional[date] = None) -> Dict:
+        """
+        Calcule tous les détails du crédit pour affichage.
+        
+        Args:
+            principal (float): Montant emprunté
+            annual_rate (float): Taux annuel en %
+            duration_months (int): Durée en mois
+            start_date (date): Date de début du crédit
+            current_date (date, optional): Date actuelle
+            
+        Returns:
+            Dict: Tous les détails du crédit
+        """
+        if current_date is None:
+            current_date = date.today()
+            
+        monthly_payment = CreditCalculationService.calculate_monthly_payment(principal, annual_rate, duration_months)
+        remaining_capital = CreditCalculationService.calculate_remaining_capital(
+            principal, annual_rate, duration_months, start_date, current_date
+        )
+        capital_repaid = principal - remaining_capital
+        
+        months_elapsed = CreditCalculationService._calculate_months_elapsed(start_date, current_date)
+        months_remaining = max(0, duration_months - months_elapsed)
+        
+        # Coût total du crédit
+        total_cost = monthly_payment * duration_months - principal
+        
+        return {
+            'principal': round(principal, 2),
+            'monthly_payment': round(monthly_payment, 2),
+            'capital_repaid': round(capital_repaid, 2),
+            'remaining_capital': round(remaining_capital, 2),
+            'total_cost': round(total_cost, 2),
+            'months_elapsed': months_elapsed,
+            'months_remaining': months_remaining,
+            'percentage_repaid': round((capital_repaid / principal) * 100, 1) if principal > 0 else 0
+        }
     
     @staticmethod
     def calculate_total_cost(principal: float, annual_rate: float, duration_months: int) -> Dict:

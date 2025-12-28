@@ -69,9 +69,12 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             
             totalLine.innerHTML = `
-                <div style="color: white !important; font-weight: 600;">Capital restant dû</div>
-                <div style="color: white !important; font-weight: 700;">${getValue()}</div>
+                <div style="color: white !important; font-weight: 600;">Capital restant à rembourser</div>
+                <div style="color: white !important; font-weight: 700;" class="credit-capital-restant-display">${getValue()}</div>
             `;
+            
+            // Ajouter classe CSS pour identification
+            totalLine.classList.add('credit-remaining-total-display');
             
             montantRestantInput.addEventListener('input', () => {
                 const valueDiv = totalLine.querySelector('div:last-child');
@@ -2286,12 +2289,16 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                                                 <div class="credit-mensualite" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">Calcul en cours...</div>
                                             </div>
                                             <div style="text-align: center;">
-                                                <div style="font-size: 12px; color: #7A90A4; margin-bottom: 4px;">Montant restant à rembourser</div>
-                                                <div class="credit-montant-restant" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">Calcul en cours...</div>
+                                                <div style="font-size: 12px; color: #7A90A4; margin-bottom: 4px;">Capital remboursé</div>
+                                                <div class="credit-capital-rembourse" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">Calcul en cours...</div>
                                             </div>
                                             <div style="text-align: center;">
-                                                <div style="font-size: 12px; color: #7A90A4; margin-bottom: 4px;">Total payé</div>
-                                                <div class="credit-total-paye" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">Calcul en cours...</div>
+                                                <div style="font-size: 12px; color: #7A90A4; margin-bottom: 4px;">Capital restant à rembourser</div>
+                                                <div class="credit-capital-restant" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">Calcul en cours...</div>
+                                            </div>
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 12px; color: #7A90A4; margin-bottom: 4px;">Coût global du crédit</div>
+                                                <div class="credit-cout-global" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">Calcul en cours...</div>
                                             </div>
                                         </div>
                                     </div>
@@ -2769,7 +2776,7 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                     
                     {% if bien.calculated_capital_restant > 0 %}
                     <div class="liquidites-compact-item-total" style="margin-top: 8px; background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%) !important;">
-                        <div class="liquidites-compact-name-total">Montant restant du crédit à rembourser</div>
+                        <div class="liquidites-compact-name-total">Capital restant à rembourser</div>
                         <div class="liquidites-compact-value-total">{{ "{:,.0f}".format(bien.calculated_capital_restant) }}€</div>
                     </div>
                     {% endif %}
@@ -2903,11 +2910,8 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                                     <input type="number" step="0.01" class="form-control edit-input" name="credit_conso_montant_initial[]" 
                                            value="{{ credit.montant_initial }}" placeholder="0.00">
                                 </div>
-                                <div class="edit-item">
-                                    <label class="edit-label">Montant restant à rembourser</label>
-                                    <input type="number" step="0.01" class="form-control edit-input" name="credit_conso_montant_restant[]" 
-                                           value="{{ credit.montant_restant or credit.montant_initial }}" placeholder="0.00">
-                                </div>
+                                <!-- Champ masqué pour compatibility backend -->
+                                <input type="hidden" name="credit_conso_montant_restant[]" value="{{ credit.montant_restant or credit.montant_initial }}">
                                 <div class="edit-item">
                                     <label class="edit-label">Taux d'intérêt (%)</label>
                                     <input type="number" step="0.01" class="form-control edit-input" name="credit_conso_taux[]" 
@@ -3002,9 +3006,24 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                     {% endif %}
                     
                     <div class="liquidites-compact-item-total" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%) !important;">
-                        <div class="liquidites-compact-name-total">Capital restant dû</div>
-                        <div class="liquidites-compact-value-total">{{ "{:,.0f}".format(credit.get('capital_restant', credit.get('montant_restant', credit.montant_initial))) }}€</div>
+                        <div class="liquidites-compact-name-total credit-capital-restant">Capital restant à rembourser</div>
+                        <div class="liquidites-compact-value-total credit-capital-restant-value">{{ "{:,.0f}".format(credit.get('capital_restant', credit.get('montant_restant', credit.montant_initial))) }}€</div>
                     </div>
+                    
+                    <!-- Ajouter les nouveaux libellés si calculés avec vraies formules -->
+                    {% if credit.get('calculated_with_real_formulas') and credit.get('capital_rembourse', 0) > 0 %}
+                    <div class="liquidites-compact-item" style="padding: 10px 15px; margin: 8px 0; background: #f8f9fa; border-radius: 6px; display: flex; justify-content: space-between;">
+                        <div style="font-weight: 600; color: #344D59;">Capital remboursé</div>
+                        <div style="font-weight: 700; color: #28a745;">{{ "{:,.0f}".format(credit.capital_rembourse) }}€</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if credit.get('calculated_with_real_formulas') and credit.get('cout_global', 0) > 0 %}
+                    <div class="liquidites-compact-item" style="padding: 10px 15px; margin: 8px 0; background: #fff3cd; border-radius: 6px; display: flex; justify-content: space-between;">
+                        <div style="font-weight: 600; color: #856404;">Coût global du crédit</div>
+                        <div style="font-weight: 700; color: #856404;">{{ "{:,.0f}".format(credit.cout_global) }}€</div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -3099,6 +3118,54 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Mode édition détecté - Initialisation des calculs JavaScript');
     setupConsumerCreditEventListeners();
     setupAllTotalsEventListeners();
+    
+    // Force le calcul initial des crédits de consommation avec vraies formules
+    setTimeout(() => {
+        const creditCards = document.querySelectorAll('.credit-edit-card');
+        
+        creditCards.forEach((card, index) => {
+            const montantInput = card.querySelector('input[name="credit_conso_montant_initial[]"]');
+            const tauxInput = card.querySelector('input[name="credit_conso_taux[]"]');
+            const dureeInput = card.querySelector('input[name="credit_conso_duree[]"]');
+            const dateInput = card.querySelector('input[name="credit_conso_date_depart[]"]');
+            
+            if (montantInput && montantInput.value && tauxInput && tauxInput.value && dureeInput && dureeInput.value) {
+                // Calcul avec vraies formules d'amortissement
+                const montant = parseFloat(montantInput.value);
+                const taux = parseFloat(tauxInput.value);
+                const duree = parseInt(dureeInput.value);
+                const dateStr = dateInput ? dateInput.value : '';
+                const monthsPassed = dateStr ? getMonthsPassed(dateStr) : 12; // défaut: 12 mois
+                
+                const capitalRestant = calculateRemainingBalance(montant, taux, duree, monthsPassed);
+                const capitalRembourse = montant - capitalRestant;
+                const mensualite = calculateLoanPayment(montant, taux, duree);
+                const coutGlobal = (mensualite * duree * 12) - montant;
+                
+                // Mettre à jour l'affichage et les champs cachés
+                updateConsumerCreditDisplayDetailed(card, {
+                    capitalRembourse: capitalRembourse,
+                    capitalRestant: capitalRestant,
+                    coutGlobal: coutGlobal
+                });
+                
+                // Mettre à jour le champ caché pour le backend
+                const hiddenInput = card.querySelector('input[name="credit_conso_montant_restant[]"]');
+                if (hiddenInput) {
+                    hiddenInput.value = capitalRestant.toFixed(2);
+                }
+                
+                // Déclencher l'event input pour forcer le recalcul
+                montantInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+        
+        // Mettre à jour le total après calculs
+        setTimeout(() => {
+            updateTotalCreditsConsommation();
+            updatePatrimoineNetTotal();
+        }, 100);
+    }, 500);
     
     // Calculs initiaux des totaux (SEULEMENT en mode édition)
     updateTotalCreditsConsommation();
@@ -3824,12 +3891,16 @@ function addBienImmobilier() {
                                 <div class="credit-mensualite" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">0 €/mois</div>
                             </div>
                             <div style="text-align: center;">
-                                <div style="font-size: 12px; color: #7A90A4; margin-bottom: 4px;">Montant restant à rembourser</div>
-                                <div class="credit-montant-restant" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">0 €</div>
+                                <div style="font-size: 12px; color: #7A90A4; margin-bottom: 4px;">Capital remboursé</div>
+                                <div class="credit-capital-rembourse" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">0 €</div>
                             </div>
                             <div style="text-align: center;">
-                                <div style="font-size: 12px; color: #7A90A4; margin-bottom: 4px;">Total payé</div>
-                                <div class="credit-total-paye" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">0 €</div>
+                                <div style="font-size: 12px; color: #7A90A4; margin-bottom: 4px;">Capital restant à rembourser</div>
+                                <div class="credit-capital-restant" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">0 €</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 12px; color: #7A90A4; margin-bottom: 4px;">Coût global du crédit</div>
+                                <div class="credit-cout-global" style="font-size: 16px; font-weight: 700; color: var(--qlower-primary);">0 €</div>
                             </div>
                         </div>
                     </div>
@@ -3903,12 +3974,8 @@ function addCredit() {
                            placeholder="0.00"
                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px;">
                 </div>
-                <div class="edit-item">
-                    <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Montant restant à rembourser</label>
-                    <input type="number" step="0.01" class="form-control edit-input" name="credit_conso_montant_restant[]" 
-                           placeholder="0.00"
-                           style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px;">
-                </div>
+                <!-- Champ masqué pour compatibility backend -->
+                <input type="hidden" name="credit_conso_montant_restant[]" placeholder="0.00">
                 <div class="edit-item">
                     <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Taux d'intérêt (%)</label>
                     <input type="number" step="0.01" class="form-control edit-input" name="credit_conso_taux[]" 
@@ -3992,12 +4059,22 @@ function calculateRemainingBalance(principal, rate, years, monthsPassed) {
         return 0;
     }
     
-    // Calcul simplifié: capital remboursé = nb mois × mensualité
-    const monthlyPayment = calculateLoanPayment(principal, rate, years);
-    const capitalRepaid = monthlyPayment * monthsPassed;
+    // Vraie formule d'amortissement pour le capital restant
+    const monthlyRate = rate / 100 / 12;
     
-    // Capital restant = capital initial - capital remboursé
-    return Math.max(0, principal - capitalRepaid);
+    if (monthlyRate === 0) {
+        // Si taux = 0%, amortissement linéaire
+        const monthlyPayment = principal / duration_months;
+        const capitalRepaid = monthlyPayment * monthsPassed;
+        return Math.max(0, principal - capitalRepaid);
+    }
+    
+    // Formule du capital restant : C_n = C_0 * [(1+r)^N - (1+r)^n] / [(1+r)^N - 1]
+    const numerator = principal * (Math.pow(1 + monthlyRate, duration_months) - Math.pow(1 + monthlyRate, monthsPassed));
+    const denominator = Math.pow(1 + monthlyRate, duration_months) - 1;
+    
+    const remainingCapital = numerator / denominator;
+    return Math.max(0, remainingCapital);
 }
 
 function getMonthsPassed(startDate) {
@@ -4041,8 +4118,9 @@ function updateBienCalculations(bienCard) {
     const checkbox = bienCard.querySelector('input[name="bien_has_credit[]"]');
     
     const mensualiteDisplay = bienCard.querySelector('.credit-mensualite');
-    const montantRestantDisplay = bienCard.querySelector('.credit-montant-restant');
-    const totalPayeDisplay = bienCard.querySelector('.credit-total-paye');
+    const capitalRembourseeDisplay = bienCard.querySelector('.credit-capital-rembourse');
+    const capitalRestantDisplay = bienCard.querySelector('.credit-capital-restant');
+    const coutGlobalDisplay = bienCard.querySelector('.credit-cout-global');
     const valeurNetteDisplay = bienCard.querySelector('.valeur-nette-display');
     
     // Gestion des calculs de crédit
@@ -4061,28 +4139,32 @@ function updateBienCalculations(bienCard) {
             // Calcul mensualités
             const mensualite = calculateLoanPayment(montant, taeg, duree);
             
-            // Calcul montant restant
+            // Calculs avec les vraies formules
             const monthsPassed = getMonthsPassed(dateDebut);
-            const montantRestant = calculateRemainingBalance(montant, taeg, duree, monthsPassed);
+            const capitalRestant = calculateRemainingBalance(montant, taeg, duree, monthsPassed);
+            const capitalRembourse = montant - capitalRestant;
             
-            // Capital remboursé = mensualité × nombre de mois passés
-            const capitalRembourse = mensualite * monthsPassed;
+            // Coût global du crédit = (mensualité × durée totale) - montant emprunté
+            const coutGlobal = (mensualite * duree * 12) - montant;
             
             // Mise à jour affichage
             if (mensualiteDisplay) {
                 mensualiteDisplay.textContent = `${formatNumber(Math.round(mensualite))} €/mois`;
             }
-            if (montantRestantDisplay) {
-                montantRestantDisplay.textContent = `${formatNumber(Math.round(Math.max(0, montantRestant)))} €`;
+            if (capitalRembourseeDisplay) {
+                capitalRembourseeDisplay.textContent = `${formatNumber(Math.round(Math.max(0, capitalRembourse)))} €`;
             }
-            if (totalPayeDisplay) {
-                totalPayeDisplay.textContent = `${formatNumber(Math.round(capitalRembourse))} €`;
+            if (capitalRestantDisplay) {
+                capitalRestantDisplay.textContent = `${formatNumber(Math.round(Math.max(0, capitalRestant)))} €`;
+            }
+            if (coutGlobalDisplay) {
+                coutGlobalDisplay.textContent = `${formatNumber(Math.round(Math.max(0, coutGlobal)))} €`;
             }
             
-            // Valeur nette = valeur du bien - montant restant
+            // Valeur nette = valeur du bien - capital restant
             if (valeurNetteDisplay && valeurInput) {
                 const valeurBien = parseFloat(valeurInput.value) || 0;
-                const valeurNette = valeurBien - Math.max(0, montantRestant);
+                const valeurNette = valeurBien - Math.max(0, capitalRestant);
                 valeurNetteDisplay.textContent = `${formatNumber(Math.round(valeurNette))}€`;
             }
         } else {
@@ -4099,22 +4181,26 @@ function updateBienCalculations(bienCard) {
         if (hasCredit && montant > 0 && duree > 0) {
             const mensualite = calculateLoanPayment(montant, taeg, duree);
             const monthsPassed = getMonthsPassed(dateDebut);
-            const montantRestant = calculateRemainingBalance(montant, taeg, duree, monthsPassed);
-            const capitalRembourse = mensualite * monthsPassed;
+            const capitalRestant = calculateRemainingBalance(montant, taeg, duree, monthsPassed);
+            const capitalRembourse = montant - capitalRestant;
+            const coutGlobal = (mensualite * duree * 12) - montant;
             
             if (mensualiteDisplay) {
                 mensualiteDisplay.textContent = `${formatNumber(Math.round(mensualite))} €/mois`;
             }
-            if (montantRestantDisplay) {
-                montantRestantDisplay.textContent = `${formatNumber(Math.round(Math.max(0, montantRestant)))} €`;
+            if (capitalRembourseeDisplay) {
+                capitalRembourseeDisplay.textContent = `${formatNumber(Math.round(Math.max(0, capitalRembourse)))} €`;
             }
-            if (totalPayeDisplay) {
-                totalPayeDisplay.textContent = `${formatNumber(Math.round(capitalRembourse))} €`;
+            if (capitalRestantDisplay) {
+                capitalRestantDisplay.textContent = `${formatNumber(Math.round(Math.max(0, capitalRestant)))} €`;
+            }
+            if (coutGlobalDisplay) {
+                coutGlobalDisplay.textContent = `${formatNumber(Math.round(Math.max(0, coutGlobal)))} €`;
             }
             
             if (valeurNetteDisplay && valeurInput) {
                 const valeurBien = parseFloat(valeurInput.value) || 0;
-                const valeurNette = valeurBien - Math.max(0, montantRestant);
+                const valeurNette = valeurBien - Math.max(0, capitalRestant);
                 valeurNetteDisplay.textContent = `${formatNumber(Math.round(valeurNette))}€`;
             }
         } else {
@@ -4216,14 +4302,24 @@ function setupConsumerCreditEventListeners() {
                     const mensualite = calculateLoanPayment(montant, taux, duree);
                     mensualiteInput.value = mensualite.toFixed(2);
                     
-                    // Calcul du montant restant si date disponible
-                    if (dateInput && dateInput.value && montantRestantInput) {
+                    // Calcul des détails du crédit avec vraies formules d'amortissement
+                    if (dateInput && dateInput.value) {
                         const monthsPassed = getMonthsPassed(dateInput.value);
-                        const montantRestant = calculateRemainingBalance(montant, taux, duree, monthsPassed);
-                        montantRestantInput.value = montantRestant.toFixed(2);
+                        const capitalRestant = calculateRemainingBalance(montant, taux, duree, monthsPassed);
+                        const capitalRembourse = montant - capitalRestant;
+                        const coutGlobal = (mensualite * (duree * 12)) - montant;
                         
-                        // Mettre à jour aussi l'affichage "Capital restant dû" 
-                        updateConsumerCreditDisplay(card, montantRestant);
+                        // Mettre à jour les valeurs cachées pour le backend
+                        if (montantRestantInput) {
+                            montantRestantInput.value = capitalRestant.toFixed(2);
+                        }
+                        
+                        // Mettre à jour l'affichage avec les nouveaux libellés
+                        updateConsumerCreditDisplayDetailed(card, {
+                            capitalRembourse: capitalRembourse,
+                            capitalRestant: capitalRestant,
+                            coutGlobal: coutGlobal
+                        });
                         
                         // Mettre à jour le total des crédits et le patrimoine net
                         updateTotalCreditsConsommation();
@@ -4234,7 +4330,11 @@ function setupConsumerCreditEventListeners() {
                     if (montantRestantInput) {
                         montantRestantInput.value = montant.toFixed(2);
                         // Mettre à jour l'affichage avec le montant initial
-                        updateConsumerCreditDisplay(card, montant);
+                        updateConsumerCreditDisplayDetailed(card, {
+                            capitalRembourse: 0,
+                            capitalRestant: montant,
+                            coutGlobal: 0
+                        });
                         
                         // Mettre à jour le total des crédits et le patrimoine net
                         updateTotalCreditsConsommation();
@@ -4291,19 +4391,73 @@ function updateTotalCreditsConsommation() {
 
 function updateConsumerCreditDisplay(creditCard, montantRestant) {
     // Chercher les éléments d'affichage "Capital restant dû" dans cette carte de crédit
-    const displayElements = creditCard.querySelectorAll('.credit-remaining-total div:last-child');
+    const displayElements = creditCard.querySelectorAll('.credit-remaining-total div:last-child, .credit-capital-restant-display');
     
     displayElements.forEach(element => {
         element.textContent = `${Math.round(montantRestant).toLocaleString('fr-FR')}€`;
+        console.log(`🔄 Mis à jour capital restant: ${element.textContent}`);
     });
     
+    // Mettre à jour aussi le champ caché pour le backend
+    const hiddenInput = creditCard.querySelector('input[name="credit_conso_montant_restant[]"]');
+    if (hiddenInput) {
+        hiddenInput.value = montantRestant.toFixed(2);
+        console.log(`🔧 Champ caché mis à jour: ${hiddenInput.value}€`);
+    }
+    
     // Chercher aussi d'autres éléments qui pourraient afficher le montant restant
-    const valueElements = creditCard.querySelectorAll('.liquidites-compact-value-total');
+    const valueElements = creditCard.querySelectorAll('.credit-capital-restant-value');
     valueElements.forEach(element => {
-        if (element.textContent.includes('€')) {
-            element.textContent = `${Math.round(montantRestant).toLocaleString('fr-FR')}€`;
-        }
+        element.textContent = `${Math.round(montantRestant).toLocaleString('fr-FR')}€`;
     });
+}
+
+function updateConsumerCreditDisplayDetailed(creditCard, creditDetails) {
+    // Mettre à jour le capital restant à rembourser
+    const capitalRestantElements = creditCard.querySelectorAll('.credit-capital-restant-value');
+    capitalRestantElements.forEach(element => {
+        element.textContent = `${Math.round(creditDetails.capitalRestant).toLocaleString('fr-FR')}€`;
+    });
+    
+    // Ajouter ou mettre à jour l'affichage du capital remboursé
+    let capitalRemb = creditCard.querySelector('.credit-capital-rembourse-display');
+    if (!capitalRemb) {
+        const capitalRestantDiv = creditCard.querySelector('.credit-capital-restant');
+        if (capitalRestantDiv && capitalRestantDiv.parentElement) {
+            capitalRemb = document.createElement('div');
+            capitalRemb.className = 'liquidites-compact-item credit-capital-rembourse-display';
+            capitalRemb.innerHTML = `
+                <div class="liquidites-compact-name-total">Capital remboursé</div>
+                <div class="liquidites-compact-value-total">${Math.round(creditDetails.capitalRembourse).toLocaleString('fr-FR')}€</div>
+            `;
+            capitalRestantDiv.parentElement.insertBefore(capitalRemb, capitalRestantDiv);
+        }
+    } else {
+        const valueElement = capitalRemb.querySelector('.liquidites-compact-value-total');
+        if (valueElement) {
+            valueElement.textContent = `${Math.round(creditDetails.capitalRembourse).toLocaleString('fr-FR')}€`;
+        }
+    }
+    
+    // Ajouter ou mettre à jour l'affichage du coût global
+    let coutGlobal = creditCard.querySelector('.credit-cout-global-display');
+    if (!coutGlobal && creditDetails.coutGlobal > 0) {
+        const capitalRestantDiv = creditCard.querySelector('.credit-capital-restant');
+        if (capitalRestantDiv && capitalRestantDiv.parentElement) {
+            coutGlobal = document.createElement('div');
+            coutGlobal.className = 'liquidites-compact-item credit-cout-global-display';
+            coutGlobal.innerHTML = `
+                <div class="liquidites-compact-name-total">Coût global du crédit</div>
+                <div class="liquidites-compact-value-total">${Math.round(creditDetails.coutGlobal).toLocaleString('fr-FR')}€</div>
+            `;
+            capitalRestantDiv.parentElement.appendChild(coutGlobal);
+        }
+    } else if (coutGlobal) {
+        const valueElement = coutGlobal.querySelector('.liquidites-compact-value-total');
+        if (valueElement) {
+            valueElement.textContent = `${Math.round(creditDetails.coutGlobal).toLocaleString('fr-FR')}€`;
+        }
+    }
 }
 
 // ===== FONCTIONS POUR MISE À JOUR DES TOTAUX =====
@@ -4950,9 +5104,110 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 {% else %}
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('👁️ Mode VISUALISATION - Calculs JavaScript désactivés');
-    console.log('📊 Les totaux affichés proviennent directement de la base de données');
+    console.log('👁️ Mode VISUALISATION - Recalcul des crédits de consommation activé');
+    console.log('📊 Mise à jour des valeurs avec les vraies formules d\'amortissement');
+    
+    // Recalculer les crédits de consommation en mode visualisation
+    recalculateConsumerCreditsInViewMode();
 });
+
+function recalculateConsumerCreditsInViewMode() {
+    console.log('🚗 Recalcul des crédits de consommation en mode visualisation...');
+    
+    // Chercher tous les crédits de consommation affichés
+    const creditSections = document.querySelectorAll('.data-group');
+    
+    creditSections.forEach((section, index) => {
+        // Vérifier si c'est une section de crédit conso
+        if (section.innerHTML.includes('Montant initial') && 
+            section.innerHTML.includes('Taux d\'intérêt') && 
+            section.innerHTML.includes('Capital restant à rembourser')) {
+            
+            console.log(`💳 Traitement crédit ${index + 1}...`);
+            
+            try {
+                // Extraire les données du crédit depuis l'affichage
+                const montantEl = Array.from(section.querySelectorAll('.data-value')).find(el => 
+                    el.textContent.includes('€') && el.previousElementSibling?.textContent === 'Montant initial');
+                const tauxEl = Array.from(section.querySelectorAll('.data-value')).find(el => 
+                    el.textContent.includes('%') && el.previousElementSibling?.textContent === 'Taux d\'intérêt');
+                const dureeEl = Array.from(section.querySelectorAll('.data-value')).find(el => 
+                    el.textContent.includes('ans') && el.previousElementSibling?.textContent === 'Durée');
+                const dateEl = Array.from(section.querySelectorAll('.data-value')).find(el => 
+                    el.previousElementSibling?.textContent === 'Date de début');
+                
+                if (montantEl && tauxEl && dureeEl && dateEl) {
+                    // Parser les valeurs
+                    const montant = parseFloat(montantEl.textContent.replace(/[€\s,]/g, ''));
+                    const taux = parseFloat(tauxEl.textContent.replace('%', ''));
+                    const duree = parseInt(dureeEl.textContent.replace(/[^\d]/g, ''));
+                    const dateStr = dateEl.textContent.trim();
+                    
+                    console.log(`  📊 Montant: ${montant}€, Taux: ${taux}%, Durée: ${duree} ans, Date: ${dateStr}`);
+                    
+                    if (montant > 0 && duree > 0) {
+                        // Calculs avec les vraies formules
+                        const monthsPassed = getMonthsPassed(dateStr);
+                        const capitalRestant = calculateRemainingBalance(montant, taux, duree, monthsPassed);
+                        const capitalRembourse = montant - capitalRestant;
+                        const mensualite = calculateLoanPayment(montant, taux, duree);
+                        const coutGlobal = (mensualite * duree * 12) - montant;
+                        
+                        console.log(`  ✅ Capital restant: ${capitalRestant}€ (vs ancien affiché)`);
+                        console.log(`  ✅ Capital remboursé: ${capitalRembourse}€`);
+                        console.log(`  ✅ Coût global: ${coutGlobal}€`);
+                        
+                        // Mettre à jour l'affichage "Capital restant à rembourser"
+                        const capitalRestantEl = section.querySelector('.credit-capital-restant-value');
+                        if (capitalRestantEl) {
+                            const oldValue = capitalRestantEl.textContent;
+                            capitalRestantEl.textContent = `${Math.round(capitalRestant).toLocaleString('fr-FR')}€`;
+                            console.log(`  🔄 Capital restant: ${oldValue} → ${capitalRestantEl.textContent}`);
+                        }
+                        
+                        // Ajouter l'affichage "Capital remboursé" si pas déjà présent
+                        let capitalRemb = section.querySelector('.credit-capital-rembourse-display');
+                        if (!capitalRemb) {
+                            const capitalRestantItem = section.querySelector('.liquidites-compact-item-total');
+                            if (capitalRestantItem) {
+                                capitalRemb = document.createElement('div');
+                                capitalRemb.className = 'liquidites-compact-item credit-capital-rembourse-display';
+                                capitalRemb.style.cssText = 'padding: 10px 15px; margin: 8px 0; background: #f8f9fa; border-radius: 6px; display: flex; justify-content: space-between;';
+                                capitalRemb.innerHTML = `
+                                    <div style="font-weight: 600; color: #344D59;">Capital remboursé</div>
+                                    <div style="font-weight: 700; color: #28a745;">${Math.round(capitalRembourse).toLocaleString('fr-FR')}€</div>
+                                `;
+                                capitalRestantItem.parentElement.insertBefore(capitalRemb, capitalRestantItem);
+                                console.log(`  ➕ Ajouté "Capital remboursé": ${capitalRembourse}€`);
+                            }
+                        }
+                        
+                        // Ajouter l'affichage "Coût global du crédit" si pas déjà présent
+                        let coutGlobalEl = section.querySelector('.credit-cout-global-display');
+                        if (!coutGlobalEl && coutGlobal > 0) {
+                            const capitalRestantItem = section.querySelector('.liquidites-compact-item-total');
+                            if (capitalRestantItem) {
+                                coutGlobalEl = document.createElement('div');
+                                coutGlobalEl.className = 'liquidites-compact-item credit-cout-global-display';
+                                coutGlobalEl.style.cssText = 'padding: 10px 15px; margin: 8px 0; background: #fff3cd; border-radius: 6px; display: flex; justify-content: space-between;';
+                                coutGlobalEl.innerHTML = `
+                                    <div style="font-weight: 600; color: #856404;">Coût global du crédit</div>
+                                    <div style="font-weight: 700; color: #856404;">${Math.round(coutGlobal).toLocaleString('fr-FR')}€</div>
+                                `;
+                                capitalRestantItem.parentElement.appendChild(coutGlobalEl);
+                                console.log(`  ➕ Ajouté "Coût global": ${coutGlobal}€`);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error(`❌ Erreur traitement crédit ${index + 1}:`, error);
+            }
+        }
+    });
+    
+    console.log('✅ Recalcul des crédits de consommation terminé');
+}
 {% endif %}
 </script>
 {% endblock %}

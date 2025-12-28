@@ -398,7 +398,8 @@ def investor_data():
                     duration_months=duree_mois
                 )
                 
-                capital_restant = CreditCalculationService.calculate_remaining_capital(
+                # 🔧 CALCULS AVEC VRAIES FORMULES D'AMORTISSEMENT
+                credit_details = CreditCalculationService.calculate_credit_details(
                     principal=montant_initial,
                     annual_rate=taux_interet,
                     duration_months=duree_mois,
@@ -406,12 +407,19 @@ def investor_data():
                     current_date=date.today()
                 )
                 
+                capital_restant = credit_details['remaining_capital']
+                capital_rembourse = credit_details['capital_repaid']
+                cout_global = credit_details['total_cost']
+                
                 valeur_nette = bien.get('valeur', 0) - capital_restant
                 
-                # Ajouter les calculs au bien
+                # Ajouter les calculs au bien avec vraies formules
                 bien_copy['calculated_mensualite'] = round(mensualite, 0)
                 bien_copy['calculated_capital_restant'] = round(capital_restant, 0)
+                bien_copy['calculated_capital_rembourse'] = round(capital_rembourse, 0)
+                bien_copy['calculated_cout_global'] = round(cout_global, 0)
                 bien_copy['calculated_valeur_nette'] = round(valeur_nette, 0)
+                bien_copy['calculated_with_real_formulas'] = True
             else:
                 # Pas de crédit = valeur nette = valeur totale
                 bien_copy['calculated_mensualite'] = 0
@@ -860,8 +868,20 @@ def update_investor_data():
                 # Calcul du montant restant avec la formule simplifiée si pas déjà renseigné
                 montant_restant = float(credit_montants_restants[i] or 0) if i < len(credit_montants_restants) else 0
                 
-                # Si le montant restant n'est pas renseigné, le calculer automatiquement
-                if montant_restant == 0 and montant_initial > 0 and mensualite > 0 and date_depart:
+                # Variables pour les nouvelles données calculées
+                credit_details = None
+                capital_rembourse = 0
+                cout_global = 0
+                
+                # 🔧 DEBUG : Vérifier pourquoi les calculs ne se déclenchent pas
+                print(f"🔍 DEBUG crédit {description}:")
+                print(f"   - montant_initial: {montant_initial}")
+                print(f"   - taux: {taux}")
+                print(f"   - duree: {duree}")
+                print(f"   - date_depart: '{date_depart}'")
+                
+                # 🔧 FORCER LE RECALCUL AVEC VRAIES FORMULES POUR TOUS LES CRÉDITS  
+                if montant_initial > 0 and taux > 0 and duree > 0 and date_depart:
                     try:
                         from datetime import datetime, date
                         from app.services.credit_calculation import CreditCalculationService
@@ -872,12 +892,27 @@ def update_investor_data():
                         else:
                             start_date = date.today()
                         
-                        # Calcul du nombre de mois écoulés
-                        months_elapsed = CreditCalculationService._calculate_months_elapsed(start_date, date.today())
+                        # 🔧 VRAIES FORMULES D'AMORTISSEMENT (comme pour l'immobilier)
+                        duree_mois = duree * 12
                         
-                        # Formule simplifiée : montant restant = montant initial - (mensualité × nb mois)
-                        capital_repaid = mensualite * months_elapsed
-                        montant_restant = max(0, montant_initial - capital_repaid)
+                        # Calculer les détails complets du crédit
+                        credit_details = CreditCalculationService.calculate_credit_details(
+                            montant_initial, taux, duree_mois, start_date
+                        )
+                        
+                        # Utiliser les valeurs calculées avec les vraies formules
+                        montant_restant = credit_details['remaining_capital']
+                        capital_rembourse = credit_details['capital_repaid'] 
+                        mensualite_calculee = credit_details['monthly_payment']
+                        cout_global = credit_details['total_cost']
+                        
+                        # Mettre à jour la mensualité si elle n'était pas correcte
+                        if abs(mensualite - mensualite_calculee) > 0.1:
+                            mensualite = mensualite_calculee
+                            
+                        print(f"🚗 Crédit {description}: Capital restant CORRIGÉ {montant_restant:.0f}€ (formule d'amortissement)")
+                        print(f"   → Capital remboursé: {capital_rembourse:.0f}€")
+                        print(f"   → Coût global: {cout_global:.0f}€")
                         
                     except Exception as calc_error:
                         print(f"⚠️ Erreur calcul montant restant crédit {description}: {calc_error}")
@@ -893,6 +928,15 @@ def update_investor_data():
                     'duree': duree,
                     'date_depart': date_depart
                 }
+                
+                # Ajouter les nouvelles données calculées si disponibles
+                if credit_details and montant_initial > 0:
+                    new_credit.update({
+                        'capital_restant': credit_details['remaining_capital'],
+                        'capital_rembourse': credit_details['capital_repaid'],
+                        'cout_global': credit_details['total_cost'],
+                        'calculated_with_real_formulas': True
+                    })
                 credits_data.append(new_credit)
         
         profile.credits_data_json = credits_data
@@ -924,8 +968,8 @@ def update_investor_data():
                     except (ValueError, TypeError):
                         date_debut = date.today()
                     
-                    # Calculs précis
-                    capital_restant = CreditCalculationService.calculate_remaining_capital(
+                    # 🔧 CALCULS PRÉCIS AVEC VRAIES FORMULES D'AMORTISSEMENT
+                    credit_details = CreditCalculationService.calculate_credit_details(
                         principal=montant_initial,
                         annual_rate=taux_interet,
                         duration_months=duree_mois,
@@ -933,9 +977,23 @@ def update_investor_data():
                         current_date=date.today()
                     )
                     
+                    capital_restant = credit_details['remaining_capital']
+                    capital_rembourse = credit_details['capital_repaid']
+                    mensualite_calculee = credit_details['monthly_payment']
+                    cout_global = credit_details['total_cost']
+                    
                     valeur_nette = bien.get('valeur', 0) - capital_restant
                     bien_copy['calculated_valeur_nette'] = round(valeur_nette, 0)
-                    print(f"🏠 Recalcul bien {bien.get('type', 'N/A')}: valeur={bien.get('valeur', 0)}€, capital_restant={capital_restant:.0f}€, valeur_nette={valeur_nette:.0f}€")
+                    
+                    # Sauvegarder toutes les nouvelles données calculées
+                    bien_copy['calculated_capital_restant'] = round(capital_restant, 0)
+                    bien_copy['calculated_capital_rembourse'] = round(capital_rembourse, 0) 
+                    bien_copy['calculated_mensualite'] = round(mensualite_calculee, 0)
+                    bien_copy['calculated_cout_global'] = round(cout_global, 0)
+                    bien_copy['calculated_with_real_formulas'] = True
+                    
+                    print(f"🏠 CORRIGÉ bien {bien.get('type', 'N/A')}: valeur={bien.get('valeur', 0)}€, capital_restant={capital_restant:.0f}€ (vraie formule), valeur_nette={valeur_nette:.0f}€")
+                    print(f"   → Capital remboursé: {capital_rembourse:.0f}€, Mensualité: {mensualite_calculee:.0f}€, Coût global: {cout_global:.0f}€")
                 else:
                     bien_copy['calculated_valeur_nette'] = bien.get('valeur', 0)
                     print(f"🏠 Bien sans crédit {bien.get('type', 'N/A')}: valeur_nette={bien.get('valeur', 0)}€")
@@ -1162,13 +1220,21 @@ Conformité: "Information éducative uniquement. Pas de recommandation personnal
         })
         
     except Exception as e:
-        # En cas d'erreur API, afficher l'erreur réelle pour debug
+        # En cas d'erreur API, log pour debug mais message user-friendly en production
         import traceback
         error_details = str(e)
         print(f"🚨 Erreur chatbot: {error_details}")
         print(f"🚨 Traceback: {traceback.format_exc()}")
+        
+        # Message différent selon l'environnement
+        flask_env = os.getenv('FLASK_ENV', 'development')
+        if flask_env == 'development':
+            error_message = f'Erreur technique: {error_details}'
+        else:
+            error_message = 'Désolé, je rencontre un problème technique. Veuillez réessayer dans quelques instants.'
+        
         return jsonify({
-            'response': f'Erreur technique: {error_details}',
+            'response': error_message,
             'timestamp': datetime.now().strftime('%H:%M')
         })
 
@@ -1710,18 +1776,44 @@ def calculate_credit_api():
             except Exception:
                 pass
         
-        # Calculs additionnels
-        total_cost = CreditCalculationService.calculate_total_cost(
-            float(data['montant_initial']),
-            float(data['taux_interet']),
-            int(data['duree_mois'])
-        )
+        # Utiliser le nouveau service de calcul complet
+        if data.get('date_debut'):
+            try:
+                start_date = CreditCalculationService._parse_date(data['date_debut'])
+                credit_details = CreditCalculationService.calculate_credit_details(
+                    float(data['montant_initial']),
+                    float(data['taux_interet']),
+                    int(data['duree_mois']),
+                    start_date
+                )
+            except Exception:
+                # Fallback en cas d'erreur de parsing de date
+                credit_details = {
+                    'principal': float(data['montant_initial']),
+                    'monthly_payment': monthly_payment,
+                    'capital_repaid': 0,
+                    'remaining_capital': float(data['montant_initial']),
+                    'total_cost': 0,
+                    'months_elapsed': 0,
+                    'months_remaining': int(data['duree_mois']),
+                    'percentage_repaid': 0
+                }
+        else:
+            # Pas de date de début, crédit pas encore démarré
+            credit_details = {
+                'principal': float(data['montant_initial']),
+                'monthly_payment': monthly_payment,
+                'capital_repaid': 0,
+                'remaining_capital': float(data['montant_initial']),
+                'total_cost': float(data['montant_initial']) * int(data['duree_mois']) / 100 * float(data['taux_interet']),
+                'months_elapsed': 0,
+                'months_remaining': int(data['duree_mois']),
+                'percentage_repaid': 0
+            }
         
         return jsonify({
             'success': True,
-            'monthly_payment': monthly_payment,
-            'remaining_capital': remaining_capital,
-            'total_cost': total_cost
+            'credit_details': credit_details
         })
         
     except Exception as e:

@@ -1058,19 +1058,31 @@ def calculate_and_save_credits_data(investor_profile):
             except:
                 start_date = date.today()
             
-            # Calculs avec le service
-            mensualite = CreditCalculationService.calculate_monthly_payment(
-                montant_initial, taux_annuel, duree_mois
+            # 🔧 CALCULS AVEC VRAIES FORMULES D'AMORTISSEMENT (comme côté utilisateur)
+            credit_details = CreditCalculationService.calculate_credit_details(
+                principal=montant_initial,
+                annual_rate=taux_annuel,
+                duration_months=duree_mois,
+                start_date=start_date,
+                current_date=date.today()
             )
             
-            capital_restant = CreditCalculationService.calculate_remaining_capital(
-                montant_initial, taux_annuel, duree_mois, start_date
-            )
+            # Utiliser les valeurs calculées avec les vraies formules
+            mensualite = credit_details['monthly_payment']
+            capital_restant = credit_details['remaining_capital']
+            capital_rembourse = credit_details['capital_repaid']
+            cout_global = credit_details['total_cost']
             
             # Mise à jour des données avec TOUS les champs nécessaires
             credits_data[i]['mensualite'] = round(mensualite, 2)
             credits_data[i]['montant_restant'] = round(capital_restant, 2)  # Champ attendu par le template
             credits_data[i]['capital_restant'] = round(capital_restant, 2)  # Champ alternatif
+            credits_data[i]['capital_rembourse'] = round(capital_rembourse, 2)  # Nouveau champ
+            credits_data[i]['cout_global'] = round(cout_global, 2)  # Nouveau champ
+            credits_data[i]['calculated_with_real_formulas'] = True  # Marqueur
+            
+            print(f"🚗 ADMIN - Crédit {credit_data.get('description', 'N/A')}: Capital restant CORRIGÉ {capital_restant:.0f}€ (formule d'amortissement)")
+            print(f"   → Capital remboursé: {capital_rembourse:.0f}€, Coût global: {cout_global:.0f}€")
             
         else:
             # Valeurs par défaut si données insuffisantes
@@ -1124,31 +1136,35 @@ def calculate_credit_api():
             int(data['duree_mois'])
         )
         
-        remaining_capital = data['montant_initial']  # Par défaut
+        # 🔧 UTILISER LES VRAIES FORMULES D'AMORTISSEMENT POUR L'API ADMIN
         if data.get('date_debut'):
-            from datetime import datetime
             try:
                 start_date = CreditCalculationService._parse_date(data['date_debut'])
-                remaining_capital = CreditCalculationService.calculate_remaining_capital(
-                    float(data['montant_initial']),
-                    float(data['taux_interet']),
-                    int(data['duree_mois']),
-                    start_date
+                credit_details = CreditCalculationService.calculate_credit_details(
+                    principal=float(data['montant_initial']),
+                    annual_rate=float(data['taux_interet']),
+                    duration_months=int(data['duree_mois']),
+                    start_date=start_date
                 )
+                remaining_capital = credit_details['remaining_capital']
+                capital_rembourse = credit_details['capital_repaid']
+                total_cost = credit_details['total_cost']
             except Exception:
-                pass
-        
-        # Calculs additionnels
-        total_cost = CreditCalculationService.calculate_total_cost(
-            float(data['montant_initial']),
-            float(data['taux_interet']),
-            int(data['duree_mois'])
-        )
+                # Fallback en cas d'erreur
+                remaining_capital = float(data['montant_initial'])
+                capital_rembourse = 0
+                total_cost = 0
+        else:
+            # Pas de date de début, utiliser calcul simple
+            remaining_capital = float(data['montant_initial'])
+            capital_rembourse = 0
+            total_cost = (monthly_payment * int(data['duree_mois'])) - float(data['montant_initial'])
         
         return jsonify({
             'success': True,
             'monthly_payment': monthly_payment,
             'remaining_capital': remaining_capital,
+            'capital_rembourse': capital_rembourse if 'capital_rembourse' in locals() else 0,
             'total_cost': total_cost
         })
         
