@@ -1292,7 +1292,19 @@ def apprentissage_create():
             
             # Création du dossier uploads si nécessaire
             upload_dir = os.path.join('app', 'static', 'uploads', 'apprentissages')
-            os.makedirs(upload_dir, exist_ok=True)
+            print(f"📁 DEBUG: Tentative création dossier: {upload_dir}")
+            try:
+                os.makedirs(upload_dir, exist_ok=True)
+                print(f"✅ DEBUG: Dossier créé avec succès: {upload_dir}")
+                # Tester les permissions d'écriture
+                test_file = os.path.join(upload_dir, 'test_permissions.txt')
+                with open(test_file, 'w') as f:
+                    f.write('test')
+                os.remove(test_file)
+                print(f"✅ DEBUG: Permissions d'écriture OK sur: {upload_dir}")
+            except Exception as perm_error:
+                print(f"❌ DEBUG: Erreur permissions: {perm_error}")
+                raise
             
             # Gestion de l'image
             image_filename = None
