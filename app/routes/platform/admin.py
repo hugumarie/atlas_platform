@@ -1308,40 +1308,77 @@ def apprentissage_create():
             
             # Gestion de l'image
             image_filename = None
+            print("🖼️ DEBUG: Début traitement image")
             if 'image' in request.files:
+                print("🖼️ DEBUG: Fichier image trouvé dans request.files")
                 image_file = request.files['image']
+                print(f"🖼️ DEBUG: Image file object: {image_file}")
+                print(f"🖼️ DEBUG: Image filename: {image_file.filename}")
                 if image_file and image_file.filename:
+                    print(f"🖼️ DEBUG: Image filename valide: {image_file.filename}")
                     # Vérifier le type de fichier
                     if image_file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-                        # Générer un nom unique
-                        file_extension = os.path.splitext(image_file.filename)[1]
-                        image_filename = f"{uuid.uuid4().hex}{file_extension}"
-                        image_path = os.path.join(upload_dir, image_filename)
-                        image_file.save(image_path)
+                        print("🖼️ DEBUG: Extension image valide")
+                        try:
+                            # Générer un nom unique
+                            file_extension = os.path.splitext(image_file.filename)[1]
+                            image_filename = f"{uuid.uuid4().hex}{file_extension}"
+                            image_path = os.path.join(upload_dir, image_filename)
+                            print(f"🖼️ DEBUG: Chemin image: {image_path}")
+                            print(f"🖼️ DEBUG: Début sauvegarde image...")
+                            image_file.save(image_path)
+                            print(f"✅ DEBUG: Image sauvée avec succès: {image_path}")
+                        except Exception as img_error:
+                            print(f"❌ DEBUG: Erreur sauvegarde image: {img_error}")
+                            raise
                     else:
+                        print("❌ DEBUG: Extension image non supportée")
                         flash('Format d\'image non supporté. Utilisez PNG, JPG ou GIF.', 'error')
                         return render_template('platform/admin/apprentissage_form.html')
+                else:
+                    print("🖼️ DEBUG: Pas de nom de fichier image")
+            else:
+                print("🖼️ DEBUG: Aucun fichier image dans la requête")
             
             # Gestion du PDF
             pdf_filename = None
             pdf_original_name = None
+            print("📄 DEBUG: Début traitement PDF")
             if 'fichier_pdf' in request.files:
+                print("📄 DEBUG: Fichier PDF trouvé dans request.files")
                 pdf_file = request.files['fichier_pdf']
+                print(f"📄 DEBUG: PDF file object: {pdf_file}")
+                print(f"📄 DEBUG: PDF filename: {pdf_file.filename}")
                 if pdf_file and pdf_file.filename:
+                    print(f"📄 DEBUG: PDF filename valide: {pdf_file.filename}")
                     if pdf_file.filename.lower().endswith('.pdf'):
-                        # Conserver le nom original et générer un nom unique pour le stockage
-                        pdf_original_name = pdf_file.filename
-                        # Créer un nom sécurisé avec timestamp pour éviter les conflits
-                        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                        safe_filename = "".join(c for c in pdf_original_name if c.isalnum() or c in '._-')
-                        pdf_filename = f"{timestamp}_{safe_filename}"
-                        pdf_path = os.path.join(upload_dir, pdf_filename)
-                        pdf_file.save(pdf_path)
+                        print("📄 DEBUG: Extension PDF valide")
+                        try:
+                            # Conserver le nom original et générer un nom unique pour le stockage
+                            pdf_original_name = pdf_file.filename
+                            # Créer un nom sécurisé avec timestamp pour éviter les conflits
+                            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                            safe_filename = "".join(c for c in pdf_original_name if c.isalnum() or c in '._-')
+                            pdf_filename = f"{timestamp}_{safe_filename}"
+                            pdf_path = os.path.join(upload_dir, pdf_filename)
+                            print(f"📄 DEBUG: Chemin PDF: {pdf_path}")
+                            print(f"📄 DEBUG: Début sauvegarde PDF...")
+                            pdf_file.save(pdf_path)
+                            print(f"✅ DEBUG: PDF sauvé avec succès: {pdf_path}")
+                        except Exception as pdf_error:
+                            print(f"❌ DEBUG: Erreur sauvegarde PDF: {pdf_error}")
+                            raise
                     else:
+                        print("❌ DEBUG: Extension PDF non supportée")
                         flash('Seuls les fichiers PDF sont autorisés.', 'error')
                         return render_template('platform/admin/apprentissage_form.html')
+                else:
+                    print("📄 DEBUG: Pas de nom de fichier PDF")
+            else:
+                print("📄 DEBUG: Aucun fichier PDF dans la requête")
             
             # Création de la formation
+            print("💾 DEBUG: Début création objet Apprentissage")
             apprentissage = Apprentissage(
                 nom=nom,
                 description=description if description else None,
@@ -1351,11 +1388,16 @@ def apprentissage_create():
                 ordre=ordre,
                 actif=actif
             )
+            print("💾 DEBUG: Objet Apprentissage créé")
             
+            print("💾 DEBUG: Ajout à la session DB")
             db.session.add(apprentissage)
+            print("💾 DEBUG: Début commit DB")
             db.session.commit()
+            print("✅ DEBUG: Formation sauvée en DB avec succès")
             
             flash(f'Formation "{nom}" créée avec succès.', 'success')
+            print("✅ DEBUG: Redirection vers liste des formations")
             return redirect(url_for('platform_admin.apprentissages'))
             
         except Exception as e:
