@@ -186,23 +186,9 @@ def profile():
 @login_required
 def learning():
     """
-    Section apprentissage et formations.
+    Redirection vers la nouvelle section apprentissages unifiée.
     """
-    # Les admins peuvent aussi consulter les formations
-    
-    # Vérifier les permissions (admins exempts des vérifications d'abonnement)
-    if not current_user.is_admin:
-        if not current_user.subscription or not current_user.subscription.is_active():
-            return redirect(url_for('platform_auth.login'))
-        
-        if not current_user.investor_profile:
-            flash('Veuillez d\'abord compléter votre profil investisseur.', 'warning')
-            return redirect(url_for('platform_investor.questionnaire'))
-    
-    # Récupérer les formations actives depuis la base de données
-    apprentissages = Apprentissage.query.filter_by(actif=True).order_by(Apprentissage.ordre, Apprentissage.date_creation.desc()).all()
-    
-    return render_template('platform/investor/learning.html', apprentissages=apprentissages)
+    return redirect(url_for('platform_investor.apprentissages'))
 
 @platform_investor_bp.route('/api/crypto-prices')
 @login_required
@@ -270,9 +256,9 @@ def get_single_crypto_price(symbol):
             'error': 'Erreur serveur'
         }), 500
 
-@platform_investor_bp.route('/formations')
+@platform_investor_bp.route('/apprentissages')
 @login_required
-def formations():
+def apprentissages():
     """
     Section formations détaillées avec layout étendu.
     """
@@ -286,53 +272,26 @@ def formations():
         flash('Veuillez d\'abord compléter votre profil investisseur.', 'warning')
         return redirect(url_for('platform_investor.questionnaire'))
     
-    # Données détaillées pour les formations
-    formations = [
-        {
-            'id': 1,
-            'title': 'Les bases de l\'investissement',
-            'description': 'Comprendre les fondamentaux de l\'investissement et les différents types de placements disponibles sur le marché financier pour débuter sereinement.',
-            'duration': '45 min',
-            'completed': False
-        },
-        {
-            'id': 2,
-            'title': 'Diversification de portefeuille',
-            'description': 'Apprendre à répartir ses investissements pour optimiser le rapport rendement/risque et minimiser les pertes potentielles grâce aux bonnes pratiques.',
-            'duration': '60 min',
-            'completed': True
-        },
-        {
-            'id': 3,
-            'title': 'PEA et optimisation fiscale',
-            'description': 'Tout savoir sur le Plan d\'Épargne en Actions et les stratégies d\'optimisation fiscale pour maximiser vos gains et réduire votre imposition.',
-            'duration': '50 min',
-            'completed': False
-        },
-        {
-            'id': 4,
-            'title': 'Assurance Vie stratégique',
-            'description': 'Comprendre l\'assurance vie, ses avantages fiscaux et comment l\'utiliser efficacement dans votre stratégie patrimoniale globale.',
-            'duration': '55 min',
-            'completed': False
-        },
-        {
-            'id': 5,
-            'title': 'Investissement immobilier',
-            'description': 'Découvrir les différentes stratégies d\'investissement immobilier et leurs avantages fiscaux spécifiques pour développer votre patrimoine.',
-            'duration': '75 min',
-            'completed': False
-        },
-        {
-            'id': 6,
-            'title': 'Cryptomonnaies et DeFi',
-            'description': 'Introduction aux cryptomonnaies, blockchain et à la finance décentralisée pour diversifier intelligemment votre portefeuille moderne.',
-            'duration': '65 min',
-            'completed': False
-        }
-    ]
+    # Récupération des vraies formations depuis la base de données
+    formations = Apprentissage.query.filter_by(actif=True).order_by(Apprentissage.ordre.asc(), Apprentissage.date_creation.desc()).all()
     
-    return render_template('platform/investor/formations.html', formations=formations)
+    # Conversion des formations pour le template avec détection du statut completed
+    formations_data = []
+    for formation in formations:
+        # Pour l'instant, toutes les formations sont marquées comme non complétées
+        # TODO: Ajouter un système de suivi de progression utilisateur
+        formations_data.append({
+            'id': formation.id,
+            'title': formation.nom,  # Utiliser 'nom' au lieu de 'titre'
+            'description': formation.description or "Description non disponible",
+            'duration': "Durée non définie",  # Le modèle n'a pas de champ durée pour l'instant
+            'completed': False,  # À améliorer avec un vrai système de suivi
+            'pdf_file': formation.fichier_pdf,  # Disponible pour consultation
+            'image_file': formation.image,  # Image de la formation
+            'has_pdf': bool(formation.fichier_pdf)  # Indique si un PDF est disponible
+        })
+    
+    return render_template('platform/investor/apprentissages.html', formations=formations_data)
 
 @platform_investor_bp.route('/donnees-investisseur')
 @login_required
@@ -1707,7 +1666,7 @@ def learning_pdf(id):
         flash('Aucun contenu PDF disponible pour cette formation.', 'error')
         if current_user.is_admin:
             return redirect(url_for('platform_admin.apprentissages'))
-        return redirect(url_for('platform_investor.learning'))
+        return redirect(url_for('platform_investor.apprentissages'))  # Corriger la redirection
     
     try:
         import os
@@ -1718,7 +1677,7 @@ def learning_pdf(id):
             flash('Fichier de formation introuvable.', 'error')
             if current_user.is_admin:
                 return redirect(url_for('platform_admin.apprentissages'))
-            return redirect(url_for('platform_investor.learning'))
+            return redirect(url_for('platform_investor.apprentissages'))  # Corriger la redirection
         
         # Utiliser le template approprié selon le type d'utilisateur (SÉCURITÉ)
         if current_user.is_admin:
@@ -1736,7 +1695,7 @@ def learning_pdf(id):
         flash('Erreur lors de l\'accès à la formation.', 'error')
         if current_user.is_admin:
             return redirect(url_for('platform_admin.apprentissages'))
-        return redirect(url_for('platform_investor.learning'))
+        return redirect(url_for('platform_investor.apprentissages'))  # Corriger la redirection
 
 
 @platform_investor_bp.route('/api/credit/calculate', methods=['POST'])

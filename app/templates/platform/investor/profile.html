@@ -56,18 +56,98 @@
         <div class="platform-card-body">
             {% if current_user.subscription %}
             <div class="subscription-info">
+                <!-- Plan actuel avec détails -->
                 <div class="subscription-plan">
-                    <div class="plan-badge plan-{{ current_user.subscription.tier }}">
-                        <i class="fas fa-star"></i>
-                        Plan {{ current_user.subscription.get_tier_display() }}
+                    {% if current_user.subscription.tier == 'initia' %}
+                    <div class="plan-card plan-initia">
+                        <div class="plan-header">
+                            <div class="plan-badge plan-initia">
+                                <i class="fas fa-seedling"></i>
+                                INITIA
+                            </div>
+                            <div class="plan-subtitle">Pour débuter sereinement</div>
+                        </div>
+                        <div class="plan-price">
+                            <span class="price-amount">€24,99</span>
+                            <span class="price-period">/mois</span>
+                        </div>
+                        <div class="plan-features">
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Analyse patrimoniale de base</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Recommandations personnalisées</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Suivi de 3 investissements</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Assistant IA de base</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Support par email</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Formations vidéo essentielles</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="plan-price">
-                        {% if current_user.subscription.tier == 'ultima' %}
-                            Sur devis
-                        {% else %}
-                            {{ "{:.2f}".format(current_user.subscription.price) }}€<span class="plan-period">/mois</span>
-                        {% endif %}
+                    {% elif current_user.subscription.tier == 'optima' %}
+                    <div class="plan-card plan-optima">
+                        <div class="plan-header">
+                            <div class="plan-badge">
+                                <i class="fas fa-crown"></i>
+                                OPTIMA
+                                <span class="popular-badge">Le plus populaire</span>
+                            </div>
+                            <div class="plan-subtitle">Pour structurer votre patrimoine</div>
+                        </div>
+                        <div class="plan-price">
+                            <span class="price-amount">€49,99</span>
+                            <span class="price-period">/mois</span>
+                        </div>
+                        <div class="plan-features">
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Analyse patrimoniale avancée</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Optimisation fiscale complète</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Suivi illimité d'investissements</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Assistant IA avancé 24/7</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Conseiller dédié (1h/mois)</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Alertes en temps réel</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Formations complètes</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check"></i>
+                                <span>Rapports mensuels détaillés</span>
+                            </div>
+                        </div>
                     </div>
+                    {% endif %}
                 </div>
                 
                 <div class="subscription-status">
@@ -82,6 +162,14 @@
                         <div class="status-label">Prochaine facturation</div>
                         <div class="status-value">
                             {{ current_user.subscription.next_billing_date.strftime('%d/%m/%Y') }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if current_user.subscription.start_date %}
+                    <div class="status-item">
+                        <div class="status-label">Abonné depuis</div>
+                        <div class="status-value">
+                            {{ current_user.subscription.start_date.strftime('%d/%m/%Y') }}
                         </div>
                     </div>
                     {% endif %}
@@ -494,29 +582,107 @@
     margin-bottom: 24px;
 }
 
+/* Plan Cards Styles */
 .subscription-plan {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
-    border-radius: 12px;
-    color: white;
+    margin-bottom: 24px;
+}
+
+.plan-card {
+    border: 2px solid transparent;
+    border-radius: 16px;
+    padding: 24px;
+    background: white;
+    box-shadow: 0 4px 20px rgba(19, 124, 139, 0.1);
+    transition: all 0.3s ease;
+}
+
+.plan-card.plan-initia {
+    border-color: #22c55e;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.plan-card.plan-optima {
+    border-color: var(--qlower-primary);
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.plan-header {
+    margin-bottom: 20px;
 }
 
 .plan-badge {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
+    color: var(--qlower-primary);
+    margin-bottom: 8px;
 }
 
-.subscription-plan .plan-price {
-    font-size: 28px;
+.plan-badge.plan-initia {
+    color: #16a34a;
+}
+
+.plan-badge .popular-badge {
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+}
+
+.plan-subtitle {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.plan-price {
+    margin-bottom: 20px;
+}
+
+.price-amount {
+    font-size: 32px;
     font-weight: 800;
+    color: var(--qlower-primary);
     font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
-    color: white !important;
+}
+
+.plan-initia .price-amount {
+    color: #16a34a;
+}
+
+.price-period {
+    font-size: 16px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.plan-features {
+    display: grid;
+    gap: 12px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.feature-item i {
+    color: #16a34a;
+    font-size: 12px;
+    width: 12px;
+    flex-shrink: 0;
+}
+
+.feature-item span {
+    color: #374151;
+    line-height: 1.4;
 }
 
 .subscription-plan .plan-period {

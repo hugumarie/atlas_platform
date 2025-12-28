@@ -1819,17 +1819,10 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                            style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
                 </div>
                 <div class="edit-item">
-                    <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Revenu mensuel net *</label>
+                    <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Revenu mensuel net après impôts *</label>
                     <input type="number" class="form-control edit-input" name="monthly_net_income" 
                            value="{{ current_user.investor_profile.monthly_net_income or '' }}" 
                            placeholder="Ex: 4000" min="0" step="100"
-                           style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
-                </div>
-                <div class="edit-item">
-                    <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Impôts mensuels</label>
-                    <input type="number" class="form-control edit-input" name="impots_mensuels" 
-                           value="{{ current_user.investor_profile.impots_mensuels or '' }}" 
-                           placeholder="Ex: 800" min="0" step="0.01"
                            style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
                 </div>
                 <div class="edit-item">
@@ -1919,14 +1912,8 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                 {% endif %}
                 {% if current_user.investor_profile.monthly_net_income %}
                 <div class="data-item">
-                    <div class="data-label">Revenu mensuel net</div>
+                    <div class="data-label">Revenu mensuel net après impôts</div>
                     <div class="data-value financial">{{ "{:,.0f}".format(current_user.investor_profile.monthly_net_income) }}€</div>
-                </div>
-                {% endif %}
-                {% if current_user.investor_profile.impots_mensuels %}
-                <div class="data-item">
-                    <div class="data-label">Impôts mensuels</div>
-                    <div class="data-value financial">{{ "{:,.0f}".format(current_user.investor_profile.impots_mensuels) }}€</div>
                 </div>
                 {% endif %}
                 {% if current_user.investor_profile.monthly_savings_capacity %}
