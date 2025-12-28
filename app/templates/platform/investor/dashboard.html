@@ -49,6 +49,63 @@
 <div class="modern-metrics-container mb-4">
 </div>
 
+<!-- Répartition des actifs moderne -->
+<div class="modern-portfolio-card">
+    <div class="portfolio-header">
+        <div class="portfolio-header-content">
+            <div class="portfolio-title-section">
+                <h3 class="portfolio-title">Répartition de vos actifs</h3>
+                <p class="portfolio-subtitle">Diversification de votre portefeuille</p>
+            </div>
+        </div>
+        <div class="portfolio-total">
+            <span class="total-label">Total</span>
+            <span class="total-value" id="portfolioTotal">45 250€</span>
+        </div>
+    </div>
+    <div class="portfolio-content">
+        <div class="portfolio-chart-container">
+            <div class="portfolio-chart">
+                <canvas id="portfolioChart"></canvas>
+            </div>
+            <div class="portfolio-legend" id="portfolioLegend">
+                <!-- Légende générée dynamiquement -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Barre de progression épargne annuelle -->
+<div class="platform-card mb-4">
+    <div class="platform-card-header">
+        <h3 class="platform-card-title">
+            <i class="fas fa-calendar-alt text-primary"></i>
+            Objectif d'épargne annuelle
+        </h3>
+        <p class="platform-card-subtitle">Progression depuis votre inscription</p>
+    </div>
+    <div class="platform-card-body">
+        <div class="savings-progress-container">
+            <div class="savings-progress-info">
+                <div class="savings-current">
+                    <span class="savings-amount" id="currentYearlySavings">0€</span>
+                    <span class="savings-label">Épargné cette année</span>
+                </div>
+                <div class="savings-target">
+                    <span class="savings-amount" id="targetYearlySavings">10 200€</span>
+                    <span class="savings-label">Objectif annuel</span>
+                </div>
+            </div>
+            <div class="savings-progress-bar">
+                <div class="savings-progress-track">
+                    <div class="savings-progress-fill" id="savingsProgressFill"></div>
+                </div>
+                <div class="savings-progress-percentage" id="savingsProgressPercentage">0%</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Boîte Plan d'investissement -->
 <div class="platform-card mb-4">
     <div class="platform-card-header" style="display: flex; justify-content: space-between; align-items: center;">
@@ -103,63 +160,6 @@
                 </div>
             </div>
         {% endif %}
-    </div>
-</div>
-
-<!-- Barre de progression épargne annuelle -->
-<div class="platform-card mb-4">
-    <div class="platform-card-header">
-        <h3 class="platform-card-title">
-            <i class="fas fa-calendar-alt text-primary"></i>
-            Objectif d'épargne annuelle
-        </h3>
-        <p class="platform-card-subtitle">Progression depuis votre inscription</p>
-    </div>
-    <div class="platform-card-body">
-        <div class="savings-progress-container">
-            <div class="savings-progress-info">
-                <div class="savings-current">
-                    <span class="savings-amount" id="currentYearlySavings">0€</span>
-                    <span class="savings-label">Épargné cette année</span>
-                </div>
-                <div class="savings-target">
-                    <span class="savings-amount" id="targetYearlySavings">10 200€</span>
-                    <span class="savings-label">Objectif annuel</span>
-                </div>
-            </div>
-            <div class="savings-progress-bar">
-                <div class="savings-progress-track">
-                    <div class="savings-progress-fill" id="savingsProgressFill"></div>
-                </div>
-                <div class="savings-progress-percentage" id="savingsProgressPercentage">0%</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Répartition des actifs moderne -->
-<div class="modern-portfolio-card">
-    <div class="portfolio-header">
-        <div class="portfolio-header-content">
-            <div class="portfolio-title-section">
-                <h3 class="portfolio-title">Répartition de vos actifs</h3>
-                <p class="portfolio-subtitle">Diversification de votre portefeuille</p>
-            </div>
-        </div>
-        <div class="portfolio-total">
-            <span class="total-label">Total</span>
-            <span class="total-value" id="portfolioTotal">45 250€</span>
-        </div>
-    </div>
-    <div class="portfolio-content">
-        <div class="portfolio-chart-container">
-            <div class="portfolio-chart">
-                <canvas id="portfolioChart"></canvas>
-            </div>
-            <div class="portfolio-legend" id="portfolioLegend">
-                <!-- Légende générée dynamiquement -->
-            </div>
-        </div>
     </div>
 </div>
 

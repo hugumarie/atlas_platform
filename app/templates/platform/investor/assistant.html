@@ -420,15 +420,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.response) {
                 addMessage(data.response, 'assistant');
             } else {
-                // Afficher la vraie erreur pour debug
-                console.log('Réponse API:', data);
+                // Afficher l'erreur retournée par l'API
                 const errorMsg = data.error || 'Erreur de communication avec l\'assistant.';
                 addMessage(errorMsg, 'assistant');
             }
         })
         .catch(error => {
             hideTypingIndicator();
-            console.log('Erreur réseau:', error);
             addMessage('Je ne suis pas encore connecté à votre intelligence artificielle, veuillez réessayer ultérieurement.', 'assistant');
         });
     }
