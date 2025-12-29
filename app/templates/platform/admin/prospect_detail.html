@@ -259,25 +259,47 @@ m{% extends "admin/base.html" %}
                 <div class="financial-view-item">
                     <div class="financial-label">Statut invitation</div>
                     <div class="financial-value">
-                        {% if prospect.invitation_token %}
-                            {% set status = prospect.get_invitation_status() %}
-                            {{ status.replace('_', ' ')|title }}
+                        {% if invitation_tokens %}
+                            {% set latest_token = invitation_tokens[0] %}
+                            {% if latest_token.is_valid() %}
+                                <span class="badge bg-success">Active</span>
+                            {% elif latest_token.status == 'used' %}
+                                <span class="badge bg-primary">Utilisée</span>
+                            {% elif latest_token.status == 'expired' %}
+                                <span class="badge bg-warning">Expirée</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ latest_token.status|title }}</span>
+                            {% endif %}
                         {% else %}
-                            Aucune invitation
+                            <span class="badge bg-light text-dark">Aucune invitation</span>
                         {% endif %}
                     </div>
                 </div>
-                {% if prospect.invitation_sent_at %}
-                <div class="financial-view-item">
-                    <div class="financial-label">Envoyée le</div>
-                    <div class="financial-value">{{ prospect.invitation_sent_at.strftime('%d/%m/%Y') }}</div>
-                </div>
-                {% endif %}
-                {% if prospect.invitation_expires_at %}
-                <div class="financial-view-item">
-                    <div class="financial-label">Expire le</div>
-                    <div class="financial-value">{{ prospect.invitation_expires_at.strftime('%d/%m/%Y') }}</div>
-                </div>
+                {% if invitation_tokens %}
+                    {% set latest_token = invitation_tokens[0] %}
+                    <div class="financial-view-item">
+                        <div class="financial-label">Envoyée le</div>
+                        <div class="financial-value">{{ latest_token.created_at.strftime('%d/%m/%Y à %H:%M') }}</div>
+                    </div>
+                    <div class="financial-view-item">
+                        <div class="financial-label">Expire le</div>
+                        <div class="financial-value">
+                            {{ latest_token.expires_at.strftime('%d/%m/%Y à %H:%M') }}
+                            {% if latest_token.is_valid() %}
+                                <small class="text-success">({{ latest_token.get_remaining_hours() }}h restantes)</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if latest_token.is_valid() %}
+                    <div class="financial-view-item">
+                        <div class="financial-label">Lien d'invitation</div>
+                        <div class="financial-value">
+                            <button class="btn btn-sm btn-outline-primary" onclick="copyInvitationLink('{{ url_for('onboarding.invitation_signup', token=latest_token.token, _external=True) }}')">
+                                <i class="fas fa-copy"></i> Copier le lien
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
@@ -597,6 +619,23 @@ function inviteProspect(prospectId) {
             alert('Erreur lors de l\'envoi de l\'invitation');
         });
     }
+}
+
+function copyInvitationLink(url) {
+    navigator.clipboard.writeText(url).then(function() {
+        // Animation de succès
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i> Copié !';
+        button.classList.add('btn-success');
+        
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.classList.remove('btn-success');
+        }, 2000);
+    }, function(err) {
+        alert('Impossible de copier le lien. URL: ' + url);
+    });
 }
 </script>
 {% endblock %}

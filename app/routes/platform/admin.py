@@ -876,9 +876,14 @@ def prospect_detail(prospect_id):
     # Mode édition activé par paramètre URL
     edit_mode = request.args.get('edit') == 'true'
     
+    # Récupérer les tokens d'invitation pour ce prospect
+    from app.models.invitation_token import InvitationToken
+    invitation_tokens = InvitationToken.query.filter_by(prospect_id=prospect_id).order_by(InvitationToken.created_at.desc()).all()
+    
     return render_template('platform/admin/prospect_detail.html', 
                          prospect=prospect, 
-                         edit_mode=edit_mode)
+                         edit_mode=edit_mode,
+                         invitation_tokens=invitation_tokens)
 
 @platform_admin_bp.route('/prospect/<int:prospect_id>/modifier', methods=['POST'])
 @login_required
@@ -958,7 +963,8 @@ def convert_prospect(prospect_id):
 @login_required
 def invite_prospect(prospect_id):
     """
-    Envoie une invitation au prospect pour créer son compte.
+    Envoie une invitation au prospect pour créer son compte via Mailjet.
+    Utilise le nouveau système de tokens sécurisés.
     """
     if not current_user.is_admin:
         return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
@@ -972,53 +978,163 @@ def invite_prospect(prospect_id):
         if prospect.prospect_status == 'converti':
             return jsonify({'success': False, 'message': 'Ce prospect est déjà converti'}), 400
         
-        # Générer et envoyer l'invitation
-        token = prospect.generate_invitation_token()
+        # Importer les nouveaux modèles
+        from app.models.invitation_token import InvitationToken
+        from app.services.email_service import MailerSendService
         
-        # Envoyer l'email d'invitation avec domaine de test vérifié
+        # Invalider les anciens tokens actifs pour ce prospect
+        old_tokens = InvitationToken.query.filter_by(
+            prospect_id=prospect_id, 
+            status='active'
+        ).all()
+        
+        for old_token in old_tokens:
+            old_token.mark_as_expired()
+        
+        # Créer un nouveau token sécurisé
+        invitation_token = InvitationToken(prospect_id=prospect_id, expiry_days=7)
+        db.session.add(invitation_token)
+        db.session.flush()  # Pour obtenir l'ID du token
+        
+        # Construire l'URL d'invitation
+        invitation_url = url_for('onboarding.invitation_signup', 
+                                token=invitation_token.token, 
+                                _external=True)
+        
+        # Créer le contenu de l'email d'invitation
+        email_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: linear-gradient(135deg, #344d59, #4a6572); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
+                .content {{ background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+                .btn {{ display: inline-block; background: #344d59; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }}
+                .btn:hover {{ background: #4a6572; }}
+                .footer {{ text-align: center; margin-top: 20px; color: #666; font-size: 12px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🚀 Bienvenue chez Atlas Invest !</h1>
+                    <p>Votre voyage vers l'excellence financière commence ici</p>
+                </div>
+                <div class="content">
+                    <h2>Bonjour {prospect.first_name},</h2>
+                    <p>Nous sommes ravis de vous accueillir dans la communauté Atlas Invest !</p>
+                    
+                    <p>Vous avez été invité(e) à créer votre compte client pour accéder à notre plateforme de gestion patrimoniale.</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{invitation_url}" class="btn">✨ Créer mon compte Atlas</a>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+                        <h4>📋 Prochaines étapes :</h4>
+                        <ol>
+                            <li>Créez votre mot de passe sécurisé</li>
+                            <li>Choisissez votre formule (Initia ou Optima)</li>
+                            <li>Accédez à votre tableau de bord personnalisé</li>
+                        </ol>
+                    </div>
+                    
+                    <p><strong>⏰ Important :</strong> Cette invitation est valide pendant <strong>7 jours</strong>.</p>
+                    
+                    <p>Si vous avez des questions, notre équipe est disponible pour vous accompagner.</p>
+                    
+                    <p>À très bientôt sur Atlas Invest !<br>
+                    <strong>L'équipe Atlas Invest</strong></p>
+                </div>
+                <div class="footer">
+                    <p>Cet email a été envoyé par Atlas Invest | Si vous n'êtes pas concerné(e), veuillez ignorer ce message.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        email_text = f"""
+        Bonjour {prospect.first_name},
+        
+        Bienvenue chez Atlas Finance !
+        
+        Vous avez été invité(e) à créer votre compte client pour accéder à notre plateforme de gestion patrimoniale.
+        
+        Cliquez sur ce lien pour créer votre compte : {invitation_url}
+        
+        Prochaines étapes :
+        1. Créez votre mot de passe sécurisé
+        2. Choisissez votre formule (Initia ou Optima)  
+        3. Accédez à votre tableau de bord personnalisé
+        
+        Cette invitation est valide pendant 7 jours.
+        
+        À bientôt sur Atlas Invest !
+        L'équipe Atlas Invest
+        """
+        
+        # Envoyer l'email d'invitation via MailerSend
         try:
-            from app.services.email_service import MailerSendService
-            mailer = MailerSendService("mlsn.c07089a1533a350ffe3c5430eda53efd48be1cfa29ec0da10839456535c46d94")
+            # Utiliser le token MailerSend existant (vous le configurerez)
+            mailer = MailerSendService("mlsn.c07089a1533a350ffe3c5430eda53efd48be1cfa29ec0da10839456535c46d94")  # À remplacer par votre token
             
-            invitation_url = url_for('site_pages.invitation_signup', token=token, _external=True)
-            
-            email_content = f"""
-            <h2>Invitation Atlas Finance</h2>
-            <p>Bonjour {prospect.first_name},</p>
-            <p>Vous êtes invité(e) à créer votre compte Atlas Finance.</p>
-            <p><a href="{invitation_url}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Créer mon compte</a></p>
-            <p>Ce lien est valide pendant 7 jours.</p>
-            <p>L'équipe Atlas Finance</p>
-            """
-            
-            mailer.send_email(
+            email_sent = mailer.send_email(
                 to_email=prospect.email,
                 to_name=f"{prospect.first_name} {prospect.last_name}",
-                subject="Invitation Atlas Finance - Créez votre compte",
-                html_content=email_content,
-                text_content=f"Bonjour {prospect.first_name}, vous êtes invité à créer votre compte Atlas Finance. Lien: {invitation_url}",
-                from_email=f"noreply@test-xkjn41mx7dp4z781.mlsender.net",  # Domaine de test vérifié
-                from_name="Atlas Finance"
+                subject="🚀 Créez votre compte Atlas Invest - Votre invitation vous attend !",
+                html_content=email_html,
+                text_content=email_text,
+                from_email="noreply@atlas-invest.fr",
+                from_name="Atlas Invest"
             )
-            print(f"📧 Email d'invitation envoyé à {prospect.email}")
-        except Exception as email_error:
-            print(f"Erreur envoi email: {email_error}")
-            # Continue même si l'email échoue
+            
+            email_result = {'success': email_sent}
+        except Exception as e:
+            print(f"❌ Erreur envoi email MailerSend: {e}")
+            email_result = {'success': False, 'error': str(e)}
         
-        db.session.commit()
-        
-        invitation_url = url_for('site_pages.invitation_signup', token=token, _external=True)
-        
-        return jsonify({
-            'success': True,
-            'message': f'Invitation générée. Lien: {invitation_url}',
-            'invitation_url': invitation_url,
-            'show_link': True  # Pour afficher le lien dans l'interface
-        })
+        if email_result['success']:
+            # Mettre à jour le statut du prospect
+            prospect.prospect_status = 'contacté'
+            print(f"✅ Invitation envoyée avec succès à {prospect.email}")
+            
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': f'Invitation envoyée avec succès à {prospect.email}',
+                'invitation_url': invitation_url,
+                'token_expires_in_hours': invitation_token.get_remaining_hours(),
+                'email_sent': True,
+                'show_link': True  # Pour afficher le lien dans l'interface admin
+            })
+        else:
+            # Email échoué mais token créé
+            print(f"❌ Erreur envoi email: {email_result.get('error', 'Erreur inconnue')}")
+            
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': f'Token créé mais erreur email: {email_result.get("error", "Erreur inconnue")}',
+                'invitation_url': invitation_url,
+                'token_expires_in_hours': invitation_token.get_remaining_hours(),
+                'email_sent': False,
+                'show_link': True,
+                'email_error': email_result.get('error')
+            })
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': f'Erreur lors de l\'envoi: {str(e)}'}), 500
+        print(f"❌ Erreur lors de la création de l'invitation: {str(e)}")
+        return jsonify({
+            'success': False, 
+            'message': f'Erreur lors de la création de l\'invitation: {str(e)}'
+        }), 500
 
 
 

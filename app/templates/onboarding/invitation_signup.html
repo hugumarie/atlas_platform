@@ -1,0 +1,254 @@
+{% extends "site/base.html" %}
+
+{% block title %}Créer votre compte Atlas - Invitation{% endblock %}
+
+{% block content %}
+<section class="bg-light py-5" style="margin-top: 80px; background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <!-- Card principale -->
+                <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                    <div class="card-body p-5">
+                        <!-- Header avec logo et titre -->
+                        <div class="text-center mb-4">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                                 style="width: 80px; height: 80px;">
+                                <i class="fas fa-rocket fa-2x text-primary"></i>
+                            </div>
+                            <h2 class="h3 fw-bold mb-2" style="color: #344d59;">
+                                🚀 Bienvenue chez Atlas !
+                            </h2>
+                            <p class="text-muted">
+                                Bonjour <strong>{{ prospect.first_name }}</strong>, créez votre compte client pour accéder à notre plateforme.
+                            </p>
+                        </div>
+
+                        <!-- Informations pré-remplies -->
+                        <div class="bg-light p-3 rounded mb-4" style="border-left: 4px solid #344d59;">
+                            <h6 class="fw-bold mb-2" style="color: #344d59;">
+                                <i class="fas fa-user-check me-2"></i>Vos informations
+                            </h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Nom complet</small>
+                                    <div class="fw-semibold">{{ prospect.first_name }} {{ prospect.last_name }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Email</small>
+                                    <div class="fw-semibold">{{ prospect.email }}</div>
+                                </div>
+                            </div>
+                            {% if prospect.phone %}
+                            <div class="mt-2">
+                                <small class="text-muted">Téléphone</small>
+                                <div class="fw-semibold">{{ prospect.phone }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Alerte expiration -->
+                        {% if token_expires_in_hours <= 24 %}
+                        <div class="alert alert-warning d-flex align-items-center mb-4">
+                            <i class="fas fa-clock me-2"></i>
+                            <div>
+                                <strong>Attention :</strong> Cette invitation expire dans 
+                                <strong>{{ token_expires_in_hours }} heure{{ 's' if token_expires_in_hours > 1 else '' }}</strong>.
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Formulaire de création de compte -->
+                        <form id="signupForm" class="needs-validation" novalidate>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Choisissez votre mot de passe *
+                                </label>
+                                <input type="password" 
+                                       class="form-control form-control-lg" 
+                                       id="password" 
+                                       name="password" 
+                                       required
+                                       style="border-radius: 10px;">
+                                <div class="form-text">
+                                    <small>Au moins 8 caractères, avec une majuscule et un chiffre</small>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Veuillez saisir un mot de passe valide
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="password_confirm" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Confirmer le mot de passe *
+                                </label>
+                                <input type="password" 
+                                       class="form-control form-control-lg" 
+                                       id="password_confirm" 
+                                       name="password_confirm" 
+                                       required
+                                       style="border-radius: 10px;">
+                                <div class="invalid-feedback">
+                                    Les mots de passe doivent être identiques
+                                </div>
+                            </div>
+
+                            <!-- Message d'erreur -->
+                            <div id="error-message" class="alert alert-danger d-none"></div>
+
+                            <!-- Bouton de création -->
+                            <button type="submit" 
+                                    id="submitBtn" 
+                                    class="btn btn-lg w-100 mb-3"
+                                    style="background: #344d59; color: white; border-radius: 10px; font-weight: 600;">
+                                <i class="fas fa-user-plus me-2"></i>
+                                <span id="btn-text">Créer mon compte Atlas</span>
+                                <div id="btn-loading" class="spinner-border spinner-border-sm ms-2 d-none"></div>
+                            </button>
+
+                            <!-- Informations légales -->
+                            <div class="text-center">
+                                <small class="text-muted">
+                                    En créant votre compte, vous acceptez nos 
+                                    <a href="#" style="color: #344d59;">conditions d'utilisation</a> 
+                                    et notre 
+                                    <a href="#" style="color: #344d59;">politique de confidentialité</a>.
+                                </small>
+                            </div>
+                        </form>
+
+                        <!-- Étapes suivantes -->
+                        <div class="mt-4 p-3" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 10px;">
+                            <h6 class="fw-bold mb-2" style="color: #344d59;">
+                                <i class="fas fa-road me-2"></i>Prochaines étapes
+                            </h6>
+                            <ol class="mb-0" style="font-size: 0.9rem;">
+                                <li><strong>Choisir votre formule</strong> (Initia ou Optima)</li>
+                                <li><strong>Configurer votre paiement</strong></li>
+                                <li><strong>Accéder à votre tableau de bord</strong> personnalisé</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Support -->
+                <div class="text-center mt-4">
+                    <small class="text-muted">
+                        <i class="fas fa-question-circle me-1"></i>
+                        Une question ? Contactez-nous : 
+                        <a href="mailto:support@atlas-finance.fr" style="color: #344d59;">support@atlas-finance.fr</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('signupForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btn-text');
+    const btnLoading = document.getElementById('btn-loading');
+    const errorMessage = document.getElementById('error-message');
+    const passwordInput = document.getElementById('password');
+    const passwordConfirmInput = document.getElementById('password_confirm');
+
+    // Validation en temps réel
+    function validatePassword() {
+        const password = passwordInput.value;
+        const confirm = passwordConfirmInput.value;
+        
+        // Critères du mot de passe
+        const minLength = password.length >= 8;
+        const hasUpper = /[A-Z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const passwordsMatch = password === confirm && confirm !== '';
+        
+        // Validation du champ mot de passe
+        if (password && (!minLength || !hasUpper || !hasNumber)) {
+            passwordInput.classList.add('is-invalid');
+            passwordInput.classList.remove('is-valid');
+        } else if (password && minLength && hasUpper && hasNumber) {
+            passwordInput.classList.remove('is-invalid');
+            passwordInput.classList.add('is-valid');
+        }
+        
+        // Validation de la confirmation
+        if (confirm && !passwordsMatch) {
+            passwordConfirmInput.classList.add('is-invalid');
+            passwordConfirmInput.classList.remove('is-valid');
+        } else if (confirm && passwordsMatch) {
+            passwordConfirmInput.classList.remove('is-invalid');
+            passwordConfirmInput.classList.add('is-valid');
+        }
+        
+        return minLength && hasUpper && hasNumber && passwordsMatch;
+    }
+    
+    passwordInput.addEventListener('input', validatePassword);
+    passwordConfirmInput.addEventListener('input', validatePassword);
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!validatePassword()) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        // UI Loading
+        submitBtn.disabled = true;
+        btnText.textContent = 'Création en cours...';
+        btnLoading.classList.remove('d-none');
+        errorMessage.classList.add('d-none');
+
+        // Envoi de la requête
+        fetch(`/onboarding/invitation/{{ token }}/create-account`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                password: passwordInput.value,
+                password_confirm: passwordConfirmInput.value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Succès
+                btnText.textContent = 'Compte créé !';
+                btnLoading.classList.add('d-none');
+                
+                // Afficher un message de succès
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success';
+                successAlert.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + data.message;
+                form.insertBefore(successAlert, submitBtn);
+                
+                // Redirection après 2 secondes
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 2000);
+            } else {
+                // Erreur
+                throw new Error(data.error || 'Erreur inconnue');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            
+            // Réinitialiser le bouton
+            submitBtn.disabled = false;
+            btnText.textContent = 'Créer mon compte Atlas';
+            btnLoading.classList.add('d-none');
+            
+            // Afficher l'erreur
+            errorMessage.textContent = error.message || 'Une erreur est survenue. Veuillez réessayer.';
+            errorMessage.classList.remove('d-none');
+        });
+    });
+});
+</script>
+{% endblock %}

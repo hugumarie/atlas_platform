@@ -1,0 +1,262 @@
+{% extends "platform/base.html" %}
+
+{% block title %}Finaliser votre abonnement - Atlas{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="background: linear-gradient(135deg, #344d59, #4a6572); min-height: 100vh; padding: 2rem 0;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header -->
+                <div class="text-center text-white mb-5">
+                    <h1 class="display-5 fw-bold mb-3">
+                        💳 Finaliser votre abonnement
+                    </h1>
+                    <p class="lead">
+                        Une dernière étape avant d'accéder à votre tableau de bord Atlas !
+                    </p>
+                </div>
+
+                <!-- Récapitulatif du plan -->
+                <div class="card shadow-lg border-0 mb-4" style="border-radius: 20px;">
+                    <div class="card-header bg-white text-center py-4" style="border-radius: 20px 20px 0 0;">
+                        <h3 class="fw-bold mb-3" style="color: #344d59;">
+                            📋 Récapitulatif de votre commande
+                        </h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h4 class="fw-bold" style="color: #344d59;">
+                                    Atlas {{ user_plan.get_plan_name() }}
+                                </h4>
+                                <p class="text-muted mb-2">{{ plan_config.description }}</p>
+                                
+                                <!-- Fonctionnalités principales -->
+                                <div class="mt-3">
+                                    <h6 class="fw-semibold text-muted">Inclus dans votre formule :</h6>
+                                    <div class="row">
+                                        {% for feature in plan_config.features[:3] %}
+                                        <div class="col-12 mb-1">
+                                            <i class="fas fa-check-circle me-2" style="color: #28a745;"></i>
+                                            <small>{{ feature }}</small>
+                                        </div>
+                                        {% endfor %}
+                                        {% if plan_config.features|length > 3 %}
+                                        <div class="col-12">
+                                            <small class="text-muted">
+                                                <i class="fas fa-plus me-1"></i>
+                                                Et {{ plan_config.features|length - 3 }} autres avantages...
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <div class="bg-light p-3 rounded">
+                                    <div class="h5 fw-bold mb-1" style="color: #344d59;">
+                                        €{{ user_plan.plan_price|int }}<span class="text-muted">/mois</span>
+                                    </div>
+                                    <small class="text-muted">TTC - Sans engagement</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone de paiement (Placeholder) -->
+                <div class="card shadow-lg border-0 mb-4" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4" style="color: #344d59;">
+                            <i class="fas fa-credit-card me-2"></i>Informations de paiement
+                        </h4>
+                        
+                        <!-- Placeholder Stripe -->
+                        <div class="bg-light p-4 rounded text-center" style="border: 2px dashed #dee2e6;">
+                            <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+                            <h5 class="fw-bold text-muted">Intégration Stripe en cours</h5>
+                            <p class="text-muted mb-4">
+                                Le module de paiement sécurisé sera intégré prochainement.<br>
+                                Pour l'instant, vous pouvez simuler un paiement réussi.
+                            </p>
+                            
+                            <!-- Informations techniques -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-body text-start">
+                                            <h6 class="fw-bold" style="color: #344d59;">
+                                                <i class="fas fa-shield-alt me-2"></i>Sécurité
+                                            </h6>
+                                            <ul class="list-unstyled mb-0" style="font-size: 0.9rem;">
+                                                <li><i class="fas fa-check text-success me-2"></i>Chiffrement SSL 256 bits</li>
+                                                <li><i class="fas fa-check text-success me-2"></i>Conformité PCI DSS</li>
+                                                <li><i class="fas fa-check text-success me-2"></i>3D Secure</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-body text-start">
+                                            <h6 class="fw-bold" style="color: #344d59;">
+                                                <i class="fas fa-money-bill-wave me-2"></i>Modes de paiement
+                                            </h6>
+                                            <div class="d-flex gap-2 mb-2">
+                                                <i class="fab fa-cc-visa fa-2x text-primary"></i>
+                                                <i class="fab fa-cc-mastercard fa-2x text-warning"></i>
+                                                <i class="fab fa-cc-amex fa-2x text-info"></i>
+                                            </div>
+                                            <small class="text-muted">Cartes bancaires acceptées</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Bouton de simulation -->
+                            <button id="simulatePaymentBtn" 
+                                    class="btn btn-success btn-lg px-5"
+                                    style="border-radius: 10px;">
+                                <i class="fas fa-play me-2"></i>
+                                <span id="simulateBtnText">Simuler un paiement réussi</span>
+                                <div id="simulateSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations complémentaires -->
+                <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-4 text-center">
+                                <i class="fas fa-calendar-times fa-2x text-muted mb-2"></i>
+                                <h6 class="fw-bold">Sans engagement</h6>
+                                <small class="text-muted">Résiliez à tout moment depuis votre espace client</small>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <i class="fas fa-sync-alt fa-2x text-muted mb-2"></i>
+                                <h6 class="fw-bold">Changement de formule</h6>
+                                <small class="text-muted">Modifiez votre plan selon vos besoins</small>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <i class="fas fa-headset fa-2x text-muted mb-2"></i>
+                                <h6 class="fw-bold">Support client</h6>
+                                <small class="text-muted">Assistance disponible 7j/7</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('onboarding.plan_selection') }}" 
+                       class="btn btn-outline-light">
+                        <i class="fas fa-arrow-left me-2"></i>Modifier ma formule
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation -->
+<div class="modal fade" id="paymentSuccessModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 15px;">
+            <div class="modal-body text-center p-5">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle fa-4x text-success"></i>
+                </div>
+                <h3 class="fw-bold mb-3" style="color: #344d59;">
+                    🎉 Bienvenue chez Atlas !
+                </h3>
+                <p class="text-muted mb-4">
+                    Votre abonnement <strong>{{ user_plan.get_plan_name() }}</strong> est maintenant actif.<br>
+                    Vous allez être redirigé vers votre tableau de bord.
+                </p>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Redirection en cours...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const simulateBtn = document.getElementById('simulatePaymentBtn');
+    const btnText = document.getElementById('simulateBtnText');
+    const spinner = document.getElementById('simulateSpinner');
+    const successModal = new bootstrap.Modal(document.getElementById('paymentSuccessModal'));
+
+    simulateBtn.addEventListener('click', function() {
+        // UI Loading
+        this.disabled = true;
+        btnText.textContent = 'Traitement en cours...';
+        spinner.classList.remove('d-none');
+
+        // Simuler un délai de traitement
+        setTimeout(() => {
+            // Appel API pour simuler le paiement
+            fetch('/onboarding/payment/simulate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Succès - Afficher modal et rediriger
+                    btnText.textContent = 'Paiement réussi !';
+                    spinner.classList.add('d-none');
+                    
+                    // Afficher le modal de succès
+                    successModal.show();
+                    
+                    // Redirection après 3 secondes
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 3000);
+                } else {
+                    throw new Error(data.error || 'Erreur lors du paiement');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur paiement:', error);
+                
+                // Réinitialiser le bouton
+                simulateBtn.disabled = false;
+                btnText.textContent = 'Simuler un paiement réussi';
+                spinner.classList.add('d-none');
+                
+                // Afficher l'erreur
+                alert('Erreur lors du paiement : ' + error.message);
+            });
+        }, 2000); // Simuler 2 secondes de traitement
+    });
+
+    // Empêcher la fermeture accidentelle du modal
+    document.getElementById('paymentSuccessModal').addEventListener('hide.bs.modal', function(e) {
+        e.preventDefault();
+        return false;
+    });
+});
+</script>
+
+<style>
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+#simulatePaymentBtn:hover {
+    transform: scale(1.02);
+}
+</style>
+{% endblock %}

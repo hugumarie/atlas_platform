@@ -1,0 +1,305 @@
+{% extends "platform/base.html" %}
+
+{% block title %}Choisissez votre formule - Atlas{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="background: linear-gradient(135deg, #344d59, #4a6572); min-height: 100vh; padding: 2rem 0;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Header -->
+                <div class="text-center text-white mb-5">
+                    <h1 class="display-5 fw-bold mb-3">
+                        🎯 Choisissez votre formule Atlas
+                    </h1>
+                    <p class="lead">
+                        Bonjour {{ user.first_name }}, sélectionnez la formule qui correspond le mieux à vos besoins d'investissement.
+                    </p>
+                </div>
+
+                <!-- Plans -->
+                <div class="row g-4 mb-5">
+                    {% for plan_key, plan_config in plans.items() %}
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-lg border-0 plan-card {{ 'popular' if plan_key == 'optima' else '' }}" 
+                             style="border-radius: 20px; transition: all 0.3s ease;"
+                             data-plan="{{ plan_key }}">
+                            
+                            {% if plan_key == 'optima' %}
+                            <!-- Badge populaire -->
+                            <div class="badge bg-warning text-dark position-absolute top-0 start-50 translate-middle px-3 py-2" 
+                                 style="font-size: 0.8rem; border-radius: 20px;">
+                                ⭐ Le plus populaire
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card-body p-4 text-center">
+                                <!-- Titre du plan -->
+                                <h3 class="fw-bold mb-3" style="color: #344d59; font-size: 2rem;">
+                                    {{ plan_config.name }}
+                                </h3>
+                                
+                                <!-- Prix -->
+                                <div class="mb-4">
+                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                        <span class="text-muted" style="font-size: 1.5rem;">€</span>
+                                        <span class="fw-bold ms-2" style="font-size: 3rem; color: #344d59;">
+                                            {{ plan_config.price|int }}
+                                        </span>
+                                        <span class="text-muted ms-2" style="font-size: 1.2rem;">/mois</span>
+                                    </div>
+                                    <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                                        {{ plan_config.description }}
+                                    </p>
+                                </div>
+                                
+                                <!-- Fonctionnalités -->
+                                <div class="text-start mb-4">
+                                    {% for feature in plan_config.features %}
+                                    <div class="d-flex align-items-start mb-2">
+                                        <i class="fas fa-check-circle me-3 mt-1" style="color: #28a745;"></i>
+                                        <span style="font-size: 0.95rem;">{{ feature }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Bouton de sélection -->
+                                <button class="btn btn-lg w-100 select-plan-btn" 
+                                        data-plan="{{ plan_key }}"
+                                        style="background: #344d59; color: white; border-radius: 15px; font-weight: 600; padding: 15px;">
+                                    {% if current_plan == plan_key %}
+                                        <i class="fas fa-check me-2"></i>Plan sélectionné
+                                    {% else %}
+                                        Choisir {{ plan_config.name }}
+                                    {% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Navigation -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card bg-white shadow-sm border-0" style="border-radius: 15px;">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <!-- Retour -->
+                                    <div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Vous pourrez modifier votre formule à tout moment depuis votre espace client.
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- Continuer -->
+                                    <div>
+                                        <button id="continueBtn" 
+                                                class="btn btn-success btn-lg px-4 d-none"
+                                                style="border-radius: 10px;">
+                                            Continuer vers le paiement
+                                            <i class="fas fa-arrow-right ms-2"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 15px;">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" style="color: #344d59;">
+                    <i class="fas fa-check-circle me-2"></i>Confirmer votre choix
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <div id="selectedPlanName" class="h4 fw-bold" style="color: #344d59;"></div>
+                    <div id="selectedPlanPrice" class="h5 text-muted"></div>
+                    <div id="selectedPlanDescription" class="text-muted"></div>
+                </div>
+                
+                <div class="alert alert-info d-flex align-items-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <div>
+                        Vous pourrez modifier ou annuler votre abonnement à tout moment depuis votre espace client.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" id="confirmPlanBtn" class="btn btn-primary" style="background: #344d59; border: none;">
+                    <span id="confirmBtnText">Confirmer et continuer</span>
+                    <div id="confirmBtnSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.plan-card {
+    cursor: pointer;
+    transform: scale(1);
+}
+
+.plan-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 35px rgba(52, 77, 89, 0.15) !important;
+}
+
+.plan-card.selected {
+    border: 3px solid #28a745 !important;
+    transform: scale(1.02);
+}
+
+.plan-card.popular {
+    border: 2px solid #ffc107;
+}
+
+.select-plan-btn.selected {
+    background: #28a745 !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const planCards = document.querySelectorAll('.plan-card');
+    const selectBtns = document.querySelectorAll('.select-plan-btn');
+    const continueBtn = document.getElementById('continueBtn');
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    const confirmPlanBtn = document.getElementById('confirmPlanBtn');
+    
+    let selectedPlan = '{{ current_plan }}' || null;
+    const plansData = {{ plans|tojson }};
+    
+    // Initialiser l'état si un plan est déjà sélectionné
+    if (selectedPlan) {
+        updateUIForSelectedPlan(selectedPlan);
+    }
+
+    // Gestion de la sélection de plan
+    planCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const planType = this.dataset.plan;
+            selectPlan(planType);
+        });
+    });
+
+    selectBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const planType = this.dataset.plan;
+            selectPlan(planType);
+        });
+    });
+
+    function selectPlan(planType) {
+        if (selectedPlan === planType) return;
+        
+        selectedPlan = planType;
+        updateUIForSelectedPlan(planType);
+        showConfirmModal(planType);
+    }
+
+    function updateUIForSelectedPlan(planType) {
+        // Réinitialiser tous les cards
+        planCards.forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        selectBtns.forEach(btn => {
+            btn.classList.remove('selected');
+            const plan = btn.dataset.plan;
+            btn.innerHTML = `Choisir ${plansData[plan].name}`;
+        });
+        
+        // Marquer le plan sélectionné
+        const selectedCard = document.querySelector(`[data-plan="${planType}"]`);
+        if (selectedCard && selectedCard.classList.contains('plan-card')) {
+            selectedCard.classList.add('selected');
+        }
+        
+        const selectedBtn = document.querySelector(`button[data-plan="${planType}"]`);
+        if (selectedBtn) {
+            selectedBtn.classList.add('selected');
+            selectedBtn.innerHTML = '<i class="fas fa-check me-2"></i>Plan sélectionné';
+        }
+        
+        // Afficher le bouton Continuer
+        continueBtn.classList.remove('d-none');
+    }
+
+    function showConfirmModal(planType) {
+        const plan = plansData[planType];
+        
+        document.getElementById('selectedPlanName').textContent = plan.name;
+        document.getElementById('selectedPlanPrice').textContent = `€${plan.price}/mois`;
+        document.getElementById('selectedPlanDescription').textContent = plan.description;
+        
+        confirmModal.show();
+    }
+
+    // Confirmation du plan
+    confirmPlanBtn.addEventListener('click', function() {
+        if (!selectedPlan) return;
+        
+        // UI Loading
+        this.disabled = true;
+        document.getElementById('confirmBtnText').textContent = 'Confirmation...';
+        document.getElementById('confirmBtnSpinner').classList.remove('d-none');
+        
+        // Envoyer la sélection
+        fetch('/onboarding/plan/select', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                plan_type: selectedPlan
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Succès
+                document.getElementById('confirmBtnText').textContent = 'Confirmé !';
+                document.getElementById('confirmBtnSpinner').classList.add('d-none');
+                
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 1000);
+            } else {
+                throw new Error(data.error || 'Erreur inconnue');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la confirmation: ' + error.message);
+            
+            // Réinitialiser
+            confirmPlanBtn.disabled = false;
+            document.getElementById('confirmBtnText').textContent = 'Confirmer et continuer';
+            document.getElementById('confirmBtnSpinner').classList.add('d-none');
+        });
+    });
+
+    // Bouton continuer direct
+    continueBtn.addEventListener('click', function() {
+        if (selectedPlan) {
+            showConfirmModal(selectedPlan);
+        }
+    });
+});
+</script>
+{% endblock %}
