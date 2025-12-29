@@ -675,7 +675,6 @@ body {
     .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(2) { animation-delay: 0.2s; }
     .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(3) { animation-delay: 0.3s; }
     .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(4) { animation-delay: 0.4s; }
-    .qlower-nav-menu.mobile-active .mobile-actions { animation-delay: 0.5s; }
     
     @keyframes fadeInUp {
         from {
@@ -711,52 +710,6 @@ body {
         display: none;
     }
     
-    /* Mobile action buttons */
-    .mobile-actions {
-        display: flex !important;
-        flex-direction: column;
-        gap: 1rem;
-        margin-top: 2rem;
-        opacity: 0;
-        animation: fadeInUp 0.5s ease-out forwards;
-        animation-delay: 0.5s;
-    }
-    
-    .mobile-action-btn {
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        text-decoration: none;
-        text-align: center;
-        font-weight: 600;
-        font-size: 1.1rem;
-        transition: all 0.3s ease;
-        border: 2px solid;
-    }
-    
-    .mobile-action-btn.primary {
-        background: var(--qlower-primary);
-        color: white;
-        border-color: var(--qlower-primary);
-    }
-    
-    .mobile-action-btn.primary:hover {
-        background: #0f6b75;
-        border-color: #0f6b75;
-        color: white;
-        transform: translateY(-2px);
-    }
-    
-    .mobile-action-btn.secondary {
-        background: transparent;
-        color: var(--qlower-text-dark);
-        border-color: var(--qlower-text-dark);
-    }
-    
-    .mobile-action-btn.secondary:hover {
-        background: var(--qlower-text-dark);
-        color: white;
-        transform: translateY(-2px);
-    }
     
     .qlower-footer-content {
         grid-template-columns: 1fr;
@@ -833,23 +786,15 @@ body {
                 <a href="{{ url_for('site_pages.index') }}" class="qlower-nav-link">Accueil</a>
             </div>
             <div class="qlower-nav-item">
-                <a href="{{ url_for('site_pages.about') }}" class="qlower-nav-link">À propos</a>
-            </div>
-            <div class="qlower-nav-item">
-                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">
-                    Nos Offres
-                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
-                </a>
+                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">Nos Offres</a>
             </div>
             <div class="qlower-nav-item">
                 <a href="{{ url_for('site_pages.contact') }}" class="qlower-nav-link">Contact</a>
             </div>
-            
-            <!-- Mobile actions - only visible on mobile -->
-            <div class="mobile-actions">
-                <a href="#rdv" class="mobile-action-btn primary">Prendre RDV</a>
-                <a href="/plateforme/connexion" class="mobile-action-btn secondary">Mon espace</a>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.about') }}" class="qlower-nav-link">À propos</a>
             </div>
+            
         </div>
         
         <div class="qlower-nav-actions">
