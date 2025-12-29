@@ -41,14 +41,8 @@ def dashboard():
     # LECTURE PURE DE LA BASE DE DONNÉES - AUCUN CALCUL
     profile = current_user.investor_profile
     
-    # Si pas de profil, afficher dashboard vide avec toutes valeurs à zéro
+    # Si pas de profil, afficher dashboard vide avec invitation à compléter profil
     if not profile:
-        # Plan d'investissement vide
-        empty_plan = type('EmptyPlan', (), {
-            'total_monthly_investment': 0,
-            'lines': []
-        })()
-        
         return render_template('platform/investor/dashboard.html', 
                              user=current_user,
                              profile=None,
@@ -56,7 +50,7 @@ def dashboard():
                              patrimoine_repartition={'liquidites': 0, 'placements': 0, 'immobilier': 0, 'crypto': 0, 'autres_biens': 0},
                              patrimoine_total_net=0,
                              total_immobilier_net=0,
-                             investment_plan=empty_plan,
+                             investment_plan=None,
                              actions_data={'success': False, 'actions': []})
     
     patrimoine_total_net = profile.calculated_patrimoine_total_net
@@ -303,7 +297,9 @@ def apprentissages():
     if not current_user.can_access_platform():
         return redirect(url_for('platform_auth.login'))
     
-    # Plus de blocage - accès libre même sans profil
+    if not current_user.investor_profile:
+        flash('Veuillez d\'abord compléter votre profil investisseur.', 'warning')
+        return redirect(url_for('platform_investor.questionnaire'))
     
     # Récupération des vraies formations depuis la base de données
     formations = Apprentissage.query.filter_by(actif=True).order_by(Apprentissage.ordre.asc(), Apprentissage.date_creation.desc()).all()
@@ -338,19 +334,15 @@ def investor_data():
     if not current_user.can_access_platform():
         return redirect(url_for('platform_auth.login'))
     
-    # Si pas de profil, créer automatiquement un profil vide avec valeurs par défaut
+    # Si pas de profil et pas en mode édition, rediriger vers dashboard
     if not current_user.investor_profile:
+        if request.args.get('edit') != 'true':
+            flash('Utilisez le bouton "Compléter mon profil investisseur" pour commencer.', 'info')
+            return redirect(url_for('platform_investor.dashboard'))
+        
+        # Créer un profil vide pour permettre l'édition
         from app.models.investor_profile import InvestorProfile
-        profile = InvestorProfile(
-            user_id=current_user.id,
-            monthly_net_income=0.0,
-            current_savings=0.0,
-            monthly_savings_capacity=0.0,
-            risk_tolerance='conservateur',
-            investment_experience='debutant',
-            investment_goals='constitution_epargne',
-            investment_horizon='court terme'
-        )
+        profile = InvestorProfile(user_id=current_user.id)
         db.session.add(profile)
         db.session.commit()
         current_user.investor_profile = profile
@@ -359,18 +351,17 @@ def investor_data():
     edit_mode = request.args.get('edit') == 'true'
     
     # Recalcul complet des totaux patrimoniaux avec PatrimonyCalculationEngine V2.0
-    if current_user.investor_profile:
-        try:
-            from app.services.patrimony_calculation_engine import PatrimonyCalculationEngine
-            PatrimonyCalculationEngine.calculate_and_save_all(current_user.investor_profile, force_recalculate=True, save_to_db=True)
-            db.session.refresh(current_user.investor_profile)
-            db.session.refresh(current_user)
-        except Exception as calc_error:
-            pass  # En cas d'erreur, on continue sans bloquer l'affichage
+    try:
+        from app.services.patrimony_calculation_engine import PatrimonyCalculationEngine
+        PatrimonyCalculationEngine.calculate_and_save_all(current_user.investor_profile, force_recalculate=True, save_to_db=True)
+        db.session.refresh(current_user.investor_profile)
+        db.session.refresh(current_user)
+    except Exception as calc_error:
+        pass  # En cas d'erreur, on continue sans bloquer l'affichage
     
     # Calcul des valeurs nettes par bien immobilier avec CreditCalculationService
     immobilier_with_calculations = []
-    if current_user.investor_profile and current_user.investor_profile.immobilier_data:
+    if current_user.investor_profile.immobilier_data:
         from app.services.credit_calculation import CreditCalculationService
         from datetime import datetime, date
         
@@ -451,13 +442,9 @@ def update_investor_data():
     if not current_user.can_access_platform():
         return redirect(url_for('platform_auth.login'))
     
-    # Créer un profil vide si nécessaire
     if not current_user.investor_profile:
-        from app.models.investor_profile import InvestorProfile
-        profile = InvestorProfile(user_id=current_user.id)
-        db.session.add(profile)
-        db.session.commit()
-        current_user.investor_profile = profile
+        flash('Profil investisseur introuvable.', 'error')
+        return redirect(url_for('platform_investor.questionnaire'))
     
     try:
         # Récupération des données du formulaire HTML - COPIE EXACTE ADMIN
@@ -953,7 +940,7 @@ def update_investor_data():
         
         # ============ RECALCUL DES VALEURS NETTES APRÈS SAUVEGARDE ============
         # Recalculer les valeurs nettes des biens immobiliers avec les nouvelles données
-        if current_user.investor_profile and current_user.investor_profile.immobilier_data:
+        if current_user.investor_profile.immobilier_data:
             from app.services.credit_calculation import CreditCalculationService
             from datetime import datetime, date
             
@@ -1125,7 +1112,9 @@ def assistant():
     if not current_user.can_access_platform():
         return redirect(url_for('platform_auth.login'))
     
-    # Plus de blocage - accès libre même sans profil
+    if not current_user.investor_profile:
+        flash('Veuillez d\'abord compléter votre profil investisseur.', 'warning')
+        return redirect(url_for('platform_investor.questionnaire'))
     
     return render_template('platform/investor/assistant.html')
 
@@ -1252,24 +1241,13 @@ def portfolio_data():
     """
     API pour récupérer les données du portefeuille pour les graphiques.
     """
-    if current_user.is_admin:
+    if current_user.is_admin or not current_user.investor_profile:
         return jsonify({'error': 'Accès non autorisé'}), 403
     
     if not current_user.can_access_platform():
         return jsonify({'error': 'Abonnement expiré'}), 403
     
     profile = current_user.investor_profile
-    
-    if not profile:
-        # Retourner des données vides si pas de profil
-        return jsonify({
-            'distribution': {},
-            'total_value': 0,
-            'monthly_income': 0,
-            'monthly_savings': 0,
-            'risk_score': 0
-        })
-    
     distribution = profile.get_investment_distribution()
     
     return jsonify({
@@ -1715,7 +1693,9 @@ def learning_pdf(id):
             flash('Accès non autorisé. Veuillez vous abonner pour accéder aux formations.', 'error')
             return redirect(url_for('platform_auth.login'))
         
-        # Plus de blocage - accès libre aux formations même sans profil
+        if not current_user.investor_profile:
+            flash('Veuillez d\'abord compléter votre profil investisseur.', 'warning')
+            return redirect(url_for('platform_investor.questionnaire'))
     
     # Récupérer la formation
     apprentissage = Apprentissage.query.filter_by(id=id, actif=True).first_or_404()

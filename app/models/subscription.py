@@ -62,6 +62,14 @@ class Subscription(db.Model):
     # Informations de paiement (simulation)
     payment_method = db.Column(db.String(50), default="simulation")
     
+    # Intégration Stripe
+    stripe_subscription_id = db.Column(db.String(100), nullable=True, unique=True)
+    stripe_customer_id = db.Column(db.String(100), nullable=True)
+    current_period_start = db.Column(db.DateTime, nullable=True)
+    current_period_end = db.Column(db.DateTime, nullable=True)
+    canceled_at = db.Column(db.DateTime, nullable=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
     def __init__(self, user_id, **kwargs):
         """
         Initialise un nouvel abonnement directement actif (après paiement).

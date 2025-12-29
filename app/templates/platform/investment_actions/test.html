@@ -1,0 +1,265 @@
+{% extends "platform/base.html" %}
+
+{% block title %}Test - Actions d'Investissement{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h2 mb-4 text-primary">
+                <i class="fas fa-vial me-2"></i>Test du Module Actions d'Investissement
+            </h1>
+            
+            <!-- Debug Info -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Mode Test - Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Email utilisateur:</strong> {{ current_user.email }}</p>
+                            <p><strong>Mode test actif:</strong> 
+                                <span class="badge bg-success">✓ Activé</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Génération automatique:</strong> 
+                                {% if auto_result.success %}
+                                    <span class="badge bg-success">✓ {{ auto_result.created_count }} actions créées</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ auto_result.error or 'Aucune nouvelle action' }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions du mois -->
+            {% if dashboard_data.success %}
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tasks me-2"></i>
+                        Actions à réaliser - {{ dashboard_data.year_month }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if dashboard_data.pending_actions %}
+                        <div class="row">
+                            {% for action in dashboard_data.pending_actions %}
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card border-warning">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <span class="badge bg-warning text-dark">{{ action.support_type }}</span>
+                                            <span class="text-muted small">En attente</span>
+                                        </div>
+                                        <h6 class="card-title">{{ action.label }}</h6>
+                                        <p class="card-text fs-4 text-primary mb-3">
+                                            <strong>{{ "%.0f"|format(action.expected_amount) }}€</strong>
+                                        </p>
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-success btn-sm" onclick="updateAction({{ action.id }}, 'done')">
+                                                <i class="fas fa-check me-1"></i>Fait
+                                            </button>
+                                            <button class="btn btn-warning btn-sm" onclick="showAdjustModal({{ action.id }}, '{{ action.label }}', {{ action.expected_amount }})">
+                                                <i class="fas fa-edit me-1"></i>Ajuster
+                                            </button>
+                                            <button class="btn btn-secondary btn-sm" onclick="updateAction({{ action.id }}, 'skipped')">
+                                                <i class="fas fa-clock me-1"></i>Reporter
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-check-circle fa-3x mb-3"></i>
+                            <h4>Aucune action en attente</h4>
+                            <p>Toutes vos actions du mois ont été traitées !</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Statistiques -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0">Statistiques Mensuelles</h6>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Objectif mensuel:</strong> {{ "%.0f"|format(dashboard_data.monthly_stats.total_expected) }}€</p>
+                            <p><strong>Réalisé:</strong> {{ "%.0f"|format(dashboard_data.monthly_stats.total_realized) }}€</p>
+                            <p><strong>Taux de réalisation:</strong> {{ "%.1f"|format(dashboard_data.monthly_stats.completion_rate) }}%</p>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ dashboard_data.monthly_stats.completion_rate }}%">
+                                    {{ "%.0f"|format(dashboard_data.monthly_stats.completion_rate) }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0">Statistiques Annuelles</h6>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Objectif annuel:</strong> {{ "%.0f"|format(dashboard_data.yearly_stats.total_expected) }}€</p>
+                            <p><strong>Réalisé:</strong> {{ "%.0f"|format(dashboard_data.yearly_stats.total_realized) }}€</p>
+                            <p><strong>Progression:</strong> {{ "%.1f"|format(dashboard_data.yearly_stats.completion_rate) }}%</p>
+                            <p><strong>Mois actifs:</strong> {{ dashboard_data.yearly_stats.months_with_actions }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Toutes les actions -->
+            {% if dashboard_data.actions %}
+            <div class="card mt-4">
+                <div class="card-header bg-dark text-white">
+                    <h6 class="mb-0">Toutes les Actions du Mois</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Support</th>
+                                    <th>Description</th>
+                                    <th>Attendu</th>
+                                    <th>Réalisé</th>
+                                    <th>Statut</th>
+                                    <th>Progression</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for action in dashboard_data.actions %}
+                                <tr>
+                                    <td><span class="badge bg-primary">{{ action.support_type }}</span></td>
+                                    <td>{{ action.label }}</td>
+                                    <td>{{ "%.0f"|format(action.expected_amount) }}€</td>
+                                    <td>{{ "%.0f"|format(action.realized_amount or 0) }}€</td>
+                                    <td>
+                                        {% if action.status == 'done' %}
+                                            <span class="badge bg-success">Fait</span>
+                                        {% elif action.status == 'adjusted' %}
+                                            <span class="badge bg-info">Ajusté</span>
+                                        {% elif action.status == 'skipped' %}
+                                            <span class="badge bg-secondary">Reporté</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">En attente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ action.completion_rate }}%">
+                                                {{ "%.0f"|format(action.completion_rate) }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% else %}
+                <div class="alert alert-danger">
+                    <h4>Erreur</h4>
+                    <p>{{ dashboard_data.error }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour ajuster le montant -->
+<div class="modal fade" id="adjustModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajuster le montant investi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="adjustDescription"></p>
+                <div class="mb-3">
+                    <label for="adjustAmount" class="form-label">Montant réellement investi (€)</label>
+                    <input type="number" class="form-control" id="adjustAmount" step="0.01" min="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="confirmAdjust()">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentActionId = null;
+
+function updateAction(actionId, status, realizedAmount = null) {
+    const data = { status: status };
+    if (realizedAmount !== null) {
+        data.realized_amount = realizedAmount;
+    }
+    
+    fetch(`/plateforme/actions/api/update/${actionId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Recharger pour voir les changements
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur de communication avec le serveur');
+    });
+}
+
+function showAdjustModal(actionId, label, expectedAmount) {
+    currentActionId = actionId;
+    document.getElementById('adjustDescription').textContent = 
+        `${label} - Montant attendu: ${expectedAmount}€`;
+    document.getElementById('adjustAmount').value = expectedAmount;
+    
+    const modal = new bootstrap.Modal(document.getElementById('adjustModal'));
+    modal.show();
+}
+
+function confirmAdjust() {
+    const amount = parseFloat(document.getElementById('adjustAmount').value);
+    if (isNaN(amount) || amount < 0) {
+        alert('Veuillez saisir un montant valide');
+        return;
+    }
+    
+    updateAction(currentActionId, 'adjusted', amount);
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('adjustModal'));
+    modal.hide();
+}
+</script>
+
+{% endblock %}

@@ -73,6 +73,7 @@ def create_app():
     from app.models.credit import Credit
     from app.models.apprentissage import Apprentissage
     from app.models.crypto_price import CryptoPrice
+    from app.models.investment_action import InvestmentAction
     
     # Configuration du user_loader pour Flask-Login
     @login_manager.user_loader
@@ -88,12 +89,16 @@ def create_app():
     from app.routes.platform.auth import platform_auth_bp
     from app.routes.platform.investor import platform_investor_bp
     from app.routes.platform.admin import platform_admin_bp
+    from app.routes.platform.investment_actions import investment_actions_bp
     from app.routes.onboarding import onboarding_bp
+    from app.routes.onboarding.stripe_routes import stripe_bp
     
     app.register_blueprint(platform_auth_bp)
     app.register_blueprint(platform_investor_bp)
     app.register_blueprint(platform_admin_bp)
+    app.register_blueprint(investment_actions_bp)
     app.register_blueprint(onboarding_bp)
+    app.register_blueprint(stripe_bp)
     
     # API crypto intégrée dans les routes admin
     

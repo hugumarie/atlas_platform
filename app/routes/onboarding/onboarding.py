@@ -178,13 +178,31 @@ def select_plan():
         session['selected_plan_id'] = user_plan.id
         session['selected_plan_type'] = plan_type
         
-        return jsonify({
-            'success': True,
-            'message': f'Plan {plan_type.upper()} sélectionné avec succès',
-            'plan_name': user_plan.get_plan_name(),
-            'plan_price': float(user_plan.plan_price),
-            'redirect_url': url_for('onboarding.payment')
-        })
+        # Redirection directe vers la création de session Stripe
+        from app.services.stripe_service import stripe_service
+        
+        try:
+            # Créer la session Stripe
+            stripe_session = stripe_service.create_checkout_session(current_user, plan_type)
+            
+            return jsonify({
+                'success': True,
+                'message': f'Plan {plan_type.upper()} sélectionné avec succès',
+                'plan_name': user_plan.get_plan_name(),
+                'plan_price': float(user_plan.plan_price),
+                'redirect_url': stripe_session.url
+            })
+            
+        except Exception as stripe_error:
+            # En cas d'erreur Stripe, redirection vers la page de paiement classique
+            print(f"⚠️ Erreur Stripe, redirection vers page paiement: {stripe_error}")
+            return jsonify({
+                'success': True,
+                'message': f'Plan {plan_type.upper()} sélectionné avec succès',
+                'plan_name': user_plan.get_plan_name(),
+                'plan_price': float(user_plan.plan_price),
+                'redirect_url': url_for('onboarding.payment')
+            })
         
     except Exception as e:
         db.session.rollback()

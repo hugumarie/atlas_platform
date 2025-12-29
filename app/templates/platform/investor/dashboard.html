@@ -5,6 +5,8 @@
 {% block page_title %}Tableau de bord{% endblock %}
 
 {% block content %}
+
+
 <!-- Section principale avec les deux nouvelles boîtes -->
 <div class="dashboard-new-section">
     <!-- Boîte Patrimoine (1/3 gauche) -->
@@ -30,17 +32,66 @@
     <div class="dashboard-card actions-card">
         <div class="card-header">
             <h3>Actions à réaliser</h3>
+            {% if actions_data.success and actions_data.year_month %}
+                <span class="card-header-subtitle">{{ actions_data.year_month }}</span>
+            {% endif %}
         </div>
         <div class="card-body">
-            <div class="no-actions">
-                <div class="no-actions-icon">
-                    <i class="fas fa-check-circle"></i>
+            {% if actions_data.success and actions_data.pending_actions %}
+                <div class="actions-list">
+                    {% for action in actions_data.pending_actions %}
+                    <div class="action-item-compact {{ 'action-overdue' if action.is_overdue else '' }}" data-action-id="{{ action.id }}">
+                        <div class="action-info">
+                            <span class="action-support-compact">{{ action.support_type }}</span>
+                            <span class="action-label-compact">{{ action.label }}</span>
+                            <span class="action-reminder-compact {{ 'reminder-overdue' if action.is_overdue else '' }}">
+                                invest du {{ action.year_month[5:7] }}/{{ action.year_month[2:4] }}
+                                {% if action.is_overdue %}<i class="fas fa-exclamation-triangle ml-1"></i>{% endif %}
+                            </span>
+                        </div>
+                        <div class="action-amount-compact">{{ "%.0f"|format(action.expected_amount) }}€</div>
+                        <div class="action-buttons-compact">
+                            <button class="action-btn-compact validate-btn-compact" onclick="updateInvestmentAction({{ action.id }}, 'done')" title="Valider">
+                                <i class="fas fa-check"></i>
+                                <span class="btn-text-compact">Valider</span>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-                <div class="no-actions-text">
-                    <h4>Aucune action à réaliser</h4>
-                    <p>Votre portefeuille est à jour</p>
+                
+                <!-- Compteur prochaines actions -->
+                {% if actions_data.days_until_next_actions is defined %}
+                <div class="next-actions-counter">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="counter-text">
+                        Prochaine action à valider dans <strong>{{ actions_data.days_until_next_actions }}</strong> 
+                        jour{{ 's' if actions_data.days_until_next_actions != 1 else '' }}
+                    </span>
                 </div>
-            </div>
+                {% endif %}
+            {% else %}
+                <div class="no-actions">
+                    <div class="no-actions-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="no-actions-text">
+                        <h4>Toutes les actions sont validées</h4>
+                        <p>{% if actions_data.success %}Vos investissements du mois sont à jour{% else %}{{ actions_data.error or 'Chargement...' }}{% endif %}</p>
+                    </div>
+                    
+                    <!-- Compteur prochaines actions même quand pas d'actions -->
+                    {% if actions_data.days_until_next_actions is defined %}
+                    <div class="next-actions-counter mt-3">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span class="counter-text">
+                            Prochaines actions dans <strong>{{ actions_data.days_until_next_actions }}</strong> 
+                            jour{{ 's' if actions_data.days_until_next_actions != 1 else '' }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -60,7 +111,7 @@
         </div>
         <div class="portfolio-total">
             <span class="total-label">Total</span>
-            <span class="total-value" id="portfolioTotal">45 250€</span>
+            <span class="total-value" id="portfolioTotal">0€</span>
         </div>
     </div>
     <div class="portfolio-content">
@@ -212,7 +263,7 @@ function animateStatsCards() {
 
 function animateSavingsProgress() {
     // Données réelles basées sur l'utilisateur
-    const monthlyGoal = {% if current_user.investor_profile %}{{ current_user.investor_profile.monthly_savings_capacity }}{% else %}850{% endif %};
+    const monthlyGoal = {% if current_user.investor_profile %}{{ current_user.investor_profile.monthly_savings_capacity }}{% else %}0{% endif %};
     
     // Calculer le nombre de mois réellement écoulés depuis l'inscription
     const registrationDate = new Date('{{ current_user.date_created.strftime("%Y-%m-%d") if current_user.date_created else "2024-01-01" }}');
@@ -333,7 +384,7 @@ function createPortfolioChart() {
     
     // Si aucune donnée, utiliser des données par défaut
     if (Object.keys(portfolioData).length === 0) {
-        portfolioData['Pas de données'] = { amount: 1, color: '#dee2e6' };
+        portfolioData['Aucune donnée'] = { amount: 0, color: '#dee2e6' };
     }
     
     const labels = Object.keys(portfolioData);
@@ -523,6 +574,13 @@ function createCustomLegend(portfolioData, total) {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+/* Actions Card - prendre toute la largeur */
+.actions-card .card-body {
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 16px;
 }
 
 /* Patrimoine Card */
@@ -1351,5 +1409,389 @@ function createCustomLegend(portfolioData, total) {
         transform: translateY(0);
     }
 }
+
+/* === ACTIONS INVESTISSEMENT - DESIGN COMPACT ATLAS === */
+.actions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 0;
+    width: 100%;
+}
+
+.action-item-compact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafb 100%);
+    border-radius: 8px;
+    border: 1px solid #137C8B;
+    box-shadow: 0 2px 6px rgba(19, 124, 139, 0.15);
+    transition: all 0.2s ease;
+    min-height: 52px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.action-item-compact:hover {
+    background: linear-gradient(135deg, #f8fafb 0%, #eef4f6 100%);
+    box-shadow: 0 4px 12px rgba(19, 124, 139, 0.25);
+    border-color: #344D59;
+}
+
+.action-item-compact.action-overdue {
+    border-color: #dc3545;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffeaea 100%);
+}
+
+.action-item-compact.action-overdue:hover {
+    background: linear-gradient(135deg, #ffeaea 0%, #ffdddd 100%);
+    border-color: #c82333;
+}
+
+.action-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    max-width: none;
+}
+
+.action-support-compact {
+    background: #137C8B;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    min-width: 45px;
+    text-align: center;
+}
+
+.action-label-compact {
+    color: #344D59;
+    font-size: 0.9rem;
+    font-weight: 500;
+    flex: 1;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.action-reminder-compact {
+    color: #7A90A4;
+    font-size: 0.75rem;
+    font-style: italic;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+.reminder-overdue {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.reminder-overdue i {
+    color: #dc3545;
+    margin-left: 4px;
+}
+
+.action-amount-compact {
+    color: #137C8B;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 16px;
+    min-width: 80px;
+    text-align: right;
+}
+
+.action-buttons-compact {
+    display: flex;
+}
+
+.action-btn-compact {
+    height: 32px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+}
+
+.validate-btn-compact {
+    background: #137C8B;
+    color: white;
+}
+
+.validate-btn-compact:hover {
+    background: #344D59;
+    transform: scale(1.05);
+}
+
+.btn-text-compact {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.monthly-progress {
+    border-top: 1px solid #dee2e6;
+    padding-top: 12px;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.progress-percent {
+    font-weight: 600;
+    color: var(--qlower-primary);
+}
+
+.progress-bar-container {
+    background: #e9ecef;
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--qlower-primary), var(--qlower-light));
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.next-actions-counter {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #f8fafb 0%, #eef4f6 100%);
+    border: 1px solid #137C8B;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #344D59;
+}
+
+.next-actions-counter i {
+    color: #137C8B;
+    font-size: 0.9rem;
+}
+
+.next-actions-counter .counter-text strong {
+    color: #137C8B;
+    font-weight: 700;
+}
+
+.card-header-subtitle {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.8);
+    font-weight: normal;
+}
 </style>
+
+<!-- Modal pour ajuster le montant -->
+<div class="modal fade" id="adjustModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajuster le montant investi</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="adjustDescription"></p>
+                <div class="mb-3">
+                    <label for="adjustAmount" class="form-label">Montant réellement investi (€)</label>
+                    <input type="number" class="form-control" id="adjustAmount" step="0.01" min="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="confirmAdjust()">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variables pour les actions d'investissement
+let currentActionId = null;
+
+function updateInvestmentAction(actionId, status, realizedAmount = null) {
+    const data = { status: status };
+    if (realizedAmount !== null) {
+        data.realized_amount = realizedAmount;
+    }
+    
+    const actionItem = document.querySelector(`[data-action-id="${actionId}"]`);
+    if (actionItem) {
+        const buttons = actionItem.querySelectorAll('.action-btn-compact');
+        buttons.forEach(btn => btn.disabled = true);
+        
+        // Animation de validation
+        actionItem.style.opacity = '0.7';
+        actionItem.style.transform = 'scale(0.98)';
+    }
+    
+    fetch(`/plateforme/actions/api/update/${actionId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Animation de succès
+            if (actionItem) {
+                actionItem.style.background = 'linear-gradient(90deg, #d4edda 0%, transparent 100%)';
+                actionItem.style.border = '2px solid #28a745';
+                
+                setTimeout(() => {
+                    actionItem.style.transition = 'all 0.5s ease-out';
+                    actionItem.style.opacity = '0';
+                    actionItem.style.transform = 'translateX(20px) scale(0.95)';
+                    
+                    setTimeout(() => {
+                        actionItem.remove();
+                        updateDashboardCounters();
+                        refreshYearlySavings();
+                    }, 500);
+                }, 1000);
+            }
+        } else {
+            alert('Erreur: ' + data.error);
+            if (actionItem) {
+                actionItem.style.opacity = '1';
+                actionItem.style.transform = 'scale(1)';
+                const buttons = actionItem.querySelectorAll('.action-btn-compact');
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur de communication avec le serveur');
+        if (actionItem) {
+            actionItem.style.opacity = '1';
+            actionItem.style.transform = 'scale(1)';
+            const buttons = actionItem.querySelectorAll('.action-btn-compact');
+            buttons.forEach(btn => btn.disabled = false);
+        }
+    });
+}
+
+function updateDashboardCounters() {
+    // Mettre à jour le compteur d'actions restantes
+    const remainingActions = document.querySelectorAll('.action-item-compact').length - 1; // -1 car celle qui vient d'être supprimée
+    
+    // Si plus d'actions, masquer le module ou afficher un message
+    if (remainingActions === 0) {
+        const actionsModule = document.querySelector('.dashboard-card');
+        if (actionsModule && actionsModule.querySelector('.actions-list')) {
+            actionsModule.querySelector('.card-content').innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: #28a745;">
+                    <i class="fas fa-check-circle fa-2x mb-3"></i>
+                    <h4>Félicitations !</h4>
+                    <p>Toutes vos actions mensuelles sont validées.</p>
+                </div>
+            `;
+        }
+    }
+}
+
+function refreshYearlySavings() {
+    // Récupérer les nouvelles données d'épargne annuelle
+    fetch('/plateforme/actions/api/yearly-savings')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mettre à jour la barre d'épargne avec les bons sélecteurs
+                const savedAmountElement = document.querySelector('#currentYearlySavings');
+                const targetAmountElement = document.querySelector('#targetYearlySavings');
+                const progressBar = document.querySelector('.progress');
+                
+                if (savedAmountElement && targetAmountElement && progressBar) {
+                    const currentSaved = data.yearly_savings || 0;
+                    const objective = data.yearly_objective || 12000;
+                    const percentage = Math.min((currentSaved / objective) * 100, 100);
+                    
+                    // Animation de la mise à jour
+                    savedAmountElement.style.transition = 'all 0.8s ease-out';
+                    if (progressBar.firstElementChild) {
+                        progressBar.firstElementChild.style.transition = 'width 0.8s ease-out';
+                    }
+                    
+                    // Mettre à jour les valeurs
+                    savedAmountElement.textContent = `${Math.round(currentSaved).toLocaleString()}€`;
+                    targetAmountElement.textContent = `${Math.round(objective).toLocaleString()}€`;
+                    
+                    if (progressBar.firstElementChild) {
+                        progressBar.firstElementChild.style.width = `${percentage}%`;
+                    }
+                    
+                    // Flash visuel pour indiquer la mise à jour
+                    savedAmountElement.style.color = '#28a745';
+                    savedAmountElement.style.fontWeight = 'bold';
+                    savedAmountElement.style.transform = 'scale(1.1)';
+                    
+                    setTimeout(() => {
+                        savedAmountElement.style.color = '';
+                        savedAmountElement.style.fontWeight = '';
+                        savedAmountElement.style.transform = '';
+                    }, 1500);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la mise à jour de l\'épargne:', error);
+        });
+}
+
+function showAdjustModal(actionId, label, expectedAmount) {
+    currentActionId = actionId;
+    document.getElementById('adjustDescription').textContent = 
+        `${label} - Montant attendu: ${expectedAmount}€`;
+    document.getElementById('adjustAmount').value = expectedAmount;
+    
+    const modal = new bootstrap.Modal(document.getElementById('adjustModal'));
+    modal.show();
+}
+
+function confirmAdjust() {
+    const amount = parseFloat(document.getElementById('adjustAmount').value);
+    if (isNaN(amount) || amount < 0) {
+        alert('Veuillez saisir un montant valide');
+        return;
+    }
+    
+    updateInvestmentAction(currentActionId, 'adjusted', amount);
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('adjustModal'));
+    modal.hide();
+}
+</script>
+
 {% endblock %}

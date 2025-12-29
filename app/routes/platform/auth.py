@@ -116,7 +116,7 @@ def register():
             user.update_last_login()
             
             flash('Compte créé avec succès ! Paiement de 20€ effectué. Bienvenue !', 'success')
-            return redirect(url_for('platform_investor.questionnaire'))
+            return redirect(url_for('platform_investor.dashboard'))
             
         except Exception as e:
             db.session.rollback()
@@ -195,8 +195,8 @@ def login():
                 flash('Votre compte est désactivé.', 'error')
                 return render_template('platform/auth/login.html')
             
-            # Vérification que l'utilisateur a un abonnement actif
-            if not user.subscription or not user.subscription.is_active():
+            # Vérification accès plateforme
+            if not user.can_access_platform():
                 flash('Votre abonnement a expiré. Veuillez renouveler votre abonnement.', 'error')
                 return render_template('platform/auth/login.html')
             
@@ -205,12 +205,10 @@ def login():
             
             # Hook supprimé - pas de recalcul automatique à la connexion
             
-            # Redirection selon le profil
+            # Redirection selon le profil - toujours vers dashboard
             next_page = request.args.get('next')
             if next_page:
                 return redirect(next_page)
-            elif not user.investor_profile:
-                return redirect(url_for('platform_investor.questionnaire'))
             else:
                 return redirect(url_for('platform_investor.dashboard'))
         else:

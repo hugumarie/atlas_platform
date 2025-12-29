@@ -1,304 +1,768 @@
-{% extends "platform/base.html" %}
+{% extends "site/base_new.html" %}
 
 {% block title %}Choisissez votre formule - Atlas{% endblock %}
 
-{% block content %}
-<div class="container-fluid" style="background: linear-gradient(135deg, #344d59, #4a6572); min-height: 100vh; padding: 2rem 0;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <!-- Header -->
-                <div class="text-center text-white mb-5">
-                    <h1 class="display-5 fw-bold mb-3">
-                        🎯 Choisissez votre formule Atlas
-                    </h1>
-                    <p class="lead">
-                        Bonjour {{ user.first_name }}, sélectionnez la formule qui correspond le mieux à vos besoins d'investissement.
-                    </p>
-                </div>
-
-                <!-- Plans -->
-                <div class="row g-4 mb-5">
-                    {% for plan_key, plan_config in plans.items() %}
-                    <div class="col-md-6">
-                        <div class="card h-100 shadow-lg border-0 plan-card {{ 'popular' if plan_key == 'optima' else '' }}" 
-                             style="border-radius: 20px; transition: all 0.3s ease;"
-                             data-plan="{{ plan_key }}">
-                            
-                            {% if plan_key == 'optima' %}
-                            <!-- Badge populaire -->
-                            <div class="badge bg-warning text-dark position-absolute top-0 start-50 translate-middle px-3 py-2" 
-                                 style="font-size: 0.8rem; border-radius: 20px;">
-                                ⭐ Le plus populaire
-                            </div>
-                            {% endif %}
-                            
-                            <div class="card-body p-4 text-center">
-                                <!-- Titre du plan -->
-                                <h3 class="fw-bold mb-3" style="color: #344d59; font-size: 2rem;">
-                                    {{ plan_config.name }}
-                                </h3>
-                                
-                                <!-- Prix -->
-                                <div class="mb-4">
-                                    <div class="d-flex align-items-center justify-content-center mb-2">
-                                        <span class="text-muted" style="font-size: 1.5rem;">€</span>
-                                        <span class="fw-bold ms-2" style="font-size: 3rem; color: #344d59;">
-                                            {{ plan_config.price|int }}
-                                        </span>
-                                        <span class="text-muted ms-2" style="font-size: 1.2rem;">/mois</span>
-                                    </div>
-                                    <p class="text-muted mb-0" style="font-size: 0.9rem;">
-                                        {{ plan_config.description }}
-                                    </p>
-                                </div>
-                                
-                                <!-- Fonctionnalités -->
-                                <div class="text-start mb-4">
-                                    {% for feature in plan_config.features %}
-                                    <div class="d-flex align-items-start mb-2">
-                                        <i class="fas fa-check-circle me-3 mt-1" style="color: #28a745;"></i>
-                                        <span style="font-size: 0.95rem;">{{ feature }}</span>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                                
-                                <!-- Bouton de sélection -->
-                                <button class="btn btn-lg w-100 select-plan-btn" 
-                                        data-plan="{{ plan_key }}"
-                                        style="background: #344d59; color: white; border-radius: 15px; font-weight: 600; padding: 15px;">
-                                    {% if current_plan == plan_key %}
-                                        <i class="fas fa-check me-2"></i>Plan sélectionné
-                                    {% else %}
-                                        Choisir {{ plan_config.name }}
-                                    {% endif %}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <!-- Navigation -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card bg-white shadow-sm border-0" style="border-radius: 15px;">
-                            <div class="card-body p-4">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <!-- Retour -->
-                                    <div>
-                                        <small class="text-muted">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            Vous pourrez modifier votre formule à tout moment depuis votre espace client.
-                                        </small>
-                                    </div>
-                                    
-                                    <!-- Continuer -->
-                                    <div>
-                                        <button id="continueBtn" 
-                                                class="btn btn-success btn-lg px-4 d-none"
-                                                style="border-radius: 10px;">
-                                            Continuer vers le paiement
-                                            <i class="fas fa-arrow-right ms-2"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de confirmation -->
-<div class="modal fade" id="confirmModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 15px;">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold" style="color: #344d59;">
-                    <i class="fas fa-check-circle me-2"></i>Confirmer votre choix
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="text-center mb-4">
-                    <div id="selectedPlanName" class="h4 fw-bold" style="color: #344d59;"></div>
-                    <div id="selectedPlanPrice" class="h5 text-muted"></div>
-                    <div id="selectedPlanDescription" class="text-muted"></div>
-                </div>
-                
-                <div class="alert alert-info d-flex align-items-center">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <div>
-                        Vous pourrez modifier ou annuler votre abonnement à tout moment depuis votre espace client.
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
-                <button type="button" id="confirmPlanBtn" class="btn btn-primary" style="background: #344d59; border: none;">
-                    <span id="confirmBtnText">Confirmer et continuer</span>
-                    <div id="confirmBtnSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></div>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+{% block head %}
+<!-- Google Fonts - Encode Sans Condensed for hero -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
-.plan-card {
+/* MODERN PLAN SELECTION DESIGN - SPLIT SCREEN */
+
+/* Color Variables - Same as invitation */
+:root {
+    --qlower-primary: #137C8B;
+    --qlower-dark: #344D59;
+    --qlower-light: #709CA7;
+    --qlower-tertiary-color: #B8CBD0;
+    --qlower-quaternary-color: #7A90A4;
+    --qlower-bg-light: #f8f9fa;
+    --qlower-text-dark: #344D59;
+    --qlower-text-light: #7A90A4;
+    --qlower-border: #e5e7eb;
+    --qlower-white: #ffffff;
+}
+
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--qlower-text-dark);
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* MAIN SPLIT SCREEN CONTAINER */
+.qlower-plan-container {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    overflow: hidden;
+}
+
+.qlower-plan-left {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    position: relative;
+}
+
+.qlower-plan-left::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M 8 0 L 0 0 0 8" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
+    opacity: 0.6;
+}
+
+.qlower-plan-right {
+    background: var(--qlower-white);
+    display: flex;
+    flex-direction: column;
+    padding: 60px;
+    overflow-y: auto;
+}
+
+/* LEFT SIDE HERO */
+.qlower-left-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 400px;
+}
+
+.qlower-hero-badge {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 8px 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 32px;
+}
+
+.qlower-plan-title {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+}
+
+.qlower-plan-subtitle {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+.qlower-hero-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.qlower-hero-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.qlower-hero-feature-icon {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: white;
+}
+
+/* RIGHT SIDE HEADER */
+.qlower-right-header {
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.qlower-right-title {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--qlower-dark);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.qlower-right-subtitle {
+    font-size: 16px;
+    color: var(--qlower-text-light);
+}
+
+/* COMPACT PLAN CARDS */
+.qlower-plans-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.qlower-plan-card {
+    background: var(--qlower-white);
+    border: 2px solid var(--qlower-border);
+    border-radius: 16px;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    padding: 24px;
+    gap: 24px;
     cursor: pointer;
-    transform: scale(1);
+    transition: all 0.3s ease;
+    position: relative;
 }
 
-.plan-card:hover {
-    transform: scale(1.02);
-    box-shadow: 0 15px 35px rgba(52, 77, 89, 0.15) !important;
+.qlower-plan-card:hover {
+    border-color: var(--qlower-primary);
+    box-shadow: 0 8px 30px rgba(19, 124, 139, 0.15);
+    transform: translateY(-2px);
 }
 
-.plan-card.selected {
-    border: 3px solid #28a745 !important;
-    transform: scale(1.02);
+.qlower-plan-card.selected {
+    border-color: var(--qlower-primary);
+    background: linear-gradient(135deg, rgba(19, 124, 139, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+    box-shadow: 0 8px 30px rgba(19, 124, 139, 0.2);
+    transform: translateY(-2px);
 }
 
-.plan-card.popular {
-    border: 2px solid #ffc107;
+.qlower-plan-card.popular::after {
+    content: 'POPULAIRE';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.select-plan-btn.selected {
-    background: #28a745 !important;
+.qlower-plan-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.qlower-plan-name {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--qlower-dark);
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.qlower-plan-description {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    margin: 0;
+}
+
+.qlower-plan-price {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 120px;
+}
+
+.qlower-plan-amount {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--qlower-primary);
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.qlower-plan-period {
+    font-size: 12px;
+    color: var(--qlower-text-light);
+    font-weight: 500;
+}
+
+.qlower-plan-features {
+    display: none; /* Hidden by default */
+}
+
+.qlower-plan-features.show {
+    display: block;
+    margin-top: 16px;
+    grid-column: 1 / -1;
+    padding-top: 16px;
+    border-top: 1px solid var(--qlower-border);
+}
+
+.qlower-plan-features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.qlower-plan-features-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--qlower-text-dark);
+    padding: 4px 0;
+}
+
+.qlower-plan-features-list i {
+    color: #28a745;
+    font-size: 12px;
+    width: 12px;
+}
+
+.qlower-toggle-details {
+    background: none;
+    border: none;
+    color: var(--qlower-primary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+}
+
+.qlower-toggle-details:hover {
+    color: var(--qlower-dark);
+}
+
+.qlower-toggle-details i {
+    font-size: 10px;
+    transition: transform 0.2s ease;
+}
+
+.qlower-toggle-details.open i {
+    transform: rotate(180deg);
+}
+
+.qlower-plan-select {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.qlower-plan-radio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--qlower-border);
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.qlower-plan-card.selected .qlower-plan-radio {
+    border-color: var(--qlower-primary);
+    background: var(--qlower-primary);
+}
+
+.qlower-plan-card.selected .qlower-plan-radio::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: white;
+}
+
+.qlower-plan-status {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    font-weight: 500;
+}
+
+.qlower-plan-card.selected .qlower-plan-status {
+    color: var(--qlower-primary);
+    font-weight: 600;
+}
+
+/* FOOTER SECTION */
+.qlower-plan-footer {
+    margin-top: auto;
+    padding-top: 32px;
+    border-top: 1px solid var(--qlower-border);
+}
+
+.qlower-plan-info-box {
+    background: var(--qlower-bg-light);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--qlower-text-dark);
+}
+
+.qlower-continue-button {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+    padding: 16px 32px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+.qlower-continue-button.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.qlower-continue-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(19, 124, 139, 0.3);
+    background: linear-gradient(135deg, #0f6b75 0%, #5d8a94 100%);
+}
+
+/* SUPPORT SECTION */
+.qlower-support-section {
+    text-align: center;
+    margin-top: 40px;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.qlower-support-text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.qlower-support-text a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.qlower-support-text a:hover {
+    text-decoration: underline;
+    color: white;
+}
+
+/* Styles du modal supprimés - plus nécessaires */
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .qlower-plan-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    .qlower-plan-left {
+        padding: 40px 60px;
+    }
+    
+    .qlower-plan-right {
+        padding: 40px 60px;
+    }
+    
+    .qlower-plan-title {
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .qlower-plan-left,
+    .qlower-plan-right {
+        padding: 32px;
+    }
+    
+    .qlower-plan-title {
+        font-size: 36px;
+    }
+    
+    .qlower-plan-card {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        text-align: center;
+    }
+    
+    .qlower-plan-price {
+        order: -1;
+    }
+    
+    .qlower-plan-features-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .qlower-modal-content {
+        margin: 20px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .qlower-plan-left,
+    .qlower-plan-right {
+        padding: 24px;
+    }
+    
+    .qlower-plan-title {
+        font-size: 28px;
+    }
+    
+    .qlower-right-title {
+        font-size: 28px;
+    }
+    
+    .qlower-modal-header {
+        padding: 24px;
+    }
+    
+    .qlower-modal-body {
+        padding: 24px;
+    }
 }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="qlower-plan-container">
+    <!-- Left Side - Hero Section -->
+    <div class="qlower-plan-left">
+        <div class="qlower-left-content">
+            <div class="qlower-hero-badge">
+                <i class="fas fa-crown"></i>
+                <span>Formules d'investissement</span>
+            </div>
+            
+            <h1 class="qlower-plan-title">
+                Choisissez votre<br>
+                <strong style="background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">formule Atlas</strong>
+            </h1>
+            
+            <p class="qlower-plan-subtitle">
+                Bonjour {{ user.first_name }}, sélectionnez la formule qui correspond le mieux à vos besoins d'investissement.
+            </p>
+            
+            <ul class="qlower-hero-features">
+                <li class="qlower-hero-feature">
+                    <div class="qlower-hero-feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span>Plans personnalisés selon votre profil</span>
+                </li>
+                <li class="qlower-hero-feature">
+                    <div class="qlower-hero-feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <span>Sécurité et transparence maximales</span>
+                </li>
+                <li class="qlower-hero-feature">
+                    <div class="qlower-hero-feature-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <span>Modification possible à tout moment</span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Support Section -->
+        <div class="qlower-support-section">
+            <div class="qlower-support-text">
+                <i class="fas fa-headset" style="margin-right: 6px;"></i>
+                <a href="mailto:support@atlas-invest.fr">Support Atlas</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side - Plan Selection -->
+    <div class="qlower-plan-right">
+        <!-- Right Header -->
+        <div class="qlower-right-header">
+            <img src="{{ url_for('static', filename='images/logo-atlas.png') }}" alt="Atlas" style="height: 40px; margin-bottom: 24px;">
+            <h2 class="qlower-right-title">Sélectionnez votre plan</h2>
+            <p class="qlower-right-subtitle">Toutes nos formules incluent un accès complet à la plateforme</p>
+        </div>
+
+        <!-- Compact Plans Grid -->
+        <div class="qlower-plans-grid">
+            {% for plan_key, plan_config in plans.items() %}
+            <div class="qlower-plan-card {{ 'popular' if plan_key == 'optima' else '' }} {{ 'selected' if current_plan == plan_key else '' }}" 
+                 data-plan="{{ plan_key }}">
+                
+                <div class="qlower-plan-info">
+                    <h3 class="qlower-plan-name">{{ plan_config.name }}</h3>
+                    <p class="qlower-plan-description">{{ plan_config.description }}</p>
+                    <button class="qlower-toggle-details" data-plan="{{ plan_key }}">
+                        <span>Voir les détails</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                
+                <div class="qlower-plan-price">
+                    <div class="qlower-plan-amount">€{{ plan_config.price|int }}</div>
+                    <div class="qlower-plan-period">/mois</div>
+                </div>
+                
+                <div class="qlower-plan-select">
+                    <div class="qlower-plan-radio"></div>
+                    <div class="qlower-plan-status">
+                        {% if current_plan == plan_key %}
+                            Sélectionné
+                        {% else %}
+                            Sélectionner
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Plan Features (Hidden by default) -->
+                <div class="qlower-plan-features" id="features-{{ plan_key }}">
+                    <ul class="qlower-plan-features-list">
+                        {% for feature in plan_config.features %}
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <span>{{ feature }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Footer -->
+        <div class="qlower-plan-footer">
+            <div class="qlower-plan-info-box">
+                <i class="fas fa-info-circle" style="color: var(--qlower-primary);"></i>
+                <span>Vous pourrez modifier votre formule à tout moment depuis votre espace client.</span>
+            </div>
+            
+            <button id="continueBtn" class="qlower-continue-button {{ 'show' if current_plan else '' }}">
+                <span>Continuer vers le paiement</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const planCards = document.querySelectorAll('.plan-card');
-    const selectBtns = document.querySelectorAll('.select-plan-btn');
+    const planCards = document.querySelectorAll('.qlower-plan-card');
     const continueBtn = document.getElementById('continueBtn');
-    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
-    const confirmPlanBtn = document.getElementById('confirmPlanBtn');
     
     let selectedPlan = '{{ current_plan }}' || null;
     const plansData = {{ plans|tojson }};
     
-    // Initialiser l'état si un plan est déjà sélectionné
-    if (selectedPlan) {
-        updateUIForSelectedPlan(selectedPlan);
-    }
-
     // Gestion de la sélection de plan
     planCards.forEach(card => {
-        card.addEventListener('click', function() {
+        card.addEventListener('click', function(e) {
+            // Ne pas sélectionner si on clique sur le bouton détails
+            if (e.target.closest('.qlower-toggle-details')) {
+                return;
+            }
             const planType = this.dataset.plan;
             selectPlan(planType);
+        });
+    });
+    
+    // Gestion des boutons "Voir les détails"
+    const detailButtons = document.querySelectorAll('.qlower-toggle-details');
+    detailButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const planKey = this.dataset.plan;
+            const featuresSection = document.getElementById(`features-${planKey}`);
+            const icon = this.querySelector('i');
+            const text = this.querySelector('span');
+            
+            if (featuresSection.classList.contains('show')) {
+                // Masquer
+                featuresSection.classList.remove('show');
+                this.classList.remove('open');
+                text.textContent = 'Voir les détails';
+            } else {
+                // Afficher
+                featuresSection.classList.add('show');
+                this.classList.add('open');
+                text.textContent = 'Masquer les détails';
+            }
         });
     });
 
-    selectBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const planType = this.dataset.plan;
-            selectPlan(planType);
-        });
-    });
 
     function selectPlan(planType) {
         if (selectedPlan === planType) return;
         
         selectedPlan = planType;
         updateUIForSelectedPlan(planType);
-        showConfirmModal(planType);
     }
 
     function updateUIForSelectedPlan(planType) {
-        // Réinitialiser tous les cards
+        // Réinitialiser tous les éléments
         planCards.forEach(card => {
             card.classList.remove('selected');
-        });
-        
-        selectBtns.forEach(btn => {
-            btn.classList.remove('selected');
-            const plan = btn.dataset.plan;
-            btn.innerHTML = `Choisir ${plansData[plan].name}`;
+            const statusElement = card.querySelector('.qlower-plan-status');
+            if (statusElement) {
+                statusElement.textContent = 'Sélectionner';
+            }
         });
         
         // Marquer le plan sélectionné
         const selectedCard = document.querySelector(`[data-plan="${planType}"]`);
-        if (selectedCard && selectedCard.classList.contains('plan-card')) {
+        if (selectedCard && selectedCard.classList.contains('qlower-plan-card')) {
             selectedCard.classList.add('selected');
-        }
-        
-        const selectedBtn = document.querySelector(`button[data-plan="${planType}"]`);
-        if (selectedBtn) {
-            selectedBtn.classList.add('selected');
-            selectedBtn.innerHTML = '<i class="fas fa-check me-2"></i>Plan sélectionné';
+            const statusElement = selectedCard.querySelector('.qlower-plan-status');
+            if (statusElement) {
+                statusElement.textContent = 'Sélectionné';
+            }
         }
         
         // Afficher le bouton Continuer
-        continueBtn.classList.remove('d-none');
+        continueBtn.classList.add('show');
     }
 
-    function showConfirmModal(planType) {
-        const plan = plansData[planType];
+    function redirectToPayment(planType) {
+        // Mettre à jour l'UI
+        updateUIForSelectedPlan(planType);
         
-        document.getElementById('selectedPlanName').textContent = plan.name;
-        document.getElementById('selectedPlanPrice').textContent = `€${plan.price}/mois`;
-        document.getElementById('selectedPlanDescription').textContent = plan.description;
-        
-        confirmModal.show();
-    }
-
-    // Confirmation du plan
-    confirmPlanBtn.addEventListener('click', function() {
-        if (!selectedPlan) return;
-        
-        // UI Loading
-        this.disabled = true;
-        document.getElementById('confirmBtnText').textContent = 'Confirmation...';
-        document.getElementById('confirmBtnSpinner').classList.remove('d-none');
-        
-        // Envoyer la sélection
+        // Envoyer directement la sélection
         fetch('/onboarding/plan/select', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                plan_type: selectedPlan
+                plan_type: planType
             })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Succès
-                document.getElementById('confirmBtnText').textContent = 'Confirmé !';
-                document.getElementById('confirmBtnSpinner').classList.add('d-none');
-                
-                setTimeout(() => {
-                    window.location.href = data.redirect_url;
-                }, 1000);
+                window.location.href = data.redirect_url;
             } else {
                 throw new Error(data.error || 'Erreur inconnue');
             }
         })
         .catch(error => {
             console.error('Erreur:', error);
-            alert('Erreur lors de la confirmation: ' + error.message);
-            
-            // Réinitialiser
-            confirmPlanBtn.disabled = false;
-            document.getElementById('confirmBtnText').textContent = 'Confirmer et continuer';
-            document.getElementById('confirmBtnSpinner').classList.add('d-none');
+            alert('Erreur lors de la sélection: ' + error.message);
         });
-    });
+    }
+
 
     // Bouton continuer direct
     continueBtn.addEventListener('click', function() {
         if (selectedPlan) {
-            showConfirmModal(selectedPlan);
+            redirectToPayment(selectedPlan);
         }
+    });
+    
+    // Animation d'entrée des cartes
+    planCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 200 + (index * 100));
     });
 });
 </script>

@@ -1,148 +1,647 @@
-{% extends "site/base.html" %}
+{% extends "site/base_new.html" %}
 
-{% block title %}Créer votre compte Atlas - Invitation{% endblock %}
+{% block title %}Créer votre compte - Atlas{% endblock %}
+
+{% block head %}
+<!-- Google Fonts - Encode Sans Condensed for hero -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+/* EXACT REPLICA OF LOGIN DESIGN SYSTEM FOR INVITATION */
+
+/* Color Variables - Same as login */
+:root {
+    --qlower-primary: #137C8B;
+    --qlower-dark: #344D59;
+    --qlower-light: #709CA7;
+    --qlower-tertiary-color: #B8CBD0;
+    --qlower-quaternary-color: #7A90A4;
+    --qlower-bg-light: #f8f9fa;
+    --qlower-text-dark: #344D59;
+    --qlower-text-light: #7A90A4;
+    --qlower-border: #e5e7eb;
+    --qlower-white: #ffffff;
+}
+
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--qlower-text-dark);
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* MAIN INVITATION CONTAINER */
+.qlower-invitation-container {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+}
+
+.qlower-invitation-left {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    position: relative;
+}
+
+.qlower-invitation-left::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M 8 0 L 0 0 0 8" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
+    opacity: 0.6;
+}
+
+.qlower-invitation-right {
+    background: var(--qlower-white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px;
+    position: relative;
+}
+
+/* LEFT SIDE CONTENT */
+.qlower-left-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 400px;
+}
+
+.qlower-hero-badge {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 8px 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 32px;
+}
+
+.qlower-hero-title {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+}
+
+.qlower-hero-subtitle {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+.qlower-hero-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.qlower-hero-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.qlower-hero-feature-icon {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: white;
+}
+
+/* RIGHT SIDE CONTENT */
+.qlower-form-container {
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.qlower-form-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.qlower-form-title {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--qlower-dark);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.qlower-form-subtitle {
+    font-size: 16px;
+    color: var(--qlower-text-light);
+    margin-bottom: 32px;
+}
+
+/* COMPACT INFO CARDS */
+.qlower-info-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.qlower-info-card {
+    background: var(--qlower-bg-light);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--qlower-border);
+}
+
+.qlower-info-card-label {
+    font-size: 12px;
+    color: var(--qlower-text-light);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.qlower-info-card-value {
+    font-size: 14px;
+    color: var(--qlower-dark);
+    font-weight: 600;
+}
+
+.qlower-info-card.full-width {
+    grid-column: 1 / -1;
+}
+
+/* COMPACT WARNING */
+.qlower-warning-compact {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-left: 4px solid #f39c12;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #856404;
+    font-weight: 500;
+}
+
+/* COMPACT FORM STYLES */
+.qlower-form-group {
+    margin-bottom: 20px;
+}
+
+.qlower-form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.qlower-form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--qlower-border);
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: var(--qlower-white);
+    color: var(--qlower-text-dark);
+    font-family: 'Inter', sans-serif;
+}
+
+.qlower-form-input:focus {
+    outline: none;
+    border-color: var(--qlower-primary);
+    box-shadow: 0 0 0 3px rgba(19, 124, 139, 0.1);
+    transform: translateY(-1px);
+}
+
+.qlower-form-input.is-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+.qlower-form-input.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.qlower-form-text {
+    font-size: 12px;
+    color: var(--qlower-text-light);
+    margin-top: 4px;
+}
+
+.qlower-invalid-feedback {
+    display: none;
+    font-size: 12px;
+    color: #dc3545;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.qlower-form-input.is-invalid ~ .qlower-invalid-feedback {
+    display: block;
+}
+
+.qlower-invitation-button {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+    padding: 16px 32px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.qlower-invitation-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(19, 124, 139, 0.3);
+    background: linear-gradient(135deg, #0f6b75 0%, #5d8a94 100%);
+}
+
+.qlower-invitation-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ERROR MESSAGE */
+.qlower-error-message {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c2c7 100%);
+    border: 1px solid #dc3545;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: #721c24;
+    font-size: 14px;
+    font-weight: 500;
+    display: none;
+}
+
+.qlower-error-message.show {
+    display: block;
+}
+
+/* LEGAL TEXT */
+.qlower-legal-text {
+    text-align: center;
+    font-size: 13px;
+    color: var(--qlower-text-light);
+    line-height: 1.5;
+    margin-bottom: 32px;
+}
+
+.qlower-legal-text a {
+    color: var(--qlower-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.qlower-legal-text a:hover {
+    text-decoration: underline;
+}
+
+/* NEXT STEPS */
+.qlower-next-steps {
+    background: linear-gradient(135deg, var(--qlower-bg-light) 0%, #e9ecef 100%);
+    border-radius: 16px;
+    padding: 24px;
+    border-left: 4px solid var(--qlower-primary);
+}
+
+.qlower-next-steps-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qlower-next-steps-list {
+    list-style: none;
+    counter-reset: steps;
+}
+
+.qlower-next-steps-list li {
+    counter-increment: steps;
+    font-size: 14px;
+    color: var(--qlower-text-dark);
+    margin-bottom: 8px;
+    padding-left: 32px;
+    position: relative;
+}
+
+.qlower-next-steps-list li:before {
+    content: counter(steps);
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: var(--qlower-primary);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.qlower-next-steps-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* SUPPORT SECTION */
+.qlower-support-section {
+    text-align: center;
+    margin-top: 32px;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.qlower-support-text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.qlower-support-text a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.qlower-support-text a:hover {
+    text-decoration: underline;
+    color: white;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .qlower-invitation-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    .qlower-invitation-left {
+        padding: 40px 60px;
+    }
+    
+    .qlower-invitation-right {
+        padding: 40px 60px;
+    }
+    
+    .qlower-hero-title {
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .qlower-invitation-left,
+    .qlower-invitation-right {
+        padding: 32px;
+    }
+    
+    .qlower-hero-title {
+        font-size: 36px;
+    }
+    
+    .qlower-info-cards {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .qlower-invitation-left,
+    .qlower-invitation-right {
+        padding: 24px;
+    }
+    
+    .qlower-hero-title {
+        font-size: 28px;
+    }
+    
+    .qlower-form-title {
+        font-size: 28px;
+    }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="bg-light py-5" style="margin-top: 80px; background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6 col-md-8">
-                <!-- Card principale -->
-                <div class="card shadow-lg border-0" style="border-radius: 20px;">
-                    <div class="card-body p-5">
-                        <!-- Header avec logo et titre -->
-                        <div class="text-center mb-4">
-                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
-                                 style="width: 80px; height: 80px;">
-                                <i class="fas fa-rocket fa-2x text-primary"></i>
-                            </div>
-                            <h2 class="h3 fw-bold mb-2" style="color: #344d59;">
-                                🚀 Bienvenue chez Atlas !
-                            </h2>
-                            <p class="text-muted">
-                                Bonjour <strong>{{ prospect.first_name }}</strong>, créez votre compte client pour accéder à notre plateforme.
-                            </p>
-                        </div>
-
-                        <!-- Informations pré-remplies -->
-                        <div class="bg-light p-3 rounded mb-4" style="border-left: 4px solid #344d59;">
-                            <h6 class="fw-bold mb-2" style="color: #344d59;">
-                                <i class="fas fa-user-check me-2"></i>Vos informations
-                            </h6>
-                            <div class="row">
-                                <div class="col-6">
-                                    <small class="text-muted">Nom complet</small>
-                                    <div class="fw-semibold">{{ prospect.first_name }} {{ prospect.last_name }}</div>
-                                </div>
-                                <div class="col-6">
-                                    <small class="text-muted">Email</small>
-                                    <div class="fw-semibold">{{ prospect.email }}</div>
-                                </div>
-                            </div>
-                            {% if prospect.phone %}
-                            <div class="mt-2">
-                                <small class="text-muted">Téléphone</small>
-                                <div class="fw-semibold">{{ prospect.phone }}</div>
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Alerte expiration -->
-                        {% if token_expires_in_hours <= 24 %}
-                        <div class="alert alert-warning d-flex align-items-center mb-4">
-                            <i class="fas fa-clock me-2"></i>
-                            <div>
-                                <strong>Attention :</strong> Cette invitation expire dans 
-                                <strong>{{ token_expires_in_hours }} heure{{ 's' if token_expires_in_hours > 1 else '' }}</strong>.
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <!-- Formulaire de création de compte -->
-                        <form id="signupForm" class="needs-validation" novalidate>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">
-                                    <i class="fas fa-lock me-2"></i>Choisissez votre mot de passe *
-                                </label>
-                                <input type="password" 
-                                       class="form-control form-control-lg" 
-                                       id="password" 
-                                       name="password" 
-                                       required
-                                       style="border-radius: 10px;">
-                                <div class="form-text">
-                                    <small>Au moins 8 caractères, avec une majuscule et un chiffre</small>
-                                </div>
-                                <div class="invalid-feedback">
-                                    Veuillez saisir un mot de passe valide
-                                </div>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="password_confirm" class="form-label">
-                                    <i class="fas fa-lock me-2"></i>Confirmer le mot de passe *
-                                </label>
-                                <input type="password" 
-                                       class="form-control form-control-lg" 
-                                       id="password_confirm" 
-                                       name="password_confirm" 
-                                       required
-                                       style="border-radius: 10px;">
-                                <div class="invalid-feedback">
-                                    Les mots de passe doivent être identiques
-                                </div>
-                            </div>
-
-                            <!-- Message d'erreur -->
-                            <div id="error-message" class="alert alert-danger d-none"></div>
-
-                            <!-- Bouton de création -->
-                            <button type="submit" 
-                                    id="submitBtn" 
-                                    class="btn btn-lg w-100 mb-3"
-                                    style="background: #344d59; color: white; border-radius: 10px; font-weight: 600;">
-                                <i class="fas fa-user-plus me-2"></i>
-                                <span id="btn-text">Créer mon compte Atlas</span>
-                                <div id="btn-loading" class="spinner-border spinner-border-sm ms-2 d-none"></div>
-                            </button>
-
-                            <!-- Informations légales -->
-                            <div class="text-center">
-                                <small class="text-muted">
-                                    En créant votre compte, vous acceptez nos 
-                                    <a href="#" style="color: #344d59;">conditions d'utilisation</a> 
-                                    et notre 
-                                    <a href="#" style="color: #344d59;">politique de confidentialité</a>.
-                                </small>
-                            </div>
-                        </form>
-
-                        <!-- Étapes suivantes -->
-                        <div class="mt-4 p-3" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 10px;">
-                            <h6 class="fw-bold mb-2" style="color: #344d59;">
-                                <i class="fas fa-road me-2"></i>Prochaines étapes
-                            </h6>
-                            <ol class="mb-0" style="font-size: 0.9rem;">
-                                <li><strong>Choisir votre formule</strong> (Initia ou Optima)</li>
-                                <li><strong>Configurer votre paiement</strong></li>
-                                <li><strong>Accéder à votre tableau de bord</strong> personnalisé</li>
-                            </ol>
-                        </div>
+<div class="qlower-invitation-container">
+    <!-- Left Side - Hero Section -->
+    <div class="qlower-invitation-left">
+        <div class="qlower-left-content">
+            <div class="qlower-hero-badge">
+                <i class="fas fa-rocket"></i>
+                <span>Plateforme patrimoniale</span>
+            </div>
+            
+            <h1 class="qlower-hero-title">
+                Bienvenue chez<br>
+                <strong style="background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Atlas</strong>
+            </h1>
+            
+            <p class="qlower-hero-subtitle">
+                {{ prospect.first_name }}, vous avez été invité à rejoindre notre plateforme d'investissement personnalisée.
+            </p>
+            
+            <ul class="qlower-hero-features">
+                <li class="qlower-hero-feature">
+                    <div class="qlower-hero-feature-icon">
+                        <i class="fas fa-chart-line"></i>
                     </div>
+                    <span>Plans d'investissement sur-mesure</span>
+                </li>
+                <li class="qlower-hero-feature">
+                    <div class="qlower-hero-feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <span>Gestion sécurisée de votre patrimoine</span>
+                </li>
+                <li class="qlower-hero-feature">
+                    <div class="qlower-hero-feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <span>Suivi en temps réel depuis votre mobile</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Right Side - Form Section -->
+    <div class="qlower-invitation-right">
+        <div class="qlower-form-container">
+            <!-- Header -->
+            <div class="qlower-form-header">
+                <img src="{{ url_for('static', filename='images/logo-atlas.png') }}" alt="Atlas" style="height: 40px; margin-bottom: 24px;">
+                <h2 class="qlower-form-title">Créez votre compte</h2>
+                <p class="qlower-form-subtitle">Quelques informations pour commencer</p>
+            </div>
+
+            <!-- Info Card Email (non-éditable) -->
+            <div class="qlower-info-cards">
+                <div class="qlower-info-card full-width">
+                    <div class="qlower-info-card-label">Email (confirmé)</div>
+                    <div class="qlower-info-card-value">{{ prospect.email }}</div>
+                </div>
+            </div>
+
+            <!-- Warning compact -->
+            {% if token_expires_in_hours <= 24 %}
+            <div class="qlower-warning-compact">
+                <i class="fas fa-clock"></i>
+                <span>Expire dans <strong>{{ token_expires_in_hours }}h</strong></span>
+            </div>
+            {% endif %}
+
+            <!-- Formulaire compact -->
+            <form id="signupForm">
+                <div class="qlower-form-group">
+                    <label for="first_name" class="qlower-form-label">Prénom</label>
+                    <input type="text" 
+                           class="qlower-form-input" 
+                           id="first_name" 
+                           name="first_name" 
+                           required
+                           value="{{ prospect.first_name }}"
+                           placeholder="Votre prénom">
+                    <div class="qlower-invalid-feedback">Veuillez saisir votre prénom</div>
                 </div>
 
-                <!-- Support -->
-                <div class="text-center mt-4">
-                    <small class="text-muted">
-                        <i class="fas fa-question-circle me-1"></i>
-                        Une question ? Contactez-nous : 
-                        <a href="mailto:support@atlas-finance.fr" style="color: #344d59;">support@atlas-finance.fr</a>
-                    </small>
+                <div class="qlower-form-group">
+                    <label for="last_name" class="qlower-form-label">Nom</label>
+                    <input type="text" 
+                           class="qlower-form-input" 
+                           id="last_name" 
+                           name="last_name" 
+                           required
+                           value="{{ prospect.last_name }}"
+                           placeholder="Votre nom de famille">
+                    <div class="qlower-invalid-feedback">Veuillez saisir votre nom</div>
+                </div>
+
+                {% if prospect.phone %}
+                <div class="qlower-form-group">
+                    <label for="phone" class="qlower-form-label">Téléphone</label>
+                    <input type="tel" 
+                           class="qlower-form-input" 
+                           id="phone" 
+                           name="phone" 
+                           value="{{ prospect.phone }}"
+                           placeholder="Votre numéro de téléphone">
+                    <div class="qlower-form-text">Optionnel - pour vous contacter si besoin</div>
+                </div>
+                {% endif %}
+
+                <div class="qlower-form-group">
+                    <label for="password" class="qlower-form-label">Mot de passe</label>
+                    <input type="password" 
+                           class="qlower-form-input" 
+                           id="password" 
+                           name="password" 
+                           required
+                           placeholder="Au moins 8 caractères, 1 majuscule, 1 chiffre">
+                    <div class="qlower-form-text">8+ caractères, majuscule, chiffre</div>
+                    <div class="qlower-invalid-feedback">Format requis non respecté</div>
+                </div>
+
+                <div class="qlower-form-group">
+                    <label for="password_confirm" class="qlower-form-label">Confirmation</label>
+                    <input type="password" 
+                           class="qlower-form-input" 
+                           id="password_confirm" 
+                           name="password_confirm" 
+                           required
+                           placeholder="Répétez le mot de passe">
+                    <div class="qlower-invalid-feedback">Les mots de passe ne correspondent pas</div>
+                </div>
+
+                <!-- Message d'erreur -->
+                <div id="error-message" class="qlower-error-message"></div>
+
+                <!-- Bouton de création -->
+                <button type="submit" 
+                        id="submitBtn" 
+                        class="qlower-invitation-button"
+                        style="margin-bottom: 16px;">
+                    <i class="fas fa-arrow-right"></i>
+                    <span id="btn-text">Créer mon compte</span>
+                    <div id="btn-loading" class="spinner-border spinner-border-sm" style="display: none;"></div>
+                </button>
+
+                <!-- Legal text compact -->
+                <div style="text-align: center; font-size: 12px; color: var(--qlower-text-light); line-height: 1.4;">
+                    En continuant, vous acceptez nos 
+                    <a href="#" style="color: var(--qlower-primary); text-decoration: none;">CGU</a> et 
+                    <a href="#" style="color: var(--qlower-primary); text-decoration: none;">Confidentialité</a>
+                </div>
+            </form>
+
+            <!-- Support compact -->
+            <div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--qlower-border);">
+                <div style="font-size: 13px; color: var(--qlower-text-light);">
+                    <i class="fas fa-headset" style="margin-right: 6px; color: var(--qlower-primary);"></i>
+                    <a href="mailto:support@atlas-invest.fr" style="color: var(--qlower-primary); text-decoration: none; font-weight: 500;">Support Atlas</a>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -154,10 +653,38 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password');
     const passwordConfirmInput = document.getElementById('password_confirm');
 
+    // Éléments du formulaire
+    const firstNameInput = document.getElementById('first_name');
+    const lastNameInput = document.getElementById('last_name');
+    const phoneInput = document.getElementById('phone');
+
     // Validation en temps réel
-    function validatePassword() {
+    function validateForm() {
+        const firstName = firstNameInput.value.trim();
+        const lastName = lastNameInput.value.trim();
         const password = passwordInput.value;
         const confirm = passwordConfirmInput.value;
+        
+        // Validation des noms
+        let isValidNames = true;
+        
+        if (!firstName || firstName.length < 2) {
+            firstNameInput.classList.add('is-invalid');
+            firstNameInput.classList.remove('is-valid');
+            isValidNames = false;
+        } else {
+            firstNameInput.classList.remove('is-invalid');
+            firstNameInput.classList.add('is-valid');
+        }
+        
+        if (!lastName || lastName.length < 2) {
+            lastNameInput.classList.add('is-invalid');
+            lastNameInput.classList.remove('is-valid');
+            isValidNames = false;
+        } else {
+            lastNameInput.classList.remove('is-invalid');
+            lastNameInput.classList.add('is-valid');
+        }
         
         // Critères du mot de passe
         const minLength = password.length >= 8;
@@ -183,25 +710,42 @@ document.addEventListener('DOMContentLoaded', function() {
             passwordConfirmInput.classList.add('is-valid');
         }
         
-        return minLength && hasUpper && hasNumber && passwordsMatch;
+        return isValidNames && minLength && hasUpper && hasNumber && passwordsMatch;
     }
     
-    passwordInput.addEventListener('input', validatePassword);
-    passwordConfirmInput.addEventListener('input', validatePassword);
+    // Événements de validation
+    firstNameInput.addEventListener('input', validateForm);
+    lastNameInput.addEventListener('input', validateForm);
+    passwordInput.addEventListener('input', validateForm);
+    passwordConfirmInput.addEventListener('input', validateForm);
+    
+    // Focus automatique sur le premier champ
+    firstNameInput.focus();
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        if (!validatePassword()) {
-            form.classList.add('was-validated');
+        if (!validateForm()) {
+            // Animer les champs invalides
+            [firstNameInput, lastNameInput, passwordInput, passwordConfirmInput].forEach(input => {
+                if (input.classList.contains('is-invalid')) {
+                    input.style.transform = 'translateX(-5px)';
+                    setTimeout(() => {
+                        input.style.transform = 'translateX(5px)';
+                        setTimeout(() => {
+                            input.style.transform = 'translateX(0)';
+                        }, 100);
+                    }, 100);
+                }
+            });
             return;
         }
 
         // UI Loading
         submitBtn.disabled = true;
         btnText.textContent = 'Création en cours...';
-        btnLoading.classList.remove('d-none');
-        errorMessage.classList.add('d-none');
+        btnLoading.style.display = 'inline-block';
+        errorMessage.classList.remove('show');
 
         // Envoi de la requête
         fetch(`/onboarding/invitation/{{ token }}/create-account`, {
@@ -210,6 +754,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                first_name: firstNameInput.value.trim(),
+                last_name: lastNameInput.value.trim(),
+                phone: phoneInput ? phoneInput.value.trim() : '',
                 password: passwordInput.value,
                 password_confirm: passwordConfirmInput.value
             })
@@ -219,20 +766,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 // Succès
                 btnText.textContent = 'Compte créé !';
-                btnLoading.classList.add('d-none');
+                btnLoading.style.display = 'none';
+                submitBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
                 
-                // Afficher un message de succès
-                const successAlert = document.createElement('div');
-                successAlert.className = 'alert alert-success';
-                successAlert.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + data.message;
-                form.insertBefore(successAlert, submitBtn);
-                
-                // Redirection après 2 secondes
+                // Redirection après 1.5 secondes
                 setTimeout(() => {
                     window.location.href = data.redirect_url;
-                }, 2000);
+                }, 1500);
             } else {
-                // Erreur
                 throw new Error(data.error || 'Erreur inconnue');
             }
         })
@@ -242,13 +783,37 @@ document.addEventListener('DOMContentLoaded', function() {
             // Réinitialiser le bouton
             submitBtn.disabled = false;
             btnText.textContent = 'Créer mon compte Atlas';
-            btnLoading.classList.add('d-none');
+            btnLoading.style.display = 'none';
             
             // Afficher l'erreur
             errorMessage.textContent = error.message || 'Une erreur est survenue. Veuillez réessayer.';
-            errorMessage.classList.remove('d-none');
+            errorMessage.classList.add('show');
         });
     });
+    
+    // Animation d'entrée moderne
+    const leftSide = document.querySelector('.qlower-invitation-left');
+    const rightSide = document.querySelector('.qlower-invitation-right');
+    
+    // Animation du côté gauche
+    leftSide.style.opacity = '0';
+    leftSide.style.transform = 'translateX(-30px)';
+    leftSide.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+    
+    // Animation du côté droit
+    rightSide.style.opacity = '0';
+    rightSide.style.transform = 'translateX(30px)';
+    rightSide.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+    
+    setTimeout(() => {
+        leftSide.style.opacity = '1';
+        leftSide.style.transform = 'translateX(0)';
+        
+        setTimeout(() => {
+            rightSide.style.opacity = '1';
+            rightSide.style.transform = 'translateX(0)';
+        }, 200);
+    }, 100);
 });
 </script>
 {% endblock %}

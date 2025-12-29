@@ -1,262 +1,819 @@
-{% extends "platform/base.html" %}
+{% extends "site/base_new.html" %}
 
 {% block title %}Finaliser votre abonnement - Atlas{% endblock %}
 
-{% block content %}
-<div class="container-fluid" style="background: linear-gradient(135deg, #344d59, #4a6572); min-height: 100vh; padding: 2rem 0;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- Header -->
-                <div class="text-center text-white mb-5">
-                    <h1 class="display-5 fw-bold mb-3">
-                        💳 Finaliser votre abonnement
-                    </h1>
-                    <p class="lead">
-                        Une dernière étape avant d'accéder à votre tableau de bord Atlas !
-                    </p>
-                </div>
-
-                <!-- Récapitulatif du plan -->
-                <div class="card shadow-lg border-0 mb-4" style="border-radius: 20px;">
-                    <div class="card-header bg-white text-center py-4" style="border-radius: 20px 20px 0 0;">
-                        <h3 class="fw-bold mb-3" style="color: #344d59;">
-                            📋 Récapitulatif de votre commande
-                        </h3>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                                <h4 class="fw-bold" style="color: #344d59;">
-                                    Atlas {{ user_plan.get_plan_name() }}
-                                </h4>
-                                <p class="text-muted mb-2">{{ plan_config.description }}</p>
-                                
-                                <!-- Fonctionnalités principales -->
-                                <div class="mt-3">
-                                    <h6 class="fw-semibold text-muted">Inclus dans votre formule :</h6>
-                                    <div class="row">
-                                        {% for feature in plan_config.features[:3] %}
-                                        <div class="col-12 mb-1">
-                                            <i class="fas fa-check-circle me-2" style="color: #28a745;"></i>
-                                            <small>{{ feature }}</small>
-                                        </div>
-                                        {% endfor %}
-                                        {% if plan_config.features|length > 3 %}
-                                        <div class="col-12">
-                                            <small class="text-muted">
-                                                <i class="fas fa-plus me-1"></i>
-                                                Et {{ plan_config.features|length - 3 }} autres avantages...
-                                            </small>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-md-end">
-                                <div class="bg-light p-3 rounded">
-                                    <div class="h5 fw-bold mb-1" style="color: #344d59;">
-                                        €{{ user_plan.plan_price|int }}<span class="text-muted">/mois</span>
-                                    </div>
-                                    <small class="text-muted">TTC - Sans engagement</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Zone de paiement (Placeholder) -->
-                <div class="card shadow-lg border-0 mb-4" style="border-radius: 20px;">
-                    <div class="card-body p-4">
-                        <h4 class="fw-bold mb-4" style="color: #344d59;">
-                            <i class="fas fa-credit-card me-2"></i>Informations de paiement
-                        </h4>
-                        
-                        <!-- Placeholder Stripe -->
-                        <div class="bg-light p-4 rounded text-center" style="border: 2px dashed #dee2e6;">
-                            <i class="fas fa-tools fa-3x text-muted mb-3"></i>
-                            <h5 class="fw-bold text-muted">Intégration Stripe en cours</h5>
-                            <p class="text-muted mb-4">
-                                Le module de paiement sécurisé sera intégré prochainement.<br>
-                                Pour l'instant, vous pouvez simuler un paiement réussi.
-                            </p>
-                            
-                            <!-- Informations techniques -->
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <div class="card h-100">
-                                        <div class="card-body text-start">
-                                            <h6 class="fw-bold" style="color: #344d59;">
-                                                <i class="fas fa-shield-alt me-2"></i>Sécurité
-                                            </h6>
-                                            <ul class="list-unstyled mb-0" style="font-size: 0.9rem;">
-                                                <li><i class="fas fa-check text-success me-2"></i>Chiffrement SSL 256 bits</li>
-                                                <li><i class="fas fa-check text-success me-2"></i>Conformité PCI DSS</li>
-                                                <li><i class="fas fa-check text-success me-2"></i>3D Secure</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="card h-100">
-                                        <div class="card-body text-start">
-                                            <h6 class="fw-bold" style="color: #344d59;">
-                                                <i class="fas fa-money-bill-wave me-2"></i>Modes de paiement
-                                            </h6>
-                                            <div class="d-flex gap-2 mb-2">
-                                                <i class="fab fa-cc-visa fa-2x text-primary"></i>
-                                                <i class="fab fa-cc-mastercard fa-2x text-warning"></i>
-                                                <i class="fab fa-cc-amex fa-2x text-info"></i>
-                                            </div>
-                                            <small class="text-muted">Cartes bancaires acceptées</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Bouton de simulation -->
-                            <button id="simulatePaymentBtn" 
-                                    class="btn btn-success btn-lg px-5"
-                                    style="border-radius: 10px;">
-                                <i class="fas fa-play me-2"></i>
-                                <span id="simulateBtnText">Simuler un paiement réussi</span>
-                                <div id="simulateSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></div>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Informations complémentaires -->
-                <div class="card shadow-sm border-0" style="border-radius: 15px;">
-                    <div class="card-body p-4">
-                        <div class="row g-4">
-                            <div class="col-md-4 text-center">
-                                <i class="fas fa-calendar-times fa-2x text-muted mb-2"></i>
-                                <h6 class="fw-bold">Sans engagement</h6>
-                                <small class="text-muted">Résiliez à tout moment depuis votre espace client</small>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <i class="fas fa-sync-alt fa-2x text-muted mb-2"></i>
-                                <h6 class="fw-bold">Changement de formule</h6>
-                                <small class="text-muted">Modifiez votre plan selon vos besoins</small>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <i class="fas fa-headset fa-2x text-muted mb-2"></i>
-                                <h6 class="fw-bold">Support client</h6>
-                                <small class="text-muted">Assistance disponible 7j/7</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Navigation -->
-                <div class="text-center mt-4">
-                    <a href="{{ url_for('onboarding.plan_selection') }}" 
-                       class="btn btn-outline-light">
-                        <i class="fas fa-arrow-left me-2"></i>Modifier ma formule
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal de confirmation -->
-<div class="modal fade" id="paymentSuccessModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 15px;">
-            <div class="modal-body text-center p-5">
-                <div class="mb-4">
-                    <i class="fas fa-check-circle fa-4x text-success"></i>
-                </div>
-                <h3 class="fw-bold mb-3" style="color: #344d59;">
-                    🎉 Bienvenue chez Atlas !
-                </h3>
-                <p class="text-muted mb-4">
-                    Votre abonnement <strong>{{ user_plan.get_plan_name() }}</strong> est maintenant actif.<br>
-                    Vous allez être redirigé vers votre tableau de bord.
-                </p>
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Redirection en cours...</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const simulateBtn = document.getElementById('simulatePaymentBtn');
-    const btnText = document.getElementById('simulateBtnText');
-    const spinner = document.getElementById('simulateSpinner');
-    const successModal = new bootstrap.Modal(document.getElementById('paymentSuccessModal'));
-
-    simulateBtn.addEventListener('click', function() {
-        // UI Loading
-        this.disabled = true;
-        btnText.textContent = 'Traitement en cours...';
-        spinner.classList.remove('d-none');
-
-        // Simuler un délai de traitement
-        setTimeout(() => {
-            // Appel API pour simuler le paiement
-            fetch('/onboarding/payment/simulate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Succès - Afficher modal et rediriger
-                    btnText.textContent = 'Paiement réussi !';
-                    spinner.classList.add('d-none');
-                    
-                    // Afficher le modal de succès
-                    successModal.show();
-                    
-                    // Redirection après 3 secondes
-                    setTimeout(() => {
-                        window.location.href = data.redirect_url;
-                    }, 3000);
-                } else {
-                    throw new Error(data.error || 'Erreur lors du paiement');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur paiement:', error);
-                
-                // Réinitialiser le bouton
-                simulateBtn.disabled = false;
-                btnText.textContent = 'Simuler un paiement réussi';
-                spinner.classList.add('d-none');
-                
-                // Afficher l'erreur
-                alert('Erreur lors du paiement : ' + error.message);
-            });
-        }, 2000); // Simuler 2 secondes de traitement
-    });
-
-    // Empêcher la fermeture accidentelle du modal
-    document.getElementById('paymentSuccessModal').addEventListener('hide.bs.modal', function(e) {
-        e.preventDefault();
-        return false;
-    });
-});
-</script>
+{% block head %}
+<!-- Google Fonts - Encode Sans Condensed for hero -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
-.card {
-    transition: all 0.3s ease;
+/* MODERN PAYMENT DESIGN - SPLIT SCREEN */
+
+/* Color Variables - Same as invitation and plan selection */
+:root {
+    --qlower-primary: #137C8B;
+    --qlower-dark: #344D59;
+    --qlower-light: #709CA7;
+    --qlower-tertiary-color: #B8CBD0;
+    --qlower-quaternary-color: #7A90A4;
+    --qlower-bg-light: #f8f9fa;
+    --qlower-text-dark: #344D59;
+    --qlower-text-light: #7A90A4;
+    --qlower-border: #e5e7eb;
+    --qlower-white: #ffffff;
 }
 
-.card:hover {
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--qlower-text-dark);
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* MAIN SPLIT SCREEN CONTAINER */
+.qlower-payment-container {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    overflow: hidden;
+}
+
+.qlower-payment-left {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    position: relative;
+}
+
+.qlower-payment-left::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M 8 0 L 0 0 0 8" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
+    opacity: 0.6;
+}
+
+.qlower-payment-right {
+    background: var(--qlower-white);
+    display: flex;
+    flex-direction: column;
+    padding: 60px;
+    overflow-y: auto;
+}
+
+/* LEFT SIDE HERO */
+.qlower-left-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 400px;
+}
+
+.qlower-hero-badge {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    padding: 8px 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 32px;
+}
+
+.qlower-payment-title {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+}
+
+.qlower-payment-subtitle {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+.qlower-hero-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.qlower-hero-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.qlower-hero-feature-icon {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: white;
+}
+
+/* RIGHT SIDE CONTENT */
+.qlower-right-header {
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.qlower-right-title {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--qlower-dark);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+.qlower-right-subtitle {
+    font-size: 16px;
+    color: var(--qlower-text-light);
+}
+
+/* COMPACT SUMMARY CARD */
+.qlower-summary-card {
+    background: var(--qlower-bg-light);
+    border: 2px solid var(--qlower-border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 24px;
+}
+
+.qlower-plan-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.qlower-plan-name {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--qlower-dark);
+    margin: 0;
+}
+
+.qlower-plan-description {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    margin: 0;
+}
+
+.qlower-plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.qlower-plan-features li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--qlower-text-dark);
+}
+
+.qlower-plan-features i {
+    color: #28a745;
+    font-size: 12px;
+}
+
+.qlower-price-display {
+    text-align: center;
+    padding: 16px;
+    background: var(--qlower-white);
+    border-radius: 12px;
+    border: 2px solid var(--qlower-primary);
+    min-width: 120px;
+}
+
+.qlower-price-amount {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--qlower-primary);
+    line-height: 1;
+    margin: 0;
+}
+
+.qlower-price-period {
+    font-size: 12px;
+    color: var(--qlower-text-light);
+    margin: 2px 0 0 0;
+}
+
+.qlower-price-note {
+    font-size: 11px;
+    color: var(--qlower-text-light);
+    margin: 4px 0 0 0;
+}
+
+/* PAYMENT SECTION */
+.qlower-payment-section {
+    background: var(--qlower-white);
+    border: 2px solid var(--qlower-border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+.qlower-section-title {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.qlower-payment-placeholder {
+    background: linear-gradient(135deg, var(--qlower-bg-light) 0%, #e9ecef 100%);
+    border: 2px dashed var(--qlower-border);
+    border-radius: 12px;
+    padding: 48px 32px;
+    text-align: center;
+}
+
+.qlower-placeholder-icon {
+    color: var(--qlower-text-light);
+    font-size: 48px;
+    margin-bottom: 24px;
+}
+
+.qlower-placeholder-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    margin-bottom: 12px;
+}
+
+.qlower-placeholder-text {
+    color: var(--qlower-text-light);
+    margin-bottom: 32px;
+}
+
+/* SECURITY INFO */
+.qlower-security-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.qlower-info-card {
+    background: var(--qlower-white);
+    border: 1px solid var(--qlower-border);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.qlower-info-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qlower-info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.qlower-info-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--qlower-text-dark);
+    margin-bottom: 6px;
+}
+
+.qlower-info-list i {
+    color: #28a745;
+    font-size: 12px;
+}
+
+.qlower-card-icons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.qlower-card-icons i {
+    font-size: 24px;
+}
+
+/* SIMULATE BUTTON */
+.qlower-stripe-button {
+    background: linear-gradient(135deg, #6772E5 0%, #5469D4 100%);
+    color: white;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+    box-shadow: 0 4px 15px rgba(103, 114, 229, 0.3);
+}
+
+.qlower-stripe-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(103, 114, 229, 0.4);
+    background: linear-gradient(135deg, #5A6ACF 0%, #4B5BC4 100%);
+}
+
+.qlower-stripe-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 4px 15px rgba(103, 114, 229, 0.2);
+}
+
+/* FOOTER BENEFITS */
+.qlower-benefits-section {
+    background: var(--qlower-bg-light);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
+}
+
+.qlower-benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    text-align: center;
+}
+
+.qlower-benefit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.qlower-benefit-icon {
+    color: var(--qlower-primary);
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.qlower-benefit-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin: 0;
+}
+
+.qlower-benefit-text {
+    font-size: 12px;
+    color: var(--qlower-text-light);
+    margin: 0;
+}
+
+/* NAVIGATION */
+.qlower-navigation {
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--qlower-border);
+}
+
+.qlower-nav-button {
+    background: var(--qlower-bg-light);
+    color: var(--qlower-text-dark);
+    padding: 12px 24px;
+    border: 2px solid var(--qlower-border);
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qlower-nav-button:hover {
+    background: var(--qlower-white);
+    border-color: var(--qlower-primary);
+    color: var(--qlower-primary);
+    text-decoration: none;
+}
+
+.qlower-nav-left:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    color: white !important;
+    text-decoration: none;
     transform: translateY(-2px);
 }
 
-#simulatePaymentBtn:hover {
-    transform: scale(1.02);
+/* SUPPORT SECTION */
+.qlower-support-section {
+    text-align: center;
+    margin-top: 40px;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.qlower-support-text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.qlower-support-text a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.qlower-support-text a:hover {
+    text-decoration: underline;
+    color: white;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .qlower-payment-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    .qlower-payment-left {
+        padding: 40px 60px;
+    }
+    
+    .qlower-payment-right {
+        padding: 40px 60px;
+    }
+    
+    .qlower-payment-title {
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .qlower-payment-left,
+    .qlower-payment-right {
+        padding: 32px;
+    }
+    
+    .qlower-payment-title {
+        font-size: 36px;
+    }
+    
+    .qlower-summary-card {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        text-align: center;
+    }
+    
+    .qlower-security-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .qlower-benefits-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .qlower-plan-features {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .qlower-payment-left,
+    .qlower-payment-right {
+        padding: 24px;
+    }
+    
+    .qlower-payment-title {
+        font-size: 28px;
+    }
+    
+    .qlower-right-title {
+        font-size: 28px;
+    }
+    
+    .qlower-payment-section {
+        padding: 24px;
+    }
+    
+    .qlower-payment-placeholder {
+        padding: 32px 24px;
+    }
 }
 </style>
+{% endblock %}
+
+{% block content %}
+<div class="qlower-payment-container">
+    <!-- Left Side - Hero Section -->
+    <div class="qlower-payment-left">
+        <div class="qlower-left-content">
+            <!-- Navigation Button -->
+            <div style="margin-bottom: 32px; text-align: center;">
+                <a href="{{ url_for('onboarding.plan_selection') }}" class="qlower-nav-button qlower-nav-left" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); color: rgba(255, 255, 255, 0.9); text-decoration: none;">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Modifier ma formule</span>
+                </a>
+            </div>
+            
+            <div class="qlower-hero-badge">
+                <i class="fas fa-credit-card"></i>
+                <span>Finalisation de votre abonnement</span>
+            </div>
+            
+            <h1 class="qlower-payment-title">
+                Dernière étape<br>
+                <strong style="background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">avant Atlas</strong>
+            </h1>
+            
+            <p class="qlower-payment-subtitle">
+                Votre plateforme d'investissement personnalisée vous attend. Quelques secondes et c'est parti !
+            </p>
+            
+        </div>
+        
+        <!-- Support Section -->
+        <div class="qlower-support-section">
+            <div class="qlower-support-text">
+                <i class="fas fa-headset" style="margin-right: 6px;"></i>
+                <a href="mailto:support@atlas-invest.fr">Support Atlas</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Side - Payment Section -->
+    <div class="qlower-payment-right">
+        <!-- Right Header -->
+        <div class="qlower-right-header">
+            <img src="{{ url_for('static', filename='images/logo-atlas.png') }}" alt="Atlas" style="height: 40px; margin-bottom: 24px;">
+            <h2 class="qlower-right-title">Finalisation de votre abonnement</h2>
+            <p class="qlower-right-subtitle">Vérifiez votre sélection et finalisez votre abonnement</p>
+        </div>
+
+        <!-- Plan Summary -->
+        <div class="qlower-summary-card">
+            <div class="qlower-plan-summary">
+                <h3 class="qlower-plan-name">Atlas {{ user_plan.get_plan_name() }}</h3>
+                <p class="qlower-plan-description">{{ plan_config.description }}</p>
+                
+                <ul class="qlower-plan-features">
+                    {% for feature in plan_config.features[:4] %}
+                    <li>
+                        <i class="fas fa-check"></i>
+                        <span>{{ feature }}</span>
+                    </li>
+                    {% endfor %}
+                    {% if plan_config.features|length > 4 %}
+                    <li>
+                        <i class="fas fa-plus"></i>
+                        <span>+{{ plan_config.features|length - 4 }} autres avantages</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <div class="qlower-price-display">
+                <div class="qlower-price-amount">€{{ user_plan.plan_price|int }}</div>
+                <div class="qlower-price-period">/mois</div>
+                <div class="qlower-price-note">TTC</div>
+            </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div class="qlower-payment-section">
+            <h3 class="qlower-section-title">
+                <i class="fas fa-credit-card"></i>
+                Informations de paiement
+            </h3>
+            
+            <!-- Security Info -->
+            <div class="qlower-security-info">
+                <div class="qlower-info-card">
+                    <h5 class="qlower-info-title">
+                        <i class="fas fa-shield-alt"></i>
+                        Sécurité
+                    </h5>
+                    <ul class="qlower-info-list">
+                        <li><i class="fas fa-check"></i>Chiffrement SSL 256 bits</li>
+                        <li><i class="fas fa-check"></i>Conformité PCI DSS Level 1</li>
+                        <li><i class="fas fa-check"></i>3D Secure 2.0</li>
+                    </ul>
+                </div>
+                <div class="qlower-info-card">
+                    <h5 class="qlower-info-title">
+                        <i class="fas fa-credit-card"></i>
+                        Cartes acceptées
+                    </h5>
+                    <div class="qlower-card-icons">
+                        <i class="fab fa-cc-visa" style="color: #1565C0;"></i>
+                        <i class="fab fa-cc-mastercard" style="color: #FF9800;"></i>
+                        <i class="fab fa-cc-amex" style="color: #2196F3;"></i>
+                        <i class="fab fa-cc-apple-pay" style="color: #000000;"></i>
+                    </div>
+                    <p style="font-size: 12px; color: var(--qlower-text-light); margin: 0;">Paiement sécurisé par Stripe</p>
+                </div>
+            </div>
+            
+            <!-- Stripe Checkout Button -->
+            <button id="checkoutBtn" class="qlower-stripe-button">
+                <i class="fab fa-stripe"></i>
+                <span id="checkoutBtnText">Procéder au paiement sécurisé</span>
+                <div id="checkoutSpinner" class="spinner-border spinner-border-sm" style="width: 16px; height: 16px; display: none;"></div>
+            </button>
+            
+            <p style="font-size: 12px; color: var(--qlower-text-light); margin-top: 12px; text-align: center;">
+                <i class="fas fa-info-circle" style="margin-right: 6px;"></i>
+                Vous serez redirigé vers la page de paiement sécurisée Stripe
+            </p>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="qlower-benefits-section">
+            <div class="qlower-benefits-grid">
+                <div class="qlower-benefit">
+                    <div class="qlower-benefit-icon">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                    <h6 class="qlower-benefit-title">Sans engagement</h6>
+                    <p class="qlower-benefit-text">Résiliez à tout moment depuis votre espace client</p>
+                </div>
+                <div class="qlower-benefit">
+                    <div class="qlower-benefit-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h6 class="qlower-benefit-title">Changement de formule</h6>
+                    <p class="qlower-benefit-text">Modifiez votre plan selon vos besoins</p>
+                </div>
+                <div class="qlower-benefit">
+                    <div class="qlower-benefit-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h6 class="qlower-benefit-title">Support client</h6>
+                    <p class="qlower-benefit-text">Assistance disponible 7j/7</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const btnText = document.getElementById('checkoutBtnText');
+    const spinner = document.getElementById('checkoutSpinner');
+    
+    // Récupérer le type de plan depuis le template
+    const planType = '{{ user_plan.plan_type }}';
+
+    checkoutBtn.addEventListener('click', function() {
+        console.log('🔄 Début création session Stripe pour plan:', planType);
+        
+        // UI Loading
+        this.disabled = true;
+        btnText.textContent = 'Redirection vers Stripe...';
+        spinner.style.display = 'inline-block';
+
+        // Créer la session de checkout Stripe
+        console.log('📡 Envoi requête vers /onboarding/stripe/create-checkout-session');
+        fetch('/onboarding/stripe/create-checkout-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                plan_type: planType
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Session expirée. Veuillez vous reconnecter.');
+            }
+            
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Rediriger vers Stripe Checkout
+                btnText.textContent = 'Redirection...';
+                window.location.href = data.checkout_url;
+            } else {
+                throw new Error(data.error || 'Erreur lors de la création de la session');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur Stripe:', error);
+            
+            // Réinitialiser le bouton
+            checkoutBtn.disabled = false;
+            btnText.textContent = 'Procéder au paiement sécurisé';
+            spinner.style.display = 'none';
+            
+            // Vérifier si c'est un problème d'authentification
+            if (error.message.includes('Unexpected token') || error.message.includes('<!doctype')) {
+                alert('Session expirée. Vous allez être redirigé vers la page de connexion.');
+                window.location.href = '/plateforme/connexion';
+            } else {
+                // Afficher l'erreur
+                alert('Erreur lors de l\'accès au paiement : ' + error.message);
+            }
+        })
+    });
+    
+    // Animation d'entrée moderne
+    const leftSide = document.querySelector('.qlower-payment-left');
+    const rightSide = document.querySelector('.qlower-payment-right');
+    
+    // Animation du côté gauche
+    leftSide.style.opacity = '0';
+    leftSide.style.transform = 'translateX(-30px)';
+    leftSide.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+    
+    // Animation du côté droit
+    rightSide.style.opacity = '0';
+    rightSide.style.transform = 'translateX(30px)';
+    rightSide.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+    
+    setTimeout(() => {
+        leftSide.style.opacity = '1';
+        leftSide.style.transform = 'translateX(0)';
+        
+        setTimeout(() => {
+            rightSide.style.opacity = '1';
+            rightSide.style.transform = 'translateX(0)';
+        }, 200);
+    }, 100);
+});
+</script>
 {% endblock %}

@@ -57,6 +57,10 @@ class User(UserMixin, db.Model):
     invitation_expires_at = db.Column(db.DateTime, nullable=True)
     can_create_account = db.Column(db.Boolean, default=False, nullable=False)
     
+    # Intégration Stripe
+    stripe_customer_id = db.Column(db.String(100), nullable=True, unique=True)
+    subscription_date = db.Column(db.DateTime, nullable=True)
+    
     # Relations
     investor_profile = db.relationship('InvestorProfile', backref='user', uselist=False, cascade='all, delete-orphan')
     subscription = db.relationship('Subscription', backref='user', uselist=False, cascade='all, delete-orphan')
@@ -110,6 +114,34 @@ class User(UserMixin, db.Model):
         """
         self.last_login = datetime.utcnow()
         db.session.commit()
+    
+    def can_access_platform(self):
+        """
+        Vérifie si l'utilisateur peut accéder à la plateforme.
+        Permet l'accès aux clients récents (24h) même sans abonnement actif.
+        """
+        # Admin a toujours accès
+        if self.is_admin:
+            return True
+            
+        # Vérifier si c'est un client récent (webhook Stripe peut avoir échoué)
+        from datetime import datetime, timedelta, timezone
+        now = datetime.now(timezone.utc)
+        if self.date_created.tzinfo is None:
+            user_created = self.date_created.replace(tzinfo=timezone.utc)
+        else:
+            user_created = self.date_created.astimezone(timezone.utc)
+        
+        recent_client = (self.user_type == 'client' and 
+                       not self.is_prospect and 
+                       user_created > now - timedelta(hours=24))
+        
+        # Si client récent, autoriser l'accès
+        if recent_client:
+            return True
+            
+        # Sinon, vérifier l'abonnement
+        return self.subscription and self.subscription.is_active()
     
     def is_prospect_type(self):
         """

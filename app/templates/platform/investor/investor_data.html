@@ -3071,25 +3071,6 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
     {% endif %}
 </div>
 
-{% else %}
-<!-- Utilisateur sans profil investisseur -->
-<div class="investor-dashboard">
-    <div class="platform-card">
-        <div class="platform-card-body">
-            <div class="empty-state">
-                <div class="empty-state-icon">
-                    <i class="fas fa-user-slash"></i>
-                </div>
-                <div class="empty-state-title">Profil investisseur non complété</div>
-                <div class="empty-state-text">Complétez votre profil pour accéder à vos données financières détaillées et bénéficier de nos conseils personnalisés.</div>
-                <a href="{{ url_for('platform_investor.investor_data', edit=True) }}" class="platform-btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Compléter mon profil
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
 {% endif %}
 
 {% endblock %}

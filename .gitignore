@@ -73,4 +73,4 @@ logs/
 # Production builds
 dist/
 build/
-EOF < /dev/null
+EOF < /dev/null.env.stripe

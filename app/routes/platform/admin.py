@@ -1080,7 +1080,7 @@ def invite_prospect(prospect_id):
         # Envoyer l'email d'invitation via MailerSend
         try:
             # Utiliser le token MailerSend existant (vous le configurerez)
-            mailer = MailerSendService("mlsn.c07089a1533a350ffe3c5430eda53efd48be1cfa29ec0da10839456535c46d94")  # À remplacer par votre token
+            mailer = MailerSendService("mlsn.5b4c18eb3a66bff948c9d6d712ffc7dd22ac16bff47d7b9de2a53e6e1a3384bd")
             
             email_sent = mailer.send_email(
                 to_email=prospect.email,
