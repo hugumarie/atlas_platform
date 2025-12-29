@@ -817,18 +817,29 @@ function previewPdf(input) {
 
 // Validation côté client
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 DEBUG: DOM chargé, recherche du formulaire...');
     const form = document.querySelector('.atlas-form');
+    console.log('🔧 DEBUG: Formulaire trouvé:', form);
+    
+    if (!form) {
+        console.error('❌ DEBUG: Aucun formulaire .atlas-form trouvé!');
+        return;
+    }
     
     form.addEventListener('submit', function(e) {
+        console.log('📝 DEBUG: Événement submit déclenché');
         const nom = document.getElementById('nom').value.trim();
+        console.log('📝 DEBUG: Nom saisi:', nom);
         
         if (!nom) {
+            console.log('❌ DEBUG: Nom vide, blocage soumission');
             e.preventDefault();
             alert('Le nom de la formation est obligatoire.');
             document.getElementById('nom').focus();
             return;
         }
         
+        console.log('✅ DEBUG: Validation OK, soumission du formulaire...');
         // Pas de limite de taille de fichier côté client
         // Les limites sont gérées côté serveur seulement
     });
