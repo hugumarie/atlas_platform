@@ -829,21 +829,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Vérifier la taille des fichiers
-        const imageInput = document.getElementById('image');
-        const pdfInput = document.getElementById('fichier_pdf');
-        
-        if (imageInput.files[0] && imageInput.files[0].size > 5 * 1024 * 1024) {
-            e.preventDefault();
-            alert('L\'image ne peut pas dépasser 5MB.');
-            return;
-        }
-        
-        if (pdfInput.files[0] && pdfInput.files[0].size > 10 * 1024 * 1024) {
-            e.preventDefault();
-            alert('Le fichier PDF ne peut pas dépasser 10MB.');
-            return;
-        }
+        // Pas de limite de taille de fichier côté client
+        // Les limites sont gérées côté serveur seulement
     });
     
     // Gestion de la modal de suppression
