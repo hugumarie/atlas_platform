@@ -209,7 +209,20 @@ SECRET_KEY=your-secret-key
 
 ## 🔄 État Actuel du Projet
 
-**Dernière mise à jour** : 20 Décembre 2024
+**Dernière mise à jour** : 29 Décembre 2024
+
+### Dernières Modifications (29 Décembre 2024) 🆕
+- **Mise à jour complète des offres commerciales** sur la page d'accueil :
+  - **INITIA** : 25€/mois - "Pour débuter dans l'investissement"
+  - **OPTIMA** : 50€/mois - "Pour structurer et optimiser son patrimoine existant" 
+  - **ULTIMA** : "Nous consulter" - "Pour des situations patrimoniales spécifiques"
+- **Nouveau contenu des avantages** :
+  - Analyse de situation, stratégie d'investissement, tableau de bord Atlas
+  - Pilotage, contenus pédagogiques, accompagnement 100% indépendant
+  - Optimisation patrimoine existant, classes d'actifs supplémentaires
+  - Allocation multi-actifs, optimisation transmission, problématiques spécifiques
+- **Amélioration UX** : Alignement parfait des boutons CTA avec CSS flexbox
+- **Disclaimer légal** : "Tarifs TTC. Sans engagement. Vous restez libre de résilier à tout moment."
 
 ### Fonctionnalités Opérationnelles ✅
 - Système d'authentification complet

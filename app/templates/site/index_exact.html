@@ -265,11 +265,6 @@ body {
     cursor: pointer;
 }
 
-/* Hide mobile actions and close button on desktop */
-.mobile-actions,
-.mobile-close-btn {
-    display: none;
-}
 
 /* EXACT HERO SECTION REPLICA - Fond vert Atlas uniforme */
 .qlower-hero {
@@ -644,138 +639,143 @@ body {
     margin: 0;
 }
 
-/* EXACT PRICING SECTION REPLICA */
+/* EXACT PRICING SECTION REPLICA - Version Compacte */
 .qlower-pricing-section {
-    padding: 100px 0;
+    padding: 70px 0;
     background: var(--qlower-white);
 }
 
 .qlower-pricing-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 40px;
+    gap: 30px;
 }
 
 .qlower-pricing-card {
     background: var(--qlower-white);
     border: 2px solid var(--qlower-border);
     border-radius: 20px;
-    padding: 40px 32px;
+    padding: 30px 24px;
     text-align: center;
     position: relative;
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .qlower-pricing-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    transform: translateY(-6px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
     border-color: var(--qlower-primary);
 }
 
 .qlower-pricing-popular {
     border-color: var(--qlower-primary);
-    box-shadow: 0 15px 40px rgba(19, 124, 139, 0.15);
-    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(19, 124, 139, 0.15);
+    transform: scale(1.03);
 }
 
 .qlower-pricing-popular:hover {
-    transform: scale(1.05) translateY(-8px);
+    transform: scale(1.03) translateY(-6px);
 }
 
 .qlower-pricing-badge {
     position: absolute;
-    top: -12px;
+    top: -10px;
     left: 50%;
     transform: translateX(-50%);
     background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
     color: var(--qlower-white);
-    padding: 8px 24px;
-    border-radius: 20px;
-    font-size: 14px;
+    padding: 6px 20px;
+    border-radius: 18px;
+    font-size: 12px;
     font-weight: 600;
 }
 
 .qlower-pricing-header h3 {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 800;
     color: var(--qlower-dark);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .qlower-pricing-subtitle {
-    font-size: 16px;
+    font-size: 14px;
     color: var(--qlower-text-light);
-    margin-bottom: 32px;
+    margin-bottom: 24px;
 }
 
 .qlower-pricing-price {
     display: flex;
     align-items: baseline;
     justify-content: center;
-    gap: 4px;
-    margin-bottom: 40px;
+    gap: 3px;
+    margin-bottom: 28px;
 }
 
 .qlower-pricing-currency {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
     color: var(--qlower-primary);
 }
 
 .qlower-pricing-amount {
-    font-size: 48px;
+    font-size: 40px;
     font-weight: 800;
     color: var(--qlower-dark);
     line-height: 1;
 }
 
 .qlower-pricing-period {
-    font-size: 18px;
+    font-size: 16px;
     color: var(--qlower-text-light);
     font-weight: 500;
 }
 
 .qlower-pricing-amount-custom {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
     color: var(--qlower-primary);
 }
 
 .qlower-pricing-features {
     text-align: left;
-    margin-bottom: 40px;
+    margin-bottom: 28px;
+    flex-grow: 1;
 }
 
 .qlower-pricing-feature {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
 .qlower-pricing-feature i {
     color: var(--qlower-primary);
-    font-size: 16px;
-    width: 16px;
+    font-size: 13px;
+    width: 14px;
     flex-shrink: 0;
 }
 
 .qlower-pricing-feature span {
-    font-size: 16px;
+    font-size: 14px;
     color: var(--qlower-text-dark);
     font-weight: 500;
+    line-height: 1.3;
 }
 
 .qlower-pricing-btn {
     display: block;
     width: 100%;
-    padding: 16px 32px;
+    padding: 13px 24px;
     background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
     color: var(--qlower-white);
     text-decoration: none;
     border-radius: 12px;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 14px;
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
@@ -798,9 +798,9 @@ body {
     color: var(--qlower-white);
 }
 
-/* EXACT CTA SECTION REPLICA */
+/* EXACT CTA SECTION REPLICA - Version Compacte */
 .qlower-cta-section {
-    padding: 60px 0 100px;
+    padding: 50px 0 70px;
     background: var(--qlower-bg-light);
     position: relative;
     overflow: hidden;
@@ -814,10 +814,10 @@ body {
 }
 
 .qlower-cta-title {
-    font-size: 48px;
+    font-size: 40px;
     font-weight: 800;
     color: var(--qlower-dark);
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     line-height: 1.1;
     letter-spacing: -0.025em;
 }
@@ -1178,7 +1178,6 @@ body {
     .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(1) { animation-delay: 0.1s; }
     .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(2) { animation-delay: 0.2s; }
     .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(3) { animation-delay: 0.3s; }
-    .qlower-nav-menu.mobile-active .mobile-actions { animation-delay: 0.4s; }
     
     @keyframes fadeInUp {
         from {
@@ -1223,52 +1222,6 @@ body {
         display: none;
     }
     
-    /* Mobile action buttons */
-    .mobile-actions {
-        display: flex !important;
-        flex-direction: column;
-        gap: 1rem;
-        margin-top: 2rem;
-        opacity: 0;
-        animation: fadeInUp 0.5s ease-out forwards;
-        animation-delay: 0.4s;
-    }
-    
-    .mobile-action-btn {
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        text-decoration: none;
-        text-align: center;
-        font-weight: 600;
-        font-size: 1.1rem;
-        transition: all 0.3s ease;
-        border: 2px solid;
-    }
-    
-    .mobile-action-btn.primary {
-        background: var(--qlower-primary);
-        color: white;
-        border-color: var(--qlower-primary);
-    }
-    
-    .mobile-action-btn.primary:hover {
-        background: #0f6b75;
-        border-color: #0f6b75;
-        color: white;
-        transform: translateY(-2px);
-    }
-    
-    .mobile-action-btn.secondary {
-        background: transparent;
-        color: var(--qlower-text-dark);
-        border-color: var(--qlower-text-dark);
-    }
-    
-    .mobile-action-btn.secondary:hover {
-        background: var(--qlower-text-dark);
-        color: white;
-        transform: translateY(-2px);
-    }
     
     .qlower-hero-container {
         grid-template-columns: 1fr;
@@ -1441,15 +1394,6 @@ body {
                 <a href="{{ url_for('site_pages.about') }}" class="qlower-nav-link">À propos</a>
             </div>
             
-            <!-- Mobile actions - only visible on mobile -->
-            <div class="mobile-actions">
-                <button type="button" class="mobile-action-btn primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
-                    Prendre RDV
-                </button>
-                <a href="/plateforme/connexion" class="mobile-action-btn secondary">
-                    Mon espace
-                </a>
-            </div>
         </div>
         
         <!-- Actions droite exact comme Qlower -->
@@ -1508,152 +1452,459 @@ body {
     </div>
 </section>
 
-<!-- Section Qu'est-ce qu'Atlas -->
-<section style="padding: 60px 0; background: white; text-align: center;">
+<!-- Section Atlas - Design Compact -->
+<section style="padding: 50px 0; background: #ffffff; text-align: center; position: relative; overflow: hidden;">
+    <!-- Décoration subtile -->
+    <div style="position: absolute; top: 50px; right: 80px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(19, 124, 139, 0.03) 0%, transparent 70%); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: 40px; left: 60px; width: 90px; height: 90px; background: radial-gradient(circle, rgba(19, 124, 139, 0.02) 0%, transparent 70%); border-radius: 50%;"></div>
+    
     <div class="qlower-container">
-        <h2 style="font-size: 32px; color: #344D59; margin-bottom: 20px; font-weight: 600;">Qu'est-ce qu'Atlas ?</h2>
-        <p style="font-size: 18px; color: #137C8B; margin-bottom: 16px; font-weight: 500;">
+        <!-- Titre principal -->
+        <h2 style="font-size: 32px; color: #137C8B; margin-bottom: 40px; font-weight: 700; font-family: 'Encode Sans Condensed', sans-serif; letter-spacing: -0.5px; line-height: 1.3; max-width: 800px; margin-left: auto; margin-right: auto;">
             Atlas est une société de conseil en investissement nouvelle génération.
-        </p>
-        <p style="font-size: 16px; color: #344D59; margin-bottom: 16px; max-width: 700px; margin-left: auto; margin-right: auto;">
-            Nous vous accompagnons dans la mise en place d'une stratégie efficace pour commencer à investir, de manière simple, avec les meilleures solutions et au meilleur prix.
-        </p>
-        <p style="font-size: 16px; color: #344D59; margin-bottom: 16px; max-width: 700px; margin-left: auto; margin-right: auto;">
-            Notre modèle est unique : il repose sur <strong style="color: #137C8B;">un abonnement transparent</strong>, garantissant un conseil objectif et réellement indépendant.
-        </p>
-        <p style="font-size: 16px; color: #344D59; margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto;">
-            Nous ne sommes jamais rémunérés par les solutions d'investissement que nous recommandons, ce qui vous assure un accompagnement entièrement aligné avec vos intérêts.
-        </p>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal" style="padding: 12px 24px; font-size: 16px; background: #137C8B; border: none; border-radius: 6px;">
-            <i class="fas fa-calendar-alt me-2"></i>
+        </h2>
+        
+        <!-- Contenu principal avec bullet points -->
+        <div style="max-width: 750px; margin: 0 auto 40px; text-align: left;">
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div style="display: flex; align-items: flex-start; gap: 16px;">
+                    <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
+                    <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
+                        Nous vous accompagnons dans la mise en place d'une stratégie efficace pour commencer à investir, de manière simple, avec les meilleures solutions et au meilleur prix.
+                    </p>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 16px;">
+                    <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
+                    <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
+                        Notre modèle est unique : il repose sur <strong style="color: #137C8B;">un abonnement transparent</strong>, garantissant un conseil objectif et réellement indépendant.
+                    </p>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 16px;">
+                    <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
+                    <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
+                        Nous ne sommes jamais rémunérés par les solutions d'investissement que nous recommandons, ce qui vous assure un accompagnement entièrement aligné avec vos intérêts.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bouton professionnel -->
+        <button type="button" class="btn btn-primary atlas-cta-btn" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+            <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
             Prendre rendez-vous
         </button>
     </div>
+    
+    <!-- CSS embarqué pour le bouton -->
+    <style>
+        .atlas-cta-btn {
+            padding: 16px 32px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            background: linear-gradient(135deg, #137C8B 0%, #0f6b75 100%) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(19, 124, 139, 0.3) !important;
+            transition: all 0.3s ease !important;
+            position: relative;
+            overflow: hidden;
+        }
+        .atlas-cta-btn:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(19, 124, 139, 0.4) !important;
+            background: linear-gradient(135deg, #0f6b75 0%, #0c5660 100%) !important;
+            color: white !important;
+        }
+        .atlas-cta-btn:active {
+            transform: translateY(0) !important;
+            box-shadow: 0 4px 15px rgba(19, 124, 139, 0.3) !important;
+        }
+    </style>
 </section>
 
-<!-- EXACT FEATURES SECTION REPLICA -->
-<section class="qlower-features-section">
-    <div class="qlower-section-container">
-        <div class="qlower-section-header">
-            <h2 class="qlower-section-title">Gérer son épargne n'a jamais été aussi simple</h2>
-            <p class="qlower-section-subtitle">
-                Fini les rendez-vous interminables, les frais cachés et les conseils génériques. 
-                Atlas révolutionne le conseil patrimonial avec une approche 100% digitale.
+<!-- Section Comment ça fonctionne - Fond Vert Atlas -->
+<section style="padding: 80px 0; background: linear-gradient(135deg, #137C8B 0%, #0f6b75 100%); color: white; position: relative; overflow: hidden;">
+    <!-- Décoration background -->
+    <div style="position: absolute; top: -100px; right: -100px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -80px; left: -80px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); border-radius: 50%;"></div>
+    
+    <div class="qlower-container">
+        <div style="text-align: center; margin-bottom: 60px;">
+            <h2 style="font-size: 36px; color: white; margin-bottom: 16px; font-weight: 700; line-height: 1.2;">
+                Comment ça fonctionne ?
+            </h2>
+            <p style="font-size: 18px; color: rgba(255,255,255,0.9); max-width: 600px; margin: 0 auto;">
+                Un processus simple et transparent en 3 étapes pour construire votre stratégie d'investissement
             </p>
         </div>
         
-        <div class="qlower-features-grid">
-            <div class="qlower-feature-card">
-                <div class="qlower-feature-card-icon">
-                    <i class="fas fa-clock"></i>
+        <div style="max-width: 1000px; margin: 0 auto;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; margin-bottom: 60px;">
+                
+                <!-- Étape 1 -->
+                <div style="text-align: center; position: relative;">
+                    <div style="position: relative; margin-bottom: 24px;">
+                        <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; backdrop-filter: blur(10px);">
+                            <span style="font-size: 32px; font-weight: 700; color: white;">1</span>
+                        </div>
+                        <!-- Ligne de connexion pour desktop -->
+                        <div style="position: absolute; top: 40px; left: calc(100% + 20px); width: calc(100% - 40px); height: 2px; background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent); display: none;" class="connection-line"></div>
+                    </div>
+                    <h3 style="font-size: 22px; color: white; margin-bottom: 16px; font-weight: 600;">
+                        Analyse de votre situation
+                    </h3>
+                    <p style="font-size: 16px; color: rgba(255,255,255,0.9); line-height: 1.6; margin: 0;">
+                        Nous analysons votre situation, vos objectifs, votre horizon et votre tolérance au risque. Ensemble, nous définissons une stratégie cohérente et adaptée à votre capacité d'épargne.
+                    </p>
                 </div>
-                <h3>Gagnez du temps</h3>
-                <p>Plus besoin de prendre des RDV physiques. Tout se fait en ligne à votre rythme avec notre plateforme intuitive.</p>
+                
+                <!-- Étape 2 -->
+                <div style="text-align: center; position: relative;">
+                    <div style="position: relative; margin-bottom: 24px;">
+                        <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; backdrop-filter: blur(10px);">
+                            <span style="font-size: 32px; font-weight: 700; color: white;">2</span>
+                        </div>
+                        <!-- Ligne de connexion pour desktop -->
+                        <div style="position: absolute; top: 40px; left: calc(100% + 20px); width: calc(100% - 40px); height: 2px; background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent); display: none;" class="connection-line"></div>
+                    </div>
+                    <h3 style="font-size: 22px; color: white; margin-bottom: 16px; font-weight: 600;">
+                        Construction de votre stratégie
+                    </h3>
+                    <p style="font-size: 16px; color: rgba(255,255,255,0.9); line-height: 1.6; margin: 0;">
+                        Nous sélectionnons les enveloppes et supports les plus pertinents, au meilleur coût, afin d'obtenir une allocation claire, efficace et adaptée à votre profil.
+                    </p>
+                </div>
+                
+                <!-- Étape 3 -->
+                <div style="text-align: center;">
+                    <div style="margin-bottom: 24px;">
+                        <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; backdrop-filter: blur(10px);">
+                            <span style="font-size: 32px; font-weight: 700; color: white;">3</span>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 22px; color: white; margin-bottom: 16px; font-weight: 600;">
+                        Mise en place & accompagnement continu
+                    </h3>
+                    <p style="font-size: 16px; color: rgba(255,255,255,0.9); line-height: 1.6; margin: 0;">
+                        Vous commencez à investir progressivement, avec un suivi régulier, des outils clairs, et des ajustements lorsque cela est nécessaire, afin de rester aligné avec vos objectifs.
+                    </p>
+                </div>
+                
             </div>
             
-            <div class="qlower-feature-card">
-                <div class="qlower-feature-card-icon">
-                    <i class="fas fa-euro-sign"></i>
-                </div>
-                <h3>Tarifs transparents</h3>
-                <p>Des abonnements clairs sans frais cachés. Payez uniquement ce dont vous avez besoin selon votre profil.</p>
-            </div>
-            
-            <div class="qlower-feature-card">
-                <div class="qlower-feature-card-icon">
-                    <i class="fas fa-brain"></i>
-                </div>
-                <h3>Conseil personnalisé</h3>
-                <p>Notre IA analyse votre profil pour vous proposer des stratégies sur mesure adaptées à vos objectifs.</p>
+            <!-- Bouton CTA -->
+            <div style="text-align: center;">
+                <a href="{{ url_for('site_pages.pricing') }}" class="atlas-solutions-btn">
+                    <i class="fas fa-arrow-right" style="margin-right: 8px;"></i>
+                    Découvrir nos solutions
+                </a>
             </div>
         </div>
     </div>
+    
+    <!-- CSS embarqué -->
+    <style>
+        .atlas-solutions-btn {
+            display: inline-block;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .atlas-solutions-btn:hover {
+            background: white;
+            color: #137C8B;
+            border-color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            text-decoration: none;
+        }
+        .atlas-solutions-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Lignes de connexion pour écrans larges */
+        @media (min-width: 992px) {
+            .connection-line {
+                display: block !important;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .qlower-container > div > div {
+                grid-template-columns: 1fr !important;
+                gap: 50px !important;
+            }
+        }
+    </style>
 </section>
 
-<!-- EXACT TESTIMONIALS SECTION REPLICA -->
-<section class="qlower-testimonials-section">
-    <div class="qlower-section-container">
-        <div class="qlower-section-header">
-            <h2 class="qlower-section-title">Ils ont optimisé leur patrimoine avec Atlas</h2>
-            <p class="qlower-section-subtitle">
+<!-- Section Atlas Target - Fond Blanc/Gris -->
+<section style="padding: 45px 0; background: linear-gradient(135deg, #f8fafb 0%, #ffffff 100%); position: relative; overflow: hidden;">
+    <!-- Décoration subtile -->
+    <div style="position: absolute; top: 30px; left: 80px; width: 100px; height: 100px; background: radial-gradient(circle, rgba(19, 124, 139, 0.02) 0%, transparent 70%); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: 40px; right: 100px; width: 80px; height: 80px; background: radial-gradient(circle, rgba(19, 124, 139, 0.03) 0%, transparent 70%); border-radius: 50%;"></div>
+    
+    <div class="qlower-container">
+        <div style="text-align: center; margin-bottom: 35px;">
+            <!-- Titre principal avec même style qu'Atlas -->
+            <h2 style="font-size: 28px; color: #137C8B; margin-bottom: 25px; font-weight: 700; font-family: 'Encode Sans Condensed', sans-serif; letter-spacing: -0.5px; line-height: 1.3; max-width: 850px; margin-left: auto; margin-right: auto;">
+                Atlas s'adresse aux particuliers qui souhaitent être accompagnés dans leurs décisions d'investissement, avec une approche claire, indépendante et orientée long terme.
+            </h2>
+            
+            <p style="font-size: 16px; color: #137C8B; font-weight: 600; margin: 0;">
+                Si vous vous reconnaissez dans une ou plusieurs situations ci-dessous, Atlas est fait pour vous :
+            </p>
+        </div>
+        
+        <!-- Arguments en boîtes -->
+        <div style="max-width: 1100px; margin: 0 auto 35px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                
+                <!-- Argument 1 -->
+                <div style="background: white; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid rgba(19, 124, 139, 0.08); box-shadow: 0 4px 20px rgba(19, 124, 139, 0.05); transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 30px rgba(19, 124, 139, 0.1)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(19, 124, 139, 0.05)';">
+                    <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #137C8B, #0f6b75); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;">
+                        <i class="fas fa-route" style="color: white; font-size: 18px;"></i>
+                    </div>
+                    <p style="font-size: 14px; color: #344D59; margin: 0; line-height: 1.4; font-weight: 500;">
+                        Vous cherchez à savoir par où commencer, et dans quel ordre structurer vos investissements.
+                    </p>
+                </div>
+                
+                <!-- Argument 2 -->
+                <div style="background: white; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid rgba(19, 124, 139, 0.08); box-shadow: 0 4px 20px rgba(19, 124, 139, 0.05); transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 30px rgba(19, 124, 139, 0.1)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(19, 124, 139, 0.05)';">
+                    <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #137C8B, #0f6b75); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;">
+                        <i class="fas fa-shield-alt" style="color: white; font-size: 18px;"></i>
+                    </div>
+                    <p style="font-size: 14px; color: #344D59; margin: 0; line-height: 1.4; font-weight: 500;">
+                        Vous souhaitez être conseillé de manière indépendante, sans discours commercial ni produits imposés.
+                    </p>
+                </div>
+                
+                <!-- Argument 3 -->
+                <div style="background: white; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid rgba(19, 124, 139, 0.08); box-shadow: 0 4px 20px rgba(19, 124, 139, 0.05); transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 30px rgba(19, 124, 139, 0.1)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(19, 124, 139, 0.05)';">
+                    <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #137C8B, #0f6b75); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;">
+                        <i class="fas fa-piggy-bank" style="color: white; font-size: 18px;"></i>
+                    </div>
+                    <p style="font-size: 14px; color: #344D59; margin: 0; line-height: 1.4; font-weight: 500;">
+                        Vous disposez d'épargne, vous savez qu'il serait pertinent d'investir, mais vous hésitez à vous lancer seul.
+                    </p>
+                </div>
+                
+                <!-- Argument 4 -->
+                <div style="background: white; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid rgba(19, 124, 139, 0.08); box-shadow: 0 4px 20px rgba(19, 124, 139, 0.05); transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 30px rgba(19, 124, 139, 0.1)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(19, 124, 139, 0.05)';">
+                    <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #137C8B, #0f6b75); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;">
+                        <i class="fas fa-chess-knight" style="color: white; font-size: 18px;"></i>
+                    </div>
+                    <p style="font-size: 14px; color: #344D59; margin: 0; line-height: 1.4; font-weight: 500;">
+                        Vous voulez mettre en place une stratégie simple et cohérente, plutôt que multiplier les décisions au gré des nouveautés.
+                    </p>
+                </div>
+                
+                <!-- Argument 5 -->
+                <div style="background: white; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid rgba(19, 124, 139, 0.08); box-shadow: 0 4px 20px rgba(19, 124, 139, 0.05); transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 30px rgba(19, 124, 139, 0.1)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(19, 124, 139, 0.05)';">
+                    <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #137C8B, #0f6b75); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;">
+                        <i class="fas fa-handshake" style="color: white; font-size: 18px;"></i>
+                    </div>
+                    <p style="font-size: 14px; color: #344D59; margin: 0; line-height: 1.4; font-weight: 500;">
+                        Vous recherchez un interlocuteur de confiance pour orienter vos choix et vous aider à rester sur la bonne trajectoire dans le temps.
+                    </p>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Bouton CTA -->
+        <div style="text-align: center;">
+            <button type="button" class="btn btn-primary atlas-project-btn" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                <i class="fas fa-comments" style="margin-right: 8px;"></i>
+                Discuter de mon projet
+            </button>
+        </div>
+    </div>
+    
+    <!-- CSS embarqué -->
+    <style>
+        .atlas-project-btn {
+            padding: 16px 32px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            background: linear-gradient(135deg, #137C8B 0%, #0f6b75 100%) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(19, 124, 139, 0.3) !important;
+            transition: all 0.3s ease !important;
+            position: relative;
+            overflow: hidden;
+        }
+        .atlas-project-btn:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(19, 124, 139, 0.4) !important;
+            background: linear-gradient(135deg, #0f6b75 0%, #0c5660 100%) !important;
+            color: white !important;
+        }
+        .atlas-project-btn:active {
+            transform: translateY(0) !important;
+            box-shadow: 0 4px 15px rgba(19, 124, 139, 0.3) !important;
+        }
+        
+        /* Responsive pour les boîtes */
+        @media (max-width: 768px) {
+            .qlower-container > div > div {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .qlower-container > div > div {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 24px !important;
+            }
+        }
+    </style>
+</section>
+
+
+<!-- Section Témoignages - Design Moderne Fond Vert Atlas -->
+<section style="padding: 60px 0; background: linear-gradient(135deg, #137C8B 0%, #0f6b75 100%); color: white; position: relative; overflow: hidden;">
+    <!-- Décoration background -->
+    <div style="position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -40px; right: -40px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); border-radius: 50%;"></div>
+    
+    <div class="qlower-container">
+        <div style="text-align: center; margin-bottom: 45px;">
+            <h2 style="font-size: 32px; color: white; margin-bottom: 16px; font-weight: 700; line-height: 1.2;">
+                Ils ont optimisé leur patrimoine avec Atlas
+            </h2>
+            <p style="font-size: 16px; color: rgba(255,255,255,0.9); max-width: 600px; margin: 0 auto;">
                 Découvrez comment nos clients ont transformé leur approche de l'investissement grâce à Atlas
             </p>
         </div>
         
-        <div class="qlower-testimonials-grid">
-            <div class="qlower-testimonial-card">
-                <div class="qlower-testimonial-content">
-                    <div class="qlower-testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
+        <!-- Témoignages en grid compact -->
+        <div style="max-width: 1000px; margin: 0 auto;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                
+                <!-- Témoignage 1 -->
+                <div style="background: rgba(255,255,255,0.1); padding: 24px; border-radius: 16px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.background='rgba(255,255,255,0.15)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255,255,255,0.1)';">
+                    <!-- Étoiles -->
+                    <div style="display: flex; gap: 4px; margin-bottom: 16px; justify-content: center;">
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
                     </div>
-                    <p class="qlower-testimonial-text">
-                        "Atlas m'a permis de reprendre le contrôle de mes finances. L'interface est intuitive et les conseils personnalisés m'ont fait gagner un temps précieux."
+                    <!-- Commentaire -->
+                    <p style="font-size: 15px; color: rgba(255,255,255,0.95); margin-bottom: 20px; line-height: 1.5; font-style: italic; text-align: center;">
+                        "En 6 mois avec Atlas, j'ai enfin structuré mon épargne. Leurs recommandations PEA/assurance vie m'ont permis d'optimiser ma fiscalité sans stress."
                     </p>
-                    <div class="qlower-testimonial-author">
-                        <div class="qlower-testimonial-avatar">
-                            <span>MC</span>
+                    <!-- Auteur -->
+                    <div style="display: flex; align-items: center; gap: 12px; justify-content: center;">
+                        <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);">
+                            AL
                         </div>
-                        <div class="qlower-testimonial-info">
-                            <h5>Marie Caron</h5>
-                            <p>Entrepreneur, Paris</p>
+                        <div>
+                            <div style="font-weight: 600; color: white; font-size: 14px;">Antoine L.</div>
+                            <div style="color: rgba(255,255,255,0.8); font-size: 12px;">Ingénieur, 32 ans</div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="qlower-testimonial-card">
-                <div class="qlower-testimonial-content">
-                    <div class="qlower-testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
+                
+                <!-- Témoignage 2 -->
+                <div style="background: rgba(255,255,255,0.1); padding: 24px; border-radius: 16px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.background='rgba(255,255,255,0.15)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255,255,255,0.1)';">
+                    <!-- Étoiles -->
+                    <div style="display: flex; gap: 4px; margin-bottom: 16px; justify-content: center;">
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
                     </div>
-                    <p class="qlower-testimonial-text">
-                        "Grâce à Atlas, j'ai diversifié mes investissements et réduit mes impôts de 30%. Le ROI est impressionnant pour un abonnement si accessible."
+                    <!-- Commentaire -->
+                    <p style="font-size: 15px; color: rgba(255,255,255,0.95); margin-bottom: 20px; line-height: 1.5; font-style: italic; text-align: center;">
+                        "Je recommande vivement ! Atlas m'a aidé à débloquer 15k€ qui dormaient sur mon livret A. Maintenant j'investis intelligemment chaque mois."
                     </p>
-                    <div class="qlower-testimonial-author">
-                        <div class="qlower-testimonial-avatar">
-                            <span>JD</span>
+                    <!-- Auteur -->
+                    <div style="display: flex; align-items: center; gap: 12px; justify-content: center;">
+                        <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);">
+                            CR
                         </div>
-                        <div class="qlower-testimonial-info">
-                            <h5>Jean Dupont</h5>
-                            <p>Ingénieur, Lyon</p>
+                        <div>
+                            <div style="font-weight: 600; color: white; font-size: 14px;">Camille R.</div>
+                            <div style="color: rgba(255,255,255,0.8); font-size: 12px;">Prof, 29 ans</div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="qlower-testimonial-card">
-                <div class="qlower-testimonial-content">
-                    <div class="qlower-testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
+                
+                <!-- Témoignage 3 -->
+                <div style="background: rgba(255,255,255,0.1); padding: 24px; border-radius: 16px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease;"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.background='rgba(255,255,255,0.15)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.background='rgba(255,255,255,0.1)';">
+                    <!-- Étoiles -->
+                    <div style="display: flex; gap: 4px; margin-bottom: 16px; justify-content: center;">
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
+                        <i class="fas fa-star" style="color: #FFD700; font-size: 14px;"></i>
                     </div>
-                    <p class="qlower-testimonial-text">
-                        "La simplicité d'utilisation et la qualité des recommandations font d'Atlas un outil indispensable pour tout investisseur moderne."
+                    <!-- Commentaire -->
+                    <p style="font-size: 15px; color: rgba(255,255,255,0.95); margin-bottom: 20px; line-height: 1.5; font-style: italic; text-align: center;">
+                        "Enfin un conseil financier transparent ! Fini les frais cachés des banques. Atlas m'a fait économiser plus de 800€/an en frais de gestion."
                     </p>
-                    <div class="qlower-testimonial-author">
-                        <div class="qlower-testimonial-avatar">
-                            <span>SL</span>
+                    <!-- Auteur -->
+                    <div style="display: flex; align-items: center; gap: 12px; justify-content: center;">
+                        <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);">
+                            MD
                         </div>
-                        <div class="qlower-testimonial-info">
-                            <h5>Sophie Lambert</h5>
-                            <p>Médecin, Toulouse</p>
+                        <div>
+                            <div style="font-weight: 600; color: white; font-size: 14px;">Marc D.</div>
+                            <div style="color: rgba(255,255,255,0.8); font-size: 12px;">Cadre, 45 ans</div>
                         </div>
                     </div>
                 </div>
+                
             </div>
         </div>
     </div>
+    
+    <!-- CSS responsive -->
+    <style>
+        @media (max-width: 768px) {
+            .qlower-container > div > div {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+        }
+    </style>
 </section>
 
 <!-- EXACT PRICING SECTION REPLICA -->
@@ -1670,29 +1921,37 @@ body {
             <div class="qlower-pricing-card">
                 <div class="qlower-pricing-header">
                     <h3>INITIA</h3>
-                    <p class="qlower-pricing-subtitle">Pour débuter sereinement</p>
+                    <p class="qlower-pricing-subtitle">Pour débuter dans l'investissement</p>
                     <div class="qlower-pricing-price">
                         <span class="qlower-pricing-currency">€</span>
-                        <span class="qlower-pricing-amount">24,99</span>
+                        <span class="qlower-pricing-amount">25</span>
                         <span class="qlower-pricing-period">/mois</span>
                     </div>
                 </div>
                 <div class="qlower-pricing-features">
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Analyse patrimoniale de base</span>
+                        <span>Analyse de votre situation et de vos objectifs</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Recommandations personnalisées</span>
+                        <span>Mise en place d'une stratégie d'investissement</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Suivi de 3 investissements</span>
+                        <span>Suivi via votre tableau de bord Atlas</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Support par email</span>
+                        <span>Pilotage de vos investissements</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Contenus pédagogiques exclusifs</span>
+                    </div>
+                    <div class="qlower-pricing-feature">
+                        <i class="fas fa-check"></i>
+                        <span>Accompagnement humain et 100% indépendant</span>
                     </div>
                 </div>
                 <button type="button" class="qlower-pricing-btn" data-bs-toggle="modal" data-bs-target="#appointmentModal">Choisir INITIA</button>
@@ -1702,33 +1961,29 @@ body {
                 <div class="qlower-pricing-badge">Le plus populaire</div>
                 <div class="qlower-pricing-header">
                     <h3>OPTIMA</h3>
-                    <p class="qlower-pricing-subtitle">Pour structurer votre patrimoine</p>
+                    <p class="qlower-pricing-subtitle">Pour structurer et optimiser son patrimoine existant</p>
                     <div class="qlower-pricing-price">
                         <span class="qlower-pricing-currency">€</span>
-                        <span class="qlower-pricing-amount">49,99</span>
+                        <span class="qlower-pricing-amount">50</span>
                         <span class="qlower-pricing-period">/mois</span>
                     </div>
                 </div>
                 <div class="qlower-pricing-features">
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Analyse patrimoniale avancée</span>
+                        <span>Tous les avantages Initia</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Optimisation fiscale</span>
+                        <span>Optimisation du patrimoine existant</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Suivi illimité d'investissements</span>
+                        <span>Classes d'actifs supplémentaires</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Conseiller dédié</span>
-                    </div>
-                    <div class="qlower-pricing-feature">
-                        <i class="fas fa-check"></i>
-                        <span>Alertes en temps réel</span>
+                        <span>Réponses prioritaires</span>
                     </div>
                 </div>
                 <button type="button" class="qlower-pricing-btn" data-bs-toggle="modal" data-bs-target="#appointmentModal">Choisir OPTIMA</button>
@@ -1737,35 +1992,37 @@ body {
             <div class="qlower-pricing-card">
                 <div class="qlower-pricing-header">
                     <h3>ULTIMA</h3>
-                    <p class="qlower-pricing-subtitle">Gestion complète déléguée</p>
+                    <p class="qlower-pricing-subtitle">Pour des situations patrimoniales spécifiques et des enjeux complexes</p>
                     <div class="qlower-pricing-price">
-                        <span class="qlower-pricing-amount-custom">Sur devis</span>
+                        <span class="qlower-pricing-amount-custom">Nous consulter</span>
                     </div>
                 </div>
                 <div class="qlower-pricing-features">
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Gestion déléguée complète</span>
+                        <span>Tous les avantages Optima</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Conseiller patrimonial dédié</span>
+                        <span>Allocation multi-actifs avancée</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Stratégies avancées</span>
+                        <span>Optimisation de la transmission</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Support prioritaire 24/7</span>
-                    </div>
-                    <div class="qlower-pricing-feature">
-                        <i class="fas fa-check"></i>
-                        <span>Rapports personnalisés</span>
+                        <span>Problématiques patrimoniales spécifiques</span>
                     </div>
                 </div>
-                <a href="{{ url_for('site_pages.contact') }}" class="qlower-pricing-btn qlower-pricing-btn-outline">Nous contacter</a>
+                <a href="{{ url_for('site_pages.contact') }}" class="qlower-pricing-btn qlower-pricing-btn-outline">Sur devis</a>
             </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <p style="font-size: 14px; color: #666; font-style: italic;">
+                Tarifs TTC. Sans engagement. Vous restez libre de résilier à tout moment.
+            </p>
         </div>
     </div>
 </section>
@@ -1776,124 +2033,64 @@ body {
         <div class="qlower-cta-content">
             <h2 class="qlower-cta-title">Prêt à optimiser votre patrimoine ?</h2>
             <p class="qlower-cta-subtitle">
-                Rejoignez plus de 10 000 investisseurs qui font confiance à Atlas pour leur gestion patrimoniale
+                Rejoignez la communauté Atlas
             </p>
             <div class="qlower-cta-actions">
                 <button type="button" class="qlower-btn-cta-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">Prendre un RDV gratuit</button>
-                <a href="#demo" class="qlower-btn-cta-secondary">Voir la démo</a>
             </div>
         </div>
     </div>
 </section>
 
-<!-- EXACT FAQ SECTION REPLICA -->
-<section class="qlower-faq-section">
+<!-- ATLAS BENEFITS SECTION - Green Background -->
+<section style="padding: 80px 0; background: var(--qlower-primary); color: white;">
     <div class="qlower-section-container">
-        <div class="qlower-section-header">
-            <h2 class="qlower-section-title">Questions fréquentes</h2>
-            <p class="qlower-section-subtitle">
-                Trouvez rapidement les réponses aux questions les plus courantes sur Atlas
-            </p>
+        <div class="qlower-section-header" style="text-align: center; margin-bottom: 50px;">
+            <h2 style="font-size: 32px; color: white; margin-bottom: 20px; font-weight: 700; font-family: 'Encode Sans Condensed', sans-serif;">
+                Ce que vous apporte Atlas, concrètement :
+            </h2>
         </div>
         
-        <div class="qlower-faq-grid">
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Comment fonctionne l'analyse patrimoniale d'Atlas ?</h4>
-                    <i class="fas fa-chevron-down"></i>
+        <div style="max-width: 800px; margin: 0 auto;">
+            <div style="display: flex; flex-direction: column; gap: 30px;">
+                <!-- Benefit 1 -->
+                <div style="display: flex; align-items: flex-start; gap: 20px;">
+                    <div style="width: 8px; height: 8px; background: white; border-radius: 50%; margin-top: 8px; flex-shrink: 0;"></div>
+                    <p style="font-size: 18px; line-height: 1.6; margin: 0; color: white;">
+                        <strong>Un interlocuteur humain et dédié</strong>, disponible pour vous accompagner dans vos décisions d'investissement.
+                    </p>
                 </div>
-                <div class="qlower-faq-answer">
-                    <p>Notre algorithme analyse votre situation financière en quelques minutes grâce à un questionnaire détaillé. Il prend en compte vos revenus, charges, objectifs et profil de risque pour vous proposer une stratégie personnalisée.</p>
+                
+                <!-- Benefit 2 -->
+                <div style="display: flex; align-items: flex-start; gap: 20px;">
+                    <div style="width: 8px; height: 8px; background: white; border-radius: 50%; margin-top: 8px; flex-shrink: 0;"></div>
+                    <p style="font-size: 18px; line-height: 1.6; margin: 0; color: white;">
+                        <strong>Des recommandations réellement indépendantes</strong>, sans produits à vendre ni biais commercial.
+                    </p>
                 </div>
-            </div>
-            
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Puis-je faire confiance à une plateforme digitale pour mes finances ?</h4>
-                    <i class="fas fa-chevron-down"></i>
+                
+                <!-- Benefit 3 -->
+                <div style="display: flex; align-items: flex-start; gap: 20px;">
+                    <div style="width: 8px; height: 8px; background: white; border-radius: 50%; margin-top: 8px; flex-shrink: 0;"></div>
+                    <p style="font-size: 18px; line-height: 1.6; margin: 0; color: white;">
+                        <strong>Une attention particulière portée aux frais</strong>, afin de préserver la performance sur le long terme.
+                    </p>
                 </div>
-                <div class="qlower-faq-answer">
-                    <p>Atlas est agréé par l'AMF et l'ACPR. Vos données sont cryptées et sécurisées selon les standards bancaires. De plus, nos conseillers certifiés supervisent toutes les recommandations de l'IA.</p>
+                
+                <!-- Benefit 4 -->
+                <div style="display: flex; align-items: flex-start; gap: 20px;">
+                    <div style="width: 8px; height: 8px; background: white; border-radius: 50%; margin-top: 8px; flex-shrink: 0;"></div>
+                    <p style="font-size: 18px; line-height: 1.6; margin: 0; color: white;">
+                        <strong>Des ressources pédagogiques ciblées sur l'essentiel</strong>, pour comprendre ce qui compte vraiment et progresser.
+                    </p>
                 </div>
-            </div>
-            
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Quelle est la différence entre INITIA, OPTIMA et ULTIMA ?</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="qlower-faq-answer">
-                    <p>INITIA (24,99€) convient aux débutants avec un suivi basique. OPTIMA (49,99€) inclut l'optimisation fiscale et un conseiller dédié. ULTIMA offre une gestion complètement déléguée sur devis.</p>
-                </div>
-            </div>
-            
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Combien de temps faut-il pour voir les premiers résultats ?</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="qlower-faq-answer">
-                    <p>Dès votre premier mois, vous recevrez votre analyse complète et vos premières recommandations. Les optimisations fiscales peuvent vous faire économiser des centaines d'euros immédiatement.</p>
-                </div>
-            </div>
-            
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Puis-je annuler mon abonnement à tout moment ?</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="qlower-faq-answer">
-                    <p>Oui, tous nos abonnements sont sans engagement. Vous pouvez annuler à tout moment depuis votre espace client en un clic.</p>
-                </div>
-            </div>
-            
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Atlas remplace-t-il mon conseiller bancaire traditionnel ?</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="qlower-faq-answer">
-                    <p>Atlas complète votre relation bancaire en vous donnant une vision globale et objective de vos finances. Nous ne vendons aucun produit financier, nos conseils sont donc totalement indépendants.</p>
-                </div>
-            </div>
-            
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Comment l'IA peut-elle personnaliser ses recommandations ?</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="qlower-faq-answer">
-                    <p>Notre IA analyse plus de 200 critères : âge, situation familiale, revenus, objectifs, aversion au risque, horizon de placement, situation fiscale... Elle s'enrichit constamment de nouvelles données marché.</p>
-                </div>
-            </div>
-            
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Que se passe-t-il si je change d'avis sur mes objectifs ?</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="qlower-faq-answer">
-                    <p>Vos recommandations s'adaptent en temps réel à vos changements de situation. Vous pouvez modifier vos objectifs à tout moment et recevoir de nouvelles stratégies immédiatement.</p>
-                </div>
-            </div>
-            
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Atlas gère-t-il tous types d'investissements ?</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="qlower-faq-answer">
-                    <p>Nous couvrons l'ensemble des classes d'actifs : actions, obligations, immobilier, crypto-monnaies, livrets, assurance-vie, PER, SCPI... Une vision complète de votre patrimoine.</p>
-                </div>
-            </div>
-            
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Comment contacter le support client ?</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="qlower-faq-answer">
-                    <p>Notre équipe support est disponible par chat 7j/7, email, ou téléphone. Les abonnés OPTIMA et ULTIMA bénéficient d'un conseiller dédié avec prise de rendez-vous en ligne.</p>
+                
+                <!-- Benefit 5 -->
+                <div style="display: flex; align-items: flex-start; gap: 20px;">
+                    <div style="width: 8px; height: 8px; background: white; border-radius: 50%; margin-top: 8px; flex-shrink: 0;"></div>
+                    <p style="font-size: 18px; line-height: 1.6; margin: 0; color: white;">
+                        <strong>Une plateforme dédiée</strong>, pour suivre votre stratégie et rester aligné avec vos objectifs dans le temps.
+                    </p>
                 </div>
             </div>
         </div>
