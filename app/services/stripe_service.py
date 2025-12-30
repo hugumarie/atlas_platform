@@ -19,45 +19,100 @@ logger = logging.getLogger(__name__)
 class StripeService:
     """Service principal pour les interactions avec Stripe"""
     
-    def __init__(self):
-        self.load_config()
+    def __init__(self, safe_mode=None):
+        """
+        Initialise le service Stripe
+        
+        Args:
+            safe_mode (bool): Si True, n'exige pas les variables Stripe (pour migrations/tests)
+        """
+        self.safe_mode = safe_mode if safe_mode is not None else os.getenv('STRIPE_SAFE_MODE', 'false').lower() == 'true'
+        self._initialized = False
+        
+        # Initialisation différée seulement si pas en mode safe
+        if not self.safe_mode:
+            self.load_config()
+        else:
+            self._setup_safe_mode()
+        
+    def _setup_safe_mode(self):
+        """Configure le service en mode safe (sans Stripe) pour les migrations/tests"""
+        self.publishable_key = None
+        self.secret_key = None 
+        self.webhook_secret = None
+        self.price_mapping = {}
+        self.success_url = 'https://atlas-invest.fr/plateforme/dashboard'
+        self.cancel_url = 'https://atlas-invest.fr/onboarding/plan'
+        self._initialized = True
+        logger.info("StripeService initialisé en mode SAFE (sans Stripe)")
         
     def load_config(self):
         """Charge la configuration Stripe depuis les variables d'environnement"""
-        # Configuration de Stripe - priorité aux variables d'environnement système
-        stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
-        
-        # Clés et IDs
-        self.publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
-        self.secret_key = os.getenv('STRIPE_SECRET_KEY')
-        self.webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
-        
-        # Price IDs pour les plans
-        self.price_mapping = {
-            'initia': os.getenv('STRIPE_PRICE_INITIA'),
-            'optima': os.getenv('STRIPE_PRICE_OPTIMA'),
-            'maxima': os.getenv('STRIPE_PRICE_MAXIMA')
-        }
-        
-        # URLs - adaptation automatique selon l'environnement
-        base_url = os.getenv('SITE_URL', 'https://atlas-invest.fr')
-        self.success_url = os.getenv('STRIPE_SUCCESS_URL', f'{base_url}/plateforme/dashboard')
-        self.cancel_url = os.getenv('STRIPE_CANCEL_URL', f'{base_url}/onboarding/plan')
-        
-        # Vérification de configuration
-        if not self.secret_key:
-            logger.error("STRIPE_SECRET_KEY non configurée!")
-            raise ValueError("Configuration Stripe incomplète: STRIPE_SECRET_KEY manquante")
-        
-        logger.info("Configuration Stripe chargée (Production)")
+        try:
+            # Configuration de Stripe - priorité aux variables d'environnement système
+            self.secret_key = os.getenv('STRIPE_SECRET_KEY')
+            
+            # Si pas de clé secrète et pas en mode safe, passer en mode safe
+            if not self.secret_key:
+                if not self.safe_mode:
+                    logger.warning("STRIPE_SECRET_KEY manquante - activation du mode SAFE")
+                    self.safe_mode = True
+                    self._setup_safe_mode()
+                    return
+                else:
+                    raise ValueError("Configuration Stripe incomplète: STRIPE_SECRET_KEY manquante")
+            
+            # Configuration complète Stripe
+            stripe.api_key = self.secret_key
+            
+            # Clés et IDs
+            self.publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
+            self.webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
+            
+            # Price IDs pour les plans
+            self.price_mapping = {
+                'initia': os.getenv('STRIPE_PRICE_INITIA'),
+                'optima': os.getenv('STRIPE_PRICE_OPTIMA'), 
+                'maxima': os.getenv('STRIPE_PRICE_MAXIMA')
+            }
+            
+            # URLs - adaptation automatique selon l'environnement
+            base_url = os.getenv('SITE_URL', 'https://atlas-invest.fr')
+            self.success_url = os.getenv('STRIPE_SUCCESS_URL', f'{base_url}/plateforme/dashboard')
+            self.cancel_url = os.getenv('STRIPE_CANCEL_URL', f'{base_url}/onboarding/plan')
+            
+            self._initialized = True
+            logger.info("Configuration Stripe chargée (Production)")
+            
+        except Exception as e:
+            if self.safe_mode:
+                logger.warning(f"Erreur configuration Stripe en mode safe: {e}")
+                self._setup_safe_mode()
+            else:
+                logger.error(f"Erreur configuration Stripe: {e}")
+                raise
+    
+    def _check_stripe_available(self):
+        """Vérifie si Stripe est disponible (pas en mode safe)"""
+        if self.safe_mode or not self._initialized:
+            raise RuntimeError("Stripe non disponible - service en mode SAFE ou non initialisé")
+        return True
     
     def get_publishable_key(self):
         """Retourne la clé publique Stripe"""
+        if self.safe_mode:
+            logger.warning("get_publishable_key appelé en mode SAFE")
+            return None
         return self.publishable_key
     
     def get_or_create_customer(self, user):
         """Récupère ou crée un client Stripe pour l'utilisateur"""
+        if self.safe_mode:
+            logger.warning("get_or_create_customer appelé en mode SAFE - retour None")
+            return None
+            
         try:
+            self._check_stripe_available()
             # Vérifier si l'utilisateur a déjà un ID client
             if user.stripe_customer_id:
                 try:
