@@ -16,10 +16,12 @@ if [[ ! -f "app/__init__.py" ]]; then
     exit 1
 fi
 
-# Vérifier que git est propre
-if [[ -n $(git status --porcelain) ]]; then
+# Vérifier que git est propre (seulement les fichiers modifiés/supprimés, pas les untracked)
+if [[ -n $(git status --porcelain | grep -v '^??') ]]; then
     echo "❌ Erreur: Il y a des modifications non commitées"
     echo "   Faire d'abord: git add . && git commit -m 'message'"
+    echo "   Fichiers modifiés:"
+    git status --porcelain | grep -v '^??'
     exit 1
 fi
 
