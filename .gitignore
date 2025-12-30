@@ -73,4 +73,8 @@ logs/
 # Production builds
 dist/
 build/
-EOF < /dev/null.env.stripe
+
+# Fichiers chiffrés (ne jamais committer même si chiffrés)
+.env.production.enc
+.env.production.tmp
+*.enc

@@ -22,7 +22,7 @@ echo "📝 Création du fichier de configuration..."
 
 cat > "$TEMP_FILE" << 'EOF'
 # Configuration Production Atlas - FICHIER CHIFFRÉ
-# Remplace ces valeurs par tes vraies clés Stripe
+# Remplace ces valeurs par tes vraies clés
 
 # === STRIPE (OBLIGATOIRE) ===
 STRIPE_SECRET_KEY=sk_live_REMPLACE_PAR_TA_CLE_SECRETE
@@ -33,6 +33,9 @@ STRIPE_WEBHOOK_SECRET=whsec_REMPLACE_PAR_TON_SECRET_WEBHOOK
 STRIPE_PRICE_INITIA=price_REMPLACE_PAR_PRICE_ID_INITIA
 STRIPE_PRICE_OPTIMA=price_REMPLACE_PAR_PRICE_ID_OPTIMA  
 STRIPE_PRICE_MAXIMA=price_REMPLACE_PAR_PRICE_ID_MAXIMA
+
+# === OPENAI (OBLIGATOIRE POUR L'ASSISTANT IA) ===
+OPENAI_API_KEY=sk-proj-REMPLACE_PAR_TA_CLE_OPENAI
 
 # === URLs (ADAPTER SI NÉCESSAIRE) ===
 SITE_URL=https://atlas-invest.fr
