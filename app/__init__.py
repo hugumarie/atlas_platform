@@ -146,6 +146,13 @@ def create_app():
         except Exception as e:
             print(f"⚠️ Atlas: Erreur initialisation crypto: {e}")
             # Ne pas faire planter l'app si le chargement crypto échoue
+        
+        # Initialisation du service Stripe après la configuration de l'app
+        try:
+            from app.services.stripe_service import initialize_stripe_service
+            initialize_stripe_service()
+        except Exception as e:
+            print(f"⚠️ Atlas: Erreur initialisation Stripe: {e}")
     
     # Scheduler crypto désactivé - utilisation du cron externe à la place
     # from app.scheduler import start_scheduler

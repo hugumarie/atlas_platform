@@ -191,6 +191,15 @@ class InvestmentActionsService:
             # Mettre à jour le patrimoine si montant > 0
             if actual_amount > 0:
                 InvestmentActionsService._update_user_patrimony(user.investor_profile, action.support_type, actual_amount)
+                
+                # Recalculer tous les totaux patrimoniaux après mise à jour
+                from app.services.patrimony_calculation_engine import PatrimonyCalculationEngine
+                PatrimonyCalculationEngine.calculate_and_save_all(
+                    user.investor_profile, 
+                    force_recalculate=True, 
+                    save_to_db=True
+                )
+                print(f"🔄 Recalcul patrimonial effectué après validation action")
             
             db.session.commit()
             

@@ -10,14 +10,14 @@ Tu devras configurer ces variables sur le serveur Dokku :
 
 ```bash
 # Configuration Stripe (REMPLACER par tes vraies clés de production)
-dokku config:set atlas STRIPE_SECRET_KEY="sk_live_..." 
-dokku config:set atlas STRIPE_PUBLISHABLE_KEY="pk_live_..."
-dokku config:set atlas STRIPE_WEBHOOK_SECRET="whsec_..."
+dokku config:set atlas STRIPE_SECRET_KEY="6a0fe4db1862859ae8d32cae20bd702b" 
+dokku config:set atlas STRIPE_PUBLISHABLE_KEY="ce8f3d05b4cfdcff91d39191b7907f59"
+dokku config:set atlas STRIPE_WEBHOOK_SECRET="whsec_9nKYzWqDVTfxVSonKzbNoClsnczKrNPg"
 
 # Price IDs Stripe pour les plans
-dokku config:set atlas STRIPE_PRICE_INITIA="price_..." 
-dokku config:set atlas STRIPE_PRICE_OPTIMA="price_..."
-dokku config:set atlas STRIPE_PRICE_MAXIMA="price_..."
+dokku config:set atlas STRIPE_PRICE_INITIA="price_1SjhJQ9Xf1Dv1xrMjKaWn18F"
+dokku config:set atlas STRIPE_PRICE_OPTIMA="price_1SjhNK9Xf1Dv1xrMKlHu7R73"
+
 
 # Configuration site (adapter selon ton domaine)
 dokku config:set atlas SITE_URL="https://atlas-invest.fr"

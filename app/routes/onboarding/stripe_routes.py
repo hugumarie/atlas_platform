@@ -2,7 +2,7 @@
 Routes de gestion des paiements Stripe pour l'onboarding Atlas
 """
 
-from flask import Blueprint, request, jsonify, redirect, url_for, flash, current_app
+from flask import Blueprint, request, jsonify, redirect, url_for, flash, current_app, render_template
 from flask_login import login_required, current_user
 import stripe
 import logging
@@ -76,6 +76,12 @@ def payment_success():
             session = stripe.checkout.Session.retrieve(session_id)
             
             if session.payment_status == 'paid':
+                # Debug: voir le contenu de la session
+                print(f"🔍 Session payment_status: {session.payment_status}")
+                print(f"🔍 Session metadata: {getattr(session, 'metadata', 'NO METADATA')}")
+                print(f"🔍 Session customer: {getattr(session, 'customer', 'NO CUSTOMER')}")
+                print(f"🔍 Session subscription: {getattr(session, 'subscription', 'NO SUBSCRIPTION')}")
+                
                 # Traiter le paiement manuellement si le webhook a échoué
                 success = stripe_service.handle_successful_payment(session)
                 
@@ -85,9 +91,10 @@ def payment_success():
                 else:
                     flash('Paiement validé, activation en cours...', 'info')
                     logger.warning(f"Échec activation manuelle pour session {session_id}")
+                    print(f"❌ Échec activation pour session {session_id}")
                 
-                # Rediriger toujours vers le dashboard
-                return redirect(url_for('platform_investor.dashboard'))
+                # Afficher la page de célébration avant le dashboard
+                return render_template('onboarding/payment_success.html')
             else:
                 flash('Le paiement n\'est pas encore confirmé. Veuillez patienter.', 'warning')
                 return redirect(url_for('onboarding.plan_selection'))
@@ -135,6 +142,11 @@ def stripe_config():
     return jsonify({
         'publishableKey': stripe_service.get_publishable_key()
     })
+
+@stripe_bp.route('/test-success')
+def test_success():
+    """Test de la page de félicitations sans paiement"""
+    return render_template('onboarding/payment_success.html')
 
 @stripe_bp.route('/portal', methods=['POST'])
 @login_required

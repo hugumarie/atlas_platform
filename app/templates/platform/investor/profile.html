@@ -68,33 +68,33 @@
                             <div class="plan-subtitle">Pour débuter sereinement</div>
                         </div>
                         <div class="plan-price">
-                            <span class="price-amount">€24,99</span>
+                            <span class="price-amount">€25</span>
                             <span class="price-period">/mois</span>
                         </div>
                         <div class="plan-features">
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Analyse patrimoniale de base</span>
+                                <span>Analyse de situation patrimoniale</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Recommandations personnalisées</span>
+                                <span>Stratégie d'investissement personnalisée</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Suivi de 3 investissements</span>
+                                <span>Tableau de bord Atlas</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Assistant IA de base</span>
+                                <span>Pilotage de vos investissements</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Support par email</span>
+                                <span>Contenus pédagogiques</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Formations vidéo essentielles</span>
+                                <span>Accompagnement 100% indépendant</span>
                             </div>
                         </div>
                     </div>
@@ -109,41 +109,33 @@
                             <div class="plan-subtitle">Pour structurer votre patrimoine</div>
                         </div>
                         <div class="plan-price">
-                            <span class="price-amount">€49,99</span>
+                            <span class="price-amount">€50</span>
                             <span class="price-period">/mois</span>
                         </div>
                         <div class="plan-features">
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Analyse patrimoniale avancée</span>
+                                <span>Tout INITIA inclus</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Optimisation fiscale complète</span>
+                                <span>Optimisation patrimoine existant</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Suivi illimité d'investissements</span>
+                                <span>Classes d'actifs supplémentaires</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Assistant IA avancé 24/7</span>
+                                <span>Allocation multi-actifs</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Conseiller dédié (1h/mois)</span>
+                                <span>Optimisation transmission</span>
                             </div>
                             <div class="feature-item">
                                 <i class="fas fa-check"></i>
-                                <span>Alertes en temps réel</span>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-check"></i>
-                                <span>Formations complètes</span>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-check"></i>
-                                <span>Rapports mensuels détaillés</span>
+                                <span>Problématiques spécifiques</span>
                             </div>
                         </div>
                     </div>
@@ -181,6 +173,11 @@
                     <i class="fas fa-exchange-alt"></i>
                     Changer d'abonnement
                 </button>
+                
+                <button class="platform-btn platform-btn-cancel-subscription" onclick="showCancelSubscriptionModal()">
+                    <i class="fas fa-times-circle"></i>
+                    Se désabonner
+                </button>
             </div>
             {% else %}
             <div class="no-subscription">
@@ -206,70 +203,42 @@
             <p class="platform-card-subtitle">Gérez vos cartes de paiement</p>
         </div>
         <div class="platform-card-body">
-            <div class="payment-methods">
-                {% if current_user.payment_methods and current_user.payment_methods|length > 0 %}
-                    {% for payment_method in current_user.payment_methods %}
-                    <div class="payment-card {{ 'payment-default' if payment_method.is_default }}">
-                        <div class="payment-info">
-                            <div class="payment-logo">
-                                {% if payment_method.card_type == 'visa' %}
-                                    <div class="card-logo visa-logo">
-                                        <span>VISA</span>
-                                    </div>
-                                {% elif payment_method.card_type == 'mastercard' %}
-                                    <div class="card-logo mastercard-logo">
-                                        <div class="mc-circle mc-red"></div>
-                                        <div class="mc-circle mc-yellow"></div>
-                                    </div>
-                                {% elif payment_method.card_type == 'amex' %}
-                                    <div class="card-logo amex-logo">
-                                        <span>AMEX</span>
-                                    </div>
-                                {% else %}
-                                    <div class="card-logo generic-logo">
-                                        <i class="fas fa-credit-card"></i>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="payment-details">
-                                <div class="payment-number">{{ payment_method.get_masked_number() }}</div>
-                                <div class="payment-meta">
-                                    <span class="payment-name">{{ payment_method.cardholder_name }}</span>
-                                    <span class="payment-expiry">{{ payment_method.get_expiry_display() }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="payment-actions">
-                            {% if payment_method.is_default %}
-                                <span class="payment-badge">Par défaut</span>
-                            {% else %}
-                                <button class="payment-btn-secondary" onclick="setDefaultPayment({{ payment_method.id }})">
-                                    Définir par défaut
-                                </button>
-                            {% endif %}
-                            
-                            <button class="payment-btn-danger" onclick="removePayment({{ payment_method.id }})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
+            <div id="payment-methods-container">
+                <div id="payment-methods-loading" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                    <p style="margin-top: 16px;">Chargement des moyens de paiement...</p>
+                </div>
+                
+                <div id="payment-methods-list" style="display: none;">
+                    <!-- Les moyens de paiement seront injectés ici via JavaScript -->
+                </div>
+                
+                <div id="payment-methods-empty" style="display: none;">
                     <div class="no-payment-methods">
                         <i class="fas fa-credit-card"></i>
                         <h4>Aucun moyen de paiement</h4>
                         <p>Ajoutez une carte pour faciliter vos paiements.</p>
                     </div>
-                {% endif %}
+                </div>
+                
+                <div id="payment-methods-error" style="display: none;">
+                    <div class="no-payment-methods">
+                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                        <h4>Erreur de chargement</h4>
+                        <p>Impossible de récupérer vos moyens de paiement. <button onclick="loadPaymentMethods()" class="btn btn-link p-0">Réessayer</button></p>
+                    </div>
+                </div>
             </div>
             
             <div class="payment-add-section">
-                <button class="platform-btn platform-btn-primary" onclick="showAddPaymentModal()">
+                <button class="platform-btn platform-btn-primary" onclick="addPaymentMethodWithCheckout()">
                     <i class="fas fa-plus"></i>
                     Ajouter un nouveau moyen de paiement
                 </button>
+                <p style="font-size: 12px; color: #6b7280; margin-top: 8px; text-align: center;">
+                    <i class="fas fa-shield-alt"></i>
+                    Sécurisé par Stripe - Vos données ne transitent jamais par nos serveurs
+                </p>
             </div>
         </div>
     </div>
@@ -284,45 +253,36 @@
             <p class="platform-card-subtitle">Téléchargez vos factures mensuelles</p>
         </div>
         <div class="platform-card-body">
-            <div class="invoice-generator">
-                <div class="invoice-form">
-                    <div class="form-group">
-                        <label for="invoiceMonth">Mois</label>
-                        <select id="invoiceMonth" class="form-control">
-                            <option value="01">Janvier</option>
-                            <option value="02">Février</option>
-                            <option value="03">Mars</option>
-                            <option value="04">Avril</option>
-                            <option value="05">Mai</option>
-                            <option value="06">Juin</option>
-                            <option value="07">Juillet</option>
-                            <option value="08">Août</option>
-                            <option value="09">Septembre</option>
-                            <option value="10" selected>Octobre</option>
-                            <option value="11">Novembre</option>
-                            <option value="12">Décembre</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="invoiceYear">Année</label>
-                        <select id="invoiceYear" class="form-control">
-                            <option value="2023">2023</option>
-                            <option value="2024" selected>2024</option>
-                            <option value="2025">2025</option>
-                        </select>
-                    </div>
-                    
-                    <button class="platform-btn platform-btn-primary" onclick="generateInvoice()">
-                        <i class="fas fa-download"></i>
-                        Générer la facture PDF
-                    </button>
+            <div id="invoices-container">
+                <div id="invoices-loading" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                    <p style="margin-top: 16px;">Chargement de vos factures...</p>
                 </div>
                 
-                <div class="invoice-info">
-                    <i class="fas fa-info-circle"></i>
-                    <p>Les factures sont générées automatiquement à partir de votre historique d'abonnement. Sélectionnez le mois et l'année souhaités.</p>
+                <div id="invoices-list" style="display: none;">
+                    <!-- Les factures seront injectées ici via JavaScript -->
                 </div>
+                
+                <div id="invoices-empty" style="display: none;">
+                    <div class="no-invoices">
+                        <i class="fas fa-file-invoice"></i>
+                        <h4>Aucune facture disponible</h4>
+                        <p>Vos factures apparaîtront ici après vos premiers paiements.</p>
+                    </div>
+                </div>
+                
+                <div id="invoices-error" style="display: none;">
+                    <div class="no-invoices">
+                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                        <h4>Erreur de chargement</h4>
+                        <p>Impossible de récupérer vos factures. <button onclick="loadInvoices()" class="btn btn-link p-0">Réessayer</button></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="invoice-info">
+                <i class="fas fa-info-circle"></i>
+                <p>Vos factures sont automatiquement générées par Stripe lors de chaque paiement. Cliquez sur "Télécharger" pour obtenir le PDF officiel.</p>
             </div>
         </div>
     </div>
@@ -339,50 +299,124 @@
             <div class="plans-grid">
                 <div class="plan-option" data-plan="initia">
                     <div class="plan-name">INITIA</div>
-                    <div class="plan-price">24,99€<span>/mois</span></div>
+                    <div class="plan-subtitle">"Pour débuter dans l'investissement"</div>
+                    <div class="plan-price">25€<span>/mois</span></div>
                     <div class="plan-features">
-                        <div class="feature">✓ Tableau de bord personnalisé</div>
-                        <div class="feature">✓ Suivi de portefeuille</div>
-                        <div class="feature">✓ Formations de base</div>
+                        <div class="feature">✓ Analyse de situation patrimoniale</div>
+                        <div class="feature">✓ Stratégie d'investissement personnalisée</div>
+                        <div class="feature">✓ Tableau de bord Atlas</div>
+                        <div class="feature">✓ Pilotage de vos investissements</div>
+                        <div class="feature">✓ Contenus pédagogiques</div>
+                        <div class="feature">✓ Accompagnement 100% indépendant</div>
                     </div>
                     {% if current_user.subscription and current_user.subscription.tier == 'initia' %}
                     <button class="plan-btn plan-btn-current">Plan actuel</button>
                     {% else %}
-                    <button class="plan-btn plan-btn-select" onclick="changePlan('initia')">Choisir</button>
+                    <button class="plan-btn plan-btn-select" onclick="changePlan('initia')">
+                        {% if current_user.subscription and current_user.subscription.tier == 'optima' %}
+                        Rétrograder
+                        {% else %}
+                        Choisir ce plan
+                        {% endif %}
+                    </button>
                     {% endif %}
                 </div>
                 
-                <div class="plan-option" data-plan="optima">
+                <div class="plan-option plan-popular" data-plan="optima">
+                    <div class="plan-badge-popular">Le plus populaire</div>
                     <div class="plan-name">OPTIMA</div>
-                    <div class="plan-price">49,99€<span>/mois</span></div>
+                    <div class="plan-subtitle">"Pour structurer et optimiser son patrimoine existant"</div>
+                    <div class="plan-price">50€<span>/mois</span></div>
                     <div class="plan-features">
-                        <div class="feature">✓ Tout INITIA</div>
-                        <div class="feature">✓ Conseiller IA avancé</div>
-                        <div class="feature">✓ Formations premium</div>
-                        <div class="feature">✓ Analyses approfondies</div>
+                        <div class="feature">✓ Tout INITIA inclus</div>
+                        <div class="feature">✓ Optimisation patrimoine existant</div>
+                        <div class="feature">✓ Classes d'actifs supplémentaires</div>
+                        <div class="feature">✓ Allocation multi-actifs</div>
+                        <div class="feature">✓ Optimisation transmission</div>
+                        <div class="feature">✓ Problématiques spécifiques</div>
                     </div>
                     {% if current_user.subscription and current_user.subscription.tier == 'optima' %}
                     <button class="plan-btn plan-btn-current">Plan actuel</button>
                     {% else %}
-                    <button class="plan-btn plan-btn-select" onclick="changePlan('optima')">Choisir</button>
+                    <button class="plan-btn plan-btn-select plan-btn-upgrade" onclick="changePlan('optima')">
+                        {% if current_user.subscription and current_user.subscription.tier == 'initia' %}
+                        Passer à OPTIMA
+                        {% else %}
+                        Choisir ce plan
+                        {% endif %}
+                    </button>
                     {% endif %}
                 </div>
                 
                 <div class="plan-option" data-plan="ultima">
                     <div class="plan-name">ULTIMA</div>
-                    <div class="plan-price">Sur devis</div>
+                    <div class="plan-subtitle">"Pour des situations patrimoniales spécifiques"</div>
+                    <div class="plan-price">Nous consulter</div>
                     <div class="plan-features">
-                        <div class="feature">✓ Tout OPTIMA</div>
-                        <div class="feature">✓ Support prioritaire</div>
-                        <div class="feature">✓ Gestion patrimoniale</div>
-                        <div class="feature">✓ Conseils personnalisés</div>
+                        <div class="feature">✓ Tout OPTIMA inclus</div>
+                        <div class="feature">✓ Gestion patrimoniale premium</div>
+                        <div class="feature">✓ Support prioritaire dédié</div>
+                        <div class="feature">✓ Conseils sur-mesure</div>
+                        <div class="feature">✓ Accompagnement VIP</div>
+                        <div class="feature">✓ Solutions personnalisées</div>
                     </div>
                     {% if current_user.subscription and current_user.subscription.tier == 'ultima' %}
                     <button class="plan-btn plan-btn-current">Plan actuel</button>
                     {% else %}
-                    <button class="plan-btn plan-btn-select" onclick="changePlan('ultima')">Choisir</button>
+                    <button class="plan-btn plan-btn-select plan-btn-contact" onclick="contactForUltima()">
+                        Nous contacter
+                    </button>
                     {% endif %}
                 </div>
+            </div>
+            
+            <!-- Disclaimer -->
+            <div class="plan-disclaimer">
+                <p><small>Tarifs TTC. Sans engagement. Vous restez libre de résilier à tout moment.</small></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Annulation Abonnement -->
+<div id="cancelSubscriptionModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content modal-warning">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle text-warning"></i> Annuler votre abonnement</h3>
+            <button class="modal-close" onclick="hideCancelSubscriptionModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="text-align: center; padding: 20px;">
+                <div style="background: #fef3c7; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                    <h4 style="margin: 0; color: #92400e;">Annuler votre abonnement</h4>
+                    <p style="margin: 8px 0 0 0; color: #78350f;">Votre accès se terminera à la fin de la période en cours.</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label for="cancellationReason" style="display: block; margin-bottom: 8px; font-weight: 500;">Pourquoi partez-vous ? (optionnel)</label>
+                    <select id="cancellationReason" class="form-control">
+                        <option value="">Sélectionner...</option>
+                        <option value="price">Trop cher</option>
+                        <option value="features">Pas assez de fonctionnalités</option>
+                        <option value="unused">Je n'utilise pas assez</option>
+                        <option value="temporary">Situation temporaire</option>
+                        <option value="other">Autre raison</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="platform-btn platform-btn-secondary" onclick="hideCancelSubscriptionModal()">
+                    Annuler
+                </button>
+                
+                <button type="button" class="platform-btn platform-btn-outline" onclick="downgradeToPlan()" style="background: #f59e0b; color: white; border-color: #f59e0b;">
+                    Passer à 25€/mois plutôt
+                </button>
+                
+                <button type="button" class="platform-btn platform-btn-danger" onclick="directCancellation()">
+                    Confirmer l'arrêt
+                </button>
             </div>
         </div>
     </div>
@@ -443,93 +477,10 @@
             </form>
         </div>
     </div>
-</div>\n\n<!-- Modal Ajout Moyen de Paiement -->
-<div id="paymentModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Ajouter un moyen de paiement</h3>
-            <button class="modal-close" onclick="hideAddPaymentModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <form id="paymentForm" class="payment-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="cardNumber">Numéro de carte *</label>
-                        <input type="text" id="cardNumber" name="cardNumber" class="form-control" 
-                               placeholder="1234 5678 9012 3456" maxlength="19" required>
-                        <div class="card-type-indicator" id="cardTypeIndicator"></div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group form-group-half">
-                        <label for="expiryMonth">Mois d'expiration *</label>
-                        <select id="expiryMonth" name="expiryMonth" class="form-control" required>
-                            <option value="">Mois</option>
-                            <option value="01">01</option>
-                            <option value="02">02</option>
-                            <option value="03">03</option>
-                            <option value="04">04</option>
-                            <option value="05">05</option>
-                            <option value="06">06</option>
-                            <option value="07">07</option>
-                            <option value="08">08</option>
-                            <option value="09">09</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                            <option value="12">12</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group form-group-half">
-                        <label for="expiryYear">Année d'expiration *</label>
-                        <select id="expiryYear" name="expiryYear" class="form-control" required>
-                            <option value="">Année</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
-                            <option value="2026">2026</option>
-                            <option value="2027">2027</option>
-                            <option value="2028">2028</option>
-                            <option value="2029">2029</option>
-                            <option value="2030">2030</option>
-                            <option value="2031">2031</option>
-                            <option value="2032">2032</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="cardholderName">Nom du porteur *</label>
-                        <input type="text" id="cardholderName" name="cardholderName" class="form-control" 
-                               placeholder="Nom tel qu'il apparaît sur la carte" 
-                               value="{{ current_user.first_name }} {{ current_user.last_name }}" required>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="checkbox-container">
-                            <input type="checkbox" id="setAsDefault" name="setAsDefault">
-                            <span class="checkmark"></span>
-                            Définir comme moyen de paiement par défaut
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="modal-actions">
-                    <button type="button" class="platform-btn platform-btn-secondary" onclick="hideAddPaymentModal()">
-                        Annuler
-                    </button>
-                    <button type="submit" class="platform-btn platform-btn-primary">
-                        <i class="fas fa-save"></i>
-                        Ajouter la carte
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 </div>
+
+<!-- Modal Ajout Moyen de Paiement avec Stripe Elements -->
+<!-- Modal supprimé - On utilise maintenant Stripe Checkout -->
 
 <style>
 /* Profile Container */
@@ -727,9 +678,31 @@
 }
 
 .subscription-actions {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
     padding-top: 16px;
     border-top: 1px solid var(--qlower-border);
+}
+
+.platform-btn-cancel-subscription {
+    background: none;
+    border: 1px solid #d1d5db;
+    color: #6b7280;
+    font-size: 13px;
+    padding: 8px 12px;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.platform-btn-cancel-subscription:hover {
+    background: #f3f4f6;
+    color: #374151;
+    opacity: 1;
+}
+
+.platform-btn-cancel-subscription i {
+    font-size: 12px;
 }
 
 .no-subscription {
@@ -810,6 +783,318 @@
     line-height: 1.5;
 }
 
+/* Plan Modal Styles */
+.plan-subtitle {
+    font-size: 12px;
+    color: #6b7280;
+    font-style: italic;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.plan-popular {
+    position: relative;
+    border-color: #f59e0b !important;
+    box-shadow: 0 4px 25px rgba(245, 158, 11, 0.2) !important;
+}
+
+.plan-badge-popular {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.plan-btn-upgrade {
+    background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+    color: white;
+}
+
+.plan-btn-upgrade:hover {
+    background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+}
+
+.plan-btn-contact {
+    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    color: white;
+}
+
+.plan-btn-contact:hover {
+    background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 100%);
+}
+
+.plan-disclaimer {
+    margin-top: 24px;
+    text-align: center;
+    padding-top: 16px;
+    border-top: 1px solid var(--qlower-border);
+}
+
+.plan-disclaimer small {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+/* Modal Cancellation */
+.modal-warning {
+    border-top: 4px solid #f59e0b;
+}
+
+.cancellation-warning {
+    display: grid;
+    gap: 20px;
+}
+
+.warning-message {
+    text-align: center;
+    padding: 16px;
+    background: #fef3c7;
+    border-radius: 8px;
+    border-left: 4px solid #f59e0b;
+}
+
+.warning-message h4 {
+    color: #92400e;
+    margin-bottom: 8px;
+}
+
+.warning-message p {
+    color: #78350f;
+    margin: 0;
+}
+
+.cancellation-consequences {
+    display: grid;
+    gap: 12px;
+}
+
+.consequence-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.consequence-item i {
+    margin-top: 2px;
+    width: 16px;
+    flex-shrink: 0;
+}
+
+.consequence-item strong {
+    display: block;
+    color: var(--qlower-dark);
+    margin-bottom: 4px;
+}
+
+.consequence-item span {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.cancellation-alternatives {
+    background: #e0f2fe;
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid #0284c7;
+}
+
+.cancellation-alternatives h5 {
+    color: #0c4a6e;
+    margin-bottom: 12px;
+}
+
+.cancellation-alternatives ul {
+    margin: 0;
+    padding-left: 16px;
+}
+
+.cancellation-alternatives li {
+    color: #075985;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.feedback-section {
+    display: grid;
+    gap: 12px;
+}
+
+.feedback-section label {
+    font-weight: 500;
+    color: var(--qlower-text-dark);
+}
+
+.platform-btn-outline {
+    background: none;
+    border: 2px solid var(--qlower-primary);
+    color: var(--qlower-primary);
+}
+
+.platform-btn-outline:hover {
+    background: var(--qlower-primary);
+    color: white;
+}
+
+/* Stripe Elements Styling */
+.stripe-security-notice {
+    background: #f0f9ff;
+    border: 1px solid #0ea5e9;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.security-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #0c4a6e;
+    margin-bottom: 8px;
+}
+
+.security-badge i {
+    font-size: 16px;
+}
+
+.stripe-security-notice p {
+    margin: 0;
+    font-size: 13px;
+    color: #075985;
+    line-height: 1.4;
+}
+
+.stripe-card-input {
+    border: 1px solid var(--qlower-border);
+    border-radius: 8px;
+    padding: 0;
+    background: white;
+    transition: all 0.2s ease;
+    min-height: 50px;
+    position: relative;
+    cursor: text;
+    display: block;
+    width: 100%;
+}
+
+.stripe-card-input:focus-within {
+    border-color: var(--qlower-primary);
+    box-shadow: 0 0 0 3px rgba(19, 124, 139, 0.1);
+}
+
+.stripe-card-input.stripe-complete {
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+/* S'assurer que Stripe Elements prend toute la largeur et est interactif */
+.stripe-card-input .StripeElement {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 48px !important;
+    border: none !important;
+    outline: none !important;
+    pointer-events: auto !important;
+    display: block !important;
+    padding: 12px 16px !important;
+    box-sizing: border-box !important;
+}
+
+.stripe-card-input .StripeElement--webkit-autofill {
+    background: transparent !important;
+}
+
+/* Forcer l'iframe Stripe à être interactive et visible */
+.stripe-card-input iframe {
+    pointer-events: auto !important;
+    width: 100% !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    border: none !important;
+    display: block !important;
+    background: transparent !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 1 !important;
+}
+
+/* Assurer que le container n'a pas de problèmes CSS */
+#stripe-card-element {
+    pointer-events: auto !important;
+    position: relative !important;
+    overflow: visible !important;
+    display: block !important;
+}
+
+/* Debug CSS pour identifier les problèmes */
+.stripe-card-input:empty:before {
+    content: "Chargement des champs Stripe...";
+    color: #9ca3af;
+    font-style: italic;
+    padding: 12px 16px;
+    display: block;
+}
+
+.stripe-error-message {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 6px;
+    min-height: 16px;
+}
+
+#stripe-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#stripe-submit-btn:disabled:hover {
+    background: var(--qlower-primary);
+    transform: none;
+}
+
+/* Messages d'état pour payment et invoices */
+.payment-empty-message, .no-invoices {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--qlower-text-light);
+}
+
+.payment-empty-message i, .no-invoices i {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.payment-empty-message h4, .no-invoices h4 {
+    color: var(--qlower-dark);
+    margin-bottom: 8px;
+}
+
+.payment-empty-message p, .no-invoices p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.payment-empty-message .btn-link, .no-invoices .btn-link {
+    color: var(--qlower-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.payment-empty-message .btn-link:hover, .no-invoices .btn-link:hover {
+    text-decoration: underline;
+}
+
 /* Modal */
 .modal-overlay {
     position: fixed;
@@ -823,6 +1108,7 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
+    pointer-events: auto;
 }
 
 .modal-content {
@@ -833,6 +1119,8 @@
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+    z-index: 1051;
 }
 
 .modal-header {
@@ -1113,6 +1401,24 @@
     color: white;
 }
 
+.payment-btn-disabled {
+    border: 1px solid #d1d5db;
+    color: #9ca3af;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: not-allowed;
+    background: #f9fafb;
+    transition: none;
+}
+
+.payment-btn-disabled:hover {
+    background: #f9fafb;
+    color: #9ca3af;
+    border-color: #d1d5db;
+}
+
 .payment-add-section {
     padding-top: 16px;
     border-top: 1px solid var(--qlower-border);
@@ -1262,7 +1568,12 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Stripe Elements -->
+<script src="https://js.stripe.com/v3/"></script>
 <script>
+// Vérifier que Stripe.js est bien chargé
+console.log('🔍 Vérification Stripe.js:', typeof Stripe !== 'undefined' ? '✅ Chargé' : '❌ Non chargé');
+
 // Fonctions de gestion des modales
 function showPlanSelector() {
     document.getElementById('planModal').style.display = 'flex';
@@ -1277,7 +1588,12 @@ function hidePlanSelector() {
 // Changement de plan
 function changePlan(planTier) {
     if (confirm(`Êtes-vous sûr de vouloir changer pour le plan ${planTier.toUpperCase()} ?`)) {
-        // Simuler le changement de plan
+        // Afficher un indicateur de chargement
+        const loadingMessage = "Traitement du changement de plan en cours...";
+        
+        // Afficher une notification de chargement (optionnel)
+        const originalConfirm = window.confirm;
+        
         fetch('/plateforme/profil/changer-plan', {
             method: 'POST',
             headers: {
@@ -1290,16 +1606,119 @@ function changePlan(planTier) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Plan changé avec succès !');
+                let successMessage = data.message;
+                
+                // Ajouter des informations sur la proration si c'est un upgrade
+                if (data.proration_message) {
+                    successMessage += '\n\n💳 ' + data.proration_message;
+                }
+                
+                // Ajouter des informations sur le downgrade
+                if (data.downgrade_message) {
+                    successMessage += '\n\n📋 ' + data.downgrade_message;
+                }
+                
+                // Ajouter les détails du nouveau plan
+                if (data.new_monthly_price) {
+                    successMessage += `\n\n📊 Nouveau tarif mensuel: ${data.new_monthly_price}€/mois`;
+                }
+                
+                // Afficher un avertissement si mode dégradé
+                if (data.warning) {
+                    successMessage += '\n\n⚠️ ' + data.warning;
+                }
+                
+                alert(successMessage);
                 location.reload();
             } else {
-                alert('Erreur lors du changement de plan: ' + data.message);
+                let errorMessage = 'Erreur lors du changement de plan: ' + data.message;
+                
+                // Messages spécifiques pour certaines erreurs
+                if (data.message.includes('ULTIMA')) {
+                    errorMessage += '\n\nVeuillez utiliser le bouton "Nous contacter" pour le plan ULTIMA.';
+                }
+                
+                alert(errorMessage);
             }
         })
         .catch(error => {
-            alert('Erreur lors du changement de plan.');
+            console.error('Erreur réseau:', error);
+            alert('Erreur de connexion lors du changement de plan. Veuillez réessayer ou nous contacter si le problème persiste.');
         });
     }
+}
+
+// Contact pour ULTIMA
+function contactForUltima() {
+    alert('Vous allez être redirigé vers notre équipe commerciale pour discuter du plan ULTIMA sur-mesure.');
+    // Ici on pourrait ouvrir un formulaire de contact ou rediriger vers une page de contact
+    window.open('mailto:contact@atlas-patrimoine.fr?subject=Demande plan ULTIMA&body=Bonjour, je souhaite obtenir plus d\'informations sur le plan ULTIMA et ses tarifs personnalisés.', '_blank');
+}
+
+// Gestion modal désabonnement
+function showCancelSubscriptionModal() {
+    document.getElementById('cancelSubscriptionModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function hideCancelSubscriptionModal() {
+    document.getElementById('cancelSubscriptionModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    
+    // Reset form
+    document.getElementById('cancellationReason').value = '';
+}
+
+function downgradeToPlan() {
+    if (confirm('Passer au plan INITIA à 25€/mois au lieu d\'annuler ?')) {
+        hideCancelSubscriptionModal();
+        changePlan('initia');
+    }
+}
+
+function directCancellation() {
+    const reason = document.getElementById('cancellationReason').value;
+    
+    if (confirm('Êtes-vous sûr de vouloir arrêter votre abonnement ?')) {
+        processCancellation(reason, null);
+    }
+}
+
+function processCancellation(reason, otherReason) {
+    const feedbackData = {
+        reason: reason,
+        other_reason: reason === 'other' ? otherReason : null
+    };
+    
+    fetch('/plateforme/profil/annuler-abonnement', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(feedbackData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideCancelSubscriptionModal();
+        
+        if (data.success) {
+            alert('✅ Votre abonnement a été annulé.\n\n' +
+                  'Vous conserverez l\'accès jusqu\'à la fin de votre période de facturation.\n\n' +
+                  'Merci d\'avoir utilisé Atlas. Nous espérons vous revoir bientôt !');
+            
+            // Rediriger vers la page d'accueil ou recharger
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            alert('❌ Erreur lors de l\'annulation: ' + (data.error || data.message));
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        hideCancelSubscriptionModal();
+        alert('❌ Erreur de connexion lors de l\'annulation. Veuillez réessayer ou nous contacter.');
+    });
 }
 
 // Edit Info Modal Functions
@@ -1401,10 +1820,99 @@ document.getElementById('planModal').addEventListener('click', function(e) {
     }
 });
 
-// Payment Methods Functions
-function showAddPaymentModal() {
-    document.getElementById('paymentModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+
+// Variables globales Stripe
+let stripe = null;
+let elements = null;
+let cardElement = null;
+
+// Initialiser Stripe à partir du backend
+async function initializeStripe() {
+    try {
+        console.log('🔄 Tentative d\'initialisation Stripe...');
+        console.log('🔍 Stripe global disponible:', typeof Stripe !== 'undefined');
+        
+        // Vérifier que Stripe.js est chargé
+        if (typeof Stripe === 'undefined') {
+            console.error('❌ Stripe.js non chargé !');
+            return false;
+        }
+        
+        // Récupérer la clé publique depuis le backend
+        console.log('📡 Appel vers /plateforme/profil/stripe-config...');
+        const response = await fetch('/plateforme/profil/stripe-config');
+        
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response OK:', response.ok);
+        
+        if (!response.ok) {
+            console.error('❌ Erreur HTTP:', response.status, response.statusText);
+            return false;
+        }
+        
+        const config = await response.json();
+        console.log('📡 Réponse du serveur:', config);
+        
+        if (config.success && config.publishable_key) {
+            console.log('🔑 Création instance Stripe avec clé:', config.publishable_key.substring(0, 20) + '...');
+            stripe = Stripe(config.publishable_key);
+            console.log('✅ Stripe initialisé avec succès !');
+            console.log('✅ Instance stripe:', !!stripe);
+            return true;
+        } else {
+            console.warn('⚠️ Stripe non disponible:', config.error || 'Configuration invalide');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Erreur initialisation Stripe:', error);
+        console.error('❌ Stack:', error.stack);
+        return false;
+    }
+}
+
+// Payment Methods Functions - Version simplifiée avec Stripe Checkout
+async function addPaymentMethodWithCheckout() {
+    try {
+        console.log('🔄 Démarrage ajout moyen de paiement...');
+        
+        // S'assurer que Stripe est initialisé
+        if (!stripe && !(await initializeStripe())) {
+            alert('❌ Service de paiement non disponible.\n\nVeuillez réessayer plus tard ou contactez le support.');
+            return;
+        }
+
+        console.log('✅ Stripe initialisé, création du SetupIntent...');
+
+        // Créer un SetupIntent côté serveur pour collecter les infos de paiement
+        const response = await fetch('/plateforme/profil/create-payment-setup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const setup = await response.json();
+        console.log('📡 Réponse SetupIntent:', setup);
+
+        if (!setup.success) {
+            alert(`❌ Erreur: ${setup.error}`);
+            return;
+        }
+
+        // Rediriger vers Stripe Checkout pour Setup
+        const { error } = await stripe.redirectToCheckout({
+            sessionId: setup.session_id
+        });
+
+        if (error) {
+            console.error('❌ Erreur redirection Stripe:', error);
+            alert(`❌ Erreur de redirection: ${error.message}`);
+        }
+
+    } catch (error) {
+        console.error('❌ Erreur ajout moyen de paiement:', error);
+        alert('❌ Une erreur est survenue. Veuillez réessayer.');
+    }
 }
 
 function hideAddPaymentModal() {
@@ -1412,12 +1920,293 @@ function hideAddPaymentModal() {
     document.body.style.overflow = 'auto';
     
     // Reset form
-    document.getElementById('paymentForm').reset();
-    document.getElementById('cardTypeIndicator').textContent = '';
+    document.getElementById('stripe-payment-form').reset();
+    document.getElementById('stripe-cardholder-name').value = '{{ current_user.first_name }} {{ current_user.last_name }}';
+    document.getElementById('stripe-set-as-default').checked = true;
+    
+    // Clear Stripe errors
+    const errorElement = document.getElementById('stripe-card-errors');
+    errorElement.textContent = '';
+    
+    if (cardElement) {
+        cardElement.clear();
+    }
+}
+
+// Configurer Stripe Elements
+function setupStripeElements() {
+    if (!stripe) {
+        console.error('❌ Stripe non initialisé');
+        return;
+    }
+    
+    console.log('🔧 Configuration Stripe Elements...');
+    
+    try {
+        // Détruire les anciens éléments s'ils existent
+        if (cardElement) {
+            try {
+                cardElement.unmount();
+                cardElement.destroy();
+            } catch (e) {
+                console.log('Ancien cardElement déjà détruit');
+            }
+        }
+        if (elements) {
+            try {
+                elements = null;
+            } catch (e) {}
+        }
+        
+        // Créer les elements avec la locale française
+        elements = stripe.elements({
+            locale: 'fr'
+        });
+        
+        console.log('✅ Stripe elements instance créée');
+        
+        // Style pour le champ carte - simplifié pour éviter les problèmes CSS
+        const style = {
+            base: {
+                fontSize: '16px',
+                color: '#424770',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                lineHeight: '1.5',
+                padding: '10px 14px',
+                '::placeholder': {
+                    color: '#a0a0a0',
+                },
+            },
+            invalid: {
+                color: '#dc2626',
+            },
+            complete: {
+                color: '#059669',
+            }
+        };
+        
+        // Options simplifiées pour éviter les conflits
+        const cardOptions = {
+            style: style,
+            hidePostalCode: true,
+            disableLink: true,
+        };
+        
+        // Créer le champ carte
+        cardElement = elements.create('card', cardOptions);
+        
+        console.log('✅ Card element créé');
+        
+        // Vérifier que le container existe avant de monter
+        const container = document.getElementById('stripe-card-element');
+        if (!container) {
+            console.error('❌ Container #stripe-card-element introuvable');
+            return;
+        }
+        
+        // Vider le container avant de monter
+        container.innerHTML = '';
+        
+        // Monter le champ dans le DOM
+        cardElement.mount('#stripe-card-element');
+        console.log('✅ Card element monté dans le DOM');
+        
+        // Gérer les erreurs en temps réel
+        cardElement.on('change', ({ error, complete }) => {
+            const displayError = document.getElementById('stripe-card-errors');
+            if (error) {
+                displayError.textContent = error.message;
+                console.warn('🔥 Erreur Stripe:', error.message);
+            } else {
+                displayError.textContent = '';
+            }
+            
+            // Indiquer visuellement quand le champ est complet
+            const cardContainer = document.getElementById('stripe-card-element');
+            if (complete) {
+                cardContainer.classList.add('stripe-complete');
+                console.log('✅ Informations de carte complètes');
+            } else {
+                cardContainer.classList.remove('stripe-complete');
+            }
+        });
+        
+        // Event pour savoir quand l'élément est prêt
+        cardElement.on('ready', () => {
+            console.log('🎉 Stripe Elements prêt et interactif !');
+            
+            // Vérifier une dernière fois que l'iframe est bien là
+            setTimeout(() => {
+                const iframe = container.querySelector('iframe');
+                if (iframe) {
+                    console.log('✅ iframe Stripe Elements trouvée');
+                    // S'assurer que l'iframe est visible et interactive
+                    iframe.style.pointerEvents = 'auto';
+                    iframe.style.minHeight = '40px';
+                } else {
+                    console.error('❌ iframe Stripe Elements manquante après ready');
+                }
+            }, 100);
+        });
+        
+        // Event pour les erreurs de montage
+        cardElement.on('escape', () => {
+            console.log('Escape pressed dans Stripe Elements');
+        });
+        
+        console.log('✅ Stripe Elements configuré avec gestionnaires d\'événements');
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de la configuration Stripe Elements:', error);
+        
+        // Afficher l'erreur dans le container
+        const container = document.getElementById('stripe-card-element');
+        if (container) {
+            container.innerHTML = `
+                <div style="
+                    padding: 20px;
+                    text-align: center;
+                    color: #dc2626;
+                    border: 2px solid #dc2626;
+                    border-radius: 8px;
+                    background: #fef2f2;
+                ">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 8px;"></i>
+                    <div style="font-weight: 500; margin-bottom: 4px;">Erreur Stripe Elements</div>
+                    <div style="font-size: 14px;">${error.message}</div>
+                </div>
+            `;
+        }
+    }
+}
+
+// Charger les moyens de paiement depuis Stripe
+function loadPaymentMethods() {
+    // Afficher le loading
+    document.getElementById('payment-methods-loading').style.display = 'block';
+    document.getElementById('payment-methods-list').style.display = 'none';
+    document.getElementById('payment-methods-empty').style.display = 'none';
+    document.getElementById('payment-methods-error').style.display = 'none';
+    
+    fetch('/plateforme/profil/moyens-paiement')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('payment-methods-loading').style.display = 'none';
+            
+            if (data.success) {
+                if (data.payment_methods && data.payment_methods.length > 0) {
+                    displayPaymentMethods(data.payment_methods);
+                } else {
+                    // Afficher un message personnalisé s'il y en a un
+                    const emptyDiv = document.getElementById('payment-methods-empty');
+                    if (data.message) {
+                        emptyDiv.innerHTML = `
+                            <div class="payment-empty-message">
+                                <i class="fas fa-info-circle text-primary"></i>
+                                <h4>Information</h4>
+                                <p>${data.message}</p>
+                            </div>
+                        `;
+                    }
+                    emptyDiv.style.display = 'block';
+                }
+            } else {
+                const errorDiv = document.getElementById('payment-methods-error');
+                errorDiv.innerHTML = `
+                    <div class="payment-empty-message">
+                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                        <h4>Service indisponible</h4>
+                        <p>${data.error || 'Impossible de récupérer vos moyens de paiement.'}</p>
+                        ${!data.error || !data.error.includes('développement') ? '<button onclick="loadPaymentMethods()" class="btn btn-link p-0">Réessayer</button>' : ''}
+                    </div>
+                `;
+                errorDiv.style.display = 'block';
+                console.error('Erreur:', data.error);
+            }
+        })
+        .catch(error => {
+            document.getElementById('payment-methods-loading').style.display = 'none';
+            const errorDiv = document.getElementById('payment-methods-error');
+            errorDiv.innerHTML = `
+                <div class="payment-empty-message">
+                    <i class="fas fa-wifi text-danger"></i>
+                    <h4>Erreur de connexion</h4>
+                    <p>Vérifiez votre connexion internet. <button onclick="loadPaymentMethods()" class="btn btn-link p-0">Réessayer</button></p>
+                </div>
+            `;
+            errorDiv.style.display = 'block';
+            console.error('Erreur réseau:', error);
+        });
+}
+
+// Afficher les moyens de paiement
+function displayPaymentMethods(paymentMethods) {
+    const container = document.getElementById('payment-methods-list');
+    container.innerHTML = '';
+    
+    const isOnlyPaymentMethod = paymentMethods.length === 1;
+    
+    paymentMethods.forEach(pm => {
+        const cardHtml = `
+            <div class="payment-card ${pm.is_default ? 'payment-default' : ''}">
+                <div class="payment-info">
+                    <div class="payment-logo">
+                        ${getCardLogo(pm.card_type)}
+                    </div>
+                    
+                    <div class="payment-details">
+                        <div class="payment-number">•••• •••• •••• ${pm.last4}</div>
+                        <div class="payment-meta">
+                            <span class="payment-name">${pm.cardholder_name}</span>
+                            <span class="payment-expiry">${pm.exp_month}/${pm.exp_year}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="payment-actions">
+                    ${pm.is_default ? 
+                        '<span class="payment-badge">Par défaut</span>' :
+                        `<button class="payment-btn-secondary" onclick="setDefaultPayment('${pm.id}')">Définir par défaut</button>`
+                    }
+                    
+                    ${isOnlyPaymentMethod ? 
+                        `<button class="payment-btn-disabled" disabled title="Ajoutez une autre carte avant de supprimer celle-ci">
+                            <i class="fas fa-lock"></i>
+                        </button>` :
+                        `<button class="payment-btn-danger" onclick="removePayment('${pm.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>`
+                    }
+                </div>
+            </div>
+        `;
+        container.innerHTML += cardHtml;
+    });
+    
+    document.getElementById('payment-methods-list').style.display = 'block';
+}
+
+// Générer le logo de la carte
+function getCardLogo(cardType) {
+    switch(cardType) {
+        case 'visa':
+            return '<div class="card-logo visa-logo"><span>VISA</span></div>';
+        case 'mastercard':
+            return `
+                <div class="card-logo mastercard-logo">
+                    <div class="mc-circle mc-red"></div>
+                    <div class="mc-circle mc-yellow"></div>
+                </div>
+            `;
+        case 'amex':
+            return '<div class="card-logo amex-logo"><span>AMEX</span></div>';
+        default:
+            return '<div class="card-logo generic-logo"><i class="fas fa-credit-card"></i></div>';
+    }
 }
 
 // Set default payment method
-function setDefaultPayment(paymentId) {
+function setDefaultPayment(paymentMethodId) {
     if (confirm('Définir cette carte comme moyen de paiement par défaut ?')) {
         fetch('/plateforme/profil/paiement/defaut', {
             method: 'POST',
@@ -1425,25 +2214,26 @@ function setDefaultPayment(paymentId) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                payment_id: paymentId
+                payment_method_id: paymentMethodId
             })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                loadPaymentMethods(); // Recharger la liste
             } else {
-                alert('Erreur: ' + data.message);
+                alert('Erreur: ' + (data.error || data.message));
             }
         })
         .catch(error => {
+            console.error('Erreur:', error);
             alert('Erreur lors de la modification.');
         });
     }
 }
 
 // Remove payment method
-function removePayment(paymentId) {
+function removePayment(paymentMethodId) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette carte ?')) {
         fetch('/plateforme/profil/paiement/supprimer', {
             method: 'POST',
@@ -1451,97 +2241,288 @@ function removePayment(paymentId) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                payment_id: paymentId
+                payment_method_id: paymentMethodId
             })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                // Message de succès
+                if (data.message.includes('nouveau moyen par défaut')) {
+                    alert('✅ ' + data.message);
+                }
+                loadPaymentMethods(); // Recharger la liste
             } else {
-                alert('Erreur: ' + data.message);
+                // Messages d'erreur plus informatifs
+                let errorMessage = data.error || data.message;
+                if (errorMessage.includes('unique moyen de paiement')) {
+                    errorMessage = '⚠️ ' + errorMessage + '\n\n💡 Conseil : Ajoutez d\'abord une nouvelle carte, puis supprimez l\'ancienne.';
+                }
+                alert(errorMessage);
             }
         })
         .catch(error => {
-            alert('Erreur lors de la suppression.');
+            console.error('Erreur:', error);
+            alert('❌ Erreur de connexion lors de la suppression. Veuillez réessayer.');
         });
     }
 }
 
-// Card type detection
-function detectCardType(cardNumber) {
-    const number = cardNumber.replace(/\s/g, '');
-    
-    if (number.startsWith('4')) {
-        return 'VISA';
-    } else if (number.startsWith('5') || number.startsWith('2')) {
-        return 'MASTERCARD';
-    } else if (number.startsWith('34') || number.startsWith('37')) {
-        return 'AMEX';
-    } else if (number.startsWith('6')) {
-        return 'DISCOVER';
-    }
-    
-    return '';
-}
-
-// Format card number input
-function formatCardNumber(input) {
-    let value = input.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
-    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
-    
-    input.value = formattedValue;
-    
-    // Update card type indicator
-    const cardType = detectCardType(value);
-    document.getElementById('cardTypeIndicator').textContent = cardType;
-}
-
-// Payment form submission
-function submitPaymentForm(event) {
+// Gestion formulaire Stripe Elements
+async function handleStripePaymentForm(event) {
     event.preventDefault();
     
-    const formData = new FormData(event.target);
-    const cardNumber = formData.get('cardNumber').replace(/\s/g, '');
-    
-    // Basic validation
-    if (cardNumber.length < 13 || cardNumber.length > 19) {
-        alert('Numéro de carte invalide');
+    if (!stripe || !cardElement) {
+        alert('❌ Service de paiement non initialisé');
         return;
     }
     
-    const data = {
-        card_number: cardNumber,
-        expiry_month: formData.get('expiryMonth'),
-        expiry_year: formData.get('expiryYear'),
-        cardholder_name: formData.get('cardholderName'),
-        set_as_default: formData.get('setAsDefault') === 'on'
-    };
+    // Désactiver le bouton et montrer le loading
+    const submitButton = document.getElementById('stripe-submit-btn');
+    const loadingDiv = document.getElementById('stripe-loading');
+    const formDiv = document.getElementById('stripe-payment-form');
     
-    fetch('/plateforme/profil/paiement/ajouter', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Carte ajoutée avec succès !');
-            hideAddPaymentModal();
-            location.reload();
-        } else {
-            alert('Erreur: ' + data.message);
+    submitButton.disabled = true;
+    loadingDiv.style.display = 'block';
+    formDiv.style.display = 'none';
+    
+    try {
+        // 1. Créer un SetupIntent côté serveur
+        const setupResponse = await fetch('/plateforme/profil/paiement/ajouter-setup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        const setupData = await setupResponse.json();
+        if (!setupData.success) {
+            throw new Error(setupData.error || 'Erreur création SetupIntent');
         }
-    })
-    .catch(error => {
-        alert('Erreur lors de l\'ajout de la carte.');
+        
+        // 2. Confirmer avec Stripe Elements
+        const cardholderName = document.getElementById('stripe-cardholder-name').value;
+        
+        const { error, setupIntent } = await stripe.confirmCardSetup(
+            setupData.client_secret,
+            {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: {
+                        name: cardholderName,
+                    },
+                }
+            }
+        );
+        
+        if (error) {
+            throw new Error(error.message);
+        }
+        
+        // 3. Finaliser côté serveur
+        const setAsDefault = document.getElementById('stripe-set-as-default').checked;
+        
+        const finalResponse = await fetch('/plateforme/profil/ajouter-carte-stripe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                setup_intent_id: setupIntent.id,
+                set_as_default: setAsDefault
+            })
+        });
+        
+        const finalData = await finalResponse.json();
+        if (finalData.success) {
+            alert('✅ ' + finalData.message);
+            hideAddPaymentModal();
+            loadPaymentMethods(); // Recharger la liste
+        } else {
+            throw new Error(finalData.error || 'Erreur ajout carte');
+        }
+        
+    } catch (error) {
+        console.error('Erreur ajout carte:', error);
+        alert('❌ Erreur: ' + error.message);
+        
+        // Remettre le formulaire visible
+        loadingDiv.style.display = 'none';
+        formDiv.style.display = 'block';
+        submitButton.disabled = false;
+    }
+}
+
+// Charger les factures depuis Stripe
+function loadInvoices() {
+    // Afficher le loading
+    document.getElementById('invoices-loading').style.display = 'block';
+    document.getElementById('invoices-list').style.display = 'none';
+    document.getElementById('invoices-empty').style.display = 'none';
+    document.getElementById('invoices-error').style.display = 'none';
+    
+    fetch('/plateforme/profil/factures-stripe')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('invoices-loading').style.display = 'none';
+            
+            if (data.success) {
+                if (data.invoices && data.invoices.length > 0) {
+                    displayInvoices(data.invoices);
+                } else {
+                    // Afficher un message personnalisé s'il y en a un
+                    const emptyDiv = document.getElementById('invoices-empty');
+                    if (data.message) {
+                        emptyDiv.innerHTML = `
+                            <div class="no-invoices">
+                                <i class="fas fa-info-circle text-primary"></i>
+                                <h4>Information</h4>
+                                <p>${data.message}</p>
+                            </div>
+                        `;
+                    }
+                    emptyDiv.style.display = 'block';
+                }
+            } else {
+                const errorDiv = document.getElementById('invoices-error');
+                errorDiv.innerHTML = `
+                    <div class="no-invoices">
+                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                        <h4>Service indisponible</h4>
+                        <p>${data.error || 'Impossible de récupérer vos factures.'} <button onclick="loadInvoices()" class="btn btn-link p-0">Réessayer</button></p>
+                    </div>
+                `;
+                errorDiv.style.display = 'block';
+                console.error('Erreur:', data.error);
+            }
+        })
+        .catch(error => {
+            document.getElementById('invoices-loading').style.display = 'none';
+            const errorDiv = document.getElementById('invoices-error');
+            errorDiv.innerHTML = `
+                <div class="no-invoices">
+                    <i class="fas fa-wifi text-danger"></i>
+                    <h4>Erreur de connexion</h4>
+                    <p>Vérifiez votre connexion internet. <button onclick="loadInvoices()" class="btn btn-link p-0">Réessayer</button></p>
+                </div>
+            `;
+            errorDiv.style.display = 'block';
+            console.error('Erreur réseau:', error);
+        });
+}
+
+// Afficher les factures
+function displayInvoices(invoices) {
+    const container = document.getElementById('invoices-list');
+    container.innerHTML = '';
+    
+    if (invoices.length === 0) {
+        document.getElementById('invoices-empty').style.display = 'block';
+        return;
+    }
+    
+    invoices.forEach(invoice => {
+        const invoiceDate = new Date(invoice.created * 1000);
+        const periodStart = new Date(invoice.period_start * 1000);
+        const periodEnd = new Date(invoice.period_end * 1000);
+        
+        const statusClass = invoice.status === 'paid' ? 'success' : 
+                           invoice.status === 'open' ? 'warning' : 'danger';
+        
+        const statusText = invoice.status === 'paid' ? 'Payée' :
+                          invoice.status === 'open' ? 'En attente' : 'Échec';
+        
+        const invoiceCard = document.createElement('div');
+        invoiceCard.className = 'invoice-card';
+        invoiceCard.style.cssText = `
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        `;
+        
+        invoiceCard.innerHTML = `
+            <div class="invoice-details">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                    <h4 style="margin: 0; font-size: 16px; color: #1f2937; font-weight: 600;">
+                        ${invoice.number || 'Facture #' + invoice.id.substring(3, 8)}
+                    </h4>
+                    <span style="
+                        padding: 4px 8px;
+                        border-radius: 12px;
+                        font-size: 12px;
+                        font-weight: 600;
+                        background: ${statusClass === 'success' ? '#d1fae5' : statusClass === 'warning' ? '#fef3c7' : '#fee2e2'};
+                        color: ${statusClass === 'success' ? '#065f46' : statusClass === 'warning' ? '#92400e' : '#991b1b'};
+                    ">
+                        ${statusText}
+                    </span>
+                </div>
+                <div style="color: #6b7280; font-size: 14px; line-height: 1.5;">
+                    <div style="margin-bottom: 4px;">${invoice.description}</div>
+                    <div>Période: ${periodStart.toLocaleDateString('fr-FR')} - ${periodEnd.toLocaleDateString('fr-FR')}</div>
+                    <div>Date: ${invoiceDate.toLocaleDateString('fr-FR')}</div>
+                </div>
+            </div>
+            <div class="invoice-actions" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                <div style="font-size: 18px; font-weight: 700; color: #137C8B;">
+                    ${invoice.amount_paid.toFixed(2)}€
+                </div>
+                ${invoice.invoice_pdf ? 
+                    `<a href="${invoice.invoice_pdf}" target="_blank" style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 8px 12px;
+                        background: #137C8B;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 6px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='#0f6b75'" onmouseout="this.style.background='#137C8B'">
+                        <i class="fas fa-download"></i> Télécharger
+                    </a>` : 
+                    `<a href="${invoice.hosted_invoice_url}" target="_blank" style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 8px 12px;
+                        background: #137C8B;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 6px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='#0f6b75'" onmouseout="this.style.background='#137C8B'">
+                        <i class="fas fa-external-link-alt"></i> Voir facture
+                    </a>`
+                }
+            </div>
+        `;
+        
+        container.appendChild(invoiceCard);
     });
+    
+    document.getElementById('invoices-list').style.display = 'block';
 }
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    // Charger les moyens de paiement et les factures au démarrage
+    loadPaymentMethods();
+    loadInvoices();
+    
+    // Dropdown de raison simplifiée - plus de logique spéciale nécessaire
+    
     // Card number formatting
     const cardNumberInput = document.getElementById('cardNumber');
     if (cardNumberInput) {
@@ -1550,10 +2531,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Payment form submission
-    const paymentForm = document.getElementById('paymentForm');
-    if (paymentForm) {
-        paymentForm.addEventListener('submit', submitPaymentForm);
+    // Stripe payment form submission
+    const stripePaymentForm = document.getElementById('stripe-payment-form');
+    if (stripePaymentForm) {
+        stripePaymentForm.addEventListener('submit', handleStripePaymentForm);
     }
     
     // Edit info form submission

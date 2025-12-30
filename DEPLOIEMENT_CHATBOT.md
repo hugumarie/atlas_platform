@@ -8,7 +8,7 @@ Le chatbot est **prêt pour la production** avec toutes les optimisations néces
 ### Variables d'Environnement Configurées
 ```bash
 # ✅ Déjà configuré sur le serveur Dokku
-OPENAI_API_KEY=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
+OPENAI_API_KEY=sk-proj-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 FLASK_ENV=production
 ```
 

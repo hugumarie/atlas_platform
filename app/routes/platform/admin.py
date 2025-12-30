@@ -1012,8 +1012,8 @@ def invite_prospect(prospect_id):
                 .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
                 .header {{ background: linear-gradient(135deg, #344d59, #4a6572); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
                 .content {{ background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
-                .btn {{ display: inline-block; background: #344d59; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }}
-                .btn:hover {{ background: #4a6572; }}
+                .btn {{ display: inline-block; background: #2563eb; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; font-size: 16px; border: 2px solid #2563eb; }}
+                .btn:hover {{ background: #1d4ed8; border-color: #1d4ed8; }}
                 .footer {{ text-align: center; margin-top: 20px; color: #666; font-size: 12px; }}
             </style>
         </head>
@@ -1079,8 +1079,13 @@ def invite_prospect(prospect_id):
         
         # Envoyer l'email d'invitation via MailerSend
         try:
-            # Utiliser le token MailerSend existant (vous le configurerez)
-            mailer = MailerSendService("mlsn.5b4c18eb3a66bff948c9d6d712ffc7dd22ac16bff47d7b9de2a53e6e1a3384bd")
+            # Utiliser le token depuis les variables d'environnement
+            api_token = os.getenv('MAILERSEND_API_TOKEN')
+            if not api_token:
+                print("⚠️ MAILERSEND_API_TOKEN non configuré")
+                return jsonify({'success': False, 'message': 'Configuration email manquante'}), 500
+            
+            mailer = MailerSendService(api_token)
             
             email_sent = mailer.send_email(
                 to_email=prospect.email,

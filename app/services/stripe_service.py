@@ -49,6 +49,10 @@ class StripeService:
     def load_config(self):
         """Charge la configuration Stripe depuis les variables d'environnement"""
         try:
+            # Forcer le rechargement du .env
+            from dotenv import load_dotenv
+            load_dotenv(override=True)
+            
             # Configuration de Stripe - priorité aux variables d'environnement système
             self.secret_key = os.getenv('STRIPE_SECRET_KEY')
             
@@ -72,8 +76,7 @@ class StripeService:
             # Price IDs pour les plans
             self.price_mapping = {
                 'initia': os.getenv('STRIPE_PRICE_INITIA'),
-                'optima': os.getenv('STRIPE_PRICE_OPTIMA'), 
-                'maxima': os.getenv('STRIPE_PRICE_MAXIMA')
+                'optima': os.getenv('STRIPE_PRICE_OPTIMA')
             }
             
             # URLs - adaptation automatique selon l'environnement
@@ -195,8 +198,14 @@ class StripeService:
     def handle_successful_payment(self, session):
         """Traite un paiement réussi"""
         try:
-            user_id = session['metadata'].get('atlas_user_id')
-            plan_type = session['metadata'].get('plan_type')
+            # Debug des métadonnées
+            print(f"🔍 Session type: {type(session)}")
+            print(f"🔍 Session keys: {list(session.keys()) if hasattr(session, 'keys') else 'No keys'}")
+            print(f"🔍 Metadata: {getattr(session, 'metadata', 'No metadata')}")
+            
+            metadata = getattr(session, 'metadata', {})
+            user_id = metadata.get('atlas_user_id') if metadata else None
+            plan_type = metadata.get('plan_type') if metadata else None
             
             if not user_id or not plan_type:
                 logger.error("Métadonnées manquantes dans la session")
@@ -208,7 +217,41 @@ class StripeService:
                 return False
             
             # Récupérer l'abonnement Stripe
-            subscription_id = session['subscription']
+            subscription_id = getattr(session, 'subscription', None)
+            if not subscription_id:
+                logger.error("Pas d'abonnement dans la session")
+                # Essayer de trouver l'abonnement via le customer
+                customer_id = getattr(session, 'customer', None)
+                if customer_id:
+                    subscriptions = stripe.Subscription.list(customer=customer_id, limit=1)
+                    if subscriptions.data:
+                        subscription_id = subscriptions.data[0].id
+                        logger.info(f"Abonnement trouvé via customer: {subscription_id}")
+                    else:
+                        logger.warning("Aucun abonnement trouvé - création manuelle")
+                        # Créer un abonnement "simulé" pour compatibilité
+                        subscription = Subscription(
+                            user_id=user.id,
+                            tier=plan_type,
+                            status='active',
+                            stripe_customer_id=customer_id,
+                            start_date=datetime.utcnow(),
+                            current_period_start=datetime.utcnow(),
+                            current_period_end=datetime.utcnow() + timedelta(days=30)
+                        )
+                        db.session.add(subscription)
+                        
+                        # Marquer l'utilisateur comme non-prospect
+                        user.is_prospect = False
+                        user.subscription_date = datetime.utcnow()
+                        
+                        db.session.commit()
+                        logger.info(f"Abonnement manuel créé pour {user.email}")
+                        return True
+                else:
+                    logger.error("Pas de customer dans la session")
+                    return False
+            
             stripe_subscription = stripe.Subscription.retrieve(subscription_id)
             
             # Créer ou mettre à jour l'abonnement local
@@ -217,22 +260,37 @@ class StripeService:
                 subscription.tier = plan_type
                 subscription.status = 'active'
                 subscription.stripe_subscription_id = subscription_id
-                subscription.stripe_customer_id = session['customer']
+                subscription.stripe_customer_id = getattr(session, 'customer', None)
             else:
                 subscription = Subscription(
                     user_id=user.id,
                     tier=plan_type,
                     status='active',
                     stripe_subscription_id=subscription_id,
-                    stripe_customer_id=session['customer'],
+                    stripe_customer_id=getattr(session, 'customer', None),
                     start_date=datetime.utcnow()
                 )
                 db.session.add(subscription)
                 
             # Mettre à jour les dates
-            subscription.current_period_start = datetime.fromtimestamp(stripe_subscription.current_period_start)
-            subscription.current_period_end = datetime.fromtimestamp(stripe_subscription.current_period_end)
-            subscription.updated_at = datetime.utcnow()
+            try:
+                if hasattr(stripe_subscription, 'current_period_start') and stripe_subscription.current_period_start:
+                    subscription.current_period_start = datetime.fromtimestamp(stripe_subscription.current_period_start)
+                else:
+                    subscription.current_period_start = datetime.utcnow()
+                    
+                if hasattr(stripe_subscription, 'current_period_end') and stripe_subscription.current_period_end:
+                    subscription.current_period_end = datetime.fromtimestamp(stripe_subscription.current_period_end)
+                else:
+                    subscription.current_period_end = datetime.utcnow() + timedelta(days=30)
+                    
+                subscription.updated_at = datetime.utcnow()
+            except Exception as e:
+                logger.error(f"Erreur dates abonnement: {e}")
+                # Valeurs par défaut
+                subscription.current_period_start = datetime.utcnow()
+                subscription.current_period_end = datetime.utcnow() + timedelta(days=30)
+                subscription.updated_at = datetime.utcnow()
             
             # Marquer l'utilisateur comme non-prospect
             user.is_prospect = False
@@ -252,6 +310,11 @@ class StripeService:
             
         except Exception as e:
             logger.error(f"Erreur traitement paiement réussi: {str(e)}")
+            print(f"🔍 Erreur détaillée: {e}")
+            print(f"🔍 Type erreur: {type(e)}")
+            import traceback
+            traceback.print_exc()
+            
             db.session.rollback()
             return False
     
@@ -268,7 +331,7 @@ class StripeService:
             )
             
             # Mettre à jour le statut local
-            user.subscription.status = 'canceled'
+            user.subscription.status = 'cancelled'
             user.subscription.canceled_at = datetime.utcnow()
             db.session.commit()
             
@@ -369,7 +432,7 @@ class StripeService:
             
             if user and user.subscription:
                 subscription = user.subscription
-                subscription.status = 'canceled'
+                subscription.status = 'cancelled'
                 subscription.canceled_at = datetime.utcnow()
                 subscription.updated_at = datetime.utcnow()
                 
@@ -401,6 +464,388 @@ class StripeService:
         except Exception as e:
             logger.error(f"Erreur traitement échec paiement: {str(e)}")
             return False
+    
+    def change_subscription_plan(self, user, new_plan_tier):
+        """
+        Change le plan d'abonnement d'un utilisateur avec facturation proratisée
+        
+        Args:
+            user: Utilisateur avec abonnement existant
+            new_plan_tier: Nouveau plan ('initia', 'optima', 'ultima')
+            
+        Returns:
+            dict: Résultat de l'opération avec succès/erreur
+        """
+        try:
+            self._check_stripe_available()
+            
+            if not user.subscription or not user.subscription.stripe_subscription_id:
+                return {
+                    'success': False, 
+                    'error': 'Aucun abonnement Stripe trouvé pour cet utilisateur'
+                }
+            
+            # Vérifier que le nouveau plan est valide et disponible
+            new_price_id = self.price_mapping.get(new_plan_tier.lower())
+            if not new_price_id or new_price_id == 'TO_BE_PROVIDED':
+                if new_plan_tier.lower() == 'ultima':
+                    return {
+                        'success': False,
+                        'error': 'Le plan ULTIMA nécessite un devis personnalisé. Veuillez nous contacter.'
+                    }
+                else:
+                    return {
+                        'success': False,
+                        'error': f'Plan {new_plan_tier} non configuré ou indisponible'
+                    }
+            
+            # Prix des plans pour référence
+            tier_prices = {
+                'initia': 25.00,
+                'optima': 50.00,
+                'ultima': 99.99  # Prix de base, mais sur devis
+            }
+            
+            # Récupérer l'abonnement Stripe actuel
+            current_subscription = stripe.Subscription.retrieve(
+                user.subscription.stripe_subscription_id
+            )
+            
+            # Déterminer si c'est un upgrade ou downgrade
+            current_plan = user.subscription.tier
+            current_price = tier_prices.get(current_plan, 25.00)
+            new_price = tier_prices.get(new_plan_tier.lower(), 25.00)
+            
+            is_upgrade = new_price > current_price
+            
+            # Modifier l'abonnement dans Stripe avec proration automatique
+            updated_subscription = stripe.Subscription.modify(
+                user.subscription.stripe_subscription_id,
+                items=[{
+                    'id': current_subscription['items']['data'][0].id,
+                    'price': new_price_id,
+                }],
+                proration_behavior='always_invoice',  # Facturation immédiate de la différence
+                metadata={
+                    'plan_type': new_plan_tier.lower(),
+                    'company': 'ATLAS INVEST',
+                    'change_date': datetime.utcnow().isoformat(),
+                    'previous_plan': current_plan
+                }
+            )
+            
+            # Mettre à jour l'abonnement local
+            user.subscription.tier = new_plan_tier.lower()
+            user.subscription.price = new_price
+            user.subscription.updated_at = datetime.utcnow()
+            
+            # Mettre à jour les dates basées sur l'abonnement Stripe mis à jour
+            if hasattr(updated_subscription, 'current_period_start'):
+                user.subscription.current_period_start = datetime.fromtimestamp(
+                    updated_subscription.current_period_start
+                )
+            if hasattr(updated_subscription, 'current_period_end'):
+                user.subscription.current_period_end = datetime.fromtimestamp(
+                    updated_subscription.current_period_end
+                )
+            
+            db.session.commit()
+            
+            # Calculer le montant de la proration
+            proration_amount = 0
+            if is_upgrade:
+                # Pour un upgrade, calculer la différence proratisée
+                days_remaining = (user.subscription.current_period_end - datetime.utcnow()).days
+                daily_diff = (new_price - current_price) / 30
+                proration_amount = daily_diff * days_remaining
+            
+            logger.info(f"Plan changé avec succès pour {user.email}: {current_plan} → {new_plan_tier}")
+            
+            return {
+                'success': True,
+                'message': f'Plan changé avec succès vers {new_plan_tier.upper()}',
+                'previous_plan': current_plan,
+                'new_plan': new_plan_tier.lower(),
+                'is_upgrade': is_upgrade,
+                'proration_amount': round(proration_amount, 2) if is_upgrade else 0,
+                'new_monthly_price': new_price
+            }
+            
+        except stripe.error.StripeError as e:
+            logger.error(f"Erreur Stripe lors du changement de plan: {str(e)}")
+            return {
+                'success': False,
+                'error': f'Erreur de facturation: {str(e)}'
+            }
+        except Exception as e:
+            logger.error(f"Erreur générale lors du changement de plan: {str(e)}")
+            db.session.rollback()
+            return {
+                'success': False,
+                'error': f'Erreur lors du changement de plan: {str(e)}'
+            }
+    
+    def get_customer_payment_methods(self, user):
+        """
+        Récupère les moyens de paiement d'un utilisateur depuis Stripe
+        
+        Args:
+            user: Utilisateur avec stripe_customer_id
+            
+        Returns:
+            list: Liste des moyens de paiement ou None si erreur
+        """
+        try:
+            self._check_stripe_available()
+            
+            if not user.stripe_customer_id:
+                logger.info(f"Pas de customer Stripe pour {user.email}")
+                return []
+            
+            # Récupérer les moyens de paiement depuis Stripe
+            payment_methods = stripe.PaymentMethod.list(
+                customer=user.stripe_customer_id,
+                type="card"  # On se concentre sur les cartes pour l'instant
+            )
+            
+            # Récupérer le customer pour connaître le moyen de paiement par défaut
+            customer = stripe.Customer.retrieve(user.stripe_customer_id)
+            default_payment_method_id = getattr(customer, 'invoice_settings', {}).get('default_payment_method')
+            
+            # Formater les données pour l'affichage
+            formatted_methods = []
+            for pm in payment_methods.data:
+                card = pm.card
+                formatted_methods.append({
+                    'id': pm.id,
+                    'type': 'card',
+                    'card_type': card.brand.lower(),  # visa, mastercard, amex, etc.
+                    'last4': card.last4,
+                    'exp_month': f"{card.exp_month:02d}",
+                    'exp_year': card.exp_year,
+                    'cardholder_name': getattr(pm.billing_details, 'name', '') or user.get_full_name(),
+                    'is_default': pm.id == default_payment_method_id,
+                    'created': pm.created
+                })
+            
+            # Trier par défaut d'abord, puis par date de création
+            formatted_methods.sort(key=lambda x: (not x['is_default'], -x['created']))
+            
+            logger.info(f"Récupérés {len(formatted_methods)} moyens de paiement pour {user.email}")
+            return formatted_methods
+            
+        except stripe.error.StripeError as e:
+            logger.error(f"Erreur Stripe récupération moyens de paiement: {str(e)}")
+            return None
+        except Exception as e:
+            logger.error(f"Erreur générale récupération moyens de paiement: {str(e)}")
+            return None
+    
+    def create_setup_intent(self, user):
+        """
+        Crée un SetupIntent pour ajouter un nouveau moyen de paiement
+        
+        Args:
+            user: Utilisateur
+            
+        Returns:
+            dict: SetupIntent client_secret ou None si erreur
+        """
+        try:
+            self._check_stripe_available()
+            
+            # S'assurer que l'utilisateur a un customer Stripe
+            customer = self.get_or_create_customer(user)
+            
+            # Créer le SetupIntent
+            setup_intent = stripe.SetupIntent.create(
+                customer=customer.id,
+                payment_method_types=['card'],
+                usage='off_session',  # Pour les paiements futurs
+                metadata={
+                    'atlas_user_id': str(user.id)
+                }
+            )
+            
+            logger.info(f"SetupIntent créé pour {user.email}: {setup_intent.id}")
+            return {
+                'success': True,
+                'client_secret': setup_intent.client_secret,
+                'setup_intent_id': setup_intent.id
+            }
+            
+        except stripe.error.StripeError as e:
+            logger.error(f"Erreur création SetupIntent: {str(e)}")
+            return {
+                'success': False,
+                'error': f'Erreur de configuration paiement: {str(e)}'
+            }
+        except Exception as e:
+            logger.error(f"Erreur générale création SetupIntent: {str(e)}")
+            return {
+                'success': False,
+                'error': f'Erreur lors de l\'ajout du moyen de paiement: {str(e)}'
+            }
+    
+    def set_default_payment_method(self, user, payment_method_id):
+        """
+        Définit un moyen de paiement comme par défaut
+        
+        Args:
+            user: Utilisateur
+            payment_method_id: ID du moyen de paiement Stripe
+            
+        Returns:
+            dict: Résultat de l'opération
+        """
+        try:
+            self._check_stripe_available()
+            
+            if not user.stripe_customer_id:
+                return {
+                    'success': False,
+                    'error': 'Aucun customer Stripe trouvé'
+                }
+            
+            # Mettre à jour le customer avec le nouveau moyen de paiement par défaut
+            stripe.Customer.modify(
+                user.stripe_customer_id,
+                invoice_settings={
+                    'default_payment_method': payment_method_id
+                }
+            )
+            
+            logger.info(f"Moyen de paiement par défaut mis à jour pour {user.email}: {payment_method_id}")
+            return {
+                'success': True,
+                'message': 'Moyen de paiement par défaut mis à jour'
+            }
+            
+        except stripe.error.StripeError as e:
+            logger.error(f"Erreur mise à jour moyen de paiement par défaut: {str(e)}")
+            return {
+                'success': False,
+                'error': f'Erreur Stripe: {str(e)}'
+            }
+        except Exception as e:
+            logger.error(f"Erreur générale mise à jour moyen de paiement par défaut: {str(e)}")
+            return {
+                'success': False,
+                'error': f'Erreur: {str(e)}'
+            }
+    
+    def remove_payment_method(self, user, payment_method_id):
+        """
+        Supprime un moyen de paiement
+        
+        Args:
+            user: Utilisateur
+            payment_method_id: ID du moyen de paiement à supprimer
+            
+        Returns:
+            dict: Résultat de l'opération
+        """
+        try:
+            self._check_stripe_available()
+            
+            # Vérifier que le moyen de paiement appartient bien à cet utilisateur
+            if not user.stripe_customer_id:
+                return {
+                    'success': False,
+                    'error': 'Aucun customer Stripe trouvé'
+                }
+            
+            # Récupérer TOUS les moyens de paiement du customer pour vérifier le nombre
+            all_payment_methods = stripe.PaymentMethod.list(
+                customer=user.stripe_customer_id,
+                type="card"
+            )
+            
+            # Vérifier qu'il y a plus d'un moyen de paiement
+            if len(all_payment_methods.data) <= 1:
+                return {
+                    'success': False,
+                    'error': 'Impossible de supprimer votre unique moyen de paiement. Ajoutez une autre carte avant de supprimer celle-ci.'
+                }
+            
+            # Récupérer le moyen de paiement pour vérifier qu'il appartient au customer
+            payment_method = stripe.PaymentMethod.retrieve(payment_method_id)
+            if payment_method.customer != user.stripe_customer_id:
+                return {
+                    'success': False,
+                    'error': 'Moyen de paiement non autorisé'
+                }
+            
+            # Vérifier si c'est le moyen de paiement par défaut
+            customer = stripe.Customer.retrieve(user.stripe_customer_id)
+            default_payment_method_id = getattr(customer, 'invoice_settings', {}).get('default_payment_method')
+            
+            is_default = payment_method_id == default_payment_method_id
+            
+            # Détacher le moyen de paiement du customer (= le supprimer)
+            stripe.PaymentMethod.detach(payment_method_id)
+            
+            # Si c'était le moyen de paiement par défaut, définir un autre comme par défaut
+            if is_default and len(all_payment_methods.data) > 1:
+                # Trouver un autre moyen de paiement pour le définir par défaut
+                remaining_methods = stripe.PaymentMethod.list(
+                    customer=user.stripe_customer_id,
+                    type="card"
+                )
+                
+                if remaining_methods.data:
+                    new_default = remaining_methods.data[0].id
+                    stripe.Customer.modify(
+                        user.stripe_customer_id,
+                        invoice_settings={
+                            'default_payment_method': new_default
+                        }
+                    )
+                    logger.info(f"Nouveau moyen de paiement par défaut défini: {new_default}")
+            
+            logger.info(f"Moyen de paiement supprimé pour {user.email}: {payment_method_id}")
+            return {
+                'success': True,
+                'message': 'Moyen de paiement supprimé avec succès' + 
+                          (' et nouveau moyen par défaut défini automatiquement' if is_default else '')
+            }
+            
+        except stripe.error.StripeError as e:
+            logger.error(f"Erreur suppression moyen de paiement: {str(e)}")
+            return {
+                'success': False,
+                'error': f'Erreur Stripe: {str(e)}'
+            }
+        except Exception as e:
+            logger.error(f"Erreur générale suppression moyen de paiement: {str(e)}")
+            return {
+                'success': False,
+                'error': f'Erreur: {str(e)}'
+            }
 
-# Instance globale du service
-stripe_service = StripeService()
+# Instance globale du service - initialisée en mode safe par défaut
+stripe_service = StripeService(safe_mode=True)
+
+def initialize_stripe_service():
+    """
+    Force la réinitialisation du service Stripe avec la vraie configuration
+    À appeler après que l'application Flask soit configurée
+    """
+    global stripe_service
+    try:
+        # Forcer le rechargement du .env
+        from dotenv import load_dotenv
+        load_dotenv(override=True)
+        
+        # Vérifier si on a les clés Stripe
+        secret_key = os.getenv('STRIPE_SECRET_KEY')
+        if secret_key and secret_key.startswith('sk_'):
+            print(f"🔐 Clés Stripe trouvées, réinitialisation du service...")
+            stripe_service = StripeService(safe_mode=False)
+            print(f"✅ StripeService réinitialisé avec succès (safe_mode: {stripe_service.safe_mode})")
+        else:
+            print(f"⚠️ Pas de clés Stripe valides, service en mode SAFE")
+            
+    except Exception as e:
+        print(f"❌ Erreur réinitialisation StripeService: {e}")
+        logger.error(f"Erreur réinitialisation StripeService: {e}")

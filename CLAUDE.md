@@ -209,20 +209,32 @@ SECRET_KEY=your-secret-key
 
 ## 🔄 État Actuel du Projet
 
-**Dernière mise à jour** : 29 Décembre 2024
+**Dernière mise à jour** : 30 Décembre 2024
 
-### Dernières Modifications (29 Décembre 2024) 🆕
-- **Mise à jour complète des offres commerciales** sur la page d'accueil :
-  - **INITIA** : 25€/mois - "Pour débuter dans l'investissement"
-  - **OPTIMA** : 50€/mois - "Pour structurer et optimiser son patrimoine existant" 
-  - **ULTIMA** : "Nous consulter" - "Pour des situations patrimoniales spécifiques"
-- **Nouveau contenu des avantages** :
-  - Analyse de situation, stratégie d'investissement, tableau de bord Atlas
-  - Pilotage, contenus pédagogiques, accompagnement 100% indépendant
-  - Optimisation patrimoine existant, classes d'actifs supplémentaires
-  - Allocation multi-actifs, optimisation transmission, problématiques spécifiques
-- **Amélioration UX** : Alignement parfait des boutons CTA avec CSS flexbox
-- **Disclaimer légal** : "Tarifs TTC. Sans engagement. Vous restez libre de résilier à tout moment."
+### Dernières Modifications Majeures (30 Décembre 2024) 🆕
+- **GESTION D'ABONNEMENTS STRIPE COMPLÈTE** :
+  - Changement de plan avec facturation proratisée automatique
+  - Gestion des moyens de paiement depuis l'API Stripe (jamais de données bancaires en base)
+  - Annulation d'abonnement simplifiée avec alternatives
+  - Interface utilisateur moderne et intuitive
+
+- **STRIPE ELEMENTS INTÉGRATION** :
+  - Ajout sécurisé de cartes via Stripe Elements
+  - SetupIntent workflow pour la sécurité maximale
+  - Validation en temps réel des champs de carte
+  - Gestion des erreurs et fallback en mode développement
+
+- **SYSTÈME DE FACTURATION** :
+  - Récupération automatique des factures depuis Stripe API
+  - Affichage des factures avec téléchargement PDF
+  - Historique complet des paiements
+  - Interface moderne avec statuts visuels
+
+- **AMÉLIORATION DE L'EXPÉRIENCE UTILISATEUR** :
+  - Page profil entièrement refactorisée (`/plateforme/profil`)
+  - Messages d'état intelligents selon le contexte (prod/dev)
+  - Design cohérent avec la charte graphique Atlas
+  - Processus d'annulation simplifié (fini le popup complexe)
 
 ### Fonctionnalités Opérationnelles ✅
 - Système d'authentification complet
@@ -231,12 +243,29 @@ SECRET_KEY=your-secret-key
 - Interface admin fonctionnelle
 - Plans d'investissement personnalisés
 - Suivi des prix cryptomonnaies en temps réel
+- **🆕 Gestion complète des abonnements Stripe**
+- **🆕 Moyens de paiement sécurisés**
+- **🆕 Facturation automatique**
+- **🆕 Interface utilisateur v2.0**
+
+### Configuration Stripe Production ⚠️
+Pour activer toutes les fonctionnalités Stripe :
+1. Variables d'environnement requises dans `.env` :
+   ```
+   STRIPE_SECRET_KEY=sk_live_...
+   STRIPE_PUBLISHABLE_KEY=pk_live_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   STRIPE_PRICE_INITIA=price_...
+   STRIPE_PRICE_OPTIMA=price_...
+   ```
+2. Redémarrer l'application après ajout des clés
+3. Vérifier les logs : "Configuration Stripe chargée (Production)"
 
 ### Prochaines Étapes Recommandées
-1. **Tests automatisés** : Ajouter une suite de tests pour les calculs patrimoniaux
-2. **Optimisation mobile** : Améliorer l'expérience sur smartphone
-3. **Notifications** : Système d'alertes pour les seuils patrimoniaux
-4. **Rapports PDF** : Génération de rapports patrimoniaux détaillés
+1. **Tests Stripe en production** : Valider tous les flux de paiement
+2. **Webhooks Stripe** : Configuration pour les événements automatiques
+3. **Optimisation mobile** : Améliorer l'expérience sur smartphone
+4. **Notifications** : Système d'alertes pour les seuils patrimoniaux
 
 ---
 

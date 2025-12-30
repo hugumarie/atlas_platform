@@ -4,6 +4,7 @@ Routes pour l'interface investisseur de la plateforme.
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, make_response, send_file
 from flask_login import login_required, current_user
+from functools import wraps
 from app import db
 from app.models.investor_profile import InvestorProfile
 from app.models.portfolio import Portfolio
@@ -14,7 +15,30 @@ from app.models.investment_plan import InvestmentPlan, InvestmentPlanLine, AVAIL
 from app.services.investment_actions_service import InvestmentActionsService
 import json
 import re
+import logging
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
+
+def require_active_subscription(f):
+    """
+    Décorateur pour vérifier qu'un utilisateur a un abonnement actif.
+    Redirige vers la page de sélection de plan si pas d'accès.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Admin a toujours accès
+        if current_user.is_admin:
+            return f(*args, **kwargs)
+        
+        # Vérifier l'accès à la plateforme
+        if not current_user.can_access_platform():
+            flash('🔒 Votre abonnement n\'est pas actif. Veuillez vous abonner pour accéder à cette fonctionnalité.', 'warning')
+            return redirect(url_for('onboarding.plan_selection'))
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
 # from reportlab.lib.pagesizes import A4
 # from reportlab.lib import colors
 # from reportlab.lib.units import mm
@@ -26,20 +50,20 @@ import io
 platform_investor_bp = Blueprint('platform_investor', __name__, url_prefix='/plateforme')
 
 @platform_investor_bp.route('/dashboard')
-@login_required  
+@login_required
+@require_active_subscription
 def dashboard():
+    
     if current_user.is_admin:
         return redirect(url_for('platform_admin.dashboard'))
     
-    # Vérification accès plateforme
-    if not current_user.can_access_platform():
-        flash('Votre abonnement n\'est pas actif. Veuillez vous abonner pour accéder à la plateforme.', 'warning')
-        return redirect(url_for('onboarding.plan_selection'))
-    
     # Plus de redirection vers questionnaire - dashboard accessible sans profil
     
-    # LECTURE PURE DE LA BASE DE DONNÉES - AUCUN CALCUL
+    # FORCER RELECTURE FRAÎCHE DE LA BASE - PAS DE CACHE
+    db.session.refresh(current_user)  # Recharger l'utilisateur depuis la base
     profile = current_user.investor_profile
+    if profile:
+        db.session.refresh(profile)  # Recharger le profil depuis la base
     
     # Si pas de profil, afficher dashboard vide avec toutes valeurs à zéro
     if not profile:
@@ -57,8 +81,12 @@ def dashboard():
                              patrimoine_total_net=0,
                              total_immobilier_net=0,
                              investment_plan=empty_plan,
-                             actions_data={'success': False, 'actions': []})
+                             actions_data={'success': False, 'actions': []},
+                             yearly_savings=0,
+                             yearly_objective=0,
+                             yearly_savings_percentage=0)
     
+    # Lire les valeurs directement depuis la base fraîchement rechargée
     patrimoine_total_net = profile.calculated_patrimoine_total_net
     total_immobilier_net = profile.calculated_total_immobilier_net
     
@@ -79,12 +107,38 @@ def dashboard():
     # Récupération des données d'actions pour le dashboard
     actions_data = InvestmentActionsService.get_dashboard_data(current_user.id)
     
+    # ===== CALCUL DE L'ÉPARGNE ANNUELLE =====
+    from datetime import datetime
+    current_year = datetime.utcnow().year
+    yearly_savings = InvestmentActionsService.calculate_yearly_savings_realized(current_user.id, current_year)
+    
+    # Calculer l'objectif annuel basé sur la capacité mensuelle
+    yearly_objective = 12000  # Valeur par défaut
+    if current_user.investor_profile and current_user.investor_profile.monthly_savings_capacity:
+        registration_date = current_user.date_created
+        now = datetime.utcnow()
+        monthly_capacity = current_user.investor_profile.monthly_savings_capacity
+        
+        if current_year == registration_date.year:
+            # Première année : objectif basé sur les mois depuis l'inscription
+            months_since_registration = max((now.month - registration_date.month), 1)
+            yearly_objective = monthly_capacity * months_since_registration
+        else:
+            # Années suivantes : 12 mois complets
+            yearly_objective = monthly_capacity * 12
+    
+    yearly_savings_percentage = (yearly_savings / yearly_objective * 100) if yearly_objective > 0 else 0
+    
+    
     return render_template('platform/investor/dashboard.html',
                          investment_plan=investment_plan,
                          patrimoine_repartition=patrimoine_repartition, 
                          patrimoine_total_net=patrimoine_total_net,
                          total_immobilier_net=total_immobilier_net,
-                         actions_data=actions_data)
+                         actions_data=actions_data,
+                         yearly_savings=yearly_savings,
+                         yearly_objective=yearly_objective,
+                         yearly_savings_percentage=yearly_savings_percentage)
 
 @platform_investor_bp.route('/questionnaire')
 @login_required
@@ -219,6 +273,7 @@ def profile():
 
 @platform_investor_bp.route('/formation')
 @login_required
+@require_active_subscription
 def learning():
     """
     Redirection vers la nouvelle section apprentissages unifiée.
@@ -293,6 +348,7 @@ def get_single_crypto_price(symbol):
 
 @platform_investor_bp.route('/apprentissages')
 @login_required
+@require_active_subscription
 def apprentissages():
     """
     Section formations détaillées avec layout étendu.
@@ -328,15 +384,13 @@ def apprentissages():
 
 @platform_investor_bp.route('/donnees-investisseur')
 @login_required
+@require_active_subscription
 def investor_data():
     """
     Page des données investisseur (profil financier) en mode visualisation.
     """
     if current_user.is_admin:
         return redirect(url_for('platform_admin.dashboard'))
-    
-    if not current_user.can_access_platform():
-        return redirect(url_for('platform_auth.login'))
     
     # Si pas de profil, créer automatiquement un profil vide avec valeurs par défaut
     if not current_user.investor_profile:
@@ -440,6 +494,7 @@ def investor_data():
 
 @platform_investor_bp.route('/donnees-investisseur/modifier', methods=['POST'])
 @login_required
+@require_active_subscription
 def update_investor_data():
     """
     Mise à jour complète des données investisseur - COPIE EXACTE de la logique admin.
@@ -1115,6 +1170,7 @@ def update_investor_data():
 
 @platform_investor_bp.route('/assistant')
 @login_required
+@require_active_subscription
 def assistant():
     """
     Assistant financier IA (chat).
@@ -1284,7 +1340,7 @@ def portfolio_data():
 @login_required
 def change_plan():
     """
-    Changement de plan d'abonnement.
+    Changement de plan d'abonnement avec facturation Stripe.
     """
     if current_user.is_admin:
         return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
@@ -1300,30 +1356,516 @@ def change_plan():
     if new_tier not in valid_tiers:
         return jsonify({'success': False, 'message': 'Plan invalide'}), 400
     
-    # Prix des plans
-    tier_prices = {
-        'initia': 24.99,
-        'optima': 49.99,
-        'ultima': 99.99  # Pour ULTIMA, on met un prix de base même si c'est sur devis
-    }
+    # Vérifier si c'est le même plan
+    if new_tier == current_user.subscription.tier:
+        return jsonify({'success': False, 'message': 'Vous êtes déjà sur ce plan'}), 400
     
     try:
-        # Mettre à jour l'abonnement
-        current_user.subscription.tier = new_tier
-        current_user.subscription.price = tier_prices[new_tier]
-        current_user.subscription.last_payment_date = datetime.utcnow()
-        current_user.subscription.next_billing_date = datetime.utcnow() + timedelta(days=30)
+        # Importer le service Stripe
+        from app.services.stripe_service import stripe_service
         
-        db.session.commit()
+        # Utiliser le service Stripe pour changer le plan
+        result = stripe_service.change_subscription_plan(current_user, new_tier)
+        
+        if result['success']:
+            # Succès - retourner les détails du changement
+            response_data = {
+                'success': True, 
+                'message': result['message'],
+                'previous_plan': result['previous_plan'],
+                'new_plan': result['new_plan'],
+                'is_upgrade': result['is_upgrade'],
+                'new_monthly_price': result['new_monthly_price']
+            }
+            
+            # Ajouter info de proration si upgrade
+            if result['is_upgrade'] and result['proration_amount'] > 0:
+                response_data['proration_message'] = f"Un montant de {result['proration_amount']}€ sera facturé aujourd'hui pour la différence de plan."
+            elif not result['is_upgrade']:
+                response_data['downgrade_message'] = "Votre plan sera effectif immédiatement. Le nouveau tarif s'appliquera à partir de votre prochaine facturation."
+            
+            return jsonify(response_data)
+        else:
+            # Échec Stripe - retourner l'erreur
+            return jsonify({
+                'success': False, 
+                'message': result['error']
+            }), 400
+            
+    except Exception as e:
+        # Fallback en cas d'erreur avec Stripe - mode dégradé
+        print(f"🔍 Erreur Stripe, passage en mode dégradé: {e}")
+        
+        # Mode dégradé : mise à jour locale seulement
+        tier_prices = {
+            'initia': 25.00,
+            'optima': 50.00,
+            'ultima': 99.99
+        }
+        
+        try:
+            current_user.subscription.tier = new_tier
+            current_user.subscription.price = tier_prices[new_tier]
+            current_user.subscription.last_payment_date = datetime.utcnow()
+            current_user.subscription.next_billing_date = datetime.utcnow() + timedelta(days=30)
+            current_user.subscription.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            
+            return jsonify({
+                'success': True, 
+                'message': f'Plan changé avec succès vers {new_tier.upper()} (mode dégradé)',
+                'warning': 'La facturation automatique est temporairement indisponible.'
+            })
+            
+        except Exception as fallback_error:
+            db.session.rollback()
+            return jsonify({
+                'success': False, 
+                'message': f'Erreur lors du changement de plan: {str(fallback_error)}'
+            }), 500
+
+@platform_investor_bp.route('/profil/moyens-paiement')
+@login_required
+def get_stripe_payment_methods():
+    """
+    Récupère les moyens de paiement de l'utilisateur depuis Stripe
+    """
+    if current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    try:
+        from app.services.stripe_service import stripe_service
+        
+        # Vérifier si Stripe est disponible
+        if stripe_service.safe_mode:
+            return jsonify({
+                'success': True,
+                'payment_methods': [],
+                'message': 'Mode démonstration - Les moyens de paiement Stripe ne sont pas disponibles en développement'
+            })
+        
+        # Récupérer les moyens de paiement depuis Stripe
+        payment_methods = stripe_service.get_customer_payment_methods(current_user)
+        
+        if payment_methods is None:
+            # Erreur Stripe, retourner une liste vide avec message d'erreur
+            return jsonify({
+                'success': False,
+                'error': 'Service de paiement temporairement indisponible',
+                'payment_methods': []
+            })
         
         return jsonify({
-            'success': True, 
-            'message': f'Plan changé avec succès vers {new_tier.upper()}'
+            'success': True,
+            'payment_methods': payment_methods
+        })
+        
+    except RuntimeError as e:
+        # Stripe non disponible
+        if "mode SAFE" in str(e):
+            return jsonify({
+                'success': True,
+                'payment_methods': [],
+                'message': 'Service de paiement non disponible en mode développement'
+            })
+        else:
+            print(f"🔍 Erreur Stripe: {e}")
+            return jsonify({
+                'success': False,
+                'error': 'Service de paiement temporairement indisponible',
+                'payment_methods': []
+            })
+    except Exception as e:
+        print(f"🔍 Erreur récupération moyens de paiement: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Erreur lors de la récupération des moyens de paiement',
+            'payment_methods': []
+        })
+
+@platform_investor_bp.route('/profil/paiement/ajouter-setup', methods=['POST'])
+@login_required
+def create_stripe_payment_setup():
+    """
+    Crée un SetupIntent pour ajouter un nouveau moyen de paiement
+    """
+    if current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    try:
+        from app.services.stripe_service import stripe_service
+        
+        # Vérifier si Stripe est disponible
+        if stripe_service.safe_mode:
+            return jsonify({
+                'success': False,
+                'error': 'Service de paiement non disponible en mode développement'
+            })
+        
+        result = stripe_service.create_setup_intent(current_user)
+        return jsonify(result)
+        
+    except RuntimeError as e:
+        if "mode SAFE" in str(e):
+            return jsonify({
+                'success': False,
+                'error': 'Service de paiement non disponible en mode développement'
+            })
+        else:
+            print(f"🔍 Erreur Stripe: {e}")
+            return jsonify({
+                'success': False,
+                'error': 'Service de paiement temporairement indisponible'
+            })
+    except Exception as e:
+        print(f"🔍 Erreur création SetupIntent: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Erreur lors de la préparation de l\'ajout de carte'
+        })
+
+@platform_investor_bp.route('/profil/paiement/defaut', methods=['POST'])
+@login_required
+def set_default_payment_method():
+    """
+    Définit un moyen de paiement comme par défaut
+    """
+    if current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    data = request.get_json()
+    payment_method_id = data.get('payment_method_id')
+    
+    if not payment_method_id:
+        return jsonify({'success': False, 'message': 'ID de moyen de paiement manquant'}), 400
+    
+    try:
+        from app.services.stripe_service import stripe_service
+        
+        result = stripe_service.set_default_payment_method(current_user, payment_method_id)
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"🔍 Erreur définition moyen de paiement par défaut: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Erreur lors de la mise à jour du moyen de paiement par défaut'
+        })
+
+@platform_investor_bp.route('/profil/paiement/supprimer', methods=['POST'])
+@login_required
+def remove_stripe_payment_method():
+    """
+    Supprime un moyen de paiement
+    """
+    if current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    data = request.get_json()
+    payment_method_id = data.get('payment_method_id')
+    
+    if not payment_method_id:
+        return jsonify({'success': False, 'message': 'ID de moyen de paiement manquant'}), 400
+    
+    try:
+        from app.services.stripe_service import stripe_service
+        
+        result = stripe_service.remove_payment_method(current_user, payment_method_id)
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"🔍 Erreur suppression moyen de paiement: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Erreur lors de la suppression du moyen de paiement'
+        })
+
+@platform_investor_bp.route('/profil/annuler-abonnement', methods=['POST'])
+@login_required
+def cancel_subscription():
+    """
+    Annule l'abonnement de l'utilisateur
+    """
+    if current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    if not current_user.subscription:
+        return jsonify({'success': False, 'message': 'Aucun abonnement à annuler'}), 404
+    
+    data = request.get_json()
+    reason = data.get('reason', '')
+    other_reason = data.get('other_reason', '')
+    
+    try:
+        from app.services.stripe_service import stripe_service
+        
+        # Utiliser le service Stripe pour annuler l'abonnement
+        result = stripe_service.cancel_subscription(current_user)
+        
+        if result:
+            # Log du feedback utilisateur pour analytics
+            feedback_info = f"Reason: {reason}"
+            if other_reason:
+                feedback_info += f" | Other: {other_reason}"
+            
+            print(f"🔍 Annulation abonnement {current_user.email}: {feedback_info}")
+            
+            return jsonify({
+                'success': True,
+                'message': 'Abonnement annulé avec succès'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Erreur lors de l\'annulation de l\'abonnement'
+            })
+            
+    except Exception as e:
+        print(f"🔍 Erreur annulation abonnement: {e}")
+        
+        # Fallback: annulation locale si Stripe indisponible
+        try:
+            current_user.subscription.cancel_subscription(immediate=False)
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': 'Abonnement annulé avec succès (mode dégradé)',
+                'warning': 'L\'annulation Stripe sera synchronisée ultérieurement'
+            })
+            
+        except Exception as fallback_error:
+            db.session.rollback()
+            return jsonify({
+                'success': False,
+                'error': 'Erreur lors de l\'annulation de l\'abonnement'
+            }), 500
+
+@platform_investor_bp.route('/profil/stripe-debug')
+@login_required
+def stripe_debug():
+    """
+    Debug Stripe configuration (accessible même pour admin)
+    """
+    try:
+        from app.services.stripe_service import stripe_service
+        import os
+        
+        # Forcer le rechargement du .env
+        from dotenv import load_dotenv
+        load_dotenv(override=True)
+        
+        debug_info = {
+            'stripe_service_safe_mode': stripe_service.safe_mode,
+            'stripe_service_initialized': stripe_service._initialized,
+            'env_stripe_secret_exists': bool(os.getenv('STRIPE_SECRET_KEY')),
+            'env_stripe_publishable_exists': bool(os.getenv('STRIPE_PUBLISHABLE_KEY')),
+            'publishable_key_preview': str(os.getenv('STRIPE_PUBLISHABLE_KEY', ''))[:20] + '...' if os.getenv('STRIPE_PUBLISHABLE_KEY') else None,
+            'secret_key_preview': str(os.getenv('STRIPE_SECRET_KEY', ''))[:20] + '...' if os.getenv('STRIPE_SECRET_KEY') else None
+        }
+        
+        return jsonify({
+            'success': True,
+            'debug': debug_info
         })
         
     except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': 'Erreur lors du changement de plan'}), 500
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@platform_investor_bp.route('/profil/stripe-config')
+@login_required
+def get_stripe_config():
+    """
+    Récupère la configuration Stripe pour le frontend
+    """
+    if current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    try:
+        from app.services.stripe_service import stripe_service
+        
+        # Debug - forcer la réinitialisation si nécessaire
+        if stripe_service.safe_mode:
+            from app.services.stripe_service import initialize_stripe_service
+            print("🔄 Force réinitialisation Stripe...")
+            initialize_stripe_service()
+        
+        # Vérifier si Stripe est disponible
+        if stripe_service.safe_mode:
+            return jsonify({
+                'success': False,
+                'error': 'Service de paiement non disponible en mode développement'
+            })
+        
+        publishable_key = stripe_service.get_publishable_key()
+        
+        if publishable_key:
+            return jsonify({
+                'success': True,
+                'publishable_key': publishable_key
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Service de paiement non disponible'
+            })
+            
+    except RuntimeError as e:
+        if "mode SAFE" in str(e):
+            return jsonify({
+                'success': False,
+                'error': 'Service de paiement non disponible en mode développement'
+            })
+        else:
+            print(f"🔍 Erreur Stripe: {e}")
+            return jsonify({
+                'success': False,
+                'error': 'Service de paiement temporairement indisponible'
+            })
+    except Exception as e:
+        print(f"🔍 Erreur configuration Stripe: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Configuration indisponible'
+        })
+
+@platform_investor_bp.route('/profil/ajouter-carte-stripe', methods=['POST'])
+@login_required
+def add_stripe_payment_method():
+    """
+    Ajoute un moyen de paiement via Stripe Elements et SetupIntent
+    """
+    if current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    data = request.get_json()
+    setup_intent_id = data.get('setup_intent_id')
+    set_as_default = data.get('set_as_default', False)
+    
+    if not setup_intent_id:
+        return jsonify({'success': False, 'error': 'Setup Intent manquant'}), 400
+    
+    try:
+        from app.services.stripe_service import stripe_service
+        import stripe
+        
+        # Vérifier que le SetupIntent est bien confirmé
+        setup_intent = stripe.SetupIntent.retrieve(setup_intent_id)
+        
+        if setup_intent.status != 'succeeded':
+            return jsonify({
+                'success': False,
+                'error': 'Confirmation de carte non réussie'
+            }), 400
+        
+        payment_method_id = setup_intent.payment_method
+        
+        # Définir comme par défaut si demandé
+        if set_as_default:
+            result = stripe_service.set_default_payment_method(current_user, payment_method_id)
+            if not result['success']:
+                print(f"⚠️ Erreur définition par défaut: {result.get('error')}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Carte ajoutée avec succès' + (' et définie par défaut' if set_as_default else ''),
+            'payment_method_id': payment_method_id
+        })
+        
+    except Exception as e:
+        print(f"🔍 Erreur ajout carte Stripe: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Erreur lors de l\'ajout de la carte'
+        })
+
+@platform_investor_bp.route('/profil/factures-stripe')
+@login_required
+def get_stripe_invoices():
+    """
+    Récupère les factures de l'utilisateur depuis Stripe
+    """
+    if current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    try:
+        from app.services.stripe_service import stripe_service
+        
+        # Vérifier si Stripe est disponible
+        if stripe_service.safe_mode:
+            return jsonify({
+                'success': True,
+                'invoices': [],
+                'message': 'Mode démonstration - Les factures Stripe ne sont pas disponibles en développement'
+            })
+        
+        import stripe
+        
+        # Vérifier si l'utilisateur a un customer Stripe
+        if not current_user.stripe_customer_id:
+            return jsonify({
+                'success': True,
+                'invoices': [],
+                'message': 'Aucun ID client Stripe trouvé'
+            })
+        
+        # Vérifier que Stripe est initialisé correctement
+        stripe_service._check_stripe_available()
+        
+        # Récupérer les factures depuis Stripe
+        invoices = stripe.Invoice.list(
+            customer=current_user.stripe_customer_id,
+            limit=12,  # 12 derniers mois
+            expand=['data.subscription']
+        )
+        
+        formatted_invoices = []
+        for invoice in invoices.data:
+            formatted_invoices.append({
+                'id': invoice.id,
+                'number': invoice.number,
+                'amount_paid': invoice.amount_paid / 100,  # Convertir centimes en euros
+                'currency': invoice.currency.upper(),
+                'status': invoice.status,
+                'created': invoice.created,
+                'period_start': invoice.period_start,
+                'period_end': invoice.period_end,
+                'hosted_invoice_url': invoice.hosted_invoice_url,
+                'invoice_pdf': invoice.invoice_pdf,
+                'description': invoice.description or f"Abonnement Atlas - {invoice.lines.data[0].description if invoice.lines.data else 'Service'}"
+            })
+        
+        return jsonify({
+            'success': True,
+            'invoices': formatted_invoices
+        })
+        
+    except RuntimeError as e:
+        # Stripe non disponible
+        if "mode SAFE" in str(e):
+            return jsonify({
+                'success': True,
+                'invoices': [],
+                'message': 'Service de facturation non disponible en mode développement'
+            })
+        else:
+            print(f"🔍 Erreur Stripe: {e}")
+            return jsonify({
+                'success': False,
+                'error': 'Service de facturation temporairement indisponible',
+                'invoices': []
+            })
+    except Exception as e:
+        print(f"🔍 Erreur récupération factures Stripe: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Erreur lors de la récupération des factures',
+            'invoices': []
+        })
 
 @platform_investor_bp.route('/profil/facture/<int:year>/<int:month>')
 @login_required  
@@ -1839,6 +2381,7 @@ def calculate_credit_api():
 
 @platform_investor_bp.route('/plan-investissement')
 @login_required
+@require_active_subscription
 def investment_plan():
     """
     Page de gestion du plan d'investissement pour l'utilisateur connecté.
@@ -1867,6 +2410,7 @@ def investment_plan():
 
 @platform_investor_bp.route('/plan-investissement/save', methods=['POST'])
 @login_required
+@require_active_subscription
 def save_investment_plan():
     """
     Sauvegarder le plan d'investissement de l'utilisateur connecté.
@@ -1922,3 +2466,54 @@ def save_investment_plan():
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Erreur lors de la sauvegarde: {str(e)}'}), 500
+
+@platform_investor_bp.route('/profil/create-payment-setup', methods=['POST'])
+@login_required
+def create_payment_setup():
+    """
+    Crée une session Stripe Checkout pour ajouter un moyen de paiement
+    """
+    if current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    try:
+        from app.services.stripe_service import stripe_service
+        import stripe
+        
+        # Vérifier si Stripe est disponible
+        if stripe_service.safe_mode:
+            return jsonify({
+                'success': False,
+                'error': 'Service de paiement non disponible en mode développement'
+            })
+        
+        # S'assurer que l'utilisateur a un customer Stripe
+        customer = stripe_service.get_or_create_customer(current_user)
+        
+        # Créer une session Checkout pour Setup (pas de paiement, juste collecte des infos)
+        session = stripe.checkout.Session.create(
+            customer=customer.id,
+            payment_method_types=['card'],
+            mode='setup',
+            success_url=request.url_root + 'plateforme/profil?payment_method=added',
+            cancel_url=request.url_root + 'plateforme/profil?payment_method=cancelled',
+            metadata={
+                'atlas_user_id': str(current_user.id),
+                'purpose': 'add_payment_method'
+            }
+        )
+        
+        logger.info(f"Session Checkout créée pour ajout moyen de paiement: {session.id}")
+        
+        return jsonify({
+            'success': True,
+            'session_id': session.id
+        })
+            
+    except Exception as e:
+        logger.error(f"Erreur création session Checkout: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Erreur lors de la création de la session de paiement'
+        }), 500
+

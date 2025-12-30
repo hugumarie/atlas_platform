@@ -13,6 +13,10 @@ import re
 
 onboarding_bp = Blueprint('onboarding', __name__, url_prefix='/onboarding')
 
+@onboarding_bp.route('/test-success')
+def test_success():
+    """Test de la page de félicitations avec bitcoins visibles"""
+    return render_template('onboarding/payment_success.html')
 
 @onboarding_bp.route('/invitation/<token>')
 def invitation_signup(token):

@@ -144,10 +144,22 @@ def api_yearly_savings():
         current_year = datetime.utcnow().year
         yearly_savings = InvestmentActionsService.calculate_yearly_savings_realized(current_user.id, current_year)
         
-        # Récupérer l'objectif annuel depuis le profil investisseur
+        # Calculer l'objectif annuel basé sur la capacité mensuelle
         yearly_objective = 12000  # Valeur par défaut
-        if current_user.investor_profile and hasattr(current_user.investor_profile, 'yearly_savings_capacity'):
-            yearly_objective = current_user.investor_profile.yearly_savings_capacity or 12000
+        if current_user.investor_profile and current_user.investor_profile.monthly_savings_capacity:
+            # Calculer l'objectif selon l'année d'inscription (comme dans le dashboard)
+            registration_date = current_user.date_created
+            now = datetime.utcnow()
+            
+            monthly_capacity = current_user.investor_profile.monthly_savings_capacity
+            
+            if current_year == registration_date.year:
+                # Première année : objectif basé sur les mois depuis l'inscription
+                months_since_registration = max((now.month - registration_date.month), 1)
+                yearly_objective = monthly_capacity * months_since_registration
+            else:
+                # Années suivantes : 12 mois complets
+                yearly_objective = monthly_capacity * 12
         
         return jsonify({
             'success': True,

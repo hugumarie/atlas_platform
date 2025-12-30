@@ -139,11 +139,11 @@
         <div class="savings-progress-container">
             <div class="savings-progress-info">
                 <div class="savings-current">
-                    <span class="savings-amount" id="currentYearlySavings">0€</span>
+                    <span class="savings-amount" id="currentYearlySavings">{{ "{:,.0f}".format(yearly_savings or 0) }}€</span>
                     <span class="savings-label">Épargné cette année</span>
                 </div>
                 <div class="savings-target">
-                    <span class="savings-amount" id="targetYearlySavings">10 200€</span>
+                    <span class="savings-amount" id="targetYearlySavings">{{ "{:,.0f}".format(yearly_objective or 0) }}€</span>
                     <span class="savings-label">Objectif annuel</span>
                 </div>
             </div>
@@ -151,7 +151,7 @@
                 <div class="savings-progress-track">
                     <div class="savings-progress-fill" id="savingsProgressFill"></div>
                 </div>
-                <div class="savings-progress-percentage" id="savingsProgressPercentage">0%</div>
+                <div class="savings-progress-percentage" id="savingsProgressPercentage">{{ "{:.0f}".format(yearly_savings_percentage or 0) }}%</div>
             </div>
         </div>
     </div>
@@ -218,7 +218,6 @@
 
 {% block scripts %}
 <script>
-console.log("*** TEMPLATE PLATFORM INVESTOR DASHBOARD CHARGE ***");
 document.addEventListener('DOMContentLoaded', function() {
     // Animation des statistiques au chargement
     animateStatsCards();
@@ -262,93 +261,24 @@ function animateStatsCards() {
 }
 
 function animateSavingsProgress() {
-    // Données réelles basées sur l'utilisateur
-    const monthlyGoal = {% if current_user.investor_profile %}{{ current_user.investor_profile.monthly_savings_capacity }}{% else %}0{% endif %};
+    // Utiliser les vraies données calculées côté serveur
+    const currentSavings = {{ yearly_savings or 0 }};
+    const annualGoal = {{ yearly_objective or 0 }};
+    const progressPercentage = {{ yearly_savings_percentage or 0 }};
     
-    // Calculer le nombre de mois réellement écoulés depuis l'inscription
-    const registrationDate = new Date('{{ current_user.date_created.strftime("%Y-%m-%d") if current_user.date_created else "2024-01-01" }}');
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const registrationYear = registrationDate.getFullYear();
     
-    // Calcul des mois complets écoulés depuis l'inscription
-    // Inscription 30 septembre -> mois complets: octobre (9), novembre (10), décembre (11) = 3 mois
-    const registrationMonth = registrationDate.getMonth(); // septembre = 8
-    const currentMonth = now.getMonth(); // décembre = 11
     
-    let monthsSinceRegistration;
-    if (currentYear === registrationYear) {
-        // Même année: compter les mois depuis le mois suivant l'inscription
-        monthsSinceRegistration = currentMonth - registrationMonth; // 11 - 8 = 3
-    } else {
-        // Année différente: calcul classique
-        monthsSinceRegistration = (now.getFullYear() - registrationDate.getFullYear()) * 12;
-        monthsSinceRegistration += now.getMonth() - registrationDate.getMonth();
-        if (now.getDate() < registrationDate.getDate()) {
-            monthsSinceRegistration--;
-        }
-    }
-    
-    // Assurer qu'on a au moins 0 mois
-    monthsSinceRegistration = Math.max(monthsSinceRegistration, 0);
-    
-    // Calculer l'objectif annuel selon l'année d'inscription
-    let annualGoal;
-    if (currentYear === registrationYear) {
-        // Première année : objectif basé sur les mois réellement écoulés depuis l'inscription
-        // Si on s'inscrit le 30 septembre, on compte octobre, novembre, décembre = 3 mois
-        const monthsFromRegistration = Math.max(monthsSinceRegistration, 1); // Au minimum 1 mois
-        annualGoal = monthlyGoal * monthsFromRegistration;
-    } else {
-        // Années suivantes : 12 mois complets
-        annualGoal = monthlyGoal * 12;
-    }
-    
-    const currentSavings = monthlyGoal * monthsSinceRegistration;
-    const progressPercentage = Math.min((currentSavings / annualGoal) * 100, 100);
-    
-    // Debug console (à supprimer plus tard)
-    console.log('Date inscription:', registrationDate);
-    console.log('Date actuelle:', now);
-    console.log('Mois écoulés:', monthsSinceRegistration);
-    console.log('Objectif annuel:', annualGoal);
-    console.log('Épargne actuelle:', currentSavings);
-    console.log('Pourcentage:', progressPercentage);
-    
-    // Mettre à jour les valeurs
-    document.getElementById('targetYearlySavings').textContent = annualGoal.toLocaleString() + '€';
-    
-    // Animation de la barre et du montant
-    let currentAmount = 0;
-    const duration = 2000; // 2 secondes
-    const steps = 60;
-    const amountStep = currentSavings / steps;
-    const progressStep = progressPercentage / steps;
-    
+    // Animation de la barre de progression seulement (les textes sont déjà corrects côté serveur)
     const progressBar = document.getElementById('savingsProgressFill');
-    const progressText = document.getElementById('savingsProgressPercentage');
-    const currentAmountElement = document.getElementById('currentYearlySavings');
     
-    let step = 0;
-    const interval = setInterval(() => {
-        step++;
-        currentAmount += amountStep;
-        
-        // Mettre à jour la barre
-        progressBar.style.width = (progressStep * step) + '%';
-        
-        // Mettre à jour le texte
-        progressText.textContent = Math.round(progressStep * step) + '%';
-        currentAmountElement.textContent = Math.round(currentAmount).toLocaleString() + '€';
-        
-        if (step >= steps) {
-            clearInterval(interval);
-            // Valeurs finales exactes
+    if (progressBar) {
+        // Animation de 0 à la valeur finale
+        progressBar.style.width = '0%';
+        setTimeout(() => {
+            progressBar.style.transition = 'width 2s cubic-bezier(0.4, 0, 0.2, 1)';
             progressBar.style.width = progressPercentage + '%';
-            progressText.textContent = Math.round(progressPercentage) + '%';
-            currentAmountElement.textContent = currentSavings.toLocaleString() + '€';
-        }
-    }, duration / steps);
+        }, 100);
+    }
 }
 
 function createPortfolioChart() {
@@ -1639,6 +1569,7 @@ function createCustomLegend(portfolioData, total) {
 let currentActionId = null;
 
 function updateInvestmentAction(actionId, status, realizedAmount = null) {
+    
     const data = { status: status };
     if (realizedAmount !== null) {
         data.realized_amount = realizedAmount;
@@ -1664,23 +1595,16 @@ function updateInvestmentAction(actionId, status, realizedAmount = null) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Animation de succès
+            // Feedback visuel immédiat puis refresh
             if (actionItem) {
                 actionItem.style.background = 'linear-gradient(90deg, #d4edda 0%, transparent 100%)';
                 actionItem.style.border = '2px solid #28a745';
-                
-                setTimeout(() => {
-                    actionItem.style.transition = 'all 0.5s ease-out';
-                    actionItem.style.opacity = '0';
-                    actionItem.style.transform = 'translateX(20px) scale(0.95)';
-                    
-                    setTimeout(() => {
-                        actionItem.remove();
-                        updateDashboardCounters();
-                        refreshYearlySavings();
-                    }, 500);
-                }, 1000);
             }
+            
+            // Refresh immédiat de la page après succès
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 500); // Seulement 0.5 seconde pour voir le feedback
         } else {
             alert('Erreur: ' + data.error);
             if (actionItem) {
@@ -1722,53 +1646,7 @@ function updateDashboardCounters() {
     }
 }
 
-function refreshYearlySavings() {
-    // Récupérer les nouvelles données d'épargne annuelle
-    fetch('/plateforme/actions/api/yearly-savings')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Mettre à jour la barre d'épargne avec les bons sélecteurs
-                const savedAmountElement = document.querySelector('#currentYearlySavings');
-                const targetAmountElement = document.querySelector('#targetYearlySavings');
-                const progressBar = document.querySelector('.progress');
-                
-                if (savedAmountElement && targetAmountElement && progressBar) {
-                    const currentSaved = data.yearly_savings || 0;
-                    const objective = data.yearly_objective || 12000;
-                    const percentage = Math.min((currentSaved / objective) * 100, 100);
-                    
-                    // Animation de la mise à jour
-                    savedAmountElement.style.transition = 'all 0.8s ease-out';
-                    if (progressBar.firstElementChild) {
-                        progressBar.firstElementChild.style.transition = 'width 0.8s ease-out';
-                    }
-                    
-                    // Mettre à jour les valeurs
-                    savedAmountElement.textContent = `${Math.round(currentSaved).toLocaleString()}€`;
-                    targetAmountElement.textContent = `${Math.round(objective).toLocaleString()}€`;
-                    
-                    if (progressBar.firstElementChild) {
-                        progressBar.firstElementChild.style.width = `${percentage}%`;
-                    }
-                    
-                    // Flash visuel pour indiquer la mise à jour
-                    savedAmountElement.style.color = '#28a745';
-                    savedAmountElement.style.fontWeight = 'bold';
-                    savedAmountElement.style.transform = 'scale(1.1)';
-                    
-                    setTimeout(() => {
-                        savedAmountElement.style.color = '';
-                        savedAmountElement.style.fontWeight = '';
-                        savedAmountElement.style.transform = '';
-                    }, 1500);
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Erreur lors de la mise à jour de l\'épargne:', error);
-        });
-}
+// Fonction refreshYearlySavings supprimée - maintenant les données viennent directement du serveur
 
 function showAdjustModal(actionId, label, expectedAmount) {
     currentActionId = actionId;

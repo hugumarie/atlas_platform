@@ -145,6 +145,35 @@ body {
     color: white;
 }
 
+/* Bouton retour au site */
+.qlower-back-to-site-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.qlower-back-to-site-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    text-decoration: none;
+    transform: translateX(-2px);
+}
+
+.qlower-back-to-site-btn i {
+    font-size: 12px;
+}
+
 /* RIGHT SIDE HEADER */
 .qlower-right-header {
     margin-bottom: 32px;
@@ -559,6 +588,14 @@ body {
                     <span>Modification possible à tout moment</span>
                 </li>
             </ul>
+            
+            <!-- Bouton retour au site -->
+            <div style="margin-top: 32px;">
+                <a href="{{ url_for('site_pages.index') }}" class="qlower-back-to-site-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour au site
+                </a>
+            </div>
         </div>
         
         <!-- Support Section -->
