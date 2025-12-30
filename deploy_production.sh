@@ -45,14 +45,28 @@ fi
 
 # Backup de sécurité de la base de données
 echo "💾 Backup de sécurité de la base de données..."
-BACKUP_NAME="backup-$(date +%Y%m%d-%H%M%S)"
-ssh root@167.172.108.93 "dokku postgres:backup atlas-db $BACKUP_NAME" || {
-    echo "⚠️ Backup échoué, continuer quand même ? (y/N)"
-    read -r response
-    if [[ ! "$response" =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
-}
+BACKUP_NAME="pre-deploy-$(date +%Y%m%d-%H%M%S)"
+
+# Tentative de backup local d'abord
+if ssh root@167.172.108.93 "test -f /usr/local/bin/atlas-backup.sh"; then
+    echo "   Using Atlas backup system..."
+    ssh root@167.172.108.93 "/usr/local/bin/atlas-backup.sh" || {
+        echo "⚠️ Backup automatique échoué, continuer quand même ? (y/N)"
+        read -r response
+        if [[ ! "$response" =~ ^[Yy]$ ]]; then
+            exit 1
+        fi
+    }
+else
+    echo "   Backup local simple..."
+    ssh root@167.172.108.93 "dokku postgres:export atlas-db > /tmp/$BACKUP_NAME.sql" || {
+        echo "⚠️ Backup local échoué, continuer quand même ? (y/N)"
+        read -r response
+        if [[ ! "$response" =~ ^[Yy]$ ]]; then
+            exit 1
+        fi
+    }
+fi
 
 # Configuration automatique des variables d'environnement
 echo "⚙️ Configuration automatique des variables d'environnement..."
