@@ -1,9 +1,15 @@
 #!/bin/bash
 
 # Script de déploiement automatique pour Atlas sur Dokku
-# Version optimisée avec timeout pour éviter les blocages
+# Version optimisée avec mode safe pour éviter les blocages Stripe
 
-echo "🚀 Release Atlas - Version sécurisée avec timeout"
+echo "🚀 Release Atlas - Mode safe migration"
+
+# Activer le mode safe pour la migration (évite les blocages Stripe)
+export STRIPE_SAFE_MODE=true
+export STRIPE_SECRET_KEY=sk_test_dummy
+export STRIPE_PUBLISHABLE_KEY=pk_test_dummy
+echo "🔒 Mode STRIPE_SAFE activé pour les migrations"
 
 # Test rapide de PostgreSQL avec timeout
 echo "⏳ Test de connexion PostgreSQL (timeout 30s)..."
