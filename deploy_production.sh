@@ -143,6 +143,10 @@ echo "✅ Toutes les variables configurées automatiquement!"
 
 # Déploiement
 echo "🚀 Déploiement en cours..."
+echo "   Nettoyage du cache Dokku..."
+ssh root@167.172.108.93 "dokku apps:unlock atlas 2>/dev/null || true"
+ssh root@167.172.108.93 "dokku ps:rebuild atlas 2>/dev/null || true"
+
 echo "   Push vers Dokku (cela peut prendre quelques minutes)..."
 
 # Push vers Dokku avec gestion d'erreur
