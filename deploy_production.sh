@@ -52,22 +52,78 @@ ssh root@167.172.108.93 "dokku postgres:backup atlas-db $BACKUP_NAME" || {
     fi
 }
 
-# Configuration des variables d'environnement
-echo "⚙️ Rappel: Variables d'environnement Stripe à configurer manuellement"
-echo "   Connecte-toi au serveur et exécute les commandes du guide DEPLOYMENT_PRODUCTION.md"
-echo ""
-echo "   Exemple:"
-echo "   ssh root@167.172.108.93"
-echo "   dokku config:set atlas STRIPE_SECRET_KEY='sk_live_...'"
-echo "   dokku config:set atlas STRIPE_PUBLISHABLE_KEY='pk_live_...'"
-echo "   # ... autres variables"
-echo ""
-echo "🤔 Les variables Stripe sont-elles configurées ? (y/N)"
-read -r stripe_configured
-if [[ ! "$stripe_configured" =~ ^[Yy]$ ]]; then
-    echo "❌ Configure d'abord les variables Stripe selon DEPLOYMENT_PRODUCTION.md"
+# Configuration automatique des variables d'environnement
+echo "⚙️ Configuration automatique des variables d'environnement..."
+
+ENCRYPTED_FILE=".env.production.enc"
+TEMP_FILE=".env.production.tmp"
+
+# Vérifier que le fichier chiffré existe
+if [[ ! -f "$ENCRYPTED_FILE" ]]; then
+    echo "❌ Erreur: Fichier chiffré non trouvé: $ENCRYPTED_FILE"
+    echo ""
+    echo "📝 Créer la configuration chiffrée:"
+    echo "   1. ./setup_production_config.sh    # Créer le fichier chiffré"
+    echo "   2. ./edit_production_config.sh     # Éditer avec tes clés Stripe"
+    echo "   3. ./deploy_production.sh          # Déployer"
     exit 1
 fi
+
+echo "🔑 Déchiffrement de la configuration production..."
+
+# Déchiffrer le fichier de configuration
+if ! openssl enc -aes-256-cbc -d -pbkdf2 -in "$ENCRYPTED_FILE" -out "$TEMP_FILE"; then
+    echo "❌ Échec du déchiffrement (mot de passe incorrect ?)"
+    rm -f "$TEMP_FILE"
+    exit 1
+fi
+
+# Vérifier que les clés Stripe ont été remplacées
+if grep -q "REMPLACE_PAR" "$TEMP_FILE"; then
+    echo "❌ Erreur: Les clés Stripe n'ont pas été configurées"
+    echo ""
+    echo "📝 Configure d'abord tes clés Stripe:"
+    echo "   ./edit_production_config.sh"
+    rm -f "$TEMP_FILE"
+    exit 1
+fi
+
+echo "✅ Configuration déchiffrée, envoi des variables au serveur..."
+
+# Envoyer les variables au serveur Dokku
+echo "   Configuration des variables Stripe..."
+while IFS='=' read -r key value; do
+    # Ignorer les commentaires et lignes vides
+    if [[ $key =~ ^[[:space:]]*# ]] || [[ -z $key ]]; then
+        continue
+    fi
+    
+    # Nettoyer la clé et la valeur
+    key=$(echo "$key" | tr -d ' ')
+    value=$(echo "$value" | tr -d ' ')
+    
+    if [[ -n $key && -n $value ]]; then
+        echo "     Setting $key..."
+        ssh root@167.172.108.93 "dokku config:set atlas $key=\"$value\"" || {
+            echo "   ❌ Erreur lors de la configuration de $key"
+            rm -f "$TEMP_FILE"
+            exit 1
+        }
+    fi
+done < "$TEMP_FILE"
+
+# Nettoyer le fichier temporaire déchiffré
+rm -f "$TEMP_FILE"
+
+# Générer une SECRET_KEY aléatoire
+echo "   Génération SECRET_KEY..."
+SECRET_KEY=$(openssl rand -base64 32)
+ssh root@167.172.108.93 "dokku config:set atlas SECRET_KEY=\"$SECRET_KEY\"" || {
+    echo "   ❌ Erreur lors de la configuration de SECRET_KEY"
+    exit 1
+}
+
+echo "✅ Toutes les variables configurées automatiquement!"
 
 # Déploiement
 echo "🚀 Déploiement en cours..."
