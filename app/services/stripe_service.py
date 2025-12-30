@@ -23,11 +23,8 @@ class StripeService:
         self.load_config()
         
     def load_config(self):
-        """Charge la configuration Stripe depuis .env.stripe"""
-        # Charger les variables d'environnement Stripe
-        load_dotenv('.env.stripe')
-        
-        # Configuration de Stripe
+        """Charge la configuration Stripe depuis les variables d'environnement"""
+        # Configuration de Stripe - priorité aux variables d'environnement système
         stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
         
         # Clés et IDs
@@ -42,9 +39,15 @@ class StripeService:
             'maxima': os.getenv('STRIPE_PRICE_MAXIMA')
         }
         
-        # URLs
-        self.success_url = os.getenv('STRIPE_SUCCESS_URL', 'https://www.atlas-invest.fr/plateforme/dashboard')
-        self.cancel_url = os.getenv('STRIPE_CANCEL_URL', 'https://www.atlas-invest.fr/onboarding/plan')
+        # URLs - adaptation automatique selon l'environnement
+        base_url = os.getenv('SITE_URL', 'https://atlas-invest.fr')
+        self.success_url = os.getenv('STRIPE_SUCCESS_URL', f'{base_url}/plateforme/dashboard')
+        self.cancel_url = os.getenv('STRIPE_CANCEL_URL', f'{base_url}/onboarding/plan')
+        
+        # Vérification de configuration
+        if not self.secret_key:
+            logger.error("STRIPE_SECRET_KEY non configurée!")
+            raise ValueError("Configuration Stripe incomplète: STRIPE_SECRET_KEY manquante")
         
         logger.info("Configuration Stripe chargée (Production)")
     
