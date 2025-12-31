@@ -403,7 +403,10 @@ def investor_data():
             risk_tolerance='conservateur',
             investment_experience='debutant',
             investment_goals='constitution_epargne',
-            investment_horizon='court terme'
+            investment_horizon='court terme',
+            family_situation='celibataire',  # Valeur par défaut requise
+            professional_situation='salarie',  # Valeur par défaut
+            civilite='M'  # Valeur par défaut
         )
         db.session.add(profile)
         db.session.commit()
