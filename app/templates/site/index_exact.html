@@ -71,45 +71,47 @@ body {
     transition: all 0.3s ease;
 }
 
-/* Hamburger Menu Button */
+/* Hamburger Menu Button - Force override */
 .hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: space-around;
-    width: 24px;
-    height: 18px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    position: relative;
-    z-index: 10001;
+    display: none !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 28px !important;
+    height: 28px !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    padding: 6px !important;
+    position: relative !important;
+    z-index: 10001 !important;
+    gap: 4px !important;
 }
 
 .hamburger span {
-    width: 24px;
-    height: 2px;
-    background: var(--qlower-text-dark);
-    border-radius: 3px;
-    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-    position: relative;
-    transform-origin: 2px 1px;
+    width: 20px !important;
+    height: 2px !important;
+    background: var(--qlower-text-dark) !important;
+    border-radius: 2px !important;
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+    position: relative !important;
+    display: block !important;
+    margin: 0 !important;
+    transform-origin: center !important;
 }
 
 .hamburger.active span:nth-child(1) {
-    transform: rotate(45deg);
+    transform: rotate(45deg) translate(0px, 6px) !important;
+    background: var(--qlower-primary) !important;
 }
 
 .hamburger.active span:nth-child(2) {
-    opacity: 0;
-    transform: translateX(-20px);
+    opacity: 0 !important;
+    transform: scale(0) !important;
 }
 
 .hamburger.active span:nth-child(3) {
-    transform: rotate(-45deg);
-}
-
-.hamburger.active span {
+    transform: rotate(-45deg) translate(0px, -6px) !important;
     background: var(--qlower-primary) !important;
 }
 
@@ -1142,7 +1144,9 @@ body {
     }
     
     .hamburger {
-        display: flex;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     
     /* Mobile menu overlay */
@@ -1154,12 +1158,14 @@ body {
         bottom: 0;
         width: 100vw;
         height: 100vh;
+        height: 100dvh; /* Dynamic viewport height for mobile */
         max-height: 100vh;
+        max-height: 100dvh;
         background: rgba(255, 255, 255, 0.98);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         z-index: 10000;
-        display: flex;
+        display: flex !important;
         flex-direction: column;
         justify-content: center;
         align-items: center;
@@ -1169,6 +1175,8 @@ body {
         box-sizing: border-box;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        /* Ensure it's above everything */
+        will-change: transform, opacity;
     }
     
     /* Show navigation actions in mobile menu */
@@ -2285,61 +2293,36 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Mobile menu toggle with close button
-const mobileToggle = document.querySelector('.qlower-mobile-toggle');
-const navMenu = document.querySelector('.qlower-nav-menu');
-const mobileBackdrop = document.querySelector('.mobile-backdrop');
-const mobileCloseBtn = document.querySelector('.mobile-close-btn');
-
-if (mobileToggle && navMenu && mobileBackdrop && mobileCloseBtn) {
-    function closeMobileMenu() {
-        navMenu.classList.remove('mobile-active');
-        mobileBackdrop.classList.remove('active');
-        mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
-        document.body.style.overflow = '';
-    }
+// Modern hamburger menu toggle
+function toggleMobileMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileMenu = document.querySelector('.qlower-nav-menu');
+    const backdrop = document.querySelector('.mobile-backdrop');
     
-    function openMobileMenu() {
-        navMenu.classList.add('mobile-active');
-        mobileBackdrop.classList.add('active');
-        mobileToggle.innerHTML = '<i class="fas fa-times"></i>';
-        document.body.style.overflow = 'hidden';
-    }
+    hamburger.classList.toggle('active');
+    mobileMenu.classList.toggle('mobile-active');
+    backdrop.classList.toggle('active');
     
-    // Open menu when clicking hamburger
-    mobileToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const isActive = navMenu.classList.contains('mobile-active');
-        
-        if (isActive) {
-            closeMobileMenu();
-        } else {
-            openMobileMenu();
-        }
-    });
-    
-    // Close menu when clicking close button
-    mobileCloseBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        closeMobileMenu();
-    });
-    
-    // Close when clicking backdrop
-    mobileBackdrop.addEventListener('click', closeMobileMenu);
-    
-    // Close when clicking outside (but not on menu content)
-    document.addEventListener('click', function(event) {
-        if (!event.target.closest('.qlower-nav-container') && 
-            !event.target.closest('.qlower-nav-menu')) {
-            closeMobileMenu();
-        }
-    });
-    
-    // Prevent closing when clicking inside menu
-    navMenu.addEventListener('click', function(e) {
-        e.stopPropagation();
-    });
+    // Prevent body scroll when menu is open
+    document.body.style.overflow = mobileMenu.classList.contains('mobile-active') ? 'hidden' : '';
 }
+
+// Close menu when clicking backdrop
+document.addEventListener('DOMContentLoaded', function() {
+    const backdrop = document.querySelector('.mobile-backdrop');
+    if (backdrop) {
+        backdrop.addEventListener('click', toggleMobileMenu);
+    }
+    
+    // Close menu when clicking on mobile links
+    document.querySelectorAll('.qlower-nav-menu .qlower-nav-link').forEach(link => {
+        link.addEventListener('click', function() {
+            if (document.querySelector('.qlower-nav-menu').classList.contains('mobile-active')) {
+                toggleMobileMenu();
+            }
+        });
+    });
+});
 
 // Navbar scroll effect - transparent background with enhanced container
 const navbar = document.querySelector('.qlower-navbar');
@@ -2490,36 +2473,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Modern hamburger menu toggle
-function toggleMobileMenu() {
-    const hamburger = document.querySelector('.hamburger');
-    const mobileMenu = document.querySelector('.qlower-nav-menu');
-    const backdrop = document.querySelector('.mobile-backdrop');
-    
-    hamburger.classList.toggle('active');
-    mobileMenu.classList.toggle('mobile-active');
-    backdrop.classList.toggle('active');
-    
-    // Prevent body scroll when menu is open
-    document.body.style.overflow = mobileMenu.classList.contains('mobile-active') ? 'hidden' : '';
-}
 
-// Close menu when clicking backdrop
-document.addEventListener('DOMContentLoaded', function() {
-    const backdrop = document.querySelector('.mobile-backdrop');
-    if (backdrop) {
-        backdrop.addEventListener('click', toggleMobileMenu);
-    }
-    
-    // Close menu when clicking on mobile links
-    document.querySelectorAll('.qlower-nav-menu .qlower-nav-link').forEach(link => {
-        link.addEventListener('click', toggleMobileMenu);
-    });
-    
-    // Close menu when clicking on mobile action buttons
-    document.querySelectorAll('.mobile-nav-actions .qlower-btn-espace').forEach(btn => {
-        btn.addEventListener('click', toggleMobileMenu);
-    });
-});
 </script>
 {% endblock %}
