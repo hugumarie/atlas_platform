@@ -1275,7 +1275,14 @@ Conformité: "Information éducative uniquement. Pas de recommandation personnal
         if response.status_code == 200:
             result = response.json()
             ai_response = result['choices'][0]['message']['content']
+        elif response.status_code == 401:
+            print(f"❌ OpenAI API Key invalide: {response.text}")
+            return jsonify({
+                'error': '🔧 Assistant temporairement indisponible (clé API invalide). Veuillez contacter le support.',
+                'details': 'Configuration OpenAI à mettre à jour'
+            }), 500
         else:
+            print(f"❌ Erreur OpenAI {response.status_code}: {response.text}")
             return jsonify({'error': f'Erreur API OpenAI: {response.status_code}'}), 500
         
         return jsonify({
@@ -2479,6 +2486,7 @@ def create_payment_setup():
     try:
         from app.services.stripe_service import stripe_service
         import stripe
+        import os
         
         # Vérifier si Stripe est disponible
         if stripe_service.safe_mode:
@@ -2486,6 +2494,14 @@ def create_payment_setup():
                 'success': False,
                 'error': 'Service de paiement non disponible en mode développement'
             })
+        
+        # Configurer la clé API Stripe pour ce module
+        stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+        if not stripe.api_key:
+            return jsonify({
+                'success': False,
+                'error': 'Configuration Stripe manquante'
+            }), 500
         
         # S'assurer que l'utilisateur a un customer Stripe
         customer = stripe_service.get_or_create_customer(current_user)

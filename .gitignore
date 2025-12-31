@@ -47,6 +47,11 @@ debug_atlas_*
 manual_*
 force_*
 check_*
+test_email*.py
+test_prod*.py
+test_services*.py
+configure_dokku_production.sh
+*_simple.py
 
 # Mac
 .DS_Store
