@@ -237,30 +237,38 @@
 
     .atlas-info-item {
         text-align: center;
-        padding: 10px;
+        padding: 12px 8px;
         background: rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
+        border-radius: 10px;
         backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 70px;
     }
 
     .atlas-info-item i {
-        font-size: 16px;
-        margin-bottom: 4px;
+        font-size: 18px;
+        margin-bottom: 6px;
         display: block;
         color: white;
     }
 
     .atlas-info-item strong {
         display: block;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 700;
         color: white;
+        margin-bottom: 2px;
+        line-height: 1.2;
     }
 
     .atlas-info-item span {
-        font-size: 10px;
-        opacity: 0.8;
+        font-size: 11px;
+        opacity: 0.9;
         color: white;
+        font-weight: 500;
     }
 
     /* Section droite - Formulaire */
@@ -408,14 +416,16 @@
         color: var(--text-secondary);
         margin: 0;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: 8px;
         line-height: 1.3;
     }
 
     .atlas-form-disclaimer i {
         color: var(--primary-color);
+        font-size: 14px;
     }
 
     /* Messages d'erreur */
@@ -483,6 +493,171 @@
             font-size: 18px;
         }
     }
+
+    /* FOOTER STYLES - Style menu avec boîte blanche sur fond vert */
+    .qlower-footer {
+        background: var(--primary-color);
+        padding: 60px 24px 24px;
+        margin-top: 0;
+    }
+
+    .qlower-footer-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: var(--bg-color);
+        border-radius: 20px;
+        padding: 48px 40px 32px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .qlower-footer-content {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 60px;
+        margin-bottom: 40px;
+    }
+
+    .qlower-footer-brand {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .qlower-footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    .qlower-footer-logo span {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--dark-color);
+        letter-spacing: -0.025em;
+    }
+
+    .qlower-footer-description {
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--text-secondary);
+        margin: 0;
+        max-width: 280px;
+    }
+
+    .qlower-footer-social {
+        display: flex;
+        gap: 16px;
+    }
+
+    .qlower-social-link {
+        width: 40px;
+        height: 40px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .qlower-social-link:hover {
+        background: var(--primary-color);
+        color: var(--bg-color);
+        transform: translateY(-2px);
+    }
+
+    .qlower-footer-links {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 40px;
+    }
+
+    .qlower-footer-column h6 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 20px;
+    }
+
+    .qlower-footer-column ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .qlower-footer-column li {
+        margin-bottom: 12px;
+    }
+
+    .qlower-footer-link {
+        font-size: 15px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: block;
+        padding: 4px 0;
+    }
+
+    .qlower-footer-link:hover {
+        color: var(--primary-color);
+        padding-left: 8px;
+    }
+
+    .qlower-footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 32px;
+        border-top: 1px solid var(--border-color);
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .qlower-footer-bottom p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .qlower-footer-bottom i {
+        color: var(--primary-color);
+    }
+
+    /* Footer Responsive */
+    @media (max-width: 991px) {
+        .qlower-footer-content {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+        
+        .qlower-footer-links {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .qlower-footer-container {
+            padding: 32px 24px 24px;
+        }
+        
+        .qlower-footer-links {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+        
+        .qlower-footer-bottom {
+            flex-direction: column;
+            text-align: center;
+            gap: 12px;
+        }
+    }
     </style>
     
     {% block head %}{% endblock %}
@@ -512,6 +687,80 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Footer centralisé -->
+    {% block footer %}
+    <footer class="qlower-footer">
+        <div class="qlower-footer-container">
+            <div class="qlower-footer-content">
+                <div class="qlower-footer-brand">
+                    <div class="qlower-footer-logo">
+                        <img src="{{ url_for('static', filename='images/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto;">
+                    </div>
+                    <p class="qlower-footer-description">
+                        Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
+                    </p>
+                    <div class="qlower-footer-social">
+                        <a href="#" class="qlower-social-link"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="qlower-social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="qlower-social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="qlower-social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="qlower-footer-links">
+                    <div class="qlower-footer-column">
+                        <h6>Produit</h6>
+                        <ul>
+                            <li><a href="{{ url_for('site_pages.solutions') }}" class="qlower-footer-link">Nos solutions</a></li>
+                            <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Tarifs</a></li>
+                            <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
+                            <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="qlower-footer-column">
+                        <h6>Ressources</h6>
+                        <ul>
+                            <li><a href="#" class="qlower-footer-link">Blog</a></li>
+                            <li><a href="#" class="qlower-footer-link">Guides</a></li>
+                            <li><a href="#" class="qlower-footer-link">FAQ</a></li>
+                            <li><a href="{{ url_for('site_pages.contact') }}" class="qlower-footer-link">Contact</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="qlower-footer-column">
+                        <h6>Entreprise</h6>
+                        <ul>
+                            <li><a href="{{ url_for('site_pages.about') }}" class="qlower-footer-link">À propos</a></li>
+                            <li><a href="#" class="qlower-footer-link">Devenir Partenaire</a></li>
+                            <li><a href="#" class="qlower-footer-link">Carrières</a></li>
+                            <li><a href="#" class="qlower-footer-link">Presse</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="qlower-footer-column">
+                        <h6>Légal</h6>
+                        <ul>
+                            <li><a href="{{ url_for('site_pages.cgu') }}" class="qlower-footer-link">CGU</a></li>
+                            <li><a href="{{ url_for('site_pages.privacy') }}" class="qlower-footer-link">Confidentialité</a></li>
+                            <li><a href="{{ url_for('site_pages.cookies') }}" class="qlower-footer-link">Cookies</a></li>
+                            <li><a href="{{ url_for('site_pages.legal') }}" class="qlower-footer-link">Mentions légales</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="qlower-footer-bottom">
+                <p>&copy; 2026 Atlas. Tous droits réservés.</p>
+                <p>
+                    <i class="fas fa-shield-alt"></i>
+                    Données sécurisées et cryptées
+                </p>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
     <!-- Popup de prise de rendez-vous - Design Atlas moderne -->
     <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -535,10 +784,10 @@
                                         <i class="fas fa-calendar-alt"></i>
                                     </div>
                                     <h2 class="atlas-modal-title">
-                                        Réservez votre consultation gratuite
+                                        Rencontrer votre futur conseiller Atlas
                                     </h2>
                                     <p class="atlas-modal-subtitle">
-                                        Découvrez comment optimiser votre patrimoine avec nos experts
+                                        Découvrez comment Atlas peut vous aider
                                     </p>
                                 </div>
                                 
@@ -546,11 +795,11 @@
                                 <div class="atlas-modal-benefits">
                                     <div class="atlas-benefit-item">
                                         <div class="atlas-benefit-icon">
-                                            <i class="fas fa-chart-line"></i>
+                                            <i class="fas fa-comments"></i>
                                         </div>
                                         <div class="atlas-benefit-content">
-                                            <h6>Optimisation de votre épargne</h6>
-                                            <p>Stratégie personnalisée pour maximiser vos rendements</p>
+                                            <h6>Échange autour de vos projets</h6>
+                                            <p>Discussion sur vos objectifs financiers</p>
                                         </div>
                                     </div>
                                     
@@ -559,8 +808,18 @@
                                             <i class="fas fa-search-dollar"></i>
                                         </div>
                                         <div class="atlas-benefit-content">
-                                            <h6>Analyse gratuite de votre situation</h6>
-                                            <p>Diagnostic complet de votre profil financier</p>
+                                            <h6>Analyse de votre situation financière</h6>
+                                            <p>Diagnostic complet de votre profil</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="atlas-benefit-item">
+                                        <div class="atlas-benefit-icon">
+                                            <i class="fas fa-laptop-code"></i>
+                                        </div>
+                                        <div class="atlas-benefit-content">
+                                            <h6>Présentation des services Atlas</h6>
+                                            <p>Découverte de nos solutions d'accompagnement</p>
                                         </div>
                                     </div>
                                     
@@ -569,18 +828,8 @@
                                             <i class="fas fa-bullseye"></i>
                                         </div>
                                         <div class="atlas-benefit-content">
-                                            <h6>Stratégie d'investissement sur-mesure</h6>
-                                            <p>Plan d'action adapté à vos objectifs patrimoniaux</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="atlas-benefit-item">
-                                        <div class="atlas-benefit-icon">
-                                            <i class="fas fa-users"></i>
-                                        </div>
-                                        <div class="atlas-benefit-content">
-                                            <h6>Questions/réponses avec nos experts</h6>
-                                            <p>Échanges directs avec nos conseillers certifiés</p>
+                                            <h6>Stratégie d'investissement personnalisée</h6>
+                                            <p>Plan d'action adapté à vos besoins</p>
                                         </div>
                                     </div>
                                 </div>
@@ -591,22 +840,19 @@
                                         <div class="atlas-info-item">
                                             <i class="fas fa-clock"></i>
                                             <div>
-                                                <strong>30 minutes</strong>
-                                                <span>Durée</span>
+                                                <strong>30 min</strong>
                                             </div>
                                         </div>
                                         <div class="atlas-info-item">
-                                            <i class="fas fa-video"></i>
+                                            <i class="fas fa-phone"></i>
                                             <div>
-                                                <strong>Visioconférence</strong>
-                                                <span>Format</span>
+                                                <strong>Téléphone ou visio</strong>
                                             </div>
                                         </div>
                                         <div class="atlas-info-item">
                                             <i class="fas fa-gift"></i>
                                             <div>
-                                                <strong>100% Gratuit</strong>
-                                                <span>Sans engagement</span>
+                                                <strong>Offert et sans engagement</strong>
                                             </div>
                                         </div>
                                     </div>
@@ -624,17 +870,6 @@
                                 
                                 <form id="appointmentForm" class="atlas-appointment-form needs-validation" novalidate>
                                     <div class="atlas-form-group">
-                                        <label for="firstName" class="atlas-form-label">Prénom *</label>
-                                        <div class="atlas-input-wrapper">
-                                            <i class="fas fa-user"></i>
-                                            <input type="text" class="atlas-form-input" id="firstName" name="firstName" placeholder="Votre prénom" required>
-                                        </div>
-                                        <div class="invalid-feedback">
-                                            Veuillez saisir votre prénom.
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="atlas-form-group">
                                         <label for="lastName" class="atlas-form-label">Nom *</label>
                                         <div class="atlas-input-wrapper">
                                             <i class="fas fa-user"></i>
@@ -646,7 +881,18 @@
                                     </div>
                                     
                                     <div class="atlas-form-group">
-                                        <label for="email" class="atlas-form-label">Email *</label>
+                                        <label for="firstName" class="atlas-form-label">Prénom *</label>
+                                        <div class="atlas-input-wrapper">
+                                            <i class="fas fa-user"></i>
+                                            <input type="text" class="atlas-form-input" id="firstName" name="firstName" placeholder="Votre prénom" required>
+                                        </div>
+                                        <div class="invalid-feedback">
+                                            Veuillez saisir votre prénom.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="atlas-form-group">
+                                        <label for="email" class="atlas-form-label">Votre adresse mail *</label>
                                         <div class="atlas-input-wrapper">
                                             <i class="fas fa-envelope"></i>
                                             <input type="email" class="atlas-form-input" id="email" name="email" placeholder="votre.email@exemple.fr" required>
@@ -657,7 +903,7 @@
                                     </div>
                                     
                                     <div class="atlas-form-group">
-                                        <label for="phone" class="atlas-form-label">Téléphone *</label>
+                                        <label for="phone" class="atlas-form-label">Numéro de téléphone *</label>
                                         <div class="atlas-input-wrapper">
                                             <i class="fas fa-phone"></i>
                                             <input type="tel" class="atlas-form-input" id="phone" name="phone" placeholder="06 12 34 56 78" required>
@@ -670,7 +916,7 @@
                                     <button type="submit" class="atlas-submit-btn" id="submitAppointment">
                                         <span class="atlas-btn-content">
                                             <i class="fas fa-calendar-check"></i>
-                                            <span>Réserver ma consultation gratuite</span>
+                                            <span>Programmez mon rendez-vous</span>
                                         </span>
                                         <div class="atlas-btn-loading">
                                             <i class="fas fa-spinner fa-spin"></i>

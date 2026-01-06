@@ -330,6 +330,7 @@ button.qlower-btn-demo {
 .mobile-menu-nav {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 1.5rem;
     text-align: center;
     width: 100%;
@@ -363,6 +364,7 @@ button.qlower-btn-demo {
 .mobile-menu-actions {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 1rem;
     width: 100%;
     max-width: 280px;
@@ -490,7 +492,7 @@ button.qlower-btn-demo {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 80px;
-    align-items: start;
+    align-items: stretch;
 }
 
 .qlower-contact-form {
@@ -559,15 +561,21 @@ button.qlower-btn-demo {
 .qlower-contact-info {
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 20px;
+    height: 100%;
+    justify-content: space-between;
 }
 
 .qlower-contact-card {
     background: var(--qlower-white);
-    padding: 32px;
+    padding: 28px 24px;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .qlower-contact-card:hover {
@@ -576,29 +584,37 @@ button.qlower-btn-demo {
 }
 
 .qlower-contact-icon {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
-    border-radius: 16px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    margin: 0 auto 16px auto;
     color: var(--qlower-white);
-    font-size: 24px;
+    font-size: 20px;
+    flex-shrink: 0;
 }
 
 .qlower-contact-card h3 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     color: var(--qlower-dark);
     margin-bottom: 8px;
+    text-align: center;
 }
 
 .qlower-contact-card p {
     color: var(--qlower-text-light);
-    line-height: 1.6;
-    margin: 0;
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+    text-align: center;
+    font-size: 14px;
+}
+
+.qlower-contact-card p:last-child {
+    margin-bottom: 0;
 }
 
 .qlower-contact-card a {
@@ -609,6 +625,53 @@ button.qlower-btn-demo {
 
 .qlower-contact-card a:hover {
     text-decoration: underline;
+}
+
+/* Nouveau design du bouton RDV */
+.atlas-rdv-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(19, 124, 139, 0.25);
+    font-family: 'Inter', sans-serif;
+    margin: 8px auto 0;
+    width: fit-content;
+}
+
+.atlas-rdv-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(19, 124, 139, 0.35);
+    color: white;
+    background: linear-gradient(135deg, #0f6b75 0%, #5d8a94 100%);
+    text-decoration: none;
+}
+
+.atlas-rdv-btn:active {
+    transform: translateY(0);
+}
+
+.atlas-rdv-btn:focus {
+    outline: none;
+    box-shadow: 0 6px 25px rgba(19, 124, 139, 0.35), 0 0 0 3px rgba(19, 124, 139, 0.1);
+}
+
+.atlas-rdv-btn i {
+    font-size: 13px;
+}
+
+.atlas-rdv-btn span {
+    font-weight: 600;
 }
 
 /* Footer - Same as index */
@@ -801,8 +864,23 @@ button.qlower-btn-demo {
         font-size: 36px;
     }
     
+    .qlower-contact-grid {
+        grid-template-columns: 1fr;
+        gap: 50px;
+        align-items: start;
+    }
+    
     .qlower-contact-form {
         padding: 32px 24px;
+    }
+    
+    .qlower-contact-info {
+        gap: 30px;
+        height: auto;
+    }
+    
+    .qlower-contact-card {
+        padding: 24px 20px;
     }
     
     .qlower-footer-container {
@@ -984,9 +1062,14 @@ button.qlower-btn-demo {
                     <div class="qlower-contact-icon">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
-                    <h3>Rendez-vous gratuit</h3>
+                    <h3>Votre rendez-vous découverte</h3>
                     <p>Entretien de découverte de 30 minutes offert</p>
-                    <p><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#appointmentModal" style="font-weight: 600; text-decoration: none;">Prendre rendez-vous</button></p>
+                    <p>
+                        <button type="button" class="atlas-rdv-btn" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Prendre rendez-vous</span>
+                        </button>
+                    </p>
                 </div>
                 
                 <div class="qlower-contact-card" style="background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-light)); color: white;">
@@ -1010,77 +1093,6 @@ button.qlower-btn-demo {
 </section>
 
 
-<!-- Footer -->
-<footer class="qlower-footer">
-    <div class="qlower-footer-container">
-        <div class="qlower-footer-content">
-            <div class="qlower-footer-brand">
-                <div class="qlower-footer-logo">
-                    <img src="{{ url_for('static', filename='img/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto;">
-                </div>
-                <p class="qlower-footer-description">
-                    Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
-                </p>
-                <div class="qlower-footer-social">
-                    <a href="#" class="qlower-social-link"><i class="fab fa-linkedin"></i></a>
-                    <a href="#" class="qlower-social-link"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="qlower-social-link"><i class="fab fa-facebook"></i></a>
-                    <a href="#" class="qlower-social-link"><i class="fab fa-instagram"></i></a>
-                </div>
-            </div>
-            
-            <div class="qlower-footer-links">
-                <div class="qlower-footer-column">
-                    <h6>Produit</h6>
-                    <ul>
-                        <li><a href="{{ url_for('site_pages.solutions') }}" class="qlower-footer-link">Nos solutions</a></li>
-                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Tarifs</a></li>
-                        <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
-                        <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
-                    </ul>
-                </div>
-                
-                <div class="qlower-footer-column">
-                    <h6>Ressources</h6>
-                    <ul>
-                        <li><a href="#" class="qlower-footer-link">Blog</a></li>
-                        <li><a href="#" class="qlower-footer-link">Guides</a></li>
-                        <li><a href="#" class="qlower-footer-link">FAQ</a></li>
-                        <li><a href="{{ url_for('site_pages.contact') }}" class="qlower-footer-link">Contact</a></li>
-                    </ul>
-                </div>
-                
-                <div class="qlower-footer-column">
-                    <h6>Entreprise</h6>
-                    <ul>
-                        <li><a href="{{ url_for('site_pages.about') }}" class="qlower-footer-link">À propos</a></li>
-                        <li><a href="#" class="qlower-footer-link">Devenir Partenaire</a></li>
-                        <li><a href="#" class="qlower-footer-link">Carrières</a></li>
-                        <li><a href="#" class="qlower-footer-link">Presse</a></li>
-                    </ul>
-                </div>
-                
-                <div class="qlower-footer-column">
-                    <h6>Légal</h6>
-                    <ul>
-                        <li><a href="{{ url_for('site_pages.cgu') }}" class="qlower-footer-link">CGU</a></li>
-                        <li><a href="{{ url_for('site_pages.privacy') }}" class="qlower-footer-link">Confidentialité</a></li>
-                        <li><a href="{{ url_for('site_pages.cookies') }}" class="qlower-footer-link">Cookies</a></li>
-                        <li><a href="{{ url_for('site_pages.legal') }}" class="qlower-footer-link">Mentions légales</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        <div class="qlower-footer-bottom">
-            <p>&copy; {{ 2026 }} Atlas. Tous droits réservés.</p>
-            <p>
-                <i class="fas fa-shield-alt"></i>
-                Données sécurisées et cryptées
-            </p>
-        </div>
-    </div>
-</footer>
 {% endblock %}
 
 {% block scripts %}

@@ -33,7 +33,7 @@
     box-sizing: border-box;
 }
 
-/* Menu Mobile Natif Amélioré */
+/* Menu Mobile Natif Amélioré - COPIE EXACTE PAGE CONTACT */
 .mobile-menu-overlay {
     position: fixed;
     top: 0;
@@ -102,14 +102,18 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100%;
+    height: 100%;
     gap: 2rem;
-    padding: 60px 20px 20px;
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 60px 20px 40px;
 }
 
 .mobile-menu-nav {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 1.5rem;
     text-align: center;
     width: 100%;
@@ -143,6 +147,7 @@
 .mobile-menu-actions {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 1rem;
     width: 100%;
     max-width: 280px;
@@ -191,6 +196,109 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* OVERRIDE COMPLET pour page d'accueil - Neutralise tous les conflits */
+@media (max-width: 768px) {
+    /* Reset complet du menu mobile pour page d'accueil */
+    html body .mobile-menu-overlay {
+        text-align: initial !important;
+        direction: ltr !important;
+    }
+    
+    html body .mobile-menu-overlay * {
+        direction: ltr !important;
+        box-sizing: border-box !important;
+    }
+    
+    html body .mobile-menu-overlay .mobile-menu-container {
+        display: block !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        text-align: initial !important;
+    }
+    
+    html body .mobile-menu-overlay .mobile-menu-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        margin: 0 auto !important;
+        max-width: 400px !important;
+        width: 100% !important;
+        height: 100% !important;
+        padding: 60px 20px 40px !important;
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        transform: none !important;
+        gap: 2rem !important;
+    }
+    
+    html body .mobile-menu-overlay .mobile-menu-nav {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+        max-width: 300px !important;
+        gap: 1.5rem !important;
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        transform: none !important;
+        float: none !important;
+    }
+    
+    html body .mobile-menu-overlay .mobile-menu-link {
+        display: block !important;
+        text-align: center !important;
+        margin: 0 auto !important;
+        width: auto !important;
+        max-width: 100% !important;
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        transform: none !important;
+        float: none !important;
+        clear: both !important;
+    }
+    
+    html body .mobile-menu-overlay .mobile-menu-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        margin: 1rem auto 0 !important;
+        width: 100% !important;
+        max-width: 280px !important;
+        gap: 1rem !important;
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        transform: none !important;
+        float: none !important;
+    }
+    
+    html body .mobile-menu-overlay .mobile-menu-btn {
+        display: block !important;
+        text-align: center !important;
+        margin: 0 auto !important;
+        width: auto !important;
+        max-width: 100% !important;
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        transform: translateY(20px) !important;
+        float: none !important;
+        clear: both !important;
     }
 }
 
@@ -1507,50 +1615,207 @@ body {
 
 @media (max-width: 767px) {
     .founders-photos-container {
-        min-height: 300px;
-        max-width: 320px;
+        min-height: auto;
+        max-width: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        margin: 0 auto;
+        gap: 20px;
     }
     
-    .founder-photo.founder-hugues {
-        width: 150px;
-        height: 180px;
-        top: 60px;
-        left: -40px;
-    }
-    
+    .founder-photo.founder-hugues,
     .founder-photo.founder-roland {
-        width: 150px;
-        height: 180px;
-        top: 10px;
-        left: 85px;
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        margin: 0 !important;
+        width: 160px !important;
+        height: 200px !important;
+        transform: none !important;
     }
     
     .founders-badge {
-        bottom: 5px !important;
-        font-size: 13px !important;
-        padding: 8px 16px !important;
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        font-size: 16px !important;
+        padding: 14px 24px !important;
         z-index: 3 !important;
+        margin-top: 10px !important;
     }
 }
 
 @media (max-width: 479px) {
     .founders-photos-container {
-        min-height: 260px;
-        max-width: 280px;
+        min-height: auto;
+        max-width: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        margin: 0 auto;
+        gap: 15px;
     }
     
-    .founder-photo.founder-hugues {
-        width: 120px;
-        height: 150px;
-        top: 50px;
-        left: -30px;
-    }
-    
+    .founder-photo.founder-hugues,
     .founder-photo.founder-roland {
-        width: 120px;
-        height: 150px;
-        top: 5px;
-        left: 70px;
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        margin: 0 !important;
+        width: 140px !important;
+        height: 180px !important;
+        transform: none !important;
+    }
+    
+    .founders-badge {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        font-size: 15px !important;
+        padding: 12px 20px !important;
+        z-index: 3 !important;
+        margin-top: 8px !important;
+    }
+}
+
+/* NOUVELLE RESPONSIVITÉ pour la section Atlas nouvelle génération */
+@media (max-width: 991px) {
+    /* Section principale - layout vertical */
+    .qlower-container {
+        padding: 0 24px !important;
+    }
+    
+    /* Layout vertical sur tablettes */
+    .qlower-container > div[style*="display: flex"] {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 60px !important;
+    }
+    
+    /* Contenu texte centré */
+    .qlower-container div[style*="flex: 1"] {
+        min-width: auto !important;
+        max-width: 100% !important;
+        text-align: center !important;
+    }
+    
+    /* Titre responsive */
+    .qlower-container h2[style*="font-size: 36px"] {
+        font-size: 32px !important;
+        margin-bottom: 30px !important;
+        text-align: center !important;
+    }
+    
+    /* Bullet points centrés */
+    .qlower-container div[style*="text-align: left"] {
+        text-align: center !important;
+    }
+}
+
+@media (max-width: 767px) {
+    /* Section - padding réduit */
+    section[style*="padding: 80px 0"] {
+        padding: 60px 0 !important;
+    }
+    
+    .qlower-container {
+        padding: 0 20px !important;
+    }
+    
+    /* Layout vertical INVERSÉ - texte en haut, photos en bas */
+    .qlower-container > div[style*="display: flex"] {
+        flex-direction: column-reverse !important;
+        gap: 40px !important;
+    }
+    
+    /* Titre plus petit */
+    .qlower-container h2[style*="font-size: 36px"] {
+        font-size: 28px !important;
+        margin-bottom: 24px !important;
+        line-height: 1.2 !important;
+    }
+    
+    /* Texte des bullet points plus petit */
+    .qlower-container p[style*="font-size: 16px"] {
+        font-size: 15px !important;
+        line-height: 1.5 !important;
+    }
+    
+    /* Bouton CTA responsive */
+    .atlas-cta-btn {
+        width: 100% !important;
+        max-width: 300px !important;
+        margin: 30px auto 0 !important;
+        padding: 14px 24px !important;
+        font-size: 15px !important;
+    }
+}
+
+@media (max-width: 479px) {
+    /* Section - padding très réduit */
+    section[style*="padding: 80px 0"] {
+        padding: 40px 0 !important;
+    }
+    
+    .qlower-container {
+        padding: 0 16px !important;
+    }
+    
+    /* Layout INVERSÉ avec gap minimal - texte en haut, photos en bas */
+    .qlower-container > div[style*="display: flex"] {
+        flex-direction: column-reverse !important;
+        gap: 30px !important;
+    }
+    
+    /* Titre mobile */
+    .qlower-container h2[style*="font-size: 36px"] {
+        font-size: 24px !important;
+        margin-bottom: 20px !important;
+        line-height: 1.1 !important;
+    }
+    
+    /* Texte encore plus petit */
+    .qlower-container p[style*="font-size: 16px"] {
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* Bullet points plus compacts */
+    .qlower-container div[style*="gap: 20px"] {
+        gap: 15px !important;
+    }
+    
+    .qlower-container div[style*="gap: 16px"] {
+        gap: 12px !important;
+    }
+    
+    /* Bullet point plus petit */
+    .qlower-container div[style*="width: 12px; height: 12px"] {
+        width: 10px !important;
+        height: 10px !important;
+        margin-top: 4px !important;
+    }
+    
+    /* Bouton mobile */
+    .atlas-cta-btn {
+        margin: 25px auto 0 !important;
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+    }
+    
+    /* Décorations masquées sur très petits écrans */
+    section div[style*="position: absolute"][style*="radial-gradient"] {
+        display: none !important;
     }
 }
 </style>
@@ -1760,21 +2025,21 @@ body {
                         <div style="display: flex; align-items: flex-start; gap: 16px;">
                             <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
                             <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
-                                Nous vous accompagnons dans la mise en place d'une stratégie efficace pour commencer à investir, de manière simple, avec les <strong>meilleures solutions et au meilleur prix.</strong>
+                                Nous vous accompagnons dans la mise en place d'une stratégie efficace pour commencer à investir, de manière simple, avec les <strong style="color: #137C8B;">meilleures solutions et au meilleur prix.</strong>
                             </p>
                         </div>
                         
                         <div style="display: flex; align-items: flex-start; gap: 16px;">
                             <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
                             <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
-                                Notre modèle est unique : il repose sur <strong style="color: #137C8B;">un abonnement transparent</strong>, garantissant un <strong>conseil objectif et réellement indépendant.</strong>
+                                Notre modèle est unique : il repose sur <strong style="color: #137C8B;">un abonnement transparent</strong>, garantissant un <strong style="color: #137C8B;">conseil objectif et réellement indépendant.</strong>
                             </p>
                         </div>
                         
                         <div style="display: flex; align-items: flex-start; gap: 16px;">
                             <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
                             <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
-                                Nous ne sommes <strong>jamais rémunérés par les solutions d'investissement que nous recommandons</strong>, ce qui vous assure un accompagnement entièrement aligné avec vos intérêts.
+                                Nous ne sommes <strong style="color: #137C8B;">jamais rémunérés par les solutions d'investissement que nous recommandons</strong>, ce qui vous assure un accompagnement entièrement aligné avec vos intérêts.
                             </p>
                         </div>
                     </div>
@@ -1846,7 +2111,7 @@ body {
                         <div style="position: absolute; top: 40px; left: calc(100% + 20px); width: calc(100% - 40px); height: 2px; background: linear-gradient(90deg, rgba(255,255,255,0.3), transparent); display: none;" class="connection-line"></div>
                     </div>
                     <h3 style="font-size: 22px; color: white; margin-bottom: 16px; font-weight: 600;">
-                        Analyse de votre situation
+                        Analyse de votre situation financière
                     </h3>
                     <p style="font-size: 16px; color: rgba(255,255,255,0.9); line-height: 1.6; margin: 0;">
                         Nous analysons votre situation, vos objectifs, votre horizon et votre tolérance au risque. Ensemble, nous définissons une stratégie cohérente et adaptée à votre capacité d'épargne.
@@ -1889,7 +2154,7 @@ body {
             
             <!-- Bouton CTA -->
             <div style="text-align: center;">
-                <a href="{{ url_for('site_pages.pricing') }}" class="atlas-solutions-btn">
+                <a href="{{ url_for('site_pages.solutions') }}" class="atlas-solutions-btn">
                     <i class="fas fa-arrow-right" style="margin-right: 8px;"></i>
                     Découvrir nos solutions
                 </a>
@@ -2223,7 +2488,7 @@ body {
                 <div class="qlower-pricing-features">
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Analyse de votre situation et de vos objectifs</span>
+                        <span>Analyse de votre situation financière et de vos objectifs</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
@@ -2389,77 +2654,6 @@ body {
     </div>
 </section>
 
-<!-- EXACT FOOTER REPLICA - Style menu avec boîte blanche sur fond vert -->
-<footer class="qlower-footer">
-    <div class="qlower-footer-container">
-        <div class="qlower-footer-content">
-            <div class="qlower-footer-brand">
-                <div class="qlower-footer-logo">
-                    <img src="{{ url_for('static', filename='img/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto;">
-                </div>
-                <p class="qlower-footer-description">
-                    Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
-                </p>
-                <div class="qlower-footer-social">
-                    <a href="#" class="qlower-social-link"><i class="fab fa-linkedin"></i></a>
-                    <a href="#" class="qlower-social-link"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="qlower-social-link"><i class="fab fa-facebook"></i></a>
-                    <a href="#" class="qlower-social-link"><i class="fab fa-instagram"></i></a>
-                </div>
-            </div>
-            
-            <div class="qlower-footer-links">
-                <div class="qlower-footer-column">
-                    <h6>Produit</h6>
-                    <ul>
-                        <li><a href="{{ url_for('site_pages.solutions') }}" class="qlower-footer-link">Nos solutions</a></li>
-                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Tarifs</a></li>
-                        <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
-                        <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
-                    </ul>
-                </div>
-                
-                <div class="qlower-footer-column">
-                    <h6>Ressources</h6>
-                    <ul>
-                        <li><a href="#" class="qlower-footer-link">Blog</a></li>
-                        <li><a href="#" class="qlower-footer-link">Guides</a></li>
-                        <li><a href="#" class="qlower-footer-link">FAQ</a></li>
-                        <li><a href="{{ url_for('site_pages.contact') }}" class="qlower-footer-link">Contact</a></li>
-                    </ul>
-                </div>
-                
-                <div class="qlower-footer-column">
-                    <h6>Entreprise</h6>
-                    <ul>
-                        <li><a href="{{ url_for('site_pages.about') }}" class="qlower-footer-link">À propos</a></li>
-                        <li><a href="#" class="qlower-footer-link">Devenir Partenaire</a></li>
-                        <li><a href="#" class="qlower-footer-link">Carrières</a></li>
-                        <li><a href="#" class="qlower-footer-link">Presse</a></li>
-                    </ul>
-                </div>
-                
-                <div class="qlower-footer-column">
-                    <h6>Légal</h6>
-                    <ul>
-                        <li><a href="{{ url_for('site_pages.cgu') }}" class="qlower-footer-link">CGU</a></li>
-                        <li><a href="{{ url_for('site_pages.privacy') }}" class="qlower-footer-link">Confidentialité</a></li>
-                        <li><a href="{{ url_for('site_pages.cookies') }}" class="qlower-footer-link">Cookies</a></li>
-                        <li><a href="{{ url_for('site_pages.legal') }}" class="qlower-footer-link">Mentions légales</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        <div class="qlower-footer-bottom">
-            <p>&copy; {{ 2026 }} Atlas. Tous droits réservés.</p>
-            <p>
-                <i class="fas fa-shield-alt"></i>
-                Données sécurisées et cryptées
-            </p>
-        </div>
-    </div>
-</footer>
 {% endblock %}
 
 {% block scripts %}
@@ -2493,8 +2687,50 @@ function toggleMobileMenu() {
         hamburger.classList.toggle('active');
         mobileMenuOverlay.classList.toggle('active');
         
-        // Prevent body scroll when menu is open
+        // FORCE CENTERING pour page d'accueil
         if (mobileMenuOverlay.classList.contains('active')) {
+            // Force le centrage du menu mobile spécifiquement pour la page d'accueil
+            setTimeout(() => {
+                const menuContent = document.querySelector('.mobile-menu-content');
+                const menuNav = document.querySelector('.mobile-menu-nav');
+                const menuActions = document.querySelector('.mobile-menu-actions');
+                const menuLinks = document.querySelectorAll('.mobile-menu-link');
+                const menuBtns = document.querySelectorAll('.mobile-menu-btn');
+                
+                if (menuContent) {
+                    menuContent.style.textAlign = 'center';
+                    menuContent.style.alignItems = 'center';
+                    menuContent.style.justifyContent = 'center';
+                    menuContent.style.margin = '0 auto';
+                    menuContent.style.width = '100%';
+                }
+                
+                if (menuNav) {
+                    menuNav.style.textAlign = 'center';
+                    menuNav.style.alignItems = 'center';
+                    menuNav.style.margin = '0 auto';
+                    menuNav.style.width = '100%';
+                }
+                
+                if (menuActions) {
+                    menuActions.style.textAlign = 'center';
+                    menuActions.style.alignItems = 'center';
+                    menuActions.style.margin = '0 auto';
+                }
+                
+                menuLinks.forEach(link => {
+                    link.style.textAlign = 'center';
+                    link.style.margin = '0 auto';
+                    link.style.display = 'block';
+                    link.style.width = 'auto';
+                });
+                
+                menuBtns.forEach(btn => {
+                    btn.style.textAlign = 'center';
+                    btn.style.margin = '0 auto';
+                });
+            }, 10);
+            
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = '';
