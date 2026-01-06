@@ -260,7 +260,7 @@ class InvestmentActionsService:
     @staticmethod
     def calculate_days_until_next_actions():
         """
-        Calcule le nombre de jours jusqu'au 30 du mois prochain.
+        Calcule le nombre de jours jusqu'au dernier jour du mois prochain.
         
         Returns:
             int: Nombre de jours restants
@@ -270,20 +270,16 @@ class InvestmentActionsService:
         
         today = date.today()
         
-        # Calculer le 30 du mois prochain
+        # Calculer le mois prochain
         next_month = today + relativedelta(months=1)
-        target_date = date(next_month.year, next_month.month, 30)
         
-        # Si le mois prochain n'a pas de 30 (février), prendre le dernier jour
-        try:
-            target_date = date(next_month.year, next_month.month, 30)
-        except ValueError:
-            # Mois avec moins de 30 jours, prendre le dernier jour du mois
-            last_day_next_month = (next_month + relativedelta(months=1)) - relativedelta(days=1)
-            target_date = last_day_next_month
+        # Calculer le dernier jour du mois prochain de façon sûre
+        # On passe au mois suivant, puis on recule d'un jour
+        first_day_month_after = date(next_month.year, next_month.month, 1)
+        last_day_next_month = (first_day_month_after + relativedelta(months=1)) - relativedelta(days=1)
         
         # Calculer la différence en jours
-        days_remaining = (target_date - today).days
+        days_remaining = (last_day_next_month - today).days
         
         return max(0, days_remaining)
     

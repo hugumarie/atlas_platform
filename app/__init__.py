@@ -84,6 +84,7 @@ def create_app():
     # Site vitrine
     from app.routes.site.pages import site_pages_bp
     app.register_blueprint(site_pages_bp)
+    print(f"✅ Blueprint site_pages enregistré avec {len(site_pages_bp.deferred_functions)} routes")
     
     # Plateforme
     from app.routes.platform.auth import platform_auth_bp
@@ -107,6 +108,12 @@ def create_app():
     def index():
         from flask import redirect, url_for
         return redirect(url_for('site_pages.index'))
+    
+    # Route temporaire pour solutions
+    @app.route('/site/solutions')
+    def solutions_temp():
+        from flask import render_template
+        return render_template('site/solutions_simple.html')
     
     # Création des tables de base de données
     with app.app_context():
