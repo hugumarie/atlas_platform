@@ -51,6 +51,14 @@ body {
     overflow-x: hidden;
 }
 
+/* Fix pour boutons CTA convertis */
+button.qlower-btn-demo,
+button.qlower-btn-cta-primary {
+    text-decoration: none !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
 /* Navigation - Same as index */
 .qlower-navbar {
     background: transparent;
@@ -243,21 +251,168 @@ body {
     background: var(--qlower-primary) !important;
 }
 
-.mobile-backdrop {
+/* Menu Mobile Natif Amélioré */
+.mobile-menu-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: 998;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 99999;
     display: none;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.mobile-backdrop.active {
+.mobile-menu-overlay.active {
     display: block;
+    opacity: 1;
+}
+
+.mobile-menu-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-menu-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-menu-close::before,
+.mobile-menu-close::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background: var(--qlower-primary);
+    border-radius: 1px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-close::before {
+    transform: rotate(45deg);
+}
+
+.mobile-menu-close::after {
+    transform: rotate(-45deg);
+}
+
+.mobile-menu-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 2rem;
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 60px 20px 40px;
+}
+
+.mobile-menu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+}
+
+.mobile-menu-link {
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 18px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-link:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu-link:nth-child(2) { animation-delay: 0.2s; }
+.mobile-menu-link:nth-child(3) { animation-delay: 0.3s; }
+.mobile-menu-link:nth-child(4) { animation-delay: 0.4s; }
+.mobile-menu-link:nth-child(5) { animation-delay: 0.5s; }
+
+.mobile-menu-link:hover {
+    background-color: rgba(19, 124, 139, 0.1);
+    color: var(--qlower-primary);
+}
+
+.mobile-menu-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 280px;
+    margin-top: 1rem;
+}
+
+.mobile-menu-btn {
+    padding: 15px 25px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-btn:nth-child(1) { animation-delay: 0.6s; }
+.mobile-menu-btn:nth-child(2) { animation-delay: 0.7s; }
+
+.mobile-menu-btn-primary {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+}
+
+.mobile-menu-btn-secondary {
+    background: var(--qlower-dark);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 77, 89, 0.3);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* HERO SECTION - Green background */
@@ -826,130 +981,6 @@ body {
         display: flex;
     }
     
-    /* Mobile menu overlay */
-    .qlower-nav-menu.mobile-active {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100vh;
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        z-index: 10000;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 2rem;
-        animation: slideIn 0.3s ease-out;
-    }
-    
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-item {
-        opacity: 0;
-        animation: fadeInUp 0.5s ease-out forwards;
-        width: auto;
-        height: auto;
-        display: block;
-        margin: 0;
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(1) { animation-delay: 0.1s; }
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(2) { animation-delay: 0.2s; }
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(3) { animation-delay: 0.3s; }
-    .qlower-nav-menu.mobile-active .mobile-actions { animation-delay: 0.4s; }
-    
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-link {
-        color: var(--qlower-text-dark);
-        font-size: 1.5rem;
-        font-weight: 600;
-        text-decoration: none;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        display: block;
-        text-align: center;
-        min-width: 200px;
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-link:hover {
-        color: var(--qlower-primary);
-        background: rgba(19, 124, 139, 0.1);
-    }
-    
-    /* Hide dropdown icons in mobile */
-    .qlower-nav-menu.mobile-active .qlower-nav-link i {
-        display: none;
-    }
-    
-    /* Mobile action buttons */
-    .mobile-actions {
-        display: flex !important;
-        flex-direction: column;
-        gap: 1rem;
-        margin-top: 2rem;
-        opacity: 0;
-        animation: fadeInUp 0.5s ease-out forwards;
-        animation-delay: 0.4s;
-    }
-    
-    .mobile-action-btn {
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        text-decoration: none;
-        text-align: center;
-        font-weight: 600;
-        font-size: 1.1rem;
-        transition: all 0.3s ease;
-        border: 2px solid;
-    }
-    
-    .mobile-action-btn.primary {
-        background: var(--qlower-primary);
-        color: white;
-        border-color: var(--qlower-primary);
-    }
-    
-    .mobile-action-btn.primary:hover {
-        background: #0f6b75;
-        border-color: #0f6b75;
-        color: white;
-        transform: translateY(-2px);
-    }
-    
-    .mobile-action-btn.secondary {
-        background: transparent;
-        color: var(--qlower-text-dark);
-        border-color: var(--qlower-text-dark);
-    }
-    
-    .mobile-action-btn.secondary:hover {
-        background: var(--qlower-text-dark);
-        color: white;
-        transform: translateY(-2px);
-    }
     
     .qlower-pricing-grid {
         grid-template-columns: 1fr;
@@ -1055,7 +1086,10 @@ body {
                 <a href="{{ url_for('site_pages.index') }}" class="qlower-nav-link">Accueil</a>
             </div>
             <div class="qlower-nav-item">
-                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">Nos Offres</a>
+                <a href="{{ url_for('site_pages.solutions') }}" class="qlower-nav-link">Nos solutions</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">Tarifs</a>
             </div>
             <div class="qlower-nav-item">
                 <a href="{{ url_for('site_pages.contact') }}" class="qlower-nav-link">Contact</a>
@@ -1073,7 +1107,7 @@ body {
         </div>
         
         <div class="qlower-nav-actions">
-            <a href="#rdv" class="qlower-btn-demo">Prendre RDV</a>
+            <button type="button" class="qlower-btn-demo" data-bs-toggle="modal" data-bs-target="#appointmentModal">Prendre RDV</button>
             <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
         </div>
         
@@ -1085,8 +1119,37 @@ body {
     </div>
 </nav>
 
-<!-- Mobile backdrop overlay -->
-<div class="mobile-backdrop"></div>
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay">
+    <div class="mobile-menu-container">
+        <!-- Close Button -->
+        <button class="mobile-menu-close" onclick="toggleMobileMenu()">
+            <span class="close-icon">&times;</span>
+        </button>
+        
+        <!-- Menu Content -->
+        <div class="mobile-menu-content">
+            <!-- Navigation Links -->
+            <nav class="mobile-menu-nav">
+                <a href="{{ url_for('site_pages.index') }}" class="mobile-menu-link">Accueil</a>
+                <a href="{{ url_for('site_pages.solutions') }}" class="mobile-menu-link">Nos solutions</a>
+                <a href="{{ url_for('site_pages.pricing') }}" class="mobile-menu-link">Tarifs</a>
+                <a href="{{ url_for('site_pages.contact') }}" class="mobile-menu-link">Contact</a>
+                <a href="{{ url_for('site_pages.about') }}" class="mobile-menu-link">À propos</a>
+            </nav>
+            
+            <!-- Action Buttons -->
+            <div class="mobile-menu-actions">
+                <button type="button" class="mobile-menu-btn mobile-menu-btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                    Prendre RDV
+                </button>
+                <a href="/plateforme/connexion" class="mobile-menu-btn mobile-menu-btn-secondary">
+                    Mon espace
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Hero Section -->
 <section class="qlower-hero">
@@ -1112,130 +1175,108 @@ body {
             <div class="qlower-pricing-card">
                 <div class="qlower-pricing-header">
                     <h3>INITIA</h3>
-                    <p class="qlower-pricing-subtitle">Pour débuter sereinement</p>
+                    <p class="qlower-pricing-subtitle">Pour débuter dans l'investissement</p>
                     <div class="qlower-pricing-price">
                         <span class="qlower-pricing-currency">€</span>
-                        <span class="qlower-pricing-amount">24,99</span>
+                        <span class="qlower-pricing-amount">25</span>
                         <span class="qlower-pricing-period">/mois</span>
                     </div>
                 </div>
                 <div class="qlower-pricing-features">
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Analyse patrimoniale de base</span>
+                        <span>Analyse de votre situation et de vos objectifs</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Recommandations personnalisées</span>
+                        <span>Mise en place d'une stratégie d'investissement</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Suivi de 3 investissements</span>
+                        <span>Suivi via votre tableau de bord Atlas</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Assistant IA de base</span>
+                        <span>Pilotage de vos investissements</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Support par email</span>
+                        <span>Contenus pédagogiques exclusifs</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Formations vidéo essentielles</span>
+                        <span>Accompagnement humain et 100% indépendant</span>
                     </div>
                 </div>
-                <a href="#rdv" class="qlower-pricing-btn">Choisir INITIA</a>
+                <button type="button" class="qlower-pricing-btn" data-bs-toggle="modal" data-bs-target="#appointmentModal">Choisir INITIA</button>
             </div>
             
             <div class="qlower-pricing-card qlower-pricing-popular">
                 <div class="qlower-pricing-badge">Le plus populaire</div>
                 <div class="qlower-pricing-header">
                     <h3>OPTIMA</h3>
-                    <p class="qlower-pricing-subtitle">Pour structurer votre patrimoine</p>
+                    <p class="qlower-pricing-subtitle">Pour structurer et optimiser son patrimoine existant</p>
                     <div class="qlower-pricing-price">
                         <span class="qlower-pricing-currency">€</span>
-                        <span class="qlower-pricing-amount">49,99</span>
+                        <span class="qlower-pricing-amount">50</span>
                         <span class="qlower-pricing-period">/mois</span>
                     </div>
                 </div>
                 <div class="qlower-pricing-features">
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Analyse patrimoniale avancée</span>
+                        <span>Tous les avantages Initia</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Optimisation fiscale complète</span>
+                        <span>Optimisation du patrimoine existant</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Suivi illimité d'investissements</span>
+                        <span>Classes d'actifs supplémentaires</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Assistant IA avancé 24/7</span>
-                    </div>
-                    <div class="qlower-pricing-feature">
-                        <i class="fas fa-check"></i>
-                        <span>Conseiller dédié (1h/mois)</span>
-                    </div>
-                    <div class="qlower-pricing-feature">
-                        <i class="fas fa-check"></i>
-                        <span>Alertes en temps réel</span>
-                    </div>
-                    <div class="qlower-pricing-feature">
-                        <i class="fas fa-check"></i>
-                        <span>Formations complètes</span>
-                    </div>
-                    <div class="qlower-pricing-feature">
-                        <i class="fas fa-check"></i>
-                        <span>Rapports mensuels détaillés</span>
+                        <span>Réponses prioritaires</span>
                     </div>
                 </div>
-                <a href="#rdv" class="qlower-pricing-btn">Choisir OPTIMA</a>
+                <button type="button" class="qlower-pricing-btn" data-bs-toggle="modal" data-bs-target="#appointmentModal">Choisir OPTIMA</button>
             </div>
             
             <div class="qlower-pricing-card">
                 <div class="qlower-pricing-header">
                     <h3>ULTIMA</h3>
-                    <p class="qlower-pricing-subtitle">Gestion complète déléguée</p>
+                    <p class="qlower-pricing-subtitle">Pour des situations patrimoniales spécifiques et des enjeux complexes</p>
                     <div class="qlower-pricing-price">
-                        <span class="qlower-pricing-amount-custom">Sur devis</span>
+                        <span class="qlower-pricing-amount-custom">Nous consulter</span>
                     </div>
                 </div>
                 <div class="qlower-pricing-features">
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Gestion déléguée complète</span>
+                        <span>Tous les avantages Optima</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Conseiller patrimonial dédié</span>
+                        <span>Allocation multi-actifs avancée</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Stratégies avancées sur mesure</span>
+                        <span>Optimisation de la transmission</span>
                     </div>
                     <div class="qlower-pricing-feature">
                         <i class="fas fa-check"></i>
-                        <span>Support prioritaire 24/7</span>
-                    </div>
-                    <div class="qlower-pricing-feature">
-                        <i class="fas fa-check"></i>
-                        <span>Rapports personnalisés</span>
-                    </div>
-                    <div class="qlower-pricing-feature">
-                        <i class="fas fa-check"></i>
-                        <span>Accès exclusifs aux IPO</span>
-                    </div>
-                    <div class="qlower-pricing-feature">
-                        <i class="fas fa-check"></i>
-                        <span>Conseils fiscaux experts</span>
+                        <span>Problématiques patrimoniales spécifiques</span>
                     </div>
                 </div>
-                <a href="{{ url_for('site_pages.contact') }}" class="qlower-pricing-btn qlower-pricing-btn-outline">Nous contacter</a>
+                <a href="{{ url_for('site_pages.contact') }}" class="qlower-pricing-btn qlower-pricing-btn-outline">Sur devis</a>
             </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <p style="font-size: 14px; color: #666; font-style: italic;">
+                Tarifs TTC. Sans engagement. Vous restez libre de résilier à tout moment.
+            </p>
         </div>
     </div>
 </section>
@@ -1254,7 +1295,7 @@ body {
             <table>
                 <thead>
                     <tr>
-                        <th>Fonctionnalités</th>
+                        <th>Critères</th>
                         <th>INITIA</th>
                         <th>OPTIMA</th>
                         <th>ULTIMA</th>
@@ -1263,60 +1304,118 @@ body {
                 <tbody>
                     <tr>
                         <td class="feature-name">Analyse patrimoniale</td>
-                        <td><i class="fas fa-check check-yes"></i> Base</td>
-                        <td><i class="fas fa-check check-yes"></i> Avancée</td>
-                        <td><i class="fas fa-check check-yes"></i> Complète</td>
+                        <td>Essentielle</td>
+                        <td>Avancée</td>
+                        <td>Approfondie</td>
                     </tr>
                     <tr>
-                        <td class="feature-name">Nombre d'investissements suivis</td>
-                        <td>3</td>
-                        <td>Illimité</td>
-                        <td>Illimité</td>
+                        <td class="feature-name">Stratégie d'investissement</td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Tableau de bord</td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Suivi des placements</td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Contenu pédagogique</td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
                     </tr>
                     <tr>
                         <td class="feature-name">Assistant IA</td>
-                        <td><i class="fas fa-check check-yes"></i> Base</td>
-                        <td><i class="fas fa-check check-yes"></i> Avancé 24/7</td>
-                        <td><i class="fas fa-check check-yes"></i> Premium 24/7</td>
-                    </tr>
-                    <tr>
-                        <td class="feature-name">Optimisation fiscale</td>
-                        <td><i class="fas fa-times check-no"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
                         <td><i class="fas fa-check check-yes"></i></td>
                         <td><i class="fas fa-check check-yes"></i></td>
                     </tr>
                     <tr>
                         <td class="feature-name">Conseiller dédié</td>
+                        <td>(limité)*</td>
+                        <td>(prioritaire)*</td>
+                        <td>(illimité)*</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Classes d'actifs multiples</td>
+                        <td>(limité)</td>
+                        <td>(avancé)</td>
+                        <td>(complet)</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Support prioritaire</td>
                         <td><i class="fas fa-times check-no"></i></td>
-                        <td>1h/mois</td>
-                        <td>Illimité</td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
                     </tr>
                     <tr>
-                        <td class="feature-name">Formations</td>
-                        <td>Essentielles</td>
-                        <td>Complètes</td>
-                        <td>Premium + Masterclass</td>
+                        <td class="feature-name">Optimisation du patrimoine existant</td>
+                        <td><i class="fas fa-times check-no"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
                     </tr>
                     <tr>
-                        <td class="feature-name">Rapports</td>
-                        <td>Trimestriels</td>
-                        <td>Mensuels</td>
-                        <td>Hebdomadaires personnalisés</td>
-                    </tr>
-                    <tr>
-                        <td class="feature-name">Support</td>
-                        <td>Email</td>
-                        <td>Email + Chat</td>
-                        <td>Prioritaire 24/7</td>
-                    </tr>
-                    <tr>
-                        <td class="feature-name">Gestion déléguée</td>
+                        <td class="feature-name">Allocation avancée</td>
                         <td><i class="fas fa-times check-no"></i></td>
                         <td><i class="fas fa-times check-no"></i></td>
                         <td><i class="fas fa-check check-yes"></i></td>
                     </tr>
+                    <tr>
+                        <td class="feature-name">Optimisation de la transmission</td>
+                        <td><i class="fas fa-times check-no"></i></td>
+                        <td><i class="fas fa-times check-no"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Problématiques spécifiques</td>
+                        <td><i class="fas fa-times check-no"></i></td>
+                        <td><i class="fas fa-times check-no"></i></td>
+                        <td><i class="fas fa-check check-yes"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Frais d'investissement</td>
+                        <td>3x moins cher que les banques traditionnelles</td>
+                        <td>3x moins cher que les banques traditionnelles</td>
+                        <td>3x moins cher que les banques traditionnelles</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Rémunération d'Atlas</td>
+                        <td>100% par abonnement (aucune commission produit)</td>
+                        <td>100% par abonnement (aucune commission produit)</td>
+                        <td>100% par abonnement (aucune commission produit)</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Minimum de capital</td>
+                        <td>Aucun minimum</td>
+                        <td>Aucun minimum</td>
+                        <td>Aucun minimum</td>
+                    </tr>
+                    <tr>
+                        <td class="feature-name">Engagement</td>
+                        <td>Sans engagement</td>
+                        <td>Sans engagement</td>
+                        <td>Sans engagement</td>
+                    </tr>
                 </tbody>
             </table>
+            
+            <!-- Footnotes for Conseiller dédié -->
+            <div class="qlower-pricing-footnotes" style="margin-top: 20px; font-size: 14px; color: #666;">
+                <p><strong>*Conseiller dédié :</strong></p>
+                <ul style="list-style: none; padding-left: 0;">
+                    <li><strong>(INITIA)</strong> : jusqu'à 2 rendez-vous par an de 30 minutes avec son conseiller dédié.</li>
+                    <li><strong>(OPTIMA)</strong> : jusqu'à 4 rendez-vous par an de 30 minutes avec son conseiller dédié.</li>
+                    <li><strong>(ULTIMA)</strong> : sur devis.</li>
+                </ul>
+            </div>
         </div>
     </div>
 </section>
@@ -1334,41 +1433,51 @@ body {
         <div class="qlower-faq-grid">
             <div class="qlower-faq-item">
                 <div class="qlower-faq-question">
+                    <h4>Les conseils Atlas sont-ils vraiment indépendants ?</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="qlower-faq-answer">
+                    <p>Absolument. Atlas est rémunéré uniquement par votre abonnement. Nous ne vendons aucun produit financier et ne recevons aucune rétrocommission. Nos recommandations sont 100% alignées avec vos intérêts.</p>
+                </div>
+            </div>
+            
+            <div class="qlower-faq-item">
+                <div class="qlower-faq-question">
+                    <h4>Y a-t-il un minimum de capital pour commencer ?</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="qlower-faq-answer">
+                    <p>Non. Atlas est accessible dès les premiers euros investis. Le conseil en investissement ne doit plus être réservé aux gros patrimoines, c'est pourquoi nous rendons l'accompagnement accessible sans minimum de capital.</p>
+                </div>
+            </div>
+            
+            <div class="qlower-faq-item">
+                <div class="qlower-faq-question">
+                    <h4>Comment Atlas peut-il être 3x moins cher que les banques ?</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="qlower-faq-answer">
+                    <p>Nous orientons vers des enveloppes et supports sélectionnés pour leur qualité et leurs frais réduits. Par exemple : PEA à 0,59% maximum vs 2,20% en banques traditionnelles. Cette différence s'explique par notre indépendance totale.</p>
+                </div>
+            </div>
+            
+            <div class="qlower-faq-item">
+                <div class="qlower-faq-question">
                     <h4>Puis-je changer d'abonnement à tout moment ?</h4>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="qlower-faq-answer">
-                    <p>Oui, vous pouvez passer d'un plan à un autre à tout moment. Le changement prend effet immédiatement et votre facturation est ajustée au prorata.</p>
+                    <p>Oui, vous pouvez évoluer d'INITIA vers OPTIMA à tout moment selon vos besoins. L'abonnement est sans engagement et peut être résilié simplement.</p>
                 </div>
             </div>
             
             <div class="qlower-faq-item">
                 <div class="qlower-faq-question">
-                    <h4>Y a-t-il des frais cachés ou des commissions ?</h4>
+                    <h4>Est-ce qu'Atlas réalise les investissements pour moi ?</h4>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="qlower-faq-answer">
-                    <p>Non, nos tarifs sont transparents. Nous ne prenons aucune commission sur vos investissements et n'avons aucun frais caché. Le prix affiché est le prix final.</p>
-                </div>
-            </div>
-            
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Comment fonctionne la période d'essai ?</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="qlower-faq-answer">
-                    <p>Nous offrons 7 jours d'essai gratuit sur tous nos plans. Aucune carte bancaire requise pour commencer. Vous pouvez annuler à tout moment pendant la période d'essai.</p>
-                </div>
-            </div>
-            
-            <div class="qlower-faq-item">
-                <div class="qlower-faq-question">
-                    <h4>Que se passe-t-il si j'annule mon abonnement ?</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="qlower-faq-answer">
-                    <p>Vous gardez l'accès jusqu'à la fin de votre période payée. Vos données sont conservées 90 jours pour vous permettre de réactiver facilement votre compte.</p>
+                    <p>Non. Vous restez maître de votre argent. Atlas vous accompagne et vous guide pas à pas pour réaliser vos investissements, mais vous gardez le contrôle total de vos placements.</p>
                 </div>
             </div>
             
@@ -1378,17 +1487,27 @@ body {
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="qlower-faq-answer">
-                    <p>Le plan ULTIMA est personnalisé selon votre patrimoine et vos besoins. Nous établissons un devis sur mesure après un entretien avec notre équipe.</p>
+                    <p>ULTIMA est conçu pour des situations patrimoniales spécifiques nécessitant une expertise approfondie : optimisation de transmission, allocations multi-actifs complexes, problématiques particulières. Le devis est établi après analyse de votre situation.</p>
                 </div>
             </div>
             
             <div class="qlower-faq-item">
                 <div class="qlower-faq-question">
-                    <h4>Les conseils sont-ils vraiment indépendants ?</h4>
+                    <h4>Que comprend l'accompagnement Atlas ?</h4>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="qlower-faq-answer">
-                    <p>Totalement. Nous ne vendons aucun produit financier et ne recevons aucune rétrocommission. Nos conseils sont uniquement basés sur vos intérêts.</p>
+                    <p>Atlas vous accompagne de A à Z : analyse de votre situation, construction de votre stratégie, mise en place des investissements, suivi régulier, accès au tableau de bord Atlas et contenus pédagogiques exclusifs.</p>
+                </div>
+            </div>
+            
+            <div class="qlower-faq-item">
+                <div class="qlower-faq-question">
+                    <h4>Atlas est-il adapté si je débute complètement ?</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="qlower-faq-answer">
+                    <p>Parfaitement. INITIA est précisément conçu pour les débutants. L'accompagnement est progressif et pédagogique pour vous faire passer de l'épargne au placement en toute confiance.</p>
                 </div>
             </div>
         </div>
@@ -1404,7 +1523,7 @@ body {
                 Rejoignez plus de 10 000 investisseurs qui optimisent leur patrimoine avec Atlas
             </p>
             <div class="qlower-cta-actions">
-                <a href="#rdv" class="qlower-btn-cta-primary">Commencer l'essai gratuit</a>
+                <button type="button" class="qlower-btn-cta-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">Commencer l'essai gratuit</button>
                 <a href="{{ url_for('site_pages.about') }}" class="qlower-btn-cta-secondary">En savoir plus</a>
             </div>
         </div>
@@ -1417,7 +1536,7 @@ body {
         <div class="qlower-footer-content">
             <div class="qlower-footer-brand">
                 <div class="qlower-footer-logo">
-                    <img src="{{ url_for('static', filename='img/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto; filter: brightness(0) invert(1);">
+                    <img src="{{ url_for('static', filename='img/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto;">
                 </div>
                 <p class="qlower-footer-description">
                     Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
@@ -1434,8 +1553,8 @@ body {
                 <div class="qlower-footer-column">
                     <h6>Produit</h6>
                     <ul>
-                        <li><a href="#" class="qlower-footer-link">Nos Offres</a></li>
-                        <li><a href="#" class="qlower-footer-link">Fonctionnalités</a></li>
+                        <li><a href="{{ url_for('site_pages.solutions') }}" class="qlower-footer-link">Nos solutions</a></li>
+                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Tarifs</a></li>
                         <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
                         <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
                     </ul>
@@ -1464,20 +1583,20 @@ body {
                 <div class="qlower-footer-column">
                     <h6>Légal</h6>
                     <ul>
-                        <li><a href="#" class="qlower-footer-link">CGU</a></li>
-                        <li><a href="#" class="qlower-footer-link">Confidentialité</a></li>
-                        <li><a href="#" class="qlower-footer-link">Cookies</a></li>
-                        <li><a href="#" class="qlower-footer-link">Mentions légales</a></li>
+                        <li><a href="{{ url_for('site_pages.cgu') }}" class="qlower-footer-link">CGU</a></li>
+                        <li><a href="{{ url_for('site_pages.privacy') }}" class="qlower-footer-link">Confidentialité</a></li>
+                        <li><a href="{{ url_for('site_pages.cookies') }}" class="qlower-footer-link">Cookies</a></li>
+                        <li><a href="{{ url_for('site_pages.legal') }}" class="qlower-footer-link">Mentions légales</a></li>
                     </ul>
                 </div>
             </div>
         </div>
         
         <div class="qlower-footer-bottom">
-            <p>&copy; 2024 Atlas. Tous droits réservés.</p>
+            <p>&copy; {{ 2026 }} Atlas. Tous droits réservés.</p>
             <p>
                 <i class="fas fa-shield-alt"></i>
-                Données sécurisées et cryptées • Agréé AMF & ACPR
+                Données sécurisées et cryptées
             </p>
         </div>
     </div>
@@ -1486,7 +1605,73 @@ body {
 
 {% block scripts %}
 <script>
-// Navigation scroll effect - same as index
+// EXACT QLOWER INTERACTIONS - Complete version from index
+
+// Smooth scrolling
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Modern hamburger menu toggle
+function toggleMobileMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    
+    if (hamburger && mobileMenuOverlay) {
+        // Toggle active classes
+        hamburger.classList.toggle('active');
+        mobileMenuOverlay.classList.toggle('active');
+        
+        // Prevent body scroll when menu is open
+        if (mobileMenuOverlay.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// Setup mobile menu event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Close menu when clicking mobile links
+    document.querySelectorAll('.mobile-menu-link').forEach(link => {
+        link.addEventListener('click', function() {
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    });
+    
+    // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
+    // Handle clicking outside the menu content to close (on the overlay background)
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', function(e) {
+            // Only close if clicking on the overlay itself, not its children
+            if (e.target === mobileMenuOverlay) {
+                toggleMobileMenu();
+            }
+        });
+    }
+    
+    // Initialize first FAQ as open
+    const firstFaq = document.querySelector('.qlower-faq-item');
+    if (firstFaq) {
+        firstFaq.classList.add('active');
+    }
+});
+
+// Navbar scroll effect - transparent background with enhanced container
 const navbar = document.querySelector('.qlower-navbar');
 const navContainer = navbar.querySelector('.qlower-nav-container');
 
@@ -1494,19 +1679,77 @@ window.addEventListener('scroll', () => {
     const currentScrollY = window.scrollY;
     
     if (currentScrollY > 100) {
+        // Enhanced container effect when scrolling
         navContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
         navContainer.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.2)';
         navContainer.style.backdropFilter = 'blur(15px)';
     } else {
+        // Original container appearance at top
         navContainer.style.backgroundColor = 'rgba(255, 255, 255, 1)';
         navContainer.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.15)';
         navContainer.style.backdropFilter = 'blur(10px)';
     }
     
+    // Always keep navbar visible
     navbar.style.transform = 'translateY(0)';
 });
 
-// FAQ Accordion functionality
+// Smooth entrance animations for sections - exact Qlower style
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+            
+            // Stagger animations for cards within sections
+            const cards = entry.target.querySelectorAll('.qlower-pricing-card, .qlower-faq-item');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+    });
+}, observerOptions);
+
+// Observe all main sections
+document.querySelectorAll('.qlower-section').forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(30px)';
+    section.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    observer.observe(section);
+});
+
+// Initialize card animations
+document.querySelectorAll('.qlower-pricing-card, .qlower-faq-item').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(30px)';
+    card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+});
+
+// Enhanced hover effects for pricing cards - exact Qlower behavior
+document.querySelectorAll('.qlower-pricing-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = this.classList.contains('qlower-pricing-popular') ? 
+            'scale(1.05) translateY(-12px)' : 'translateY(-12px)';
+        this.style.boxShadow = '0 25px 60px rgba(19, 124, 139, 0.2)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = this.classList.contains('qlower-pricing-popular') ? 
+            'scale(1.05) translateY(-8px)' : 'translateY(-8px)';
+        this.style.boxShadow = this.classList.contains('qlower-pricing-popular') ? 
+            '0 15px 40px rgba(19, 124, 139, 0.15)' : '';
+    });
+});
+
+// FAQ Accordion functionality - exact Qlower behavior
 document.querySelectorAll('.qlower-faq-question').forEach(question => {
     question.addEventListener('click', function() {
         const faqItem = this.closest('.qlower-faq-item');
@@ -1524,78 +1767,15 @@ document.querySelectorAll('.qlower-faq-question').forEach(question => {
     });
 });
 
-// Initialize first FAQ as open
-document.addEventListener('DOMContentLoaded', function() {
-    const firstFaq = document.querySelector('.qlower-faq-item');
-    if (firstFaq) {
-        firstFaq.classList.add('active');
-    }
-});
-
-// Smooth entrance animations
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-            
-            const cards = entry.target.querySelectorAll('.qlower-pricing-card, .qlower-faq-item');
-            cards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-        }
+// Enhanced button interactions
+document.querySelectorAll('[class*="qlower-btn"]').forEach(button => {
+    button.addEventListener('mouseenter', function() {
+        this.style.transform = this.style.transform.includes('scale') ? 
+            this.style.transform + ' scale(1.02)' : 'translateY(-2px) scale(1.02)';
     });
-}, observerOptions);
-
-document.querySelectorAll('.qlower-section').forEach(section => {
-    section.style.opacity = '0';
-    section.style.transform = 'translateY(30px)';
-    section.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-    observer.observe(section);
-});
-
-document.querySelectorAll('.qlower-pricing-card, .qlower-faq-item').forEach(card => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(30px)';
-    card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-});
-
-// Modern hamburger menu toggle
-function toggleMobileMenu() {
-    const hamburger = document.querySelector('.hamburger');
-    const mobileMenu = document.querySelector('.qlower-nav-menu');
-    const backdrop = document.querySelector('.mobile-backdrop');
     
-    hamburger.classList.toggle('active');
-    mobileMenu.classList.toggle('mobile-active');
-    backdrop.classList.toggle('active');
-    
-    // Prevent body scroll when menu is open
-    document.body.style.overflow = mobileMenu.classList.contains('mobile-active') ? 'hidden' : '';
-}
-
-// Close menu when clicking backdrop
-document.addEventListener('DOMContentLoaded', function() {
-    const backdrop = document.querySelector('.mobile-backdrop');
-    if (backdrop) {
-        backdrop.addEventListener('click', toggleMobileMenu);
-    }
-    
-    // Close menu when clicking on mobile links
-    document.querySelectorAll('.qlower-nav-menu.mobile-active .qlower-nav-link').forEach(link => {
-        link.addEventListener('click', function() {
-            if (document.querySelector('.qlower-nav-menu').classList.contains('mobile-active')) {
-                toggleMobileMenu();
-            }
-        });
+    button.addEventListener('mouseleave', function() {
+        this.style.transform = this.style.transform.replace(' scale(1.02)', '');
     });
 });
 </script>

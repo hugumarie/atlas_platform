@@ -51,6 +51,13 @@ body {
     overflow-x: hidden;
 }
 
+/* Fix pour boutons CTA convertis */
+button.qlower-btn-demo {
+    text-decoration: none !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
 /* Navigation - Same as index */
 .qlower-navbar {
     background: transparent;
@@ -243,21 +250,168 @@ body {
     background: var(--qlower-primary) !important;
 }
 
-.mobile-backdrop {
+/* Menu Mobile Natif Amélioré */
+.mobile-menu-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: 998;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 99999;
     display: none;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.mobile-backdrop.active {
+.mobile-menu-overlay.active {
     display: block;
+    opacity: 1;
+}
+
+.mobile-menu-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-menu-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-menu-close::before,
+.mobile-menu-close::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background: var(--qlower-primary);
+    border-radius: 1px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-close::before {
+    transform: rotate(45deg);
+}
+
+.mobile-menu-close::after {
+    transform: rotate(-45deg);
+}
+
+.mobile-menu-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 2rem;
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 60px 20px 40px;
+}
+
+.mobile-menu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+}
+
+.mobile-menu-link {
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 18px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-link:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu-link:nth-child(2) { animation-delay: 0.2s; }
+.mobile-menu-link:nth-child(3) { animation-delay: 0.3s; }
+.mobile-menu-link:nth-child(4) { animation-delay: 0.4s; }
+.mobile-menu-link:nth-child(5) { animation-delay: 0.5s; }
+
+.mobile-menu-link:hover {
+    background-color: rgba(19, 124, 139, 0.1);
+    color: var(--qlower-primary);
+}
+
+.mobile-menu-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 280px;
+    margin-top: 1rem;
+}
+
+.mobile-menu-btn {
+    padding: 15px 25px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-btn:nth-child(1) { animation-delay: 0.6s; }
+.mobile-menu-btn:nth-child(2) { animation-delay: 0.7s; }
+
+.mobile-menu-btn-primary {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+}
+
+.mobile-menu-btn-secondary {
+    background: var(--qlower-dark);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 77, 89, 0.3);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* HERO SECTION - Green background */
@@ -607,83 +761,6 @@ body {
         display: flex;
     }
     
-    /* Mobile menu overlay */
-    .qlower-nav-menu.mobile-active {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100vh;
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        z-index: 10000;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 2rem;
-        animation: slideIn 0.3s ease-out;
-    }
-    
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-item {
-        opacity: 0;
-        animation: fadeInUp 0.5s ease-out forwards;
-        width: auto;
-        height: auto;
-        display: block;
-        margin: 0;
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(1) { animation-delay: 0.1s; }
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(2) { animation-delay: 0.2s; }
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(3) { animation-delay: 0.3s; }
-    .qlower-nav-menu.mobile-active .mobile-actions { animation-delay: 0.4s; }
-    
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-link {
-        color: var(--qlower-text-dark);
-        font-size: 1.5rem;
-        font-weight: 600;
-        text-decoration: none;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        display: block;
-        text-align: center;
-        min-width: 200px;
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-link:hover {
-        color: var(--qlower-primary);
-        background: rgba(19, 124, 139, 0.1);
-    }
-    
-    /* Hide dropdown icons in mobile */
-    .qlower-nav-menu.mobile-active .qlower-nav-link i {
-        display: none;
-    }
     
     
     .qlower-contact-grid {
@@ -770,7 +847,10 @@ body {
                 <a href="{{ url_for('site_pages.index') }}" class="qlower-nav-link">Accueil</a>
             </div>
             <div class="qlower-nav-item">
-                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">Nos Offres</a>
+                <a href="{{ url_for('site_pages.solutions') }}" class="qlower-nav-link">Nos solutions</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">Tarifs</a>
             </div>
             <div class="qlower-nav-item">
                 <a href="{{ url_for('site_pages.contact') }}" class="qlower-nav-link">Contact</a>
@@ -788,7 +868,7 @@ body {
         </div>
         
         <div class="qlower-nav-actions">
-            <a href="#rdv" class="qlower-btn-demo">Prendre RDV</a>
+            <button type="button" class="qlower-btn-demo" data-bs-toggle="modal" data-bs-target="#appointmentModal">Prendre RDV</button>
             <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
         </div>
         
@@ -800,8 +880,37 @@ body {
     </div>
 </nav>
 
-<!-- Mobile backdrop overlay -->
-<div class="mobile-backdrop"></div>
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay">
+    <div class="mobile-menu-container">
+        <!-- Close Button -->
+        <button class="mobile-menu-close" onclick="toggleMobileMenu()">
+            <span class="close-icon">&times;</span>
+        </button>
+        
+        <!-- Menu Content -->
+        <div class="mobile-menu-content">
+            <!-- Navigation Links -->
+            <nav class="mobile-menu-nav">
+                <a href="{{ url_for('site_pages.index') }}" class="mobile-menu-link">Accueil</a>
+                <a href="{{ url_for('site_pages.solutions') }}" class="mobile-menu-link">Nos solutions</a>
+                <a href="{{ url_for('site_pages.pricing') }}" class="mobile-menu-link">Tarifs</a>
+                <a href="{{ url_for('site_pages.contact') }}" class="mobile-menu-link">Contact</a>
+                <a href="{{ url_for('site_pages.about') }}" class="mobile-menu-link">À propos</a>
+            </nav>
+            
+            <!-- Action Buttons -->
+            <div class="mobile-menu-actions">
+                <button type="button" class="mobile-menu-btn mobile-menu-btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                    Prendre RDV
+                </button>
+                <a href="/plateforme/connexion" class="mobile-menu-btn mobile-menu-btn-secondary">
+                    Mon espace
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Hero Section -->
 <section class="qlower-hero">
@@ -820,7 +929,7 @@ body {
             <!-- Contact Form -->
             <div>
                 <h2 class="qlower-section-title" style="text-align: left; margin-bottom: 32px; font-size: 36px;">Envoyez-nous un message</h2>
-                <form class="qlower-contact-form">
+                <form class="qlower-contact-form" id="contact-form">
                     <div class="qlower-form-group">
                         <label for="nom" class="qlower-form-label">Nom complet *</label>
                         <input type="text" id="nom" name="nom" class="qlower-form-input" required>
@@ -867,73 +976,39 @@ body {
                         <i class="fas fa-envelope"></i>
                     </div>
                     <h3>Email</h3>
-                    <p>Notre équipe vous répond sous 24h</p>
-                    <p><a href="mailto:contact@atlas-patrimoine.fr">contact@atlas-patrimoine.fr</a></p>
-                </div>
-                
-                <div class="qlower-contact-card">
-                    <div class="qlower-contact-icon">
-                        <i class="fas fa-phone"></i>
-                    </div>
-                    <h3>Téléphone</h3>
-                    <p>Lundi - Vendredi : 9h00 - 18h00</p>
-                    <p><a href="tel:+33123456789">+33 1 23 45 67 89</a></p>
-                </div>
-                
-                <div class="qlower-contact-card">
-                    <div class="qlower-contact-icon">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <h3>Adresse</h3>
-                    <p>123 Avenue des Champs-Élysées<br>75008 Paris, France</p>
+                    <p>Notre équipe vous répond sous 24h ouvrées</p>
+                    <p><a href="mailto:contact@atlas-invest.fr">contact@atlas-invest.fr</a></p>
                 </div>
                 
                 <div class="qlower-contact-card">
                     <div class="qlower-contact-icon">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
-                    <h3>Rendez-vous</h3>
-                    <p>Planifiez un entretien personnalisé avec un conseiller</p>
-                    <p><a href="#rdv" style="font-weight: 600;">Prendre rendez-vous</a></p>
+                    <h3>Rendez-vous gratuit</h3>
+                    <p>Entretien de découverte de 30 minutes offert</p>
+                    <p><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#appointmentModal" style="font-weight: 600; text-decoration: none;">Prendre rendez-vous</button></p>
+                </div>
+                
+                <div class="qlower-contact-card" style="background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-light)); color: white;">
+                    <div class="qlower-contact-icon" style="background: rgba(255,255,255,0.2);">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 style="color: white;">100% indépendant</h3>
+                    <p style="color: rgba(255,255,255,0.9);">Aucune commission, conseils alignés avec vos intérêts</p>
+                </div>
+                
+                <div class="qlower-contact-card">
+                    <div class="qlower-contact-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Équipe d'experts</h3>
+                    <p>Conseillers en gestion de patrimoine certifiés et expérimentés</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- FAQ Section -->
-<section class="qlower-section" style="background: var(--qlower-bg-light);">
-    <div class="qlower-section-container">
-        <div class="qlower-section-header">
-            <h2 class="qlower-section-title">Questions fréquentes</h2>
-            <p class="qlower-section-subtitle">
-                Trouvez rapidement les réponses aux questions les plus courantes
-            </p>
-        </div>
-        
-        <div style="max-width: 800px; margin: 0 auto;">
-            <div class="qlower-contact-card" style="margin-bottom: 20px;">
-                <h3>Comment puis-je prendre rendez-vous ?</h3>
-                <p>Vous pouvez prendre rendez-vous directement en ligne via notre plateforme ou nous contacter par téléphone. Nos conseillers sont disponibles du lundi au vendredi de 9h à 18h.</p>
-            </div>
-            
-            <div class="qlower-contact-card" style="margin-bottom: 20px;">
-                <h3>Quel est le délai de réponse pour les emails ?</h3>
-                <p>Notre équipe s'engage à répondre à tous les emails sous 24h ouvrées. Pour les demandes urgentes, nous recommandons de nous contacter par téléphone.</p>
-            </div>
-            
-            <div class="qlower-contact-card" style="margin-bottom: 20px;">
-                <h3>Les consultations sont-elles payantes ?</h3>
-                <p>Le premier entretien de découverte de 30 minutes est offert. Il nous permet de comprendre votre situation et vos objectifs, et de vous présenter nos services.</p>
-            </div>
-            
-            <div class="qlower-contact-card">
-                <h3>Dans quelles régions intervenez-vous ?</h3>
-                <p>Nous proposons nos services dans toute la France. Les consultations peuvent se faire en présentiel à Paris ou à distance via visioconférence.</p>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Footer -->
 <footer class="qlower-footer">
@@ -941,7 +1016,7 @@ body {
         <div class="qlower-footer-content">
             <div class="qlower-footer-brand">
                 <div class="qlower-footer-logo">
-                    <img src="{{ url_for('static', filename='img/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto; filter: brightness(0) invert(1);">
+                    <img src="{{ url_for('static', filename='img/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto;">
                 </div>
                 <p class="qlower-footer-description">
                     Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
@@ -958,8 +1033,8 @@ body {
                 <div class="qlower-footer-column">
                     <h6>Produit</h6>
                     <ul>
-                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Nos Offres</a></li>
-                        <li><a href="#" class="qlower-footer-link">Fonctionnalités</a></li>
+                        <li><a href="{{ url_for('site_pages.solutions') }}" class="qlower-footer-link">Nos solutions</a></li>
+                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Tarifs</a></li>
                         <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
                         <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
                     </ul>
@@ -988,20 +1063,20 @@ body {
                 <div class="qlower-footer-column">
                     <h6>Légal</h6>
                     <ul>
-                        <li><a href="#" class="qlower-footer-link">CGU</a></li>
-                        <li><a href="#" class="qlower-footer-link">Confidentialité</a></li>
-                        <li><a href="#" class="qlower-footer-link">Cookies</a></li>
-                        <li><a href="#" class="qlower-footer-link">Mentions légales</a></li>
+                        <li><a href="{{ url_for('site_pages.cgu') }}" class="qlower-footer-link">CGU</a></li>
+                        <li><a href="{{ url_for('site_pages.privacy') }}" class="qlower-footer-link">Confidentialité</a></li>
+                        <li><a href="{{ url_for('site_pages.cookies') }}" class="qlower-footer-link">Cookies</a></li>
+                        <li><a href="{{ url_for('site_pages.legal') }}" class="qlower-footer-link">Mentions légales</a></li>
                     </ul>
                 </div>
             </div>
         </div>
         
         <div class="qlower-footer-bottom">
-            <p>&copy; 2024 Atlas. Tous droits réservés.</p>
+            <p>&copy; {{ 2026 }} Atlas. Tous droits réservés.</p>
             <p>
                 <i class="fas fa-shield-alt"></i>
-                Données sécurisées et cryptées • Agréé AMF & ACPR
+                Données sécurisées et cryptées
             </p>
         </div>
     </div>
@@ -1010,7 +1085,67 @@ body {
 
 {% block scripts %}
 <script>
-// Navigation scroll effect - same as index
+// EXACT QLOWER INTERACTIONS - Complete version from index
+
+// Smooth scrolling
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Modern hamburger menu toggle
+function toggleMobileMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    
+    if (hamburger && mobileMenuOverlay) {
+        // Toggle active classes
+        hamburger.classList.toggle('active');
+        mobileMenuOverlay.classList.toggle('active');
+        
+        // Prevent body scroll when menu is open
+        if (mobileMenuOverlay.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// Setup mobile menu event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Close menu when clicking mobile links
+    document.querySelectorAll('.mobile-menu-link').forEach(link => {
+        link.addEventListener('click', function() {
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    });
+    
+    // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
+    // Handle clicking outside the menu content to close (on the overlay background)
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', function(e) {
+            // Only close if clicking on the overlay itself, not its children
+            if (e.target === mobileMenuOverlay) {
+                toggleMobileMenu();
+            }
+        });
+    }
+});
+
+// Navbar scroll effect - transparent background with enhanced container
 const navbar = document.querySelector('.qlower-navbar');
 const navContainer = navbar.querySelector('.qlower-nav-container');
 
@@ -1018,85 +1153,22 @@ window.addEventListener('scroll', () => {
     const currentScrollY = window.scrollY;
     
     if (currentScrollY > 100) {
+        // Enhanced container effect when scrolling
         navContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
         navContainer.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.2)';
         navContainer.style.backdropFilter = 'blur(15px)';
     } else {
+        // Original container appearance at top
         navContainer.style.backgroundColor = 'rgba(255, 255, 255, 1)';
         navContainer.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.15)';
         navContainer.style.backdropFilter = 'blur(10px)';
     }
     
+    // Always keep navbar visible
     navbar.style.transform = 'translateY(0)';
 });
 
-// Form submission
-document.querySelector('.qlower-contact-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    // Simple validation
-    const nom = document.getElementById('nom').value;
-    const email = document.getElementById('email').value;
-    const sujet = document.getElementById('sujet').value;
-    const message = document.getElementById('message').value;
-    
-    if (!nom || !email || !sujet || !message) {
-        alert('Veuillez remplir tous les champs obligatoires.');
-        return;
-    }
-    
-    // Simulate form submission
-    const button = document.querySelector('.qlower-form-button');
-    const originalText = button.innerHTML;
-    
-    button.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Envoi en cours...';
-    button.disabled = true;
-    
-    setTimeout(() => {
-        button.innerHTML = '<i class="fas fa-check" style="margin-right: 8px;"></i>Message envoyé !';
-        button.style.background = '#28a745';
-        
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-            button.style.background = '';
-            document.querySelector('.qlower-contact-form').reset();
-        }, 2000);
-    }, 1500);
-});
-
-// Modern hamburger menu toggle
-function toggleMobileMenu() {
-    const hamburger = document.querySelector('.hamburger');
-    const mobileMenu = document.querySelector('.qlower-nav-menu');
-    const backdrop = document.querySelector('.mobile-backdrop');
-    
-    hamburger.classList.toggle('active');
-    mobileMenu.classList.toggle('mobile-active');
-    backdrop.classList.toggle('active');
-    
-    // Prevent body scroll when menu is open
-    document.body.style.overflow = mobileMenu.classList.contains('mobile-active') ? 'hidden' : '';
-}
-
-// Close menu when clicking backdrop
-document.addEventListener('DOMContentLoaded', function() {
-    const backdrop = document.querySelector('.mobile-backdrop');
-    if (backdrop) {
-        backdrop.addEventListener('click', toggleMobileMenu);
-    }
-    
-    // Close menu when clicking on mobile links
-    document.querySelectorAll('.qlower-nav-menu.mobile-active .qlower-nav-link').forEach(link => {
-        link.addEventListener('click', function() {
-            if (document.querySelector('.qlower-nav-menu').classList.contains('mobile-active')) {
-                toggleMobileMenu();
-            }
-        });
-    });
-});
-
-// Smooth entrance animations
+// Smooth entrance animations for sections - exact Qlower style
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -100px 0px'
@@ -1108,6 +1180,7 @@ const observer = new IntersectionObserver((entries) => {
             entry.target.style.opacity = '1';
             entry.target.style.transform = 'translateY(0)';
             
+            // Stagger animations for cards within sections
             const cards = entry.target.querySelectorAll('.qlower-contact-card, .qlower-contact-form');
             cards.forEach((card, index) => {
                 setTimeout(() => {
@@ -1119,6 +1192,7 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
+// Observe all main sections
 document.querySelectorAll('.qlower-section').forEach(section => {
     section.style.opacity = '0';
     section.style.transform = 'translateY(30px)';
@@ -1126,10 +1200,88 @@ document.querySelectorAll('.qlower-section').forEach(section => {
     observer.observe(section);
 });
 
+// Initialize card animations
 document.querySelectorAll('.qlower-contact-card, .qlower-contact-form').forEach(card => {
     card.style.opacity = '0';
     card.style.transform = 'translateY(30px)';
     card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+});
+
+// Enhanced button interactions
+document.querySelectorAll('[class*="qlower-btn"]').forEach(button => {
+    button.addEventListener('mouseenter', function() {
+        this.style.transform = this.style.transform.includes('scale') ? 
+            this.style.transform + ' scale(1.02)' : 'translateY(-2px) scale(1.02)';
+    });
+    
+    button.addEventListener('mouseleave', function() {
+        this.style.transform = this.style.transform.replace(' scale(1.02)', '');
+    });
+});
+
+// Form submission
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Simple validation
+    const nom = document.getElementById('nom').value;
+    const email = document.getElementById('email').value;
+    const telephone = document.getElementById('telephone').value;
+    const sujet = document.getElementById('sujet').value;
+    const message = document.getElementById('message').value;
+    
+    if (!nom || !email || !sujet || !message) {
+        alert('Veuillez remplir tous les champs obligatoires.');
+        return;
+    }
+    
+    const button = document.querySelector('.qlower-form-button');
+    const originalText = button.innerHTML;
+    
+    button.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>Envoi en cours...';
+    button.disabled = true;
+    
+    try {
+        const response = await fetch('/site/api/contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                nom: nom,
+                email: email,
+                telephone: telephone,
+                sujet: sujet,
+                message: message
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            button.innerHTML = '<i class="fas fa-check" style="margin-right: 8px;"></i>Message envoyé !';
+            button.style.background = '#28a745';
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                button.style.background = '';
+                document.getElementById('contact-form').reset();
+            }, 2000);
+        } else {
+            throw new Error(result.error || 'Erreur lors de l\'envoi');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        button.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>Erreur d\'envoi';
+        button.style.background = '#dc3545';
+        
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+            button.style.background = '';
+        }, 2000);
+    }
 });
 </script>
 {% endblock %}

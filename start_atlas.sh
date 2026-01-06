@@ -2,6 +2,13 @@
 
 echo "🚀 Démarrage d'Atlas Platform v2.0..."
 
+# Arrêter les serveurs existants
+echo "🔄 Arrêt des serveurs existants..."
+pkill -f "python.*run.py" 2>/dev/null || true
+lsof -ti:5001 | xargs kill -9 2>/dev/null || true
+lsof -ti:5002 | xargs kill -9 2>/dev/null || true
+sleep 1
+
 # Vérifier PostgreSQL
 echo "📊 Vérification PostgreSQL..."
 if brew services list | grep postgresql@16 | grep started > /dev/null; then
@@ -110,10 +117,12 @@ echo ""
 echo "🔄 COMMANDES UTILES :"
 echo "   Relancer Atlas:      ./start_atlas.sh"
 echo "   Arrêter Flask:       Ctrl+C ou pkill -f python3"
+echo "   Forcer arrêt:        pkill -f 'python.*run.py' && lsof -ti:5001,5002 | xargs kill -9"
 echo "   Logs en direct:      tail -f logs/atlas.log"
 echo ""
 echo "📞 Support: En cas de problème, vérifiez la console ou contactez le développeur"
 echo ""
 
-# Attendre la fin du processus Flask
-wait
+# Le processus Flask continue en arrière-plan
+echo "🎯 Flask lancé en arrière-plan (PID: $!)"
+echo "💡 Utilisez 'Ctrl+C' puis 'pkill -f python3' pour arrêter"

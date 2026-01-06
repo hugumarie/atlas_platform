@@ -33,28 +33,167 @@
     box-sizing: border-box;
 }
 
-/* Force override de mobile-nav-fix.css pour page d'accueil */
-body.index-page .qlower-nav-menu.mobile-active {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: auto !important;
-    bottom: auto !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 2rem !important;
-    background: rgba(255, 255, 255, 0.98) !important;
-    z-index: 99999 !important;
+/* Menu Mobile Natif Amélioré */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 99999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-/* Force hide mobile actions by default, but allow mobile menu override */
-.mobile-nav-actions {
-    display: none;
+.mobile-menu-overlay.active {
+    display: block;
+    opacity: 1;
 }
+
+.mobile-menu-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-menu-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-menu-close::before,
+.mobile-menu-close::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background: var(--qlower-primary);
+    border-radius: 1px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-close::before {
+    transform: rotate(45deg);
+}
+
+.mobile-menu-close::after {
+    transform: rotate(-45deg);
+}
+
+.mobile-menu-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    gap: 2rem;
+    padding: 60px 20px 20px;
+}
+
+.mobile-menu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+}
+
+.mobile-menu-link {
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 18px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-link:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu-link:nth-child(2) { animation-delay: 0.2s; }
+.mobile-menu-link:nth-child(3) { animation-delay: 0.3s; }
+.mobile-menu-link:nth-child(4) { animation-delay: 0.4s; }
+.mobile-menu-link:nth-child(5) { animation-delay: 0.5s; }
+
+.mobile-menu-link:hover {
+    background-color: rgba(19, 124, 139, 0.1);
+    color: var(--qlower-primary);
+}
+
+.mobile-menu-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 280px;
+    margin-top: 1rem;
+}
+
+.mobile-menu-btn {
+    padding: 15px 25px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-btn:nth-child(1) { animation-delay: 0.6s; }
+.mobile-menu-btn:nth-child(2) { animation-delay: 0.7s; }
+
+.mobile-menu-btn-primary {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+}
+
+.mobile-menu-btn-secondary {
+    background: var(--qlower-dark);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 77, 89, 0.3);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 /* Suppression de toutes les bordures parasites */
 .qlower-navbar *, 
@@ -291,7 +430,7 @@ body {
 
 /* EXACT HERO SECTION REPLICA - Fond vert Atlas uniforme */
 .qlower-hero {
-    padding: 140px 0 0px;
+    padding: 70px 0 0px;
     background: var(--qlower-primary);
     position: relative;
     overflow: hidden;
@@ -1130,23 +1269,6 @@ body {
     color: var(--qlower-primary);
 }
 
-/* Mobile backdrop overlay */
-.mobile-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: 998;
-    display: none;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-}
-
-.mobile-backdrop.active {
-    display: block;
-}
 
 /* RESPONSIVE DESIGN - MODERN HAMBURGER MENU */
 @media (max-width: 991px) {
@@ -1161,206 +1283,6 @@ body {
     
     .hamburger {
         display: flex;
-    }
-    
-    /* Mobile menu overlay - Force override */
-    .qlower-nav-menu.mobile-active {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: auto !important;
-        bottom: auto !important;
-        width: 100% !important;
-        height: 100vh !important;
-        background: rgba(255, 255, 255, 0.98) !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        z-index: 10000 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 2rem !important;
-        animation: slideIn 0.3s ease-out !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        transform: none !important;
-    }
-    
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-item {
-        opacity: 0;
-        animation: fadeInUp 0.5s ease-out forwards;
-        width: auto;
-        height: auto;
-        display: block;
-        margin: 0;
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(1) { animation-delay: 0.1s; }
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(2) { animation-delay: 0.2s; }
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(3) { animation-delay: 0.3s; }
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(4) { animation-delay: 0.4s; }
-    
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-link {
-        color: var(--qlower-text-dark);
-        font-size: 1.5rem;
-        font-weight: 600;
-        text-decoration: none;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        display: block;
-        text-align: center;
-        min-width: 200px;
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-link:hover {
-        color: var(--qlower-primary);
-        background: rgba(19, 124, 139, 0.1);
-    }
-    
-    /* Show navigation actions in mobile menu */
-    .qlower-nav-menu.mobile-active::after {
-        content: '';
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        width: 100%;
-        max-width: 300px;
-        margin-top: 2rem;
-    }
-    
-    /* Mobile actions - recreate the buttons in mobile menu */
-    .mobile-nav-actions {
-        display: none !important;
-        flex-direction: column;
-        gap: 1rem;
-        width: 100%;
-        max-width: 300px;
-        margin-top: 2rem;
-    }
-    
-    /* Show mobile actions ONLY when mobile menu is active */
-    .qlower-nav-menu.mobile-active .mobile-nav-actions {
-        display: flex !important;
-        visibility: visible !important;
-    }
-    
-    /* Mobile button styles */
-    .mobile-nav-actions .qlower-btn-demo,
-    .mobile-nav-actions .qlower-btn-espace {
-        width: 100%;
-        text-align: center;
-        padding: 12px 24px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .mobile-nav-actions .qlower-btn-demo {
-        background: var(--qlower-primary);
-        color: white;
-        border: 2px solid var(--qlower-primary);
-    }
-    
-    .mobile-nav-actions .qlower-btn-espace {
-        background: transparent;
-        color: var(--qlower-primary);
-        border: 2px solid var(--qlower-primary);
-    }
-    
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-item {
-        opacity: 0;
-        animation: fadeInUp 0.5s ease-out forwards;
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(1) { animation-delay: 0.1s; }
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(2) { animation-delay: 0.2s; }
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(3) { animation-delay: 0.3s; }
-    .qlower-nav-menu.mobile-active .qlower-nav-item:nth-child(4) { animation-delay: 0.4s; }
-    
-    /* Animate mobile actions */
-    .qlower-nav-menu.mobile-active .mobile-nav-actions {
-        opacity: 0;
-        animation: fadeInUp 0.5s ease-out forwards;
-        animation-delay: 0.5s;
-    }
-    
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    
-    /* Mobile menu items styling */
-    .qlower-nav-menu.mobile-active .qlower-nav-item {
-        width: auto;
-        height: auto;
-        display: block;
-        margin: 0;
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-link {
-        color: var(--qlower-text-dark);
-        font-size: 1.5rem;
-        font-weight: 600;
-        text-decoration: none;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        display: block;
-        text-align: center;
-        min-width: 200px;
-    }
-    
-    .qlower-nav-menu.mobile-active .qlower-nav-link:hover {
-        color: var(--qlower-primary);
-        background: rgba(19, 124, 139, 0.1);
-    }
-    
-    /* Hide dropdown icons in mobile */
-    .qlower-nav-menu.mobile-active .qlower-nav-link i {
-        display: none;
     }
     
     
@@ -1478,24 +1400,6 @@ body {
         padding: 0 16px;
     }
     
-    /* Assurer que le menu mobile s'ajuste bien sur iPhone */
-    .qlower-nav-menu.mobile-active {
-        padding: 1.5rem 1rem;
-        gap: 1.5rem;
-        height: 100vh;
-        height: -webkit-fill-available; /* Fix pour Safari iOS */
-    }
-    
-    .mobile-nav-actions {
-        margin-top: 1rem;
-        gap: 0.75rem;
-    }
-    
-    .mobile-nav-actions .qlower-btn-demo,
-    .mobile-nav-actions .qlower-btn-espace {
-        padding: 10px 20px;
-        font-size: 14px;
-    }
     
     .qlower-hero-content h1 {
         font-size: 28px;
@@ -1528,6 +1432,127 @@ body {
     }
     
 }
+
+/* Animations pour les photos des fondateurs */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Effets hover sur les photos des fondateurs */
+.founder-photo:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.founder-hugues:hover {
+    z-index: 3;
+}
+
+.founder-roland:hover {
+    z-index: 3;
+}
+
+/* Responsive pour les photos */
+@media (max-width: 991px) {
+    .founders-photos-container {
+        flex: 1;
+        min-height: 340px;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .founder-photo.founder-hugues {
+        width: 180px;
+        height: 210px;
+        top: 70px;
+        left: -50px;
+    }
+    
+    .founder-photo.founder-roland {
+        width: 180px;
+        height: 210px;
+        top: 10px;
+        left: 100px;
+    }
+}
+
+@media (max-width: 767px) {
+    .founders-photos-container {
+        min-height: 300px;
+        max-width: 320px;
+    }
+    
+    .founder-photo.founder-hugues {
+        width: 150px;
+        height: 180px;
+        top: 60px;
+        left: -40px;
+    }
+    
+    .founder-photo.founder-roland {
+        width: 150px;
+        height: 180px;
+        top: 10px;
+        left: 85px;
+    }
+    
+    .founders-badge {
+        bottom: 5px !important;
+        font-size: 13px !important;
+        padding: 8px 16px !important;
+        z-index: 3 !important;
+    }
+}
+
+@media (max-width: 479px) {
+    .founders-photos-container {
+        min-height: 260px;
+        max-width: 280px;
+    }
+    
+    .founder-photo.founder-hugues {
+        width: 120px;
+        height: 150px;
+        top: 50px;
+        left: -30px;
+    }
+    
+    .founder-photo.founder-roland {
+        width: 120px;
+        height: 150px;
+        top: 5px;
+        left: 70px;
+    }
+}
 </style>
 {% endblock %}
 
@@ -1546,7 +1571,10 @@ body {
                 <a href="{{ url_for('site_pages.index') }}" class="qlower-nav-link">Accueil</a>
             </div>
             <div class="qlower-nav-item">
-                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">Nos Offres</a>
+                <a href="{{ url_for('site_pages.solutions') }}" class="qlower-nav-link">Nos solutions</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">Tarifs</a>
             </div>
             <div class="qlower-nav-item">
                 <a href="{{ url_for('site_pages.contact') }}" class="qlower-nav-link">Contact</a>
@@ -1554,13 +1582,6 @@ body {
             <div class="qlower-nav-item">
                 <a href="{{ url_for('site_pages.about') }}" class="qlower-nav-link">À propos</a>
             </div>
-            
-            <!-- Boutons d'action pour mobile -->
-            <div class="mobile-nav-actions">
-                <button type="button" class="qlower-btn-demo" data-bs-toggle="modal" data-bs-target="#appointmentModal">Prendre RDV</button>
-                <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
-            </div>
-            
         </div>
         
         <!-- Actions droite exact comme Qlower -->
@@ -1577,35 +1598,63 @@ body {
     </div>
 </nav>
 
-<!-- Mobile backdrop overlay -->
-<div class="mobile-backdrop"></div>
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay">
+    <div class="mobile-menu-container">
+        <!-- Close Button -->
+        <button class="mobile-menu-close" onclick="toggleMobileMenu()">
+            <span class="close-icon">&times;</span>
+        </button>
+        
+        <!-- Menu Content -->
+        <div class="mobile-menu-content">
+            <!-- Navigation Links -->
+            <nav class="mobile-menu-nav">
+                <a href="{{ url_for('site_pages.index') }}" class="mobile-menu-link">Accueil</a>
+                <a href="{{ url_for('site_pages.solutions') }}" class="mobile-menu-link">Nos solutions</a>
+                <a href="{{ url_for('site_pages.pricing') }}" class="mobile-menu-link">Tarifs</a>
+                <a href="{{ url_for('site_pages.contact') }}" class="mobile-menu-link">Contact</a>
+                <a href="{{ url_for('site_pages.about') }}" class="mobile-menu-link">À propos</a>
+            </nav>
+            
+            <!-- Action Buttons -->
+            <div class="mobile-menu-actions">
+                <button type="button" class="mobile-menu-btn mobile-menu-btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                    Prendre RDV
+                </button>
+                <a href="/plateforme/connexion" class="mobile-menu-btn mobile-menu-btn-secondary">
+                    Mon espace
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- EXACT HERO SECTION REPLICA -->
 <section class="qlower-hero">
     <div class="qlower-hero-container">
         <div class="qlower-hero-content">
-            <h1>Atlas, l'accompagnement financier clair, indépendant et durable</h1>
-            <p class="qlower-hero-subtitle">
-                Atlas vous accompagne dans la création et la gestion de votre patrimoine grâce à une plateforme innovante et des conseils personnalisés.
-            </p>
+            <h1>Atlas, le conseil financier clair et indépendant.</h1>
             
             <div class="qlower-features-list">
                 <div class="qlower-feature-item">
                     <div class="qlower-feature-icon"></div>
-                    <span class="qlower-feature-text">Analyse patrimoniale complète en 30 minutes</span>
+                    <span class="qlower-feature-text">Diagnostic complet de votre situation, en 30 minutes</span>
                 </div>
                 <div class="qlower-feature-item">
                     <div class="qlower-feature-icon"></div>
-                    <span class="qlower-feature-text">Plan d'investissement définit avec votre conseiller Atlas</span>
+                    <span class="qlower-feature-text">Plan d'investissement construit avec votre conseiller Atlas</span>
                 </div>
                 <div class="qlower-feature-item">
                     <div class="qlower-feature-icon"></div>
-                    <span class="qlower-feature-text">Plateforme digitale pour suivre en ligne vos investissements</span>
+                    <span class="qlower-feature-text">Plateforme digitale pour suivre vos investissements dans le temps</span>
                 </div>
             </div>
             
             <div class="qlower-hero-actions">
-                <button type="button" class="qlower-btn-hero-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">Prendre un RDV gratuit</button>
+                <button type="button" class="qlower-btn-hero-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                    Prendre rendez-vous
+                </button>
             </div>
         </div>
         
@@ -1619,49 +1668,125 @@ body {
     </div>
 </section>
 
-<!-- Section Atlas - Design Compact -->
-<section style="padding: 50px 0; background: #ffffff; text-align: center; position: relative; overflow: hidden;">
+<!-- Section Atlas avec Fondateurs - Design Avec Photos -->
+<section style="padding: 80px 0; background: #ffffff; position: relative; overflow: hidden;">
     <!-- Décoration subtile -->
     <div style="position: absolute; top: 50px; right: 80px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(19, 124, 139, 0.03) 0%, transparent 70%); border-radius: 50%;"></div>
     <div style="position: absolute; bottom: 40px; left: 60px; width: 90px; height: 90px; background: radial-gradient(circle, rgba(19, 124, 139, 0.02) 0%, transparent 70%); border-radius: 50%;"></div>
     
-    <div class="qlower-container">
-        <!-- Titre principal -->
-        <h2 style="font-size: 32px; color: #137C8B; margin-bottom: 40px; font-weight: 700; font-family: 'Encode Sans Condensed', sans-serif; letter-spacing: -0.5px; line-height: 1.3; max-width: 800px; margin-left: auto; margin-right: auto;">
-            Atlas est une société de conseil en investissement nouvelle génération.
-        </h2>
+    <div class="qlower-container" style="max-width: 1200px; margin: 0 auto; padding: 0 40px;">
+        <!-- Layout Flex avec Photos et Contenu -->
+        <div style="display: flex; align-items: center; gap: 80px; flex-wrap: wrap;">
+            
+            <!-- Section Photos des Fondateurs -->
+            <div class="founders-photos-container" style="flex: 0 0 320px; position: relative; min-height: 400px;">
+                
+                <!-- Photo Hugues - Apparaît en second, arrière plan -->
+                <div class="founder-photo founder-hugues" style="
+                    position: absolute;
+                    top: 100px;
+                    left: -70px;
+                    width: 240px;
+                    height: 280px;
+                    border-radius: 20px;
+                    overflow: hidden;
+                    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+                    z-index: 1;
+                    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                    opacity: 0;
+                    transform: translateX(-50px) scale(0.8);
+                    animation: slideInLeft 1s ease-out 0.7s forwards;
+                ">
+                    <img src="{{ url_for('static', filename='images/pic_hugues_atlas.png') }}" 
+                         alt="Hugues Marie - Co-fondateur Atlas"
+                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                </div>
+
+                <!-- Photo Roland - Apparaît en premier, premier plan (supérieur) -->
+                <div class="founder-photo founder-roland" style="
+                    position: absolute;
+                    top: 20px;
+                    left: 120px;
+                    width: 240px;
+                    height: 280px;
+                    border-radius: 20px;
+                    overflow: hidden;
+                    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+                    z-index: 2;
+                    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                    opacity: 0;
+                    transform: translateX(50px) scale(0.8);
+                    animation: slideInRight 1s ease-out 0.3s forwards;
+                ">
+                    <img src="{{ url_for('static', filename='images/pic_roland_atlas.png') }}" 
+                         alt="Roland - Co-fondateur Atlas"
+                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                </div>
+
+                <!-- Badge "Fondateurs" -->
+                <div class="founders-badge" style="
+                    position: absolute;
+                    bottom: 5px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: linear-gradient(135deg, #137C8B 0%, #709CA7 100%);
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 25px;
+                    font-size: 15px;
+                    font-weight: 600;
+                    box-shadow: 0 4px 15px rgba(19, 124, 139, 0.3);
+                    opacity: 0;
+                    transform: translateX(-50%) translateY(20px);
+                    animation: fadeInUp 0.8s ease-out 1.1s forwards;
+                    z-index: 3;
+                ">
+                    <i class="fas fa-star" style="margin-right: 8px; font-size: 12px;"></i>
+                    Fondateurs
+                </div>
+                
+            </div>
+
+            <!-- Section Contenu Texte -->
+            <div style="flex: 1; min-width: 400px;">
+                <!-- Titre principal -->
+                <h2 style="font-size: 36px; color: #137C8B; margin-bottom: 40px; font-weight: 700; font-family: 'Encode Sans Condensed', sans-serif; letter-spacing: -0.5px; line-height: 1.3;">
+                    Atlas est une société de conseil en investissement nouvelle génération.
+                </h2>
         
-        <!-- Contenu principal avec bullet points -->
-        <div style="max-width: 750px; margin: 0 auto 40px; text-align: left;">
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-                <div style="display: flex; align-items: flex-start; gap: 16px;">
-                    <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
-                    <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
-                        Nous vous accompagnons dans la mise en place d'une stratégie efficace pour commencer à investir, de manière simple, avec les meilleures solutions et au meilleur prix.
-                    </p>
+                <!-- Contenu principal avec bullet points -->
+                <div style="text-align: left;">
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div style="display: flex; align-items: flex-start; gap: 16px;">
+                            <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
+                            <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
+                                Nous vous accompagnons dans la mise en place d'une stratégie efficace pour commencer à investir, de manière simple, avec les <strong>meilleures solutions et au meilleur prix.</strong>
+                            </p>
+                        </div>
+                        
+                        <div style="display: flex; align-items: flex-start; gap: 16px;">
+                            <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
+                            <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
+                                Notre modèle est unique : il repose sur <strong style="color: #137C8B;">un abonnement transparent</strong>, garantissant un <strong>conseil objectif et réellement indépendant.</strong>
+                            </p>
+                        </div>
+                        
+                        <div style="display: flex; align-items: flex-start; gap: 16px;">
+                            <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
+                            <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
+                                Nous ne sommes <strong>jamais rémunérés par les solutions d'investissement que nous recommandons</strong>, ce qui vous assure un accompagnement entièrement aligné avec vos intérêts.
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 
-                <div style="display: flex; align-items: flex-start; gap: 16px;">
-                    <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
-                    <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
-                        Notre modèle est unique : il repose sur <strong style="color: #137C8B;">un abonnement transparent</strong>, garantissant un conseil objectif et réellement indépendant.
-                    </p>
-                </div>
-                
-                <div style="display: flex; align-items: flex-start; gap: 16px;">
-                    <div style="width: 12px; height: 12px; background: #137C8B; border-radius: 50%; margin-top: 6px; flex-shrink: 0;"></div>
-                    <p style="font-size: 16px; color: #344D59; margin: 0; line-height: 1.6; font-weight: 500;">
-                        Nous ne sommes jamais rémunérés par les solutions d'investissement que nous recommandons, ce qui vous assure un accompagnement entièrement aligné avec vos intérêts.
-                    </p>
-                </div>
+                <!-- Bouton professionnel -->
+                <button type="button" class="btn btn-primary atlas-cta-btn" data-bs-toggle="modal" data-bs-target="#appointmentModal" style="margin-top: 40px;">
+                    <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
+                    Prendre rendez-vous
+                </button>
             </div>
         </div>
-        
-        <!-- Bouton professionnel -->
-        <button type="button" class="btn btn-primary atlas-cta-btn" data-bs-toggle="modal" data-bs-target="#appointmentModal">
-            <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i>
-            Prendre rendez-vous
-        </button>
     </div>
     
     <!-- CSS embarqué pour le bouton -->
@@ -1989,7 +2114,7 @@ body {
                     </div>
                     <!-- Commentaire -->
                     <p style="font-size: 15px; color: rgba(255,255,255,0.95); margin-bottom: 20px; line-height: 1.5; font-style: italic; text-align: center;">
-                        "En 6 mois avec Atlas, j'ai enfin structuré mon épargne. Leurs recommandations PEA/assurance vie m'ont permis d'optimiser ma fiscalité sans stress."
+                        "En 3 mois avec Atlas, j'ai enfin structuré mon épargne. Leurs recommandations m'ont permises de démarrer mes premiers investissements en toute confiance et sans stress."
                     </p>
                     <!-- Auteur -->
                     <div style="display: flex; align-items: center; gap: 12px; justify-content: center;">
@@ -1998,7 +2123,7 @@ body {
                         </div>
                         <div>
                             <div style="font-weight: 600; color: white; font-size: 14px;">Antoine L.</div>
-                            <div style="color: rgba(255,255,255,0.8); font-size: 12px;">Ingénieur, 32 ans</div>
+                            <div style="color: rgba(255,255,255,0.8); font-size: 12px;">Ingénieur, 27 ans</div>
                         </div>
                     </div>
                 </div>
@@ -2017,7 +2142,7 @@ body {
                     </div>
                     <!-- Commentaire -->
                     <p style="font-size: 15px; color: rgba(255,255,255,0.95); margin-bottom: 20px; line-height: 1.5; font-style: italic; text-align: center;">
-                        "Je recommande vivement ! Atlas m'a aidé à débloquer 15k€ qui dormaient sur mon livret A. Maintenant j'investis intelligemment chaque mois."
+                        "Je recommande vivement ! Mon conseiller Atlas ma aidé à placer 15k€ qui dormaient sur un livret d'épargne. Maintenant, j'investis intelligemment chaque mois."
                     </p>
                     <!-- Auteur -->
                     <div style="display: flex; align-items: center; gap: 12px; justify-content: center;">
@@ -2026,7 +2151,7 @@ body {
                         </div>
                         <div>
                             <div style="font-weight: 600; color: white; font-size: 14px;">Camille R.</div>
-                            <div style="color: rgba(255,255,255,0.8); font-size: 12px;">Prof, 29 ans</div>
+                            <div style="color: rgba(255,255,255,0.8); font-size: 12px;">Professeure, 32 ans</div>
                         </div>
                     </div>
                 </div>
@@ -2287,8 +2412,8 @@ body {
                 <div class="qlower-footer-column">
                     <h6>Produit</h6>
                     <ul>
-                        <li><a href="#" class="qlower-footer-link">Nos Offres</a></li>
-                        <li><a href="#" class="qlower-footer-link">Fonctionnalités</a></li>
+                        <li><a href="{{ url_for('site_pages.solutions') }}" class="qlower-footer-link">Nos solutions</a></li>
+                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Tarifs</a></li>
                         <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
                         <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
                     </ul>
@@ -2317,20 +2442,20 @@ body {
                 <div class="qlower-footer-column">
                     <h6>Légal</h6>
                     <ul>
-                        <li><a href="#" class="qlower-footer-link">CGU</a></li>
-                        <li><a href="#" class="qlower-footer-link">Confidentialité</a></li>
-                        <li><a href="#" class="qlower-footer-link">Cookies</a></li>
-                        <li><a href="#" class="qlower-footer-link">Mentions légales</a></li>
+                        <li><a href="{{ url_for('site_pages.cgu') }}" class="qlower-footer-link">CGU</a></li>
+                        <li><a href="{{ url_for('site_pages.privacy') }}" class="qlower-footer-link">Confidentialité</a></li>
+                        <li><a href="{{ url_for('site_pages.cookies') }}" class="qlower-footer-link">Cookies</a></li>
+                        <li><a href="{{ url_for('site_pages.legal') }}" class="qlower-footer-link">Mentions légales</a></li>
                     </ul>
                 </div>
             </div>
         </div>
         
         <div class="qlower-footer-bottom">
-            <p>&copy; 2024 Atlas. Tous droits réservés.</p>
+            <p>&copy; {{ 2026 }} Atlas. Tous droits réservés.</p>
             <p>
                 <i class="fas fa-shield-alt"></i>
-                Données sécurisées et cryptées • Agréé AMF & ACPR
+                Données sécurisées et cryptées
             </p>
         </div>
     </div>
@@ -2361,32 +2486,45 @@ document.body.classList.add('index-page');
 // Modern hamburger menu toggle
 function toggleMobileMenu() {
     const hamburger = document.querySelector('.hamburger');
-    const mobileMenu = document.querySelector('.qlower-nav-menu');
-    const backdrop = document.querySelector('.mobile-backdrop');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
     
-    hamburger.classList.toggle('active');
-    mobileMenu.classList.toggle('mobile-active');
-    backdrop.classList.toggle('active');
-    
-    // Prevent body scroll when menu is open
-    document.body.style.overflow = mobileMenu.classList.contains('mobile-active') ? 'hidden' : '';
+    if (hamburger && mobileMenuOverlay) {
+        // Toggle active classes
+        hamburger.classList.toggle('active');
+        mobileMenuOverlay.classList.toggle('active');
+        
+        // Prevent body scroll when menu is open
+        if (mobileMenuOverlay.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
 }
 
-// Close menu when clicking backdrop
+// Setup mobile menu event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    const backdrop = document.querySelector('.mobile-backdrop');
-    if (backdrop) {
-        backdrop.addEventListener('click', toggleMobileMenu);
-    }
-    
-    // Close menu when clicking on mobile links
-    document.querySelectorAll('.qlower-nav-menu .qlower-nav-link').forEach(link => {
+    // Close menu when clicking mobile links
+    document.querySelectorAll('.mobile-menu-link').forEach(link => {
         link.addEventListener('click', function() {
-            if (document.querySelector('.qlower-nav-menu').classList.contains('mobile-active')) {
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
                 toggleMobileMenu();
             }
         });
     });
+    
+    // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
+    // Handle clicking outside the menu content to close (on the overlay background)
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', function(e) {
+            // Only close if clicking on the overlay itself, not its children
+            if (e.target === mobileMenuOverlay) {
+                toggleMobileMenu();
+            }
+        });
+    }
 });
 
 // Navbar scroll effect - transparent background with enhanced container

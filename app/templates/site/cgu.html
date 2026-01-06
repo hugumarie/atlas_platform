@@ -421,6 +421,209 @@ body {
     color: var(--qlower-primary);
 }
 
+/* Hamburger Menu Button */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 24px;
+    height: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    z-index: 10001;
+}
+
+.hamburger span {
+    width: 24px;
+    height: 2px;
+    background: var(--qlower-text-dark);
+    border-radius: 3px;
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    position: relative;
+    transform-origin: 2px 1px;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg);
+}
+
+.hamburger.active span {
+    background: var(--qlower-primary) !important;
+}
+
+/* Mobile Menu Overlay - Complete version from index_exact.html */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 99999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-menu-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+.mobile-menu-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-menu-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-menu-close::before,
+.mobile-menu-close::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background: var(--qlower-primary);
+    border-radius: 1px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-close::before {
+    transform: rotate(45deg);
+}
+
+.mobile-menu-close::after {
+    transform: rotate(-45deg);
+}
+
+.mobile-menu-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    gap: 2rem;
+    padding: 60px 20px 20px;
+}
+
+.mobile-menu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+}
+
+.mobile-menu-link {
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 18px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-link:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu-link:nth-child(2) { animation-delay: 0.2s; }
+.mobile-menu-link:nth-child(3) { animation-delay: 0.3s; }
+.mobile-menu-link:nth-child(4) { animation-delay: 0.4s; }
+.mobile-menu-link:nth-child(5) { animation-delay: 0.5s; }
+
+.mobile-menu-link:hover {
+    background-color: rgba(19, 124, 139, 0.1);
+    color: var(--qlower-primary);
+}
+
+.mobile-menu-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 280px;
+    margin-top: 1rem;
+}
+
+.mobile-menu-btn {
+    padding: 15px 25px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-btn:nth-child(1) { animation-delay: 0.6s; }
+.mobile-menu-btn:nth-child(2) { animation-delay: 0.7s; }
+
+.mobile-menu-btn-primary {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+}
+
+.mobile-menu-btn-secondary {
+    background: var(--qlower-dark);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 77, 89, 0.3);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @media (max-width: 991px) {
     .qlower-nav-menu {
         display: none;
@@ -428,6 +631,10 @@ body {
     
     .qlower-nav-actions {
         display: none;
+    }
+    
+    .hamburger {
+        display: flex;
     }
     
     .qlower-footer-content {
@@ -491,47 +698,73 @@ body {
 {% block content %}
 <nav class="qlower-navbar">
     <div class="qlower-nav-container">
+        <!-- Logo exact comme Qlower -->
         <a href="{{ url_for('site_pages.index') }}" class="qlower-logo">
             <img src="{{ url_for('static', filename='images/logo-atlas.png') }}" alt="Atlas" style="height: 32px; width: auto;">
         </a>
         
+        <!-- Menu exact comme Qlower -->
         <div class="qlower-nav-menu">
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.index') }}" class="qlower-nav-link">Accueil</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.solutions') }}" class="qlower-nav-link">Nos solutions</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">Tarifs</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.contact') }}" class="qlower-nav-link">Contact</a>
+            </div>
             <div class="qlower-nav-item">
                 <a href="{{ url_for('site_pages.about') }}" class="qlower-nav-link">À propos</a>
             </div>
-            <div class="qlower-nav-item">
-                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">
-                    Nos Offres
-                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
-                </a>
-            </div>
-            <div class="qlower-nav-item">
-                <a href="#" class="qlower-nav-link">
-                    Ressources
-                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
-                </a>
-            </div>
-            
-            <!-- Boutons d'action pour mobile -->
-            <div class="mobile-nav-actions">
-                <button type="button" class="qlower-btn-demo" data-bs-toggle="modal" data-bs-target="#appointmentModal">Prendre RDV</button>
-                <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
-            </div>
-            
         </div>
         
+        <!-- Actions droite exact comme Qlower -->
         <div class="qlower-nav-actions">
-            <div class="qlower-nav-item">
-                <a href="#" class="qlower-nav-link">
-                    FR
-                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
-                </a>
-            </div>
-            <a href="#rdv" class="qlower-btn-demo">Prendre RDV</a>
+            <button type="button" class="qlower-btn-demo" data-bs-toggle="modal" data-bs-target="#appointmentModal">Prendre RDV</button>
             <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
         </div>
+        
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </div>
 </nav>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay">
+    <div class="mobile-menu-container">
+        <!-- Close Button -->
+        <button class="mobile-menu-close" onclick="toggleMobileMenu()"></button>
+        
+        <!-- Menu Content -->
+        <div class="mobile-menu-content">
+            <!-- Navigation Links -->
+            <nav class="mobile-menu-nav">
+                <a href="{{ url_for('site_pages.index') }}" class="mobile-menu-link">Accueil</a>
+                <a href="{{ url_for('site_pages.solutions') }}" class="mobile-menu-link">Nos solutions</a>
+                <a href="{{ url_for('site_pages.pricing') }}" class="mobile-menu-link">Tarifs</a>
+                <a href="{{ url_for('site_pages.contact') }}" class="mobile-menu-link">Contact</a>
+                <a href="{{ url_for('site_pages.about') }}" class="mobile-menu-link">À propos</a>
+            </nav>
+            
+            <!-- Action Buttons -->
+            <div class="mobile-menu-actions">
+                <button type="button" class="mobile-menu-btn mobile-menu-btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                    Prendre RDV
+                </button>
+                <a href="/plateforme/connexion" class="mobile-menu-btn mobile-menu-btn-secondary">
+                    Mon espace
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <section class="qlower-hero">
     <div class="qlower-hero-container">
@@ -545,113 +778,67 @@ body {
 <section class="qlower-section">
     <div class="qlower-section-container">
         <div class="qlower-last-update">
-            <strong>Dernière mise à jour :</strong> 15 octobre 2024
+            <strong>Dernière mise à jour :</strong> 6 janvier 2026
         </div>
         
         <div class="qlower-legal-content">
-            <h2>1. Objet et champ d'application</h2>
-            <p>Les présentes Conditions Générales d'Utilisation (CGU) régissent l'utilisation de la plateforme Atlas, éditée par la société Atlas SAS, société par actions simplifiée au capital de 100 000 euros, immatriculée au RCS de Paris sous le numéro 123 456 789, dont le siège social est situé au 123 Avenue des Champs-Élysées, 75008 Paris.</p>
-            
-            <p>La plateforme Atlas est un service de conseil en investissements financiers et de gestion de patrimoine accessible via le site internet atlas-patrimoine.fr et ses applications mobiles.</p>
+            <h2>1. Objet</h2>
+            <p>Les présentes Conditions Générales d'Utilisation (CGU) ont pour objet de définir les modalités d'accès et d'utilisation du site Atlas et de son espace client.</p>
+            <p>Atlas est un service d'accompagnement destiné aux particuliers souhaitant être aidés dans leurs décisions d'investissement, avec une approche pédagogique, indépendante et accessible.</p>
 
-            <h2>2. Définitions</h2>
-            <p>Au sens des présentes CGU, on entend par :</p>
+            <h2>2. Éditeur du site</h2>
+            <p>Le site Atlas est exploité dans le cadre d'un projet en cours de création.</p>
+            <p><strong>Contact :</strong> contact@atlas.fr</p>
+
+            <h2>3. Accès au site et à l'espace client</h2>
+            <p>L'accès au site public est libre et gratuit.</p>
+            <p>L'accès à l'espace client est réservé aux utilisateurs disposant d'un abonnement actif.</p>
+            <p>L'utilisateur s'engage à fournir des informations exactes lors de la création de son compte et à préserver la confidentialité de ses identifiants.</p>
+
+            <h2>4. Règles d'utilisation</h2>
+            <p>L'utilisateur s'engage à :</p>
             <ul>
-                <li><strong>Utilisateur :</strong> toute personne physique ou morale qui accède et utilise la plateforme Atlas</li>
-                <li><strong>Client :</strong> tout Utilisateur ayant souscrit à l'un des services payants d'Atlas</li>
-                <li><strong>Plateforme :</strong> l'ensemble des services proposés par Atlas via son site internet et ses applications</li>
-                <li><strong>Services :</strong> les prestations de conseil en investissement et de gestion de patrimoine proposées par Atlas</li>
+                <li>utiliser le site et l'espace client conformément à leur destination,</li>
+                <li>ne pas porter atteinte au bon fonctionnement du service,</li>
+                <li>ne pas tenter d'accéder frauduleusement aux systèmes ou aux données.</li>
+            </ul>
+            <p>Toute utilisation abusive pourra entraîner la suspension ou la suppression du compte.</p>
+
+            <h2>5. Contenus et informations</h2>
+            <p>Les contenus proposés sur Atlas (articles, guides, échanges, outils) ont une finalité pédagogique et informative.</p>
+            <p>Ils ne constituent pas :</p>
+            <ul>
+                <li>un conseil en investissement personnalisé,</li>
+                <li>une incitation à acheter ou vendre un instrument financier,</li>
+                <li>une garantie de performance ou de rendement.</li>
+            </ul>
+            <p><strong>L'utilisateur reste seul responsable de ses décisions patrimoniales et financières.</strong></p>
+
+            <h2>6. Responsabilité</h2>
+            <p>Atlas met tout en œuvre pour assurer la disponibilité et la qualité du service, sans garantie d'absence d'interruption ou d'erreur.</p>
+            <p>Atlas ne saurait être tenue responsable :</p>
+            <ul>
+                <li>des décisions prises par l'utilisateur,</li>
+                <li>des pertes financières éventuelles,</li>
+                <li>d'une mauvaise interprétation des informations fournies.</li>
             </ul>
 
-            <h2>3. Acceptation des conditions</h2>
-            <p>L'utilisation de la plateforme Atlas implique l'acceptation pleine et entière des présentes CGU. Si vous n'acceptez pas ces conditions, vous ne devez pas utiliser nos services.</p>
-            
-            <p>Atlas se réserve le droit de modifier ces CGU à tout moment. Les modifications entreront en vigueur dès leur publication sur la plateforme. Il appartient à l'Utilisateur de consulter régulièrement les CGU pour prendre connaissance des éventuelles modifications.</p>
+            <h2>7. Propriété intellectuelle</h2>
+            <p>L'ensemble des éléments du site Atlas est protégé par le droit de la propriété intellectuelle.</p>
+            <p>Toute reproduction ou exploitation non autorisée est interdite.</p>
 
-            <h2>4. Description des services</h2>
-            <h3>4.1 Services proposés</h3>
-            <p>Atlas propose trois niveaux de services :</p>
-            <ul>
-                <li><strong>INITIA (24,99€/mois) :</strong> Analyses de portefeuille, recommandations personnalisées, suivi mensuel</li>
-                <li><strong>OPTIMA (49,99€/mois) :</strong> Gestion déléguée, optimisation fiscale, conseiller dédié</li>
-                <li><strong>ULTIMA (sur devis) :</strong> Service premium avec family office et stratégies complexes</li>
-            </ul>
+            <h2>8. Données personnelles</h2>
+            <p>Les données personnelles sont traitées conformément à la Politique de confidentialité accessible sur le site.</p>
 
-            <h3>4.2 Accès aux services</h3>
-            <p>L'accès aux services nécessite la création d'un compte utilisateur et, pour les services payants, la souscription à l'offre choisie. Certains services peuvent nécessiter une vérification d'identité conforme à la réglementation en vigueur.</p>
+            <h2>9. Suspension / résiliation de l'accès</h2>
+            <p>Atlas se réserve le droit de suspendre ou de résilier l'accès à l'espace client en cas de non-respect des présentes CGU.</p>
 
-            <h2>5. Inscription et compte utilisateur</h2>
-            <h3>5.1 Conditions d'inscription</h3>
-            <p>Pour s'inscrire, l'Utilisateur doit :</p>
-            <ul>
-                <li>Être âgé d'au moins 18 ans</li>
-                <li>Fournir des informations exactes et complètes</li>
-                <li>Accepter les présentes CGU</li>
-                <li>Respecter la réglementation française et européenne</li>
-            </ul>
+            <h2>10. Droit applicable</h2>
+            <p>Les présentes CGU sont soumises au droit français.</p>
 
-            <h3>5.2 Sécurité du compte</h3>
-            <p>L'Utilisateur s'engage à :</p>
-            <ul>
-                <li>Choisir un mot de passe sécurisé</li>
-                <li>Maintenir la confidentialité de ses identifiants</li>
-                <li>Informer immédiatement Atlas de toute utilisation non autorisée</li>
-                <li>Mettre à jour ses informations personnelles</li>
-            </ul>
-
-            <h2>6. Utilisation de la plateforme</h2>
-            <h3>6.1 Utilisation autorisée</h3>
-            <p>La plateforme est destinée à un usage personnel et professionnel dans le cadre de la gestion de patrimoine. L'Utilisateur s'engage à utiliser les services conformément à leur destination et à la réglementation applicable.</p>
-
-            <h3>6.2 Utilisation interdite</h3>
-            <p>Il est strictement interdit de :</p>
-            <ul>
-                <li>Utiliser la plateforme à des fins illégales ou frauduleuses</li>
-                <li>Perturber le fonctionnement de la plateforme</li>
-                <li>Copier, reproduire ou diffuser les contenus sans autorisation</li>
-                <li>Usurper l'identité d'un tiers</li>
-                <li>Transmettre des virus ou codes malveillants</li>
-            </ul>
-
-            <h2>7. Données personnelles et confidentialité</h2>
-            <p>Le traitement des données personnelles est régi par notre Politique de Confidentialité, accessible séparément. Atlas s'engage à protéger la confidentialité des données de ses utilisateurs conformément au RGPD.</p>
-
-            <h2>8. Propriété intellectuelle</h2>
-            <p>Tous les éléments de la plateforme Atlas (textes, images, logos, logiciels, etc.) sont protégés par les droits de propriété intellectuelle. Toute reproduction ou utilisation non autorisée est interdite.</p>
-
-            <h2>9. Responsabilité</h2>
-            <h3>9.1 Responsabilité d'Atlas</h3>
-            <p>Atlas s'efforce de fournir des services de qualité mais ne peut garantir :</p>
-            <ul>
-                <li>L'absence d'interruption ou d'erreur</li>
-                <li>La performance des investissements recommandés</li>
-                <li>L'exactitude absolue des informations fournies</li>
-            </ul>
-
-            <h3>9.2 Responsabilité de l'Utilisateur</h3>
-            <p>L'Utilisateur est responsable de :</p>
-            <ul>
-                <li>L'exactitude des informations qu'il fournit</li>
-                <li>Ses décisions d'investissement</li>
-                <li>Le respect de la réglementation fiscale</li>
-            </ul>
-
-            <h2>10. Tarifs et paiement</h2>
-            <p>Les tarifs des services sont indiqués sur la plateforme et peuvent être modifiés avec un préavis de 30 jours. Le paiement s'effectue par prélèvement automatique mensuel sauf résiliation.</p>
-
-            <h2>11. Résiliation</h2>
-            <p>Le Client peut résilier son abonnement à tout moment avec effet au terme de la période en cours. Atlas peut suspendre ou résilier un compte en cas de non-respect des CGU.</p>
-
-            <h2>12. Droit applicable et juridiction</h2>
-            <p>Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux de Paris seront seuls compétents.</p>
-
-            <h2>13. Contact</h2>
-            <p>Pour toute question relative aux présentes CGU, vous pouvez nous contacter :</p>
-            <ul>
-                <li>Par email : legal@atlas-patrimoine.fr</li>
-                <li>Par courrier : Atlas SAS, 123 Avenue des Champs-Élysées, 75008 Paris</li>
-                <li>Par téléphone : +33 1 23 45 67 89</li>
-            </ul>
+            <h2>11. Contact</h2>
+            <p>Pour toute question relative aux présentes CGU :</p>
+            <p><strong>Email :</strong> contact@atlas.fr</p>
         </div>
     </div>
 </section>
@@ -661,7 +848,7 @@ body {
         <div class="qlower-footer-content">
             <div class="qlower-footer-brand">
                 <div class="qlower-footer-logo">
-                    <img src="{{ url_for('static', filename='img/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto; filter: brightness(0) invert(1);">
+                    <img src="{{ url_for('static', filename='img/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto;">
                 </div>
                 <p class="qlower-footer-description">
                     Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
@@ -678,8 +865,8 @@ body {
                 <div class="qlower-footer-column">
                     <h6>Produit</h6>
                     <ul>
-                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Nos Offres</a></li>
-                        <li><a href="#" class="qlower-footer-link">Fonctionnalités</a></li>
+                        <li><a href="{{ url_for('site_pages.solutions') }}" class="qlower-footer-link">Nos solutions</a></li>
+                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Tarifs</a></li>
                         <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
                         <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
                     </ul>
@@ -708,20 +895,20 @@ body {
                 <div class="qlower-footer-column">
                     <h6>Légal</h6>
                     <ul>
-                        <li><a href="#" class="qlower-footer-link">CGU</a></li>
-                        <li><a href="#" class="qlower-footer-link">Confidentialité</a></li>
-                        <li><a href="#" class="qlower-footer-link">Cookies</a></li>
-                        <li><a href="#" class="qlower-footer-link">Mentions légales</a></li>
+                        <li><a href="{{ url_for('site_pages.cgu') }}" class="qlower-footer-link">CGU</a></li>
+                        <li><a href="{{ url_for('site_pages.privacy') }}" class="qlower-footer-link">Confidentialité</a></li>
+                        <li><a href="{{ url_for('site_pages.cookies') }}" class="qlower-footer-link">Cookies</a></li>
+                        <li><a href="{{ url_for('site_pages.legal') }}" class="qlower-footer-link">Mentions légales</a></li>
                     </ul>
                 </div>
             </div>
         </div>
         
         <div class="qlower-footer-bottom">
-            <p>&copy; 2024 Atlas. Tous droits réservés.</p>
+            <p>&copy; {{ 2026 }} Atlas. Tous droits réservés.</p>
             <p>
                 <i class="fas fa-shield-alt"></i>
-                Données sécurisées et cryptées • Agréé AMF & ACPR
+                Données sécurisées et cryptées
             </p>
         </div>
     </div>
@@ -730,6 +917,67 @@ body {
 
 {% block scripts %}
 <script>
+// EXACT QLOWER INTERACTIONS - Complete version from index
+
+// Smooth scrolling
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Modern hamburger menu toggle
+function toggleMobileMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    
+    if (hamburger && mobileMenuOverlay) {
+        // Toggle active classes
+        hamburger.classList.toggle('active');
+        mobileMenuOverlay.classList.toggle('active');
+        
+        // Prevent body scroll when menu is open
+        if (mobileMenuOverlay.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// Setup mobile menu event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Close menu when clicking mobile links
+    document.querySelectorAll('.mobile-menu-link').forEach(link => {
+        link.addEventListener('click', function() {
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    });
+    
+    // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
+    // Handle clicking outside the menu content to close (on the overlay background)
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', function(e) {
+            // Only close if clicking on the overlay itself, not its children
+            if (e.target === mobileMenuOverlay) {
+                toggleMobileMenu();
+            }
+        });
+    }
+});
+
+// Navbar scroll effect - transparent background with enhanced container
 const navbar = document.querySelector('.qlower-navbar');
 const navContainer = navbar.querySelector('.qlower-nav-container');
 
@@ -737,16 +985,31 @@ window.addEventListener('scroll', () => {
     const currentScrollY = window.scrollY;
     
     if (currentScrollY > 100) {
+        // Enhanced container effect when scrolling
         navContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
         navContainer.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.2)';
         navContainer.style.backdropFilter = 'blur(15px)';
     } else {
+        // Original container appearance at top
         navContainer.style.backgroundColor = 'rgba(255, 255, 255, 1)';
         navContainer.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.15)';
         navContainer.style.backdropFilter = 'blur(10px)';
     }
     
+    // Always keep navbar visible
     navbar.style.transform = 'translateY(0)';
+});
+
+// Enhanced button interactions
+document.querySelectorAll('[class*="qlower-btn"]').forEach(button => {
+    button.addEventListener('mouseenter', function() {
+        this.style.transform = this.style.transform.includes('scale') ? 
+            this.style.transform + ' scale(1.02)' : 'translateY(-2px) scale(1.02)';
+    });
+    
+    button.addEventListener('mouseleave', function() {
+        this.style.transform = this.style.transform.replace(' scale(1.02)', '');
+    });
 });
 </script>
 {% endblock %}

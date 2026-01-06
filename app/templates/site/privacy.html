@@ -421,6 +421,209 @@ body {
     color: var(--qlower-primary);
 }
 
+/* Hamburger Menu Button */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 24px;
+    height: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    z-index: 10001;
+}
+
+.hamburger span {
+    width: 24px;
+    height: 2px;
+    background: var(--qlower-text-dark);
+    border-radius: 3px;
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    position: relative;
+    transform-origin: 2px 1px;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg);
+}
+
+.hamburger.active span {
+    background: var(--qlower-primary) !important;
+}
+
+/* Mobile Menu Overlay - Complete version from index_exact.html */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 99999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-menu-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+.mobile-menu-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-menu-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-menu-close::before,
+.mobile-menu-close::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background: var(--qlower-primary);
+    border-radius: 1px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-close::before {
+    transform: rotate(45deg);
+}
+
+.mobile-menu-close::after {
+    transform: rotate(-45deg);
+}
+
+.mobile-menu-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    gap: 2rem;
+    padding: 60px 20px 20px;
+}
+
+.mobile-menu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+}
+
+.mobile-menu-link {
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 18px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-link:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu-link:nth-child(2) { animation-delay: 0.2s; }
+.mobile-menu-link:nth-child(3) { animation-delay: 0.3s; }
+.mobile-menu-link:nth-child(4) { animation-delay: 0.4s; }
+.mobile-menu-link:nth-child(5) { animation-delay: 0.5s; }
+
+.mobile-menu-link:hover {
+    background-color: rgba(19, 124, 139, 0.1);
+    color: var(--qlower-primary);
+}
+
+.mobile-menu-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 280px;
+    margin-top: 1rem;
+}
+
+.mobile-menu-btn {
+    padding: 15px 25px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-btn:nth-child(1) { animation-delay: 0.6s; }
+.mobile-menu-btn:nth-child(2) { animation-delay: 0.7s; }
+
+.mobile-menu-btn-primary {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+}
+
+.mobile-menu-btn-secondary {
+    background: var(--qlower-dark);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 77, 89, 0.3);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @media (max-width: 991px) {
     .qlower-nav-menu {
         display: none;
@@ -428,6 +631,10 @@ body {
     
     .qlower-nav-actions {
         display: none;
+    }
+    
+    .hamburger {
+        display: flex;
     }
     
     .qlower-footer-content {
@@ -491,47 +698,73 @@ body {
 {% block content %}
 <nav class="qlower-navbar">
     <div class="qlower-nav-container">
+        <!-- Logo exact comme Qlower -->
         <a href="{{ url_for('site_pages.index') }}" class="qlower-logo">
             <img src="{{ url_for('static', filename='images/logo-atlas.png') }}" alt="Atlas" style="height: 32px; width: auto;">
         </a>
         
+        <!-- Menu exact comme Qlower -->
         <div class="qlower-nav-menu">
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.index') }}" class="qlower-nav-link">Accueil</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.solutions') }}" class="qlower-nav-link">Nos solutions</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">Tarifs</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.contact') }}" class="qlower-nav-link">Contact</a>
+            </div>
             <div class="qlower-nav-item">
                 <a href="{{ url_for('site_pages.about') }}" class="qlower-nav-link">À propos</a>
             </div>
-            <div class="qlower-nav-item">
-                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">
-                    Nos Offres
-                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
-                </a>
-            </div>
-            <div class="qlower-nav-item">
-                <a href="#" class="qlower-nav-link">
-                    Ressources
-                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
-                </a>
-            </div>
-            
-            <!-- Boutons d'action pour mobile -->
-            <div class="mobile-nav-actions">
-                <button type="button" class="qlower-btn-demo" data-bs-toggle="modal" data-bs-target="#appointmentModal">Prendre RDV</button>
-                <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
-            </div>
-            
         </div>
         
+        <!-- Actions droite exact comme Qlower -->
         <div class="qlower-nav-actions">
-            <div class="qlower-nav-item">
-                <a href="#" class="qlower-nav-link">
-                    FR
-                    <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
-                </a>
-            </div>
-            <a href="#rdv" class="qlower-btn-demo">Prendre RDV</a>
+            <button type="button" class="qlower-btn-demo" data-bs-toggle="modal" data-bs-target="#appointmentModal">Prendre RDV</button>
             <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
         </div>
+        
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </div>
 </nav>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay">
+    <div class="mobile-menu-container">
+        <!-- Close Button -->
+        <button class="mobile-menu-close" onclick="toggleMobileMenu()"></button>
+        
+        <!-- Menu Content -->
+        <div class="mobile-menu-content">
+            <!-- Navigation Links -->
+            <nav class="mobile-menu-nav">
+                <a href="{{ url_for('site_pages.index') }}" class="mobile-menu-link">Accueil</a>
+                <a href="{{ url_for('site_pages.solutions') }}" class="mobile-menu-link">Nos solutions</a>
+                <a href="{{ url_for('site_pages.pricing') }}" class="mobile-menu-link">Tarifs</a>
+                <a href="{{ url_for('site_pages.contact') }}" class="mobile-menu-link">Contact</a>
+                <a href="{{ url_for('site_pages.about') }}" class="mobile-menu-link">À propos</a>
+            </nav>
+            
+            <!-- Action Buttons -->
+            <div class="mobile-menu-actions">
+                <button type="button" class="mobile-menu-btn mobile-menu-btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                    Prendre RDV
+                </button>
+                <a href="/plateforme/connexion" class="mobile-menu-btn mobile-menu-btn-secondary">
+                    Mon espace
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <section class="qlower-hero">
     <div class="qlower-hero-container">
@@ -545,170 +778,99 @@ body {
 <section class="qlower-section">
     <div class="qlower-section-container">
         <div class="qlower-last-update">
-            <strong>Dernière mise à jour :</strong> 15 octobre 2024
+            <strong>Dernière mise à jour :</strong> 2025
         </div>
         
         <div class="qlower-legal-content">
-            <h2>1. Introduction</h2>
-            <p>Atlas SAS, société par actions simplifiée au capital de 100 000 euros, immatriculée au RCS de Paris sous le numéro 123 456 789, dont le siège social est situé au 123 Avenue des Champs-Élysées, 75008 Paris, accorde une grande importance à la protection de vos données personnelles.</p>
+            <p>Atlas attache une importance particulière à la protection des données personnelles et s'engage à respecter la réglementation applicable, notamment :</p>
+            <ul>
+                <li>le Règlement (UE) 2016/679 relatif à la protection des données (RGPD),</li>
+                <li>la loi n°78-17 du 6 janvier 1978 modifiée,</li>
+                <li>les recommandations de la CNIL.</li>
+            </ul>
+
+            <h2>1. Responsable du traitement</h2>
+            <p>Le présent site est exploité dans le cadre du projet Atlas, actuellement en cours de création. Dans l'attente de la création de la structure juridique définitive, le responsable du traitement est le porteur du projet Atlas.</p>
+            <p><strong>📩 Contact :</strong> contact@atlas.fr</p>
+
+            <h2>2. Données personnelles collectées</h2>
+            <p>Dans le cadre de l'utilisation du site, Atlas est susceptible de collecter les données suivantes :</p>
             
-            <p>La présente Politique de Confidentialité vous informe sur la manière dont nous collectons, utilisons, partageons et protégeons vos données personnelles dans le cadre de l'utilisation de la plateforme Atlas.</p>
-
-            <h2>2. Responsable du traitement</h2>
-            <p>Atlas SAS est le responsable du traitement de vos données personnelles. Vous pouvez nous contacter :</p>
+            <h3>Données fournies volontairement par l'utilisateur</h3>
             <ul>
-                <li>Par email : dpo@atlas-patrimoine.fr</li>
-                <li>Par courrier : Atlas SAS - DPO, 123 Avenue des Champs-Élysées, 75008 Paris</li>
-                <li>Par téléphone : +33 1 23 45 67 89</li>
-            </ul>
-
-            <h2>3. Données collectées</h2>
-            <h3>3.1 Données d'identification</h3>
-            <ul>
-                <li>Nom, prénom</li>
-                <li>Date de naissance</li>
-                <li>Adresse email</li>
+                <li>Nom et prénom (le cas échéant)</li>
+                <li>Adresse e-mail</li>
                 <li>Numéro de téléphone</li>
-                <li>Adresse postale</li>
-                <li>Profession</li>
+                <li>Contenu des messages envoyés via le formulaire de contact</li>
             </ul>
 
-            <h3>3.2 Données financières</h3>
+            <h3>Données collectées automatiquement</h3>
             <ul>
-                <li>Revenus et charges</li>
-                <li>Patrimoine immobilier et mobilier</li>
-                <li>Investissements en cours</li>
-                <li>Situation fiscale</li>
-                <li>Objectifs patrimoniaux</li>
-                <li>Aversion au risque</li>
+                <li>Données de navigation et de connexion (logs techniques, type de navigateur, système d'exploitation)</li>
             </ul>
+            
+            <p><strong>Aucune donnée sensible ou financière n'est collectée à ce stade.</strong></p>
 
-            <h3>3.3 Données de connexion</h3>
+            <h2>3. Finalités du traitement</h2>
+            <p>Les données personnelles sont collectées uniquement pour les finalités suivantes :</p>
             <ul>
-                <li>Adresse IP</li>
-                <li>Données de navigation</li>
-                <li>Cookies et traceurs</li>
-                <li>Historique des actions sur la plateforme</li>
+                <li>Répondre aux demandes envoyées via le formulaire de contact</li>
+                <li>Échanger dans le cadre d'une prise d'information sur le projet Atlas</li>
+                <li>Assurer le bon fonctionnement et la sécurité du site</li>
+                <li>Réaliser des statistiques de fréquentation anonymes</li>
             </ul>
+            <p><strong>Les données ne sont ni utilisées à des fins commerciales, ni cédées à des tiers.</strong></p>
 
-            <h2>4. Finalités du traitement</h2>
-            <p>Nous utilisons vos données personnelles pour :</p>
+            <h2>4. Bases légales du traitement</h2>
+            <p>Les traitements réalisés reposent sur :</p>
             <ul>
-                <li><strong>Gestion du compte :</strong> création, authentification, gestion du profil</li>
-                <li><strong>Prestation de services :</strong> conseil patrimonial, recommandations d'investissement</li>
-                <li><strong>Conformité réglementaire :</strong> obligations KYC/AML, déclarations ACPR/AMF</li>
-                <li><strong>Communication :</strong> support client, informations sur les services</li>
-                <li><strong>Amélioration :</strong> développement et optimisation de la plateforme</li>
-                <li><strong>Marketing :</strong> avec votre consentement, envoi d'offres personnalisées</li>
+                <li>le consentement de l'utilisateur, lors de l'envoi d'un formulaire de contact,</li>
+                <li>l'intérêt légitime du porteur de projet à répondre aux sollicitations et à sécuriser le site.</li>
             </ul>
 
-            <h2>5. Base légale</h2>
-            <p>Le traitement de vos données est fondé sur :</p>
+            <h2>5. Destinataires des données</h2>
+            <p>Les données collectées sont destinées exclusivement au projet Atlas.</p>
+            <p>Elles ne sont :</p>
             <ul>
-                <li><strong>Exécution du contrat :</strong> fourniture des services de conseil</li>
-                <li><strong>Obligation légale :</strong> respect des obligations réglementaires financières</li>
-                <li><strong>Intérêt légitime :</strong> amélioration des services, sécurité</li>
-                <li><strong>Consentement :</strong> communications marketing, cookies non essentiels</li>
+                <li>ni vendues,</li>
+                <li>ni louées,</li>
+                <li>ni transmises à des tiers.</li>
             </ul>
 
-            <h2>6. Destinataires des données</h2>
-            <h3>6.1 En interne</h3>
-            <p>Seuls les collaborateurs habilités ont accès à vos données dans le cadre de leurs fonctions.</p>
+            <h2>6. Hébergement</h2>
+            <p>Le site est hébergé par :</p>
+            <p><strong>IONOS<br>
+            IONOS SE<br>
+            7, place de la Gare<br>
+            57200 Sarreguemines – France</strong></p>
+            <p>Les données sont hébergées au sein de l'Union européenne.</p>
 
-            <h3>6.2 Partenaires et prestataires</h3>
+            <h2>7. Durée de conservation</h2>
+            <p>Les données personnelles sont conservées :</p>
             <ul>
-                <li>Prestataires informatiques (hébergement, maintenance)</li>
-                <li>Etablissements financiers partenaires</li>
-                <li>Prestataires de services de paiement</li>
-                <li>Cabinets d'audit et de conseil</li>
+                <li>pendant la durée nécessaire au traitement de la demande,</li>
+                <li>et au maximum 12 mois après le dernier échange, sauf obligation légale contraire.</li>
             </ul>
 
-            <h3>6.3 Autorités</h3>
-            <p>Uniquement en cas d'obligation légale ou réglementaire (AMF, ACPR, TRACFIN, etc.).</p>
-
-            <h2>7. Transferts hors UE</h2>
-            <p>Certains de nos prestataires peuvent être situés hors de l'Union Européenne. Dans ce cas, nous nous assurons que des garanties appropriées sont mises en place (décisions d'adéquation, clauses contractuelles types).</p>
-
-            <h2>8. Durée de conservation</h2>
+            <h2>8. Droits des utilisateurs</h2>
+            <p>Conformément au RGPD, l'utilisateur dispose des droits suivants :</p>
             <ul>
-                <li><strong>Données de compte :</strong> durée du contrat + 5 ans</li>
-                <li><strong>Données financières :</strong> 10 ans (obligation légale)</li>
-                <li><strong>Données de connexion :</strong> 1 an maximum</li>
-                <li><strong>Données marketing :</strong> 3 ans à compter du dernier contact</li>
+                <li>droit d'accès à ses données,</li>
+                <li>droit de rectification,</li>
+                <li>droit à l'effacement,</li>
+                <li>droit à la limitation du traitement,</li>
+                <li>droit d'opposition.</li>
             </ul>
+            <p>Toute demande peut être adressée par e-mail à : <strong>contact@atlas.fr</strong></p>
+            <p>L'utilisateur peut également saisir la CNIL en cas de réclamation.</p>
 
-            <h2>9. Vos droits</h2>
-            <p>Conformément au RGPD, vous disposez des droits suivants :</p>
+            <h2>9. Cookies</h2>
+            <p>Le site peut utiliser des cookies strictement nécessaires à son fonctionnement et à la mesure d'audience.</p>
+            <p><strong>Aucun cookie publicitaire ou de profilage n'est utilisé à ce stade.</strong></p>
 
-            <h3>9.1 Droit d'accès</h3>
-            <p>Vous pouvez demander l'accès aux données personnelles que nous détenons sur vous.</p>
-
-            <h3>9.2 Droit de rectification</h3>
-            <p>Vous pouvez demander la correction des données inexactes ou incomplètes.</p>
-
-            <h3>9.3 Droit à l'effacement</h3>
-            <p>Vous pouvez demander la suppression de vos données dans certaines circonstances.</p>
-
-            <h3>9.4 Droit à la limitation</h3>
-            <p>Vous pouvez demander la limitation du traitement de vos données.</p>
-
-            <h3>9.5 Droit à la portabilité</h3>
-            <p>Vous pouvez récupérer vos données dans un format structuré et lisible.</p>
-
-            <h3>9.6 Droit d'opposition</h3>
-            <p>Vous pouvez vous opposer au traitement de vos données pour des raisons légitimes.</p>
-
-            <h3>9.7 Droit de retrait du consentement</h3>
-            <p>Vous pouvez retirer votre consentement à tout moment.</p>
-
-            <h2>10. Exercice de vos droits</h2>
-            <p>Pour exercer vos droits, contactez-nous :</p>
-            <ul>
-                <li>Via votre espace client</li>
-                <li>Par email : dpo@atlas-patrimoine.fr</li>
-                <li>Par courrier avec justificatif d'identité</li>
-            </ul>
-            <p>Nous vous répondrons dans un délai d'un mois maximum.</p>
-
-            <h2>11. Sécurité des données</h2>
-            <p>Nous mettons en œuvre des mesures techniques et organisationnelles appropriées :</p>
-            <ul>
-                <li>Chiffrement des données sensibles</li>
-                <li>Contrôles d'accès stricts</li>
-                <li>Surveillance et audit réguliers</li>
-                <li>Formation du personnel</li>
-                <li>Procédures de gestion des incidents</li>
-            </ul>
-
-            <h2>12. Cookies et traceurs</h2>
-            <h3>12.1 Types de cookies</h3>
-            <ul>
-                <li><strong>Cookies techniques :</strong> nécessaires au fonctionnement</li>
-                <li><strong>Cookies analytiques :</strong> mesure d'audience (avec consentement)</li>
-                <li><strong>Cookies marketing :</strong> personnalisation (avec consentement)</li>
-            </ul>
-
-            <h3>12.2 Gestion des cookies</h3>
-            <p>Vous pouvez paramétrer vos préférences via notre bandeau cookies ou les paramètres de votre navigateur.</p>
-
-            <h2>13. Modifications</h2>
-            <p>Cette politique peut être modifiée pour refléter les évolutions légales ou de nos pratiques. Les modifications importantes vous seront notifiées.</p>
-
-            <h2>14. Réclamations</h2>
-            <p>En cas de difficulté, vous pouvez saisir la Commission Nationale de l'Informatique et des Libertés (CNIL) :</p>
-            <ul>
-                <li>Site web : cnil.fr</li>
-                <li>Adresse : 3 Place de Fontenoy - TSA 80715 - 75334 PARIS CEDEX 07</li>
-                <li>Téléphone : 01 53 73 22 22</li>
-            </ul>
-
-            <h2>15. Contact</h2>
-            <p>Pour toute question relative à cette politique :</p>
-            <ul>
-                <li>Email : dpo@atlas-patrimoine.fr</li>
-                <li>Courrier : Atlas SAS - DPO, 123 Avenue des Champs-Élysées, 75008 Paris</li>
-                <li>Téléphone : +33 1 23 45 67 89</li>
-            </ul>
+            <h2>10. Évolution de la politique</h2>
+            <p>La présente politique de confidentialité pourra être modifiée lors de la création de la société Atlas ou de l'évolution des services proposés.</p>
+            <p><strong>La version applicable est celle publiée sur le site.</strong></p>
         </div>
     </div>
 </section>
@@ -718,7 +880,7 @@ body {
         <div class="qlower-footer-content">
             <div class="qlower-footer-brand">
                 <div class="qlower-footer-logo">
-                    <img src="{{ url_for('static', filename='img/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto; filter: brightness(0) invert(1);">
+                    <img src="{{ url_for('static', filename='img/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto;">
                 </div>
                 <p class="qlower-footer-description">
                     Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
@@ -735,8 +897,8 @@ body {
                 <div class="qlower-footer-column">
                     <h6>Produit</h6>
                     <ul>
-                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Nos Offres</a></li>
-                        <li><a href="#" class="qlower-footer-link">Fonctionnalités</a></li>
+                        <li><a href="{{ url_for('site_pages.solutions') }}" class="qlower-footer-link">Nos solutions</a></li>
+                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Tarifs</a></li>
                         <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
                         <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
                     </ul>
@@ -765,20 +927,20 @@ body {
                 <div class="qlower-footer-column">
                     <h6>Légal</h6>
                     <ul>
-                        <li><a href="#" class="qlower-footer-link">CGU</a></li>
-                        <li><a href="#" class="qlower-footer-link">Confidentialité</a></li>
-                        <li><a href="#" class="qlower-footer-link">Cookies</a></li>
-                        <li><a href="#" class="qlower-footer-link">Mentions légales</a></li>
+                        <li><a href="{{ url_for('site_pages.cgu') }}" class="qlower-footer-link">CGU</a></li>
+                        <li><a href="{{ url_for('site_pages.privacy') }}" class="qlower-footer-link">Confidentialité</a></li>
+                        <li><a href="{{ url_for('site_pages.cookies') }}" class="qlower-footer-link">Cookies</a></li>
+                        <li><a href="{{ url_for('site_pages.legal') }}" class="qlower-footer-link">Mentions légales</a></li>
                     </ul>
                 </div>
             </div>
         </div>
         
         <div class="qlower-footer-bottom">
-            <p>&copy; 2024 Atlas. Tous droits réservés.</p>
+            <p>&copy; {{ 2026 }} Atlas. Tous droits réservés.</p>
             <p>
                 <i class="fas fa-shield-alt"></i>
-                Données sécurisées et cryptées • Agréé AMF & ACPR
+                Données sécurisées et cryptées
             </p>
         </div>
     </div>
@@ -787,6 +949,67 @@ body {
 
 {% block scripts %}
 <script>
+// EXACT QLOWER INTERACTIONS - Complete version from index
+
+// Smooth scrolling
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Modern hamburger menu toggle
+function toggleMobileMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    
+    if (hamburger && mobileMenuOverlay) {
+        // Toggle active classes
+        hamburger.classList.toggle('active');
+        mobileMenuOverlay.classList.toggle('active');
+        
+        // Prevent body scroll when menu is open
+        if (mobileMenuOverlay.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// Setup mobile menu event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Close menu when clicking mobile links
+    document.querySelectorAll('.mobile-menu-link').forEach(link => {
+        link.addEventListener('click', function() {
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    });
+    
+    // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
+    // Handle clicking outside the menu content to close (on the overlay background)
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', function(e) {
+            // Only close if clicking on the overlay itself, not its children
+            if (e.target === mobileMenuOverlay) {
+                toggleMobileMenu();
+            }
+        });
+    }
+});
+
+// Navbar scroll effect - transparent background with enhanced container
 const navbar = document.querySelector('.qlower-navbar');
 const navContainer = navbar.querySelector('.qlower-nav-container');
 
@@ -794,16 +1017,31 @@ window.addEventListener('scroll', () => {
     const currentScrollY = window.scrollY;
     
     if (currentScrollY > 100) {
+        // Enhanced container effect when scrolling
         navContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
         navContainer.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.2)';
         navContainer.style.backdropFilter = 'blur(15px)';
     } else {
+        // Original container appearance at top
         navContainer.style.backgroundColor = 'rgba(255, 255, 255, 1)';
         navContainer.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.15)';
         navContainer.style.backdropFilter = 'blur(10px)';
     }
     
+    // Always keep navbar visible
     navbar.style.transform = 'translateY(0)';
+});
+
+// Enhanced button interactions
+document.querySelectorAll('[class*="qlower-btn"]').forEach(button => {
+    button.addEventListener('mouseenter', function() {
+        this.style.transform = this.style.transform.includes('scale') ? 
+            this.style.transform + ' scale(1.02)' : 'translateY(-2px) scale(1.02)';
+    });
+    
+    button.addEventListener('mouseleave', function() {
+        this.style.transform = this.style.transform.replace(' scale(1.02)', '');
+    });
 });
 </script>
 {% endblock %}
