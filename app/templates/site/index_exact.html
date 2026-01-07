@@ -2686,6 +2686,15 @@ body {
                 
             </div>
         </div>
+        
+        <!-- CTA Prendre RDV -->
+        <div style="text-align: center; margin-top: 48px;">
+            <a href="https://calendly.com/hugues-atlas/premier-entretien-gratuit" target="_blank" class="atlas-cta-rdv" style="display: inline-flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); color: #137C8B; padding: 16px 32px; border-radius: 50px; font-weight: 600; font-size: 16px; text-decoration: none; box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2); transition: all 0.3s ease; border: 2px solid rgba(255, 255, 255, 0.3);">
+                <i class="fas fa-calendar-alt" style="font-size: 18px;"></i>
+                <span>Prendre rendez-vous</span>
+                <i class="fas fa-arrow-right" style="font-size: 14px; transform: translateX(0); transition: transform 0.3s ease;"></i>
+            </a>
+        </div>
     </div>
     
     <style>
@@ -2714,6 +2723,24 @@ body {
         .atlas-benefit-card p {
             font-size: 12px !important;
         }
+        
+        .atlas-cta-rdv {
+            padding: 12px 24px !important;
+            font-size: 14px !important;
+        }
+    }
+    
+    /* CTA Button hover effects */
+    .atlas-cta-rdv:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+        color: #0f5f6b !important;
+        box-shadow: 0 12px 32px rgba(255, 255, 255, 0.3) !important;
+        border-color: rgba(255, 255, 255, 0.5) !important;
+    }
+    
+    .atlas-cta-rdv:hover .fa-arrow-right {
+        transform: translateX(4px);
     }
     </style>
 </section>
