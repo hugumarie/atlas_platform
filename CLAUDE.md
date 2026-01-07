@@ -209,7 +209,7 @@ SECRET_KEY=your-secret-key
 
 ## 🔄 État Actuel du Projet
 
-**Dernière mise à jour** : 30 Décembre 2024
+**Dernière mise à jour** : 7 Janvier 2026
 
 ### Dernières Modifications Majeures (30 Décembre 2024) 🆕
 - **GESTION D'ABONNEMENTS STRIPE COMPLÈTE** :
@@ -266,6 +266,210 @@ Pour activer toutes les fonctionnalités Stripe :
 2. **Webhooks Stripe** : Configuration pour les événements automatiques
 3. **Optimisation mobile** : Améliorer l'expérience sur smartphone
 4. **Notifications** : Système d'alertes pour les seuils patrimoniaux
+
+---
+
+## 🆕 Mise à Jour Majeure (7 Janvier 2026)
+
+### Dashboard Admin Ultra-moderne 🎨
+
+**Refonte complète de l'interface administrateur** avec design compact et couleurs Atlas authentiques.
+
+#### Nouvelles Fonctionnalités Dashboard
+- **MRR Réel Calculé** : Calcul automatique du Monthly Recurring Revenue basé sur les vrais prix des abonnements
+- **7 Métriques Clés** :
+  - MRR avec répartition INITIA/OPTIMA
+  - Clients actifs (abonnements payants)
+  - Total clients inscrits
+  - Prospects en attente
+  - Patrimoine moyen par client
+  - Profils patrimoniaux complétés
+  - Nouveaux clients du mois
+- **Tables Interactives** : Listes des derniers clients et prospects avec boutons "Voir profil"
+- **Actions Rapides** : Navigation directe vers gestion clients/prospects/espace client
+
+#### Design et UX
+```css
+/* Vraies couleurs Atlas utilisées */
+--atlas-primary: #137C8B;
+--atlas-secondary: #709CA7;
+--atlas-dark: #344D59;
+```
+- **Cartes compactes** : Design inspiré du dashboard utilisateur
+- **Responsive adaptatif** : 4→2→1 colonnes selon device
+- **Animations fluides** : fadeInUp et hover effects
+- **Icônes Atlas** : Cohérence visuelle avec le reste de la plateforme
+
+### Système de Suppression Utilisateurs 🗑️
+
+**Service UserDeletionService robuste** pour suppression complète et sécurisée.
+
+#### Fonctionnalités Suppression
+- **Double confirmation** : Deux clics de validation sans saisie de texte
+- **Suppression Stripe complète** :
+  - Annulation automatique des abonnements actifs
+  - Suppression des customers Stripe
+  - Gestion des erreurs API Stripe
+- **Nettoyage database** : 
+  - Suppression cascade des données liées
+  - Gestion automatique des contraintes FK
+  - Logs détaillés de toutes les opérations
+
+#### Architecture Technique
+```python
+# Service principal dans app/services/user_deletion_service.py
+class UserDeletionService:
+    @staticmethod
+    def delete_user_completely(user_id: int):
+        # 1. Annulation Stripe en premier
+        # 2. Suppression préparatoire des contraintes FK
+        # 3. Suppression ORM de l'utilisateur principal
+        # 4. Logs et retour détaillé
+```
+
+#### Interface Utilisateur
+- **Boutons suppression** : Icônes trash dans les listes admin
+- **Prospects ET clients** : Même fonctionnalité pour les deux types d'utilisateurs
+- **Feedback temps réel** : Loading states et messages de confirmation
+- **Gestion d'erreurs** : Affichage des erreurs avec possibilité de retry
+
+### Relations Database Optimisées 🔧
+
+**Mise à jour des modèles SQLAlchemy** pour gestion cascade correcte.
+
+#### Modèles Mis à Jour
+```python
+# app/models/user.py
+investment_plans = db.relationship('InvestmentPlan', 
+                                 backref='user', 
+                                 cascade='all, delete-orphan')
+
+# app/models/invitation_token.py  
+prospect = db.relationship('User', 
+                          backref=db.backref('invitation_tokens', 
+                                            cascade='all, delete-orphan'))
+
+# app/models/user_plan.py
+user = db.relationship('User', 
+                      backref=db.backref('selected_plans', 
+                                        cascade='all, delete-orphan'))
+```
+
+#### Contraintes Gérées
+- **investment_plans** ↔ **users**
+- **invitation_tokens** ↔ **users** (prospects)
+- **user_plans** ↔ **users**
+- **subscriptions** ↔ **users**
+- **investor_profiles** ↔ **users**
+
+### Améliorations Site Vitrine 📱
+
+#### Fix Menu Mobile Universel
+```javascript
+// Fix appliqué sur toutes les pages
+function closeMenuOnButtonClick() {
+    const mobileMenu = document.querySelector('.mobile-nav');
+    if (mobileMenu && mobileMenu.classList.contains('active')) {
+        mobileMenu.classList.remove('active');
+    }
+}
+```
+
+#### Pages Légales Mises à Jour
+- **Email contact** : `contact@atlas.fr` → `contact@atlas-invest.fr`
+- **Dates de modification** : Toutes mises à jour au 7 janvier 2026
+- **Pages concernées** : CGU, Confidentialité, Cookies, Mentions légales
+
+#### Performance et UX
+- **Animations optimisées** : Réduction du temps d'apparition des sous-menus
+- **Layout responsive** : Cartes plans d'investissement en 2x2 sur desktop
+- **Navigation cohérente** : Menu mobile fonctionnel sur toutes les pages
+
+### Interface Admin Simplifiée 🎛️
+
+#### Menu Admin Nettoyé
+**Suppression des boutons non-fonctionnels** :
+- ❌ Transactions
+- ❌ Rapports  
+- ❌ Notifications
+- ❌ Audit & Sécurité
+
+**Conservation des fonctionnalités essentielles** :
+- ✅ Dashboard
+- ✅ Utilisateurs
+- ✅ Prospects
+- ✅ Apprentissage
+- ✅ Paramètres/Système/Logs
+
+#### Navigation Intelligente
+- **Boutons "Voir profil"** dans toutes les listes d'utilisateurs/prospects
+- **Liens directs** : Dashboard → pages de gestion spécifiques
+- **Alignement parfait** : Tables avec colonnes bien alignées
+
+### Architecture Services 🏗️
+
+#### Nouveau Service UserDeletionService
+```
+app/services/user_deletion_service.py
+├── delete_user_completely()     # Méthode principale
+├── _cancel_stripe_subscription() # Gestion Stripe
+├── _delete_investment_plans()    # Nettoyage contraintes FK
+└── _delete_related_data_sql()    # Suppression SQL directe
+```
+
+#### Routes Admin Étendues
+```
+/plateforme/admin/
+├── dashboard                     # Dashboard moderne
+├── utilisateur/<id>/supprimer   # Suppression utilisateurs
+├── prospect/<id>/supprimer      # Suppression prospects
+└── utilisateurs                 # Liste avec boutons suppression
+```
+
+### Fonctionnalités Opérationnelles Actuelles ✅
+
+#### Système Admin Complet
+- **Dashboard moderne** avec vraies métriques business
+- **Gestion utilisateurs** avec suppression sécurisée
+- **Gestion prospects** avec conversion et suppression
+- **Navigation intuitive** et design cohérent
+- **Calculs financiers précis** (MRR, patrimoine, conversions)
+
+#### Site Vitrine Optimisé
+- **Menu mobile universel** fonctionnel sur toutes les pages
+- **Pages légales à jour** avec bonnes coordonnées
+- **Performance améliorée** et animations optimisées
+- **Responsive design** parfait sur tous les devices
+
+#### Architecture Robuste
+- **Relations database** avec cascade correctes
+- **Services métier** modulaires et réutilisables
+- **Gestion d'erreurs** complète avec logs détaillés
+- **Code documenté** et maintenable
+
+### Configuration Déploiement ⚠️
+
+#### Variables d'Environnement à Préserver
+```bash
+# ⚠️ NE PAS MODIFIER en production
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+SQLALCHEMY_DATABASE_URI=postgresql://...
+SECRET_KEY=...
+```
+
+#### Commandes Déploiement Sécurisé
+```bash
+# 1. Pull des changements SANS toucher aux variables env
+git pull origin main
+
+# 2. Redémarrage application
+sudo systemctl restart atlas-app
+
+# 3. Vérification logs
+sudo journalctl -u atlas-app -f
+```
 
 ---
 
