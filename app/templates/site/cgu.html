@@ -778,7 +778,7 @@ body {
 <section class="qlower-section">
     <div class="qlower-section-container">
         <div class="qlower-last-update">
-            <strong>Dernière mise à jour :</strong> 6 janvier 2026
+            <strong>Dernière mise à jour :</strong> 7 janvier 2025
         </div>
         
         <div class="qlower-legal-content">
@@ -788,7 +788,7 @@ body {
 
             <h2>2. Éditeur du site</h2>
             <p>Le site Atlas est exploité dans le cadre d'un projet en cours de création.</p>
-            <p><strong>Contact :</strong> contact@atlas.fr</p>
+            <p><strong>Contact :</strong> contact@atlas-invest.fr</p>
 
             <h2>3. Accès au site et à l'espace client</h2>
             <p>L'accès au site public est libre et gratuit.</p>
@@ -838,7 +838,7 @@ body {
 
             <h2>11. Contact</h2>
             <p>Pour toute question relative aux présentes CGU :</p>
-            <p><strong>Email :</strong> contact@atlas.fr</p>
+            <p><strong>Email :</strong> contact@atlas-invest.fr</p>
         </div>
     </div>
 </section>
@@ -893,6 +893,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Close mobile menu when clicking the mobile "Prendre RDV" button
+    const mobileRDVButton = document.querySelector('.mobile-menu-btn-primary');
+    if (mobileRDVButton) {
+        mobileRDVButton.addEventListener('click', function() {
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    }
     
     // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
     // Handle clicking outside the menu content to close (on the overlay background)

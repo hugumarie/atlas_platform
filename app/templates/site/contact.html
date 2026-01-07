@@ -1144,6 +1144,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Close mobile menu when clicking the mobile "Prendre RDV" button
+    const mobileRDVButton = document.querySelector('.mobile-menu-btn-primary');
+    if (mobileRDVButton) {
+        mobileRDVButton.addEventListener('click', function() {
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    }
+    
     // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
     // Handle clicking outside the menu content to close (on the overlay background)
     const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');

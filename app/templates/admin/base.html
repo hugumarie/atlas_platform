@@ -116,43 +116,11 @@
                     <div class="admin-nav-title">Gestion</div>
                     <ul class="admin-nav-list">
                         <li class="admin-nav-item">
-                            <a href="#" class="admin-nav-link">
-                                <div class="admin-nav-icon">
-                                    <i class="fas fa-exchange-alt"></i>
-                                </div>
-                                Transactions
-                            </a>
-                        </li>
-                        <li class="admin-nav-item">
-                            <a href="#" class="admin-nav-link">
-                                <div class="admin-nav-icon">
-                                    <i class="fas fa-file-alt"></i>
-                                </div>
-                                Rapports
-                            </a>
-                        </li>
-                        <li class="admin-nav-item">
                             <a href="{{ url_for('platform_admin.apprentissages') }}" class="admin-nav-link {{ 'active' if 'platform_admin.apprentissages' in request.endpoint }}">
                                 <div class="admin-nav-icon">
                                     <i class="fas fa-graduation-cap"></i>
                                 </div>
                                 Apprentissage
-                            </a>
-                        </li>
-                        <li class="admin-nav-item">
-                            <a href="#" class="admin-nav-link">
-                                <div class="admin-nav-icon">
-                                    <i class="fas fa-bell"></i>
-                                </div>
-                                Notifications
-                            </a>
-                        </li>
-                        <li class="admin-nav-item">
-                            <a href="#" class="admin-nav-link">
-                                <div class="admin-nav-icon">
-                                    <i class="fas fa-shield-alt"></i>
-                                </div>
-                                Audit & Sécurité
                             </a>
                         </li>
                     </ul>

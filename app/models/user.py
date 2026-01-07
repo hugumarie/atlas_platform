@@ -66,6 +66,7 @@ class User(UserMixin, db.Model):
     subscription = db.relationship('Subscription', backref='user', uselist=False, cascade='all, delete-orphan')
     portfolio = db.relationship('Portfolio', backref='user', uselist=False, cascade='all, delete-orphan')
     payment_methods = db.relationship('PaymentMethod', backref='user', cascade='all, delete-orphan')
+    investment_plans = db.relationship('InvestmentPlan', backref='user', cascade='all, delete-orphan')
     
     def set_password(self, password):
         """

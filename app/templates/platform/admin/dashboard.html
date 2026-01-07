@@ -4,209 +4,590 @@
 
 {% block page_title %}Dashboard Administrateur{% endblock %}
 
+{% block head %}
+<style>
+/* Dashboard admin compact aux vraies couleurs Atlas */
+:root {
+    --atlas-primary: #137C8B;
+    --atlas-secondary: #709CA7;
+    --atlas-tertiary: #B8CBD0;
+    --atlas-dark: #344D59;
+    --atlas-success: #28a745;
+    --atlas-warning: #ffc107;
+    --atlas-danger: #dc3545;
+}
+
+/* Layout compact */
+.compact-grid {
+    display: grid;
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.compact-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.compact-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.compact-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* Cartes métriques compactes */
+.compact-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.compact-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(19, 124, 139, 0.15);
+}
+
+/* Card spéciale MRR */
+.revenue-compact-card {
+    background: linear-gradient(135deg, var(--atlas-primary) 0%, var(--atlas-secondary) 100%);
+    color: white;
+    grid-column: span 1;
+}
+
+.revenue-compact-card .metric-value {
+    color: white;
+    font-size: 1.75rem;
+}
+
+.revenue-compact-card .metric-label {
+    color: rgba(255,255,255,0.9);
+}
+
+.revenue-compact-card .metric-info {
+    color: rgba(255,255,255,0.95);
+}
+
+/* Icônes compactes */
+.compact-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    font-size: 16px;
+    background: var(--atlas-primary);
+    color: white;
+    box-shadow: 0 2px 6px rgba(19, 124, 139, 0.2);
+}
+
+.revenue-compact-card .compact-icon {
+    background: rgba(255,255,255,0.25);
+}
+
+/* Valeurs et labels compacts */
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--atlas-dark);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.metric-info {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Tables compactes */
+.compact-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.compact-table-header {
+    background: #f8fafc;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.compact-table h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--atlas-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.compact-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.compact-table th {
+    background: #fafbfc;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.compact-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.compact-table tr:hover {
+    background: #f8fafc;
+}
+
+/* Bouton compact pour voir les profils */
+.compact-view-btn {
+    background: var(--atlas-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.compact-view-btn:hover {
+    background: var(--atlas-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(19, 124, 139, 0.2);
+}
+
+/* Avatars compacts */
+.compact-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--atlas-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.prospect-compact-avatar {
+    background: var(--atlas-warning);
+}
+
+/* Badges compacts */
+.compact-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.badge-initia {
+    background: #e0f2fe;
+    color: #0277bd;
+}
+
+.badge-optima {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.badge-prospect {
+    background: #ffebee;
+    color: #c62828;
+}
+
+/* Actions rapides compactes */
+.action-compact-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.action-compact-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(19, 124, 139, 0.15);
+    border-color: var(--atlas-primary);
+}
+
+.action-compact-card .compact-icon {
+    margin: 0 auto 1rem;
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+}
+
+.action-compact-card h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--atlas-dark);
+}
+
+.action-compact-card p {
+    color: #64748b;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.action-arrow {
+    color: var(--atlas-primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+/* Responsive compact */
+@media (max-width: 1200px) {
+    .compact-grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .compact-grid-4,
+    .compact-grid-3,
+    .compact-grid-2 { 
+        grid-template-columns: 1fr; 
+    }
+    
+    .compact-card { padding: 1rem; }
+    .metric-value { font-size: 1.25rem; }
+    .revenue-compact-card .metric-value { font-size: 1.5rem; }
+    .compact-grid { gap: 1rem; margin-bottom: 1.25rem; }
+}
+
+/* Animation fade-in */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.compact-card, .compact-table, .action-compact-card {
+    animation: fadeInUp 0.5s ease forwards;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Statistiques principales -->
-<div class="admin-grid admin-grid-4 mb-4">
-    <div class="admin-card">
-        <div class="admin-card-body">
-            <div class="admin-stat">
-                <div class="admin-stat-value">{{ stats.total_users }}</div>
-                <div class="admin-stat-label">Utilisateurs Total</div>
-            </div>
+<!-- Métriques principales compactes -->
+<div class="compact-grid compact-grid-4">
+    <!-- Revenue Card MRR -->
+    <div class="compact-card revenue-compact-card">
+        <div class="compact-icon">
+            <i class="fas fa-euro-sign"></i>
+        </div>
+        <div class="metric-value">{{ "%.0f"|format(stats.real_mrr) }}€</div>
+        <div class="metric-label">MRR</div>
+        <div class="metric-info">
+            <i class="fas fa-chart-line"></i>
+            {{ stats.initia_subs + stats.optima_subs }} abonnements
         </div>
     </div>
     
-    <div class="admin-card">
-        <div class="admin-card-body">
-            <div class="admin-stat">
-                <div class="admin-stat-value">{{ stats.active_subscriptions }}</div>
-                <div class="admin-stat-label">Abonnements Actifs</div>
-            </div>
+    <!-- Clients Actifs -->
+    <div class="compact-card">
+        <div class="compact-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="metric-value">{{ stats.active_subscriptions }}</div>
+        <div class="metric-label">Clients Actifs</div>
+        <div class="metric-info">
+            <i class="fas fa-credit-card"></i>
+            Abonnements payants
         </div>
     </div>
     
-    <div class="admin-card">
-        <div class="admin-card-body">
-            <div class="admin-stat">
-                <div class="admin-stat-value">{{ stats.trial_subscriptions }}</div>
-                <div class="admin-stat-label">Essais Gratuits</div>
-            </div>
+    <!-- Total Clients -->
+    <div class="compact-card">
+        <div class="compact-icon">
+            <i class="fas fa-user-check"></i>
+        </div>
+        <div class="metric-value">{{ stats.total_users }}</div>
+        <div class="metric-label">Total Clients</div>
+        <div class="metric-info">
+            <i class="fas fa-chart-bar"></i>
+            Utilisateurs inscrits
         </div>
     </div>
     
-    <div class="admin-card">
-        <div class="admin-card-body">
-            <div class="admin-stat">
-                <div class="admin-stat-value">{{ stats.conversion_rate }}%</div>
-                <div class="admin-stat-label">Taux de Conversion</div>
-            </div>
+    <!-- Prospects -->
+    <div class="compact-card">
+        <div class="compact-icon" style="background: var(--atlas-warning);">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="metric-value">{{ stats.total_prospects }}</div>
+        <div class="metric-label">Prospects</div>
+        <div class="metric-info">
+            <i class="fas fa-funnel-dollar"></i>
+            Leads en attente
         </div>
     </div>
 </div>
 
-<!-- Revenus et Analytics -->
-<div class="admin-grid admin-grid-2 mb-4">
-    <div class="admin-card">
-        <div class="admin-card-header">
-            <h3 class="admin-card-title">
-                <i class="fas fa-euro-sign text-primary"></i>
-                Revenus Récurrents
-            </h3>
-            <p class="admin-card-subtitle">Chiffre d'affaires mensuel</p>
+<!-- Analytics secondaires compactes -->
+<div class="compact-grid compact-grid-3">
+    <!-- Patrimoine Moyen -->
+    <div class="compact-card">
+        <div class="compact-icon" style="background: var(--atlas-success);">
+            <i class="fas fa-piggy-bank"></i>
         </div>
-        <div class="admin-card-body">
-            <div class="d-flex align-items-center gap-3">
-                <div class="admin-stat">
-                    <div class="admin-stat-value">{{ stats.mrr }}€</div>
-                    <div class="admin-stat-label">MRR (Monthly Recurring Revenue)</div>
-                </div>
-                <div style="flex: 1; background: var(--qlower-bg-light); height: 100px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--qlower-text-light);">
-                    <i class="fas fa-chart-area" style="font-size: 48px;"></i>
-                </div>
-            </div>
+        <div class="metric-value">{{ "{:,.0f}".format(stats.avg_patrimoine) }}€</div>
+        <div class="metric-label">Patrimoine Moyen</div>
+        <div class="metric-info">
+            <i class="fas fa-calculator"></i>
+            Par client
         </div>
     </div>
     
-    <div class="admin-card">
-        <div class="admin-card-header">
-            <h3 class="admin-card-title">
-                <i class="fas fa-users text-primary"></i>
-                Croissance Utilisateurs
-            </h3>
-            <p class="admin-card-subtitle">Évolution des inscriptions</p>
+    <!-- Profils Complétés -->
+    <div class="compact-card">
+        <div class="compact-icon" style="background: var(--atlas-secondary);">
+            <i class="fas fa-clipboard-check"></i>
         </div>
-        <div class="admin-card-body">
-            <div class="d-flex align-items-center gap-3">
-                <div class="admin-stat">
-                    <div class="admin-stat-value">+{{ stats.completed_profiles }}</div>
-                    <div class="admin-stat-label">Profils Complétés</div>
-                </div>
-                <div style="flex: 1; background: var(--qlower-bg-light); height: 100px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--qlower-text-light);">
-                    <i class="fas fa-chart-line" style="font-size: 48px;"></i>
-                </div>
-            </div>
+        <div class="metric-value">{{ stats.completed_profiles }}</div>
+        <div class="metric-label">Profils Complétés</div>
+        <div class="metric-info">
+            <i class="fas fa-percentage"></i>
+            Questionnaires patrimoine
+        </div>
+    </div>
+    
+    <!-- Nouveaux ce Mois -->
+    <div class="compact-card">
+        <div class="compact-icon" style="background: var(--atlas-danger);">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="metric-value">{{ stats.nouveaux_ce_mois }}</div>
+        <div class="metric-label">Nouveaux ce Mois</div>
+        <div class="metric-info">
+            <i class="fas fa-calendar"></i>
+            Janvier 2026
         </div>
     </div>
 </div>
 
-<!-- Derniers utilisateurs -->
-<div class="admin-card">
-    <div class="admin-card-header">
-        <h3 class="admin-card-title">
-            <i class="fas fa-user-plus text-primary"></i>
-            Derniers Utilisateurs Inscrits
-        </h3>
-        <p class="admin-card-subtitle">Les 5 dernières inscriptions</p>
-    </div>
-    <div class="admin-card-body p-0">
-        {% if recent_users %}
-            <table class="admin-table">
+<!-- Tables compactes des utilisateurs -->
+<div class="compact-grid compact-grid-2">
+    <!-- Derniers Clients -->
+    <div class="compact-table">
+        <div class="compact-table-header">
+            <h3>
+                <i class="fas fa-users" style="color: var(--atlas-primary);"></i>
+                Derniers Clients Inscrits
+            </h3>
+        </div>
+        <div style="max-height: 300px; overflow-y: auto;">
+            {% if recent_users %}
+            <table>
                 <thead>
                     <tr>
-                        <th>Utilisateur</th>
-                        <th>Email</th>
-                        <th>Date d'inscription</th>
-                        <th>Statut</th>
-                        <th>Actions</th>
+                        <th>Client</th>
+                        <th>Plan</th>
+                        <th>Date</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for user in recent_users %}
                     <tr>
                         <td>
-                            <div class="d-flex align-items-center gap-3">
-                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="compact-avatar">
                                     {{ user.first_name[0] if user.first_name else 'U' }}{{ user.last_name[0] if user.last_name else '' }}
                                 </div>
                                 <div>
-                                    <div class="fw-semibold">{{ user.get_full_name() }}</div>
-                                    <div class="fs-sm text-secondary">{{ user.phone or 'Aucun téléphone' }}</div>
+                                    <div style="font-weight: 600; color: #1e293b; font-size: 0.85rem;">
+                                        {{ user.get_full_name() }}
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: #64748b;">
+                                        {{ user.email[:25] }}{% if user.email|length > 25 %}...{% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </td>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.date_created.strftime('%d/%m/%Y à %H:%M') }}</td>
-                        <td>
+                        <td style="vertical-align: top; padding-top: 0.75rem;">
                             {% if user.subscription %}
-                                {% if user.subscription.status == 'active' %}
-                                    <span style="background: #28a745; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                        Actif
-                                    </span>
-                                {% elif user.subscription.status == 'trial' %}
-                                    <span style="background: #ffc107; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                        Essai
-                                    </span>
-                                {% else %}
-                                    <span style="background: #6c757d; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                        Inactif
-                                    </span>
-                                {% endif %}
+                                <span class="compact-badge badge-{{ user.subscription.tier }}">
+                                    {{ user.subscription.get_tier_display() }}
+                                </span>
                             {% else %}
-                                <span style="background: #6c757d; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                    Aucun abonnement
+                                <span class="compact-badge" style="background: #f1f5f9; color: #64748b;">
+                                    Aucun
                                 </span>
                             {% endif %}
                         </td>
-                        <td>
-                            <a href="{{ url_for('platform_admin.client_detail', client_id=user.id) }}" class="admin-btn admin-btn-secondary" style="padding: 8px 16px; font-size: 12px;">
+                        <td style="font-size: 0.75rem; color: #64748b; font-weight: 500; vertical-align: top; padding-top: 0.75rem;">
+                            {{ user.date_created.strftime('%d/%m/%Y') }}
+                        </td>
+                        <td style="vertical-align: top; padding-top: 0.75rem;">
+                            <button class="compact-view-btn" onclick="window.location.href='{{ url_for('platform_admin.user_detail', user_id=user.id) }}'" title="Voir le profil">
                                 <i class="fas fa-eye"></i>
-                                Voir
-                            </a>
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        {% else %}
-            <div class="p-4 text-center text-secondary">
-                <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
-                <p class="mb-0">Aucun utilisateur inscrit pour le moment.</p>
+            {% else %}
+            <div style="padding: 2rem; text-align: center; color: #94a3b8;">
+                <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 0.75rem; opacity: 0.3;"></i>
+                <p style="margin: 0; font-size: 0.85rem;">Aucun client inscrit</p>
             </div>
-        {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Derniers Prospects -->
+    <div class="compact-table">
+        <div class="compact-table-header">
+            <h3>
+                <i class="fas fa-user-plus" style="color: var(--atlas-warning);"></i>
+                Derniers Prospects
+            </h3>
+        </div>
+        <div style="max-height: 300px; overflow-y: auto;">
+            {% if recent_prospects %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Prospect</th>
+                        <th>Statut</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prospect in recent_prospects %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="compact-avatar prospect-compact-avatar">
+                                    {{ prospect.first_name[0] if prospect.first_name else 'P' }}{{ prospect.last_name[0] if prospect.last_name else '' }}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #1e293b; font-size: 0.85rem;">
+                                        {{ prospect.get_full_name() }}
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: #64748b;">
+                                        {{ prospect.email[:25] }}{% if prospect.email|length > 25 %}...{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="vertical-align: top; padding-top: 0.75rem;">
+                            <span class="compact-badge badge-prospect">
+                                Prospect
+                            </span>
+                        </td>
+                        <td style="font-size: 0.75rem; color: #64748b; font-weight: 500; vertical-align: top; padding-top: 0.75rem;">
+                            {{ prospect.date_created.strftime('%d/%m/%Y') }}
+                        </td>
+                        <td style="vertical-align: top; padding-top: 0.75rem;">
+                            <button class="compact-view-btn" onclick="window.location.href='{{ url_for('platform_admin.prospect_detail', prospect_id=prospect.id) }}'" title="Voir le prospect">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div style="padding: 2rem; text-align: center; color: #94a3b8;">
+                <i class="fas fa-user-plus" style="font-size: 2rem; margin-bottom: 0.75rem; opacity: 0.3;"></i>
+                <p style="margin: 0; font-size: 0.85rem;">Aucun prospect</p>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 
-<!-- Actions rapides -->
-<div class="admin-grid admin-grid-3 mt-4">
-    <div class="admin-card">
-        <div class="admin-card-body text-center">
-            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: white; font-size: 24px;">
-                <i class="fas fa-users"></i>
-            </div>
-            <h4 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Gérer les Utilisateurs</h4>
-            <p style="color: var(--qlower-text-light); margin-bottom: 20px; font-size: 14px;">Voir et administrer tous les comptes utilisateurs</p>
-            <a href="{{ url_for('platform_admin.clients') }}" class="admin-btn admin-btn-primary">
-                <i class="fas fa-arrow-right"></i>
-                Accéder
-            </a>
+<!-- Actions rapides compactes -->
+<div class="compact-grid compact-grid-3">
+    <div class="action-compact-card" onclick="window.location.href='{{ url_for('platform_admin.users') }}'">
+        <div class="compact-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <h4>Gérer les Clients</h4>
+        <p>Consulter et administrer tous les comptes clients</p>
+        <div class="action-arrow">
+            Voir {{ stats.total_users }} clients
+            <i class="fas fa-arrow-right"></i>
         </div>
     </div>
     
-    <div class="admin-card">
-        <div class="admin-card-body text-center">
-            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: white; font-size: 24px;">
-                <i class="fas fa-chart-bar"></i>
-            </div>
-            <h4 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Rapports</h4>
-            <p style="color: var(--qlower-text-light); margin-bottom: 20px; font-size: 14px;">Consulter les statistiques détaillées</p>
-            <a href="#" class="admin-btn admin-btn-secondary">
-                <i class="fas fa-arrow-right"></i>
-                Bientôt
-            </a>
+    <div class="action-compact-card" onclick="window.location.href='{{ url_for('platform_admin.prospects') }}'">
+        <div class="compact-icon" style="background: var(--atlas-warning);">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <h4>Gérer les Prospects</h4>
+        <p>Convertir et suivre les prospects en attente</p>
+        <div class="action-arrow">
+            Voir {{ stats.total_prospects }} prospects
+            <i class="fas fa-arrow-right"></i>
         </div>
     </div>
     
-    <div class="admin-card">
-        <div class="admin-card-body text-center">
-            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: white; font-size: 24px;">
-                <i class="fas fa-cog"></i>
-            </div>
-            <h4 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Paramètres</h4>
-            <p style="color: var(--qlower-text-light); margin-bottom: 20px; font-size: 14px;">Configurer la plateforme</p>
-            <a href="#" class="admin-btn admin-btn-secondary">
-                <i class="fas fa-arrow-right"></i>
-                Bientôt
-            </a>
+    <div class="action-compact-card" onclick="window.location.href='{{ url_for('platform_investor.dashboard') }}'">
+        <div class="compact-icon" style="background: var(--atlas-success);">
+            <i class="fas fa-external-link-alt"></i>
+        </div>
+        <h4>Espace Client</h4>
+        <p>Tester l'expérience utilisateur de la plateforme</p>
+        <div class="action-arrow">
+            Accéder à la plateforme
+            <i class="fas fa-arrow-right"></i>
         </div>
     </div>
 </div>
@@ -215,30 +596,42 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Animation des statistiques
-    const stats = document.querySelectorAll('.admin-stat-value');
-    stats.forEach((stat, index) => {
-        setTimeout(() => {
-            stat.style.opacity = '1';
-            stat.style.transform = 'scale(1)';
-        }, index * 100);
+    // Animation de comptage pour les valeurs numériques
+    const metricValues = document.querySelectorAll('.metric-value');
+    
+    metricValues.forEach((element, index) => {
+        const text = element.textContent.trim();
+        const isNumeric = /^[\d,]+/.test(text);
         
-        stat.style.opacity = '0';
-        stat.style.transform = 'scale(0.8)';
-        stat.style.transition = 'all 0.6s ease';
+        if (isNumeric && !text.includes('€')) {
+            const finalValue = parseInt(text.replace(/[,]/g, ''));
+            if (finalValue > 0 && finalValue < 500) {
+                let currentValue = 0;
+                const increment = Math.max(1, Math.ceil(finalValue / 20));
+                
+                setTimeout(() => {
+                    const timer = setInterval(() => {
+                        currentValue += increment;
+                        if (currentValue >= finalValue) {
+                            currentValue = finalValue;
+                            clearInterval(timer);
+                        }
+                        element.textContent = currentValue.toLocaleString();
+                    }, 80);
+                }, index * 100);
+            }
+        }
     });
     
-    // Animation des cartes
-    const cards = document.querySelectorAll('.admin-card');
-    cards.forEach((card, index) => {
-        setTimeout(() => {
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, 200 + (index * 50));
-        
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'all 0.5s ease';
+    // Effet hover pour les cartes d'action
+    const actionCards = document.querySelectorAll('.action-compact-card');
+    actionCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-6px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
     });
 });
 </script>

@@ -799,22 +799,49 @@ button.qlower-btn-demo {
     list-style: none;
     padding: 0;
     margin: 20px 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
 }
 
 .atlas-raison-values li {
     margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(19, 124, 139, 0.15);
+    transition: all 0.3s ease;
 }
 
-.atlas-value-item {
-    background: rgba(255, 255, 255, 0.2);
+.atlas-raison-values li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(19, 124, 139, 0.15);
+    border-color: var(--qlower-primary);
+}
+
+.atlas-value-icon {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.atlas-value-icon i {
     color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 500;
-    backdrop-filter: blur(10px);
+    font-size: 10px;
+}
+
+.atlas-value-text {
+    color: var(--qlower-dark);
+    font-weight: 600;
+    font-size: 14px;
 }
 
 /* TEAM SECTION */
@@ -1025,13 +1052,16 @@ button.qlower-btn-demo {
     }
     
     .atlas-raison-values {
-        flex-direction: column;
-        gap: 8px;
+        grid-template-columns: 1fr;
+        gap: 12px;
     }
     
-    .atlas-value-item {
-        text-align: center;
-        padding: 6px 12px;
+    .atlas-raison-values li {
+        padding: 10px 14px;
+    }
+    
+    .atlas-value-text {
+        font-size: 13px;
     }
     
     /* Team section mobile improvements */
@@ -1185,7 +1215,7 @@ button.qlower-btn-demo {
         <div class="qlower-section-header">
             <h2 class="qlower-section-title">Notre équipe</h2>
             <p class="qlower-section-subtitle">
-                Des experts passionnés dédiés à votre réussite financière
+                Des experts passionnés, engagés à vos côtés pour faire grandir votre patrimoine.
             </p>
         </div>
         
@@ -1196,7 +1226,7 @@ button.qlower-btn-demo {
                 </div>
                 <h4>Roland Baudinot</h4>
                 <div class="qlower-team-role">Co-fondateur Atlas</div>
-                <p class="qlower-team-bio">Expert en gestion de patrimoine, Roland maîtrise l'optimisation patrimoniale et la fiscalité. Sa vision pédagogique et son approche 100% indépendante inspirent confiance.</p>
+                <p class="qlower-team-bio">Expert en gestion de patrimoine, Roland accompagne ses clients dans la réalisation de leurs objectifs financiers avec bienveillance et pédagogie. Passionné par l'économie et les marchés financiers, il conseille chaque client avec rigueur, en mettant son expertise en fiscalité et en placements au service de leurs intérêts.</p>
             </div>
             
             <div class="qlower-team-member">
@@ -1205,7 +1235,7 @@ button.qlower-btn-demo {
                 </div>
                 <h4>Hugues Marie</h4>
                 <div class="qlower-team-role">Co-fondateur Atlas</div>
-                <p class="qlower-team-bio">Passionné d'investissement, Hugues se spécialise dans les cryptomonnaies et l'immobilier. Il développe des stratégies patrimoniales innovantes pour aider chacun à diversifier son portefeuille.</p>
+                <p class="qlower-team-bio">Entre finance traditionnelle et nouvelles opportunités, Hugues apporte une vision moderne de l'investissement. Il met son expérience dans le secteur des paiements et des cryptomonnaies au service de stratégies innovantes, toujours avec rigueur et pragmatisme, notamment sur l'immobilier et les crypto-actifs.</p>
             </div>
         </div>
     </div>
@@ -1240,9 +1270,9 @@ button.qlower-btn-demo {
         <div class="atlas-raison-content">
             <!-- Introduction -->
             <div class="atlas-raison-intro">
-                <p>Investir devrait être une décision simple, rationnelle et alignée avec ses objectifs de vie. Pourtant, pour de nombreux particuliers, l'investissement est devenu complexe, opaque et source de méfiance.</p>
+                <p>Investir devrait être une décision simple, rationnelle et alignée avec ses objectifs de vie. Pourtant, pour de nombreux particuliers, l'investissement est devenu <strong style="color: var(--qlower-primary);">complexe, opaque et source de méfiance.</strong></p>
                 
-                <p>Entre la multiplication des produits financiers, les discours commerciaux déguisés en conseils, les promesses irréalistes et le manque de suivi, il est souvent difficile de savoir à qui se fier.</p>
+                <p>Entre la multiplication des produits financiers, les discours commerciaux déguisés en conseils, les promesses irréalistes et le manque de suivi, <strong style="color: var(--qlower-primary);">il est souvent difficile de savoir à qui se fier.</strong></p>
                 
                 <p class="atlas-highlight">Atlas est né de ce constat.</p>
             </div>
@@ -1256,7 +1286,9 @@ button.qlower-btn-demo {
                     <h3>Le constat</h3>
                 </div>
                 <div class="atlas-raison-block-content">
-                    <p>Aujourd'hui, la majorité des acteurs du conseil en investissement sont rémunérés par les produits qu'ils recommandent. Même lorsque les intentions sont bonnes, ce modèle crée un biais structurel : le conseil n'est jamais totalement neutre.</p>
+                    <p>Aujourd'hui, la majorité des acteurs du conseil en investissement <strong style="color: var(--qlower-primary);">sont rémunérés par les produits qu'ils recommandent.</strong></p>
+                    
+                    <p>Même lorsque les intentions sont bonnes, ce modèle crée un biais structurel : <strong style="color: var(--qlower-primary);">le conseil n'est jamais totalement neutre.</strong></p>
                     
                     <p>Face à cela, les particuliers doivent souvent choisir entre :</p>
                     <ul class="atlas-raison-list">
@@ -1264,7 +1296,8 @@ button.qlower-btn-demo {
                         <li>Des conseillers dont la rémunération dépend directement des recommandations qu'ils formulent.</li>
                     </ul>
                     
-                    <p>Ce fonctionnement nourrit des décisions prises dans le temps. Une chose manque : un cadre de confiance clair et assumé.</p>
+                    <p>Ce fonctionnement nourrit la défiance et fragilise la qualité des décisions prises dans le temps.</p>
+                    <p><strong style="color: var(--qlower-primary);">Une chose manque : un cadre de confiance clair et assumé.</strong></p>
                 </div>
             </div>
             
@@ -1277,14 +1310,39 @@ button.qlower-btn-demo {
                     <h3>Notre conviction</h3>
                 </div>
                 <div class="atlas-raison-block-content">
-                    <p>Nous sommes convaincus qu'un bon conseil en investissement ne repose ni sur la vente de produits, ni sur la promesse de performance. Il repose sur un accompagnement :</p>
+                    <p>Nous sommes convaincus qu'un bon conseil en investissement ne repose ni sur la vente de produits, ni sur la promesse de performance. <strong style="color: var(--qlower-primary);">Il repose sur un accompagnement :</strong></p>
                     
                     <ul class="atlas-raison-values">
-                        <li><span class="atlas-value-item">Transparent,</span></li>
-                        <li><span class="atlas-value-item">Cohérent,</span></li>
-                        <li><span class="atlas-value-item">Pédagogique,</span></li>
-                        <li><span class="atlas-value-item">Sans biais commercial,</span></li>
-                        <li><span class="atlas-value-item">Et pensé sur le long terme.</span></li>
+                        <li>
+                            <div class="atlas-value-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span class="atlas-value-text">Transparent</span>
+                        </li>
+                        <li>
+                            <div class="atlas-value-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span class="atlas-value-text">Cohérent</span>
+                        </li>
+                        <li>
+                            <div class="atlas-value-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span class="atlas-value-text">Pédagogique</span>
+                        </li>
+                        <li>
+                            <div class="atlas-value-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span class="atlas-value-text">Sans biais commercial</span>
+                        </li>
+                        <li>
+                            <div class="atlas-value-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span class="atlas-value-text">Pensé sur le long terme</span>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -1298,11 +1356,11 @@ button.qlower-btn-demo {
                     <h3>Le parti pris d'Atlas</h3>
                 </div>
                 <div class="atlas-raison-block-content">
-                    <p>Atlas a fait un choix clair et assumé : être rémunéré uniquement par ses clients.</p>
+                    <p>Atlas a fait un choix clair et assumé : <strong style="color: var(--qlower-primary);">être rémunéré uniquement par ses clients.</strong></p>
                     
-                    <p>Nous n'acceptons aucune commission, aucune rétrocession, aucune incitation liée aux produits financiers préconisés. Ce modèle n'est pas un argument marketing, mais une garantie structurelle d'indépendance.</p>
+                    <p>Nous n'acceptons <strong style="color: var(--qlower-primary);">aucune commission, aucune rétrocession, aucune incitation liée aux produits financiers préconisés.</strong> Ce modèle n'est pas un argument marketing, mais une <strong style="color: var(--qlower-primary);">garantie structurelle d'indépendance.</strong></p>
                     
-                    <p>Il nous permet de formuler des recommandations en toute objectivité et de privilégier ce qui est réellement adapté à la situation, aux objectifs et à l'horizon de chaque client.</p>
+                    <p>Il nous permet de formuler des recommandations en toute objectivité et de privilégier ce qui est <strong style="color: var(--qlower-primary);">réellement adapté</strong> à la situation, aux objectifs et à l'horizon de chaque client.</p>
                 </div>
             </div>
             
@@ -1315,52 +1373,15 @@ button.qlower-btn-demo {
                     <h3>Notre ambition</h3>
                 </div>
                 <div class="atlas-raison-block-content">
-                    <p>Chez Atlas, nous souhaitons établir un nouveau standard d'accompagnement financier.</p>
+                    <p>Chez Atlas, nous souhaitons <strong style="color: var(--qlower-primary);">établir un nouveau standard d'accompagnement financier.</strong></p>
                     
-                    <p>Nous ambitionnons de devenir une référence pour les particuliers en matière de conseil en investissement, en transformant le modèle actuel et en replaçant l'intérêt du client au cœur des préconisations.</p>
+                    <p>Nous ambitionnons de devenir une <strong style="color: var(--qlower-primary);">référence de confiance</strong> pour les particuliers en matière de conseil en investissement, en transformant le modèle actuel et en <strong style="color: var(--qlower-primary);">replaçant l'intérêt du client au cœur des préconisations.</strong></p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Mission Section -->
-<section class="qlower-section">
-    <div class="qlower-section-container">
-        <div class="qlower-section-header">
-            <h2 class="qlower-section-title">Notre mission</h2>
-            <p class="qlower-section-subtitle">
-                Démocratiser l'accès au conseil patrimonial grâce à la technologie et l'expertise humaine
-            </p>
-        </div>
-        
-        <div class="qlower-cards-grid">
-            <div class="qlower-card">
-                <div class="qlower-card-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3>Accessibilité pour tous</h3>
-                <p>Nous croyons que chacun mérite d'avoir accès à des conseils financiers de qualité, quel que soit son niveau de patrimoine ou d'expérience.</p>
-            </div>
-            
-            <div class="qlower-card">
-                <div class="qlower-card-icon">
-                    <i class="fas fa-lightbulb"></i>
-                </div>
-                <h3>Innovation continue</h3>
-                <p>Nous combinons les dernières technologies avec l'expertise humaine pour offrir une expérience client exceptionnelle et personnalisée.</p>
-            </div>
-            
-            <div class="qlower-card">
-                <div class="qlower-card-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3>Transparence totale</h3>
-                <p>Nos conseils sont indépendants, nos frais transparents et nos recommandations toujours alignées avec vos intérêts.</p>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Values Section -->
 <section class="qlower-section qlower-values-section">
@@ -1368,7 +1389,7 @@ button.qlower-btn-demo {
         <div class="qlower-section-header">
             <h2 class="qlower-section-title">Nos valeurs</h2>
             <p class="qlower-section-subtitle">
-                Les principes qui guident notre action au quotidien
+                Les principes qui guident nos actions au quotidien
             </p>
         </div>
         
@@ -1378,7 +1399,7 @@ button.qlower-btn-demo {
                     <i class="fas fa-eye"></i>
                 </div>
                 <h4>Transparence</h4>
-                <p>Des frais clairs, des recommandations justifiées et aucune commission cachée sur les produits proposés.</p>
+                <p>Des conseils indépendants, des frais transparents et des recommandations toujours alignées avec vos intérêts.</p>
             </div>
             
             <div class="qlower-value-card">
@@ -1394,7 +1415,7 @@ button.qlower-btn-demo {
                     <i class="fas fa-rocket"></i>
                 </div>
                 <h4>Innovation</h4>
-                <p>Les dernières technologies au service de vos finances : IA, automation et interface intuitive.</p>
+                <p>Les dernières technologies au service de vos finances : une interface intuitive et une expérience client améliorée.</p>
             </div>
             
             <div class="qlower-value-card">
@@ -1402,7 +1423,7 @@ button.qlower-btn-demo {
                     <i class="fas fa-users"></i>
                 </div>
                 <h4>Humain</h4>
-                <p>La technologie au service de l'humain, avec un accompagnement personnalisé par nos experts.</p>
+                <p>L'Humain placé au cœur du modèle, avec un accompagnement personnalisé pour chacun, par nos experts.</p>
             </div>
         </div>
     </div>
@@ -1458,6 +1479,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Close mobile menu when clicking the mobile "Prendre RDV" button
+    const mobileRDVButton = document.querySelector('.mobile-menu-btn-primary');
+    if (mobileRDVButton) {
+        mobileRDVButton.addEventListener('click', function() {
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    }
     
     // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
     // Handle clicking outside the menu content to close (on the overlay background)

@@ -20,6 +20,7 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from app.services.credit_calculation import CreditCalculationService
 from app.services.patrimoine_calculation import PatrimoineCalculationService
+from app.services.user_deletion_service import UserDeletionService
 
 platform_admin_bp = Blueprint('platform_admin', __name__, url_prefix='/plateforme/admin')
 
@@ -28,34 +29,82 @@ platform_admin_bp = Blueprint('platform_admin', __name__, url_prefix='/plateform
 def dashboard():
     print("*** ROUTE PLATFORM/ADMIN/DASHBOARD EXECUTEE ***")
     """
-    Dashboard administrateur avec statistiques générales.
+    Dashboard administrateur moderne avec vraies couleurs Atlas.
     """
     if not current_user.is_admin:
         flash('Accès non autorisé.', 'error')
         return redirect(url_for('site_pages.index'))
     
-    # Statistiques générales - utilisateurs avec compte (is_prospect=False)
+    from datetime import datetime, timedelta
+    from sqlalchemy import func
+    
+    # === STATISTIQUES DE BASE ===
     total_users = User.query.filter_by(is_admin=False, is_prospect=False).count()
+    total_prospects = User.query.filter_by(is_prospect=True).count()
     active_subscriptions = Subscription.query.filter_by(status='active').count()
-    trial_subscriptions = Subscription.query.filter_by(status='trial').count()
     completed_profiles = InvestorProfile.query.count()
     
-    # Revenus mensuel récurrent (MRR)
-    mrr = active_subscriptions * 20  # 20€ par abonnement
+    # === MRR SIMPLIFIÉ ===
+    try:
+        mrr_query = db.session.query(func.sum(Subscription.price)).filter(
+            Subscription.status == 'active'
+        ).scalar()
+        real_mrr = float(mrr_query) if mrr_query else 0.0
+        
+        initia_subs = Subscription.query.filter_by(status='active', tier='initia').count()
+        optima_subs = Subscription.query.filter_by(status='active', tier='optima').count()
+    except Exception as e:
+        print(f"Erreur MRR: {e}")
+        real_mrr = active_subscriptions * 25.0  # Fallback
+        initia_subs = active_subscriptions
+        optima_subs = 0
+    
+    # === CROISSANCE CE MOIS ===
+    try:
+        debut_mois = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        nouveaux_ce_mois = User.query.filter(
+            User.is_admin == False,
+            User.is_prospect == False,
+            User.date_created >= debut_mois
+        ).count()
+    except Exception as e:
+        print(f"Erreur croissance: {e}")
+        nouveaux_ce_mois = 0
+    
+    # === PATRIMOINE MOYEN ===
+    try:
+        avg_query = db.session.query(func.avg(InvestorProfile.calculated_patrimoine_total_net)).filter(
+            InvestorProfile.calculated_patrimoine_total_net.isnot(None),
+            InvestorProfile.calculated_patrimoine_total_net > 0
+        ).scalar()
+        avg_patrimoine = float(avg_query) if avg_query else 0.0
+    except Exception as e:
+        print(f"Erreur patrimoine: {e}")
+        avg_patrimoine = 0.0
     
     stats = {
         'total_users': total_users,
+        'total_prospects': total_prospects,
         'active_subscriptions': active_subscriptions,
-        'trial_subscriptions': trial_subscriptions,
         'completed_profiles': completed_profiles,
-        'conversion_rate': round((completed_profiles / total_users * 100), 1) if total_users > 0 else 0,
-        'mrr': mrr
+        'real_mrr': real_mrr,
+        'initia_subs': initia_subs,
+        'optima_subs': optima_subs,
+        'nouveaux_ce_mois': nouveaux_ce_mois,
+        'avg_patrimoine': avg_patrimoine
     }
     
-    # Derniers utilisateurs inscrits - utilisateurs avec compte
-    recent_users = User.query.filter_by(is_admin=False, is_prospect=False).order_by(User.date_created.desc()).limit(5).all()
+    # Utilisateurs récents
+    recent_users = User.query.filter_by(is_admin=False, is_prospect=False)\
+        .order_by(User.date_created.desc()).limit(8).all()
     
-    return render_template('platform/admin/dashboard.html', stats=stats, recent_users=recent_users)
+    recent_prospects = User.query.filter_by(is_prospect=True)\
+        .order_by(User.date_created.desc()).limit(5).all()
+    
+    return render_template('platform/admin/dashboard.html', 
+                         stats=stats, 
+                         recent_users=recent_users, 
+                         recent_prospects=recent_prospects)
 
 @platform_admin_bp.route('/utilisateurs')
 @login_required
@@ -1916,3 +1965,52 @@ def save_investment_plan(user_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Erreur lors de la sauvegarde: {str(e)}'}), 500
+
+@platform_admin_bp.route('/utilisateur/<int:user_id>/supprimer', methods=['DELETE'])
+@login_required
+def delete_user(user_id):
+    """
+    Supprime complètement un utilisateur avec annulation Stripe et suppression de toutes ses données.
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    # Récupérer l'utilisateur
+    user = User.query.filter_by(id=user_id, is_admin=False).first()
+    if not user:
+        return jsonify({'success': False, 'message': 'Utilisateur introuvable'}), 404
+    
+    # Empêcher la suppression d'admin
+    if user.is_admin:
+        return jsonify({'success': False, 'message': 'Impossible de supprimer un administrateur'}), 400
+    
+    # Utiliser le service de suppression dédié
+    result = UserDeletionService.delete_user_completely(user_id)
+    
+    if result['success']:
+        return jsonify(result)
+    else:
+        return jsonify(result), 500
+
+
+@platform_admin_bp.route('/prospect/<int:prospect_id>/supprimer', methods=['DELETE'])
+@login_required
+def delete_prospect(prospect_id):
+    """
+    Supprime complètement un prospect et toutes ses données associées.
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    # Récupérer le prospect
+    prospect = User.query.filter_by(id=prospect_id, is_prospect=True).first()
+    if not prospect:
+        return jsonify({'success': False, 'message': 'Prospect introuvable'}), 404
+    
+    # Utiliser le service de suppression dédié (fonctionne pour prospects aussi)
+    result = UserDeletionService.delete_user_completely(prospect_id)
+    
+    if result['success']:
+        return jsonify(result)
+    else:
+        return jsonify(result), 500

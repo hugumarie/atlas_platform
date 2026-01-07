@@ -778,7 +778,7 @@ body {
 <section class="qlower-section">
     <div class="qlower-section-container">
         <div class="qlower-last-update">
-            <strong>Dernière mise à jour :</strong> 2025
+            <strong>Dernière mise à jour :</strong> 7 janvier 2025
         </div>
         
         <div class="qlower-legal-content">
@@ -791,7 +791,7 @@ body {
 
             <h2>1. Responsable du traitement</h2>
             <p>Le présent site est exploité dans le cadre du projet Atlas, actuellement en cours de création. Dans l'attente de la création de la structure juridique définitive, le responsable du traitement est le porteur du projet Atlas.</p>
-            <p><strong>📩 Contact :</strong> contact@atlas.fr</p>
+            <p><strong>📩 Contact :</strong> contact@atlas-invest.fr</p>
 
             <h2>2. Données personnelles collectées</h2>
             <p>Dans le cadre de l'utilisation du site, Atlas est susceptible de collecter les données suivantes :</p>
@@ -839,11 +839,11 @@ body {
 
             <h2>6. Hébergement</h2>
             <p>Le site est hébergé par :</p>
-            <p><strong>IONOS<br>
-            IONOS SE<br>
-            7, place de la Gare<br>
-            57200 Sarreguemines – France</strong></p>
-            <p>Les données sont hébergées au sein de l'Union européenne.</p>
+            <p><strong>DigitalOcean (via Digital Realty)<br>
+            Datacenter FRA1<br>
+            Hanauer Landstrasse 298<br>
+            60314 Frankfurt am Main – Allemagne</strong></p>
+            <p>Les données sont hébergées en Allemagne au sein de l'Union européenne.</p>
 
             <h2>7. Durée de conservation</h2>
             <p>Les données personnelles sont conservées :</p>
@@ -861,7 +861,7 @@ body {
                 <li>droit à la limitation du traitement,</li>
                 <li>droit d'opposition.</li>
             </ul>
-            <p>Toute demande peut être adressée par e-mail à : <strong>contact@atlas.fr</strong></p>
+            <p>Toute demande peut être adressée par e-mail à : <strong>contact@atlas-invest.fr</strong></p>
             <p>L'utilisateur peut également saisir la CNIL en cas de réclamation.</p>
 
             <h2>9. Cookies</h2>
@@ -925,6 +925,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Close mobile menu when clicking the mobile "Prendre RDV" button
+    const mobileRDVButton = document.querySelector('.mobile-menu-btn-primary');
+    if (mobileRDVButton) {
+        mobileRDVButton.addEventListener('click', function() {
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    }
     
     // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
     // Handle clicking outside the menu content to close (on the overlay background)

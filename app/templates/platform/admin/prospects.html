@@ -115,6 +115,9 @@
                                 <i class="fas fa-eye"></i>
                                 <span class="hide-on-mobile">Consulter</span>
                             </button>
+                            <button class="admin-btn admin-btn-danger admin-btn-sm" onclick="deleteProspect({{ prospect.id }}, '{{ prospect.first_name }} {{ prospect.last_name }}')" style="margin-left: 5px;" title="Supprimer le prospect">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -187,6 +190,9 @@
                     <button class="admin-btn admin-btn-warning admin-btn-sm" onclick="editProspect({{ prospect.id }})" title="Modifier les données">
                         <i class="fas fa-edit"></i>
                         Modifier
+                    </button>
+                    <button class="admin-btn admin-btn-danger admin-btn-sm" onclick="deleteProspect({{ prospect.id }}, '{{ prospect.first_name }} {{ prospect.last_name }}')" title="Supprimer le prospect">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
@@ -273,6 +279,50 @@ function convertProspect(prospectId) {
             console.error('Erreur:', error);
             alert('Erreur lors de la conversion');
         });
+    }
+}
+
+function deleteProspect(prospectId, prospectName) {
+    // Première confirmation
+    if (confirm(`⚠️ ATTENTION ⚠️\n\nÊtes-vous sûr de vouloir supprimer définitivement le prospect "${prospectName}" ?\n\nCette action va :\n• Supprimer toutes ses données personnelles\n• Supprimer ses demandes de rendez-vous\n• Cette action est IRRÉVERSIBLE\n\nCliquez OK pour continuer.`)) {
+        
+        // Deuxième confirmation
+        if (confirm(`🚨 CONFIRMATION FINALE 🚨\n\nDernière chance ! Voulez-vous vraiment supprimer "${prospectName}" ?\n\nToutes ses données seront perdues à jamais.\n\nCliquez OK pour SUPPRIMER DÉFINITIVEMENT.`)) {
+            // Affichage du loader
+            const button = event.target.closest('button');
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Suppression...';
+            
+            // Envoi de la requête de suppression
+            fetch('/plateforme/admin/prospect/' + prospectId + '/supprimer', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Prospect supprimé avec succès.\n\nToutes les données ont été effacées.');
+                    // Recharger la page pour mettre à jour la liste
+                    window.location.reload();
+                } else {
+                    alert('❌ Erreur lors de la suppression :\n' + data.message);
+                    // Restaurer le bouton
+                    button.disabled = false;
+                    button.innerHTML = originalContent;
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('❌ Erreur technique lors de la suppression :\n' + error.message);
+                // Restaurer le bouton
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            });
+        }
     }
 }
 </script>

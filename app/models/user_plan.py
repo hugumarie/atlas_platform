@@ -26,7 +26,7 @@ class UserPlan(db.Model):
     completed_at = db.Column(db.DateTime, nullable=True)
     
     # Relations
-    user = db.relationship('User', backref='selected_plans')
+    user = db.relationship('User', backref=db.backref('selected_plans', cascade='all, delete-orphan'))
     
     # Configurations des plans (données statiques)
     PLAN_CONFIGS = {

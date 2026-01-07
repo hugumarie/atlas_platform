@@ -20,8 +20,7 @@ class InvestmentPlan(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
-    # Relations
-    user = db.relationship('User', backref=db.backref('investment_plans', lazy='dynamic'))
+    # Relations  
     lines = db.relationship('InvestmentPlanLine', back_populates='plan', cascade='all, delete-orphan')
     
     def __repr__(self):

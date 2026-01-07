@@ -23,7 +23,7 @@ class InvitationToken(db.Model):
     status = db.Column(db.String(20), default='active', nullable=False)  # active, used, expired
     
     # Relations
-    prospect = db.relationship('User', backref='invitation_tokens')
+    prospect = db.relationship('User', backref=db.backref('invitation_tokens', cascade='all, delete-orphan'))
     
     def __init__(self, prospect_id, expiry_days=7):
         """

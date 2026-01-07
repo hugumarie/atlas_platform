@@ -812,16 +812,10 @@ button.btn-solution-secondary {
 
 .solution-content {
     display: none;
-    animation: fadeIn 0.5s ease-in-out;
 }
 
 .solution-content.active {
     display: block;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 
 /* Optimisations MOBILE pour boutons INITIA/OPTIMA */
@@ -839,6 +833,7 @@ button.btn-solution-secondary {
         width: 100% !important;
         gap: 6px !important;
         border-radius: 12px !important;
+        transition: all 0.15s ease !important; /* Transition plus rapide sur mobile */
     }
     
     .tab-icon {
@@ -859,14 +854,9 @@ button.btn-solution-secondary {
         line-height: 1.3 !important;
     }
     
-    /* Animation plus rapide sur mobile */
+    /* Pas d'animation sur mobile pour une réactivité maximale */
     .solution-content {
-        animation: fadeInMobile 0.25s ease-in-out !important;
-    }
-    
-    @keyframes fadeInMobile {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        animation: none !important;
     }
 }
 
@@ -1189,8 +1179,11 @@ button.btn-solution-secondary {
 
 .initia-target-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
     gap: 24px;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .initia-target-card {
@@ -1201,6 +1194,12 @@ button.btn-solution-secondary {
     position: relative;
     transition: all 0.3s ease;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    min-height: 200px;
 }
 
 .initia-target-card::before {
@@ -1235,6 +1234,7 @@ button.btn-solution-secondary {
     justify-content: center;
     margin-bottom: 16px;
     transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
 .initia-target-card:hover .initia-target-icon {
@@ -1245,6 +1245,11 @@ button.btn-solution-secondary {
 .initia-target-icon i {
     font-size: 24px;
     color: white;
+}
+
+.initia-target-content {
+    text-align: center;
+    width: 100%;
 }
 
 .initia-target-content h4 {
@@ -1266,17 +1271,25 @@ button.btn-solution-secondary {
 @media (max-width: 991px) {
     .initia-target-grid {
         grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
         gap: 20px;
+        max-width: 600px;
     }
     
     .initia-section-title {
         font-size: 24px;
     }
+    
+    .initia-target-card {
+        min-height: 180px;
+    }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 567px) {
     .initia-target-grid {
         grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        max-width: 400px;
     }
     
     .initia-section-title {
@@ -1285,6 +1298,7 @@ button.btn-solution-secondary {
     
     .initia-target-card {
         padding: 20px;
+        min-height: 160px;
     }
     
     .initia-target-content h4 {
@@ -1461,6 +1475,12 @@ button.btn-solution-secondary {
     position: relative;
     transition: all 0.3s ease;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 220px;
+    justify-content: center;
 }
 
 .initia-unique-card::before {
@@ -1495,6 +1515,7 @@ button.btn-solution-secondary {
     justify-content: center;
     margin-bottom: 16px;
     transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
 .initia-unique-card:hover .initia-unique-icon {
@@ -1505,6 +1526,11 @@ button.btn-solution-secondary {
 .initia-unique-icon i {
     font-size: 20px;
     color: white;
+}
+
+.initia-unique-content {
+    text-align: center;
+    width: 100%;
 }
 
 .initia-unique-content h4 {
@@ -1519,6 +1545,9 @@ button.btn-solution-secondary {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .initia-unique-list li {
@@ -1529,6 +1558,8 @@ button.btn-solution-secondary {
     font-size: 13px;
     line-height: 1.5;
     color: var(--qlower-text-dark);
+    text-align: left;
+    max-width: 280px;
 }
 
 .initia-unique-list li:last-child {
@@ -1553,23 +1584,77 @@ button.btn-solution-secondary {
 }
 
 .initia-fees-highlight {
+    position: relative;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border-radius: 20px;
+    padding: 12px 24px;
+    margin: 24px auto 32px;
+    max-width: 700px;
+    color: white;
+    text-align: center;
+    box-shadow: 
+        0 20px 40px rgba(19, 124, 139, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.initia-fees-highlight::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(255,255,255,0.08)"/><circle cx="40" cy="70" r="2" fill="rgba(255,255,255,0.12)"/><circle cx="60" cy="10" r="0.8" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="80" r="1.2" fill="rgba(255,255,255,0.09)"/></svg>');
+    pointer-events: none;
+    animation: floatStats 20s linear infinite;
+}
+
+@keyframes floatStats {
+    0% { transform: translateX(-10%) translateY(-10%); }
+    50% { transform: translateX(10%) translateY(10%); }
+    100% { transform: translateX(-10%) translateY(-10%); }
+}
+
+.initia-fees-highlight-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.initia-fees-highlight-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    background: linear-gradient(135deg, #e8f4f6 0%, #f0f8f9 100%);
-    border: 2px solid var(--qlower-primary);
-    border-radius: 12px;
-    padding: 16px 24px;
-    margin: 16px auto 20px;
-    max-width: 600px;
-    font-size: 13px;
-    color: var(--qlower-dark);
+    margin-bottom: 4px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
 }
 
-.initia-fees-highlight i {
-    color: var(--qlower-primary);
-    font-size: 17px;
+.initia-fees-highlight-icon i {
+    color: white;
+    font-size: 16px;
+}
+
+.initia-fees-highlight-text {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.initia-fees-highlight-number {
+    font-size: 24px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
 }
 
 .initia-fees-table-container {
@@ -1705,6 +1790,7 @@ button.btn-solution-secondary {
 @media (max-width: 767px) {
     .initia-unique-card {
         padding: 20px;
+        min-height: 200px;
     }
     
     .initia-unique-content h4 {
@@ -1713,13 +1799,31 @@ button.btn-solution-secondary {
     
     .initia-unique-list li {
         font-size: 14px;
+        max-width: 100%;
     }
     
     .initia-fees-highlight {
-        flex-direction: column;
-        text-align: center;
-        gap: 8px;
-        padding: 14px 16px;
+        padding: 10px 20px;
+        margin: 16px auto 20px;
+        border-radius: 16px;
+    }
+    
+    .initia-fees-highlight-icon {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 3px;
+    }
+    
+    .initia-fees-highlight-icon i {
+        font-size: 14px;
+    }
+    
+    .initia-fees-highlight-text {
+        font-size: 12px;
+    }
+    
+    .initia-fees-highlight-number {
+        font-size: 20px;
     }
     
     .initia-fees-table-title {
@@ -2558,8 +2662,12 @@ button.btn-solution-secondary {
                 <div class="initia-fees-header">
                     <h3 class="initia-section-title">Être rémunéré par vous, ça change tout</h3>
                     <div class="initia-fees-highlight">
-                        <i class="fas fa-chart-line"></i>
-                        <span><strong>Les solutions Atlas sont en moyenne 3x moins chères</strong> que les solutions traditionnelles</span>
+                        <div class="initia-fees-highlight-content">
+                            <div class="initia-fees-highlight-icon">
+                                <i class="fas fa-piggy-bank"></i>
+                            </div>
+                            <div class="initia-fees-highlight-text">Les solutions proposées par Atlas sont en moyenne <strong>3x moins chères</strong> que les solutions traditionnelles</div>
+                        </div>
                     </div>
                     <p>Sur le long terme, les frais ont un impact significatif sur la performance de vos investissements. Atlas vous oriente vers des enveloppes sélectionnées pour leur qualité et leurs frais optimisés.</p>
                 </div>
@@ -2909,8 +3017,12 @@ button.btn-solution-secondary {
                 <div class="initia-fees-header">
                     <h3 class="initia-section-title">Être rémunéré par vous, ça change tout</h3>
                     <div class="initia-fees-highlight">
-                        <i class="fas fa-chart-line"></i>
-                        <span><strong>Les solutions Atlas sont en moyenne 3x moins chères</strong> que les solutions traditionnelles</span>
+                        <div class="initia-fees-highlight-content">
+                            <div class="initia-fees-highlight-icon">
+                                <i class="fas fa-piggy-bank"></i>
+                            </div>
+                            <div class="initia-fees-highlight-text">Les solutions proposées par Atlas sont en moyenne <strong>3x moins chères</strong> que les solutions traditionnelles</div>
+                        </div>
                     </div>
                     <p>Sur le long terme, les frais ont un impact significatif sur la performance de vos investissements. Atlas vous oriente vers des enveloppes sélectionnées pour leur qualité et leurs frais optimisés.</p>
                 </div>
@@ -3176,6 +3288,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Close mobile menu when clicking the mobile "Prendre RDV" button
+    const mobileRDVButton = document.querySelector('.mobile-menu-btn-primary');
+    if (mobileRDVButton) {
+        mobileRDVButton.addEventListener('click', function() {
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    }
+    
     // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
     // Handle clicking outside the menu content to close (on the overlay background)
     const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
@@ -3253,7 +3376,9 @@ function scrollToDetails(solutionType) {
         // Calcul de la position avec offset pour apparaître plus haut dans le viewport
         const elementRect = detailsSection.getBoundingClientRect();
         const absoluteElementTop = elementRect.top + window.pageYOffset;
-        const offset = window.innerHeight * 0.15; // 15% du viewport depuis le haut
+        // Offset plus important pour mobile et desktop
+        const isMobile = window.innerWidth <= 767;
+        const offset = isMobile ? window.innerHeight * 0.25 : window.innerHeight * 0.3; // 25% mobile, 30% desktop
         const targetPosition = absoluteElementTop - offset;
         
         window.scrollTo({
@@ -3263,10 +3388,13 @@ function scrollToDetails(solutionType) {
     }
 }
 
-// Smooth entrance animations for sections - exact Qlower style
+// Animation supprimée pour une réactivité maximale
+// Les sections sont maintenant visibles immédiatement
+
+// Si on veut garder une animation légère, utiliser cette version optimisée :
 const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
+    threshold: 0.01, // Très petit seuil pour déclencher plus tôt
+    rootMargin: '200px 0px 0px 0px' // Déclenche 200px avant que la section soit visible
 };
 
 const observer = new IntersectionObserver((entries) => {
@@ -3274,33 +3402,24 @@ const observer = new IntersectionObserver((entries) => {
         if (entry.isIntersecting) {
             entry.target.style.opacity = '1';
             entry.target.style.transform = 'translateY(0)';
-            
-            // Stagger animations for cards within sections
-            const cards = entry.target.querySelectorAll('.solution-card, .feature-card, .benefit-card');
-            cards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
         }
     });
 }, observerOptions);
 
-// Observe all main sections
-document.querySelectorAll('.qlower-section').forEach(section => {
+// Appliquer seulement aux sections qui ne sont pas critiques (pas #details)
+document.querySelectorAll('.qlower-section:not(#details)').forEach(section => {
     section.style.opacity = '0';
-    section.style.transform = 'translateY(30px)';
-    section.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    section.style.transform = 'translateY(20px)';
+    section.style.transition = 'all 0.3s ease';
     observer.observe(section);
 });
 
-// Initialize card animations
-document.querySelectorAll('.solution-card, .feature-card, .benefit-card').forEach(card => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(30px)';
-    card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-});
+// Section details toujours visible pour éviter les problèmes
+const detailsSection = document.querySelector('#details');
+if (detailsSection) {
+    detailsSection.style.opacity = '1';
+    detailsSection.style.transform = 'translateY(0)';
+}
 
 // Enhanced button interactions
 document.querySelectorAll('[class*="qlower-btn"]').forEach(button => {
