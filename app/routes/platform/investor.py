@@ -1207,7 +1207,8 @@ def chat_api():
         return jsonify({'error': 'Message vide'}), 400
     
     try:
-        # Appel à l'API OpenAI avec Coach Patrimoine - Version simple
+        # Importer le service RAG Atlas
+        from app.services.atlas_rag_service import get_atlas_rag_service
         import requests
         from datetime import datetime
         import os
@@ -1218,39 +1219,19 @@ def chat_api():
         if not api_key:
             return jsonify({'error': 'Configuration OpenAI manquante'}), 500
         
-        # Instructions complètes de Coach Patrimoine
-        system_prompt = """Tu es "Coach Patrimoine", un assistant d'éducation financière pour débutants en France.
-Objectif: expliquer clairement, simplement, sans jargon, et guider l'utilisateur pas à pas (épargne, PEA, assurance-vie, ETF, PER, immobilier, livret A, budget).
-Style: phrases courtes, exemples concrets, métaphores simples, check-lists.
-Langue: répondre en français par défaut; basculer en anglais si l'utilisateur parle anglais.
-
-Cadre & sécurité:
-- Tu fournis de l'information éducative, pas de conseil financier, juridique ou fiscal personnalisé.
-- Toujours rappeler: "je ne connais pas ta situation complète". Proposer de consulter un conseiller agréé pour décisions importantes.
-- Ne demandes jamais de données sensibles (NIR, IBAN, identités complètes, documents).
-- Si l'utilisateur demande une recommandation précise (quel titre acheter), répondre par une méthode simple et diversifiée (ex.: ETF indiciel), expliquer les critères et les risques, sans citer un produit spécifique sauf si l'utilisateur l'a déjà choisi.
-
-Méthode pédagogique standard:
-- Budget & épargne: recommander d'épargner au moins 10% des revenus nets chaque mois (si possible).
-- Épargne de précaution: constituer 3 à 6 mois de dépenses (selon stabilité des revenus) sur supports sûrs et liquides (Livret A/LDDS).
-- Investissement progressif: proposer l'investissement mensuel automatique (DCA) sur des supports diversifiés adaptés au profil de risque.
-
-Exemple neutre de répartition (à adapter au profil utilisateur, toujours comme illustration):
-- 60–80% actions globales via ETF indiciels
-- 0–20% épargne projet court/moyen terme (monétaire/fonds euros)
-- 0–10% crypto maximum et seulement si l'utilisateur comprend la forte volatilité
-- enveloppes fiscales françaises (PEA, assurance-vie, PER) selon objectifs
-
-Ton: bienveillant, sans jugement, concret; proposer des micro-actions.
-
-Format de réponse:
-- Commencer par un résumé en 2–3 puces.
-- Donner les étapes concrètes (1-2-3).
-- Ajouter "À retenir" (3 points max).
-- Offrir la prochaine micro-action.
-
-Conformité: "Information éducative uniquement. Pas de recommandation personnalisée. Les marchés comportent des risques de perte en capital. Pour tout arbitrage fiscal ou patrimonial important, consulter un professionnel agréé."
-"""
+        # Récupérer le service RAG
+        rag_service = get_atlas_rag_service()
+        
+        # Récupérer le system prompt depuis assistant_atlas.md
+        system_prompt = rag_service.get_system_prompt()
+        
+        # Rechercher le contexte pertinent dans la base de connaissance
+        context = rag_service.get_context_for_query(user_message, max_context_length=1500)
+        
+        # Construire le message utilisateur avec le contexte
+        user_message_with_context = user_message
+        if context:
+            user_message_with_context = f"{context}\n\nQUESTION CLIENT: {user_message}"
         
         # Appel direct à l'API OpenAI via requests
         headers = {
@@ -1258,13 +1239,16 @@ Conformité: "Information éducative uniquement. Pas de recommandation personnal
             'Content-Type': 'application/json'
         }
         
+        # Modèle plus puissant pour une meilleure compréhension du contexte
+        model = 'gpt-4o-mini'  # Peut être 'gpt-4' si disponible
+        
         data = {
-            'model': 'gpt-4o-mini',
+            'model': model,
             'messages': [
                 {'role': 'system', 'content': system_prompt},
-                {'role': 'user', 'content': user_message}
+                {'role': 'user', 'content': user_message_with_context}
             ],
-            'max_tokens': 800,
+            'max_tokens': 1000,
             'temperature': 0.7
         }
         
@@ -1296,6 +1280,7 @@ Conformité: "Information éducative uniquement. Pas de recommandation personnal
     except Exception as e:
         # En cas d'erreur API, log pour debug mais message user-friendly en production
         import traceback
+        import os
         error_details = str(e)
         print(f"🚨 Erreur chatbot: {error_details}")
         print(f"🚨 Traceback: {traceback.format_exc()}")
@@ -1311,6 +1296,67 @@ Conformité: "Information éducative uniquement. Pas de recommandation personnal
             'response': error_message,
             'timestamp': datetime.now().strftime('%H:%M')
         })
+
+@platform_investor_bp.route('/api/rag/rebuild', methods=['POST'])
+@login_required
+def rebuild_rag_index():
+    """
+    API pour reconstruire l'index RAG (admin uniquement).
+    """
+    if not current_user.is_admin:
+        return jsonify({'error': 'Accès non autorisé'}), 403
+    
+    try:
+        from app.services.atlas_rag_service import get_atlas_rag_service
+        
+        rag_service = get_atlas_rag_service()
+        rag_service.rebuild_index()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Index RAG reconstruit avec succès'
+        })
+        
+    except Exception as e:
+        print(f"❌ Erreur rebuild RAG: {e}")
+        return jsonify({
+            'error': f'Erreur lors de la reconstruction: {str(e)}'
+        }), 500
+
+@platform_investor_bp.route('/api/rag/search', methods=['POST'])
+@login_required
+def test_rag_search():
+    """
+    API pour tester la recherche RAG (admin uniquement).
+    """
+    if not current_user.is_admin:
+        return jsonify({'error': 'Accès non autorisé'}), 403
+    
+    try:
+        from app.services.atlas_rag_service import get_atlas_rag_service
+        
+        data = request.get_json()
+        query = data.get('query', '').strip()
+        
+        if not query:
+            return jsonify({'error': 'Query manquante'}), 400
+        
+        rag_service = get_atlas_rag_service()
+        results = rag_service.search(query, max_results=5)
+        context = rag_service.get_context_for_query(query)
+        
+        return jsonify({
+            'query': query,
+            'results': results,
+            'context': context,
+            'total_documents': len(rag_service.documents) if rag_service.documents else 0
+        })
+        
+    except Exception as e:
+        print(f"❌ Erreur test RAG: {e}")
+        return jsonify({
+            'error': f'Erreur lors du test: {str(e)}'
+        }), 500
 
 @platform_investor_bp.route('/api/portfolio-data')
 @login_required
@@ -2444,7 +2490,14 @@ def save_investment_plan():
             db.session.add(plan)
             db.session.flush()  # Pour obtenir l'ID
         
-        # Supprimer toutes les anciennes lignes
+        # Supprimer d'abord toutes les actions liées aux anciennes lignes
+        from app.models.investment_action import InvestmentAction
+        existing_lines = InvestmentPlanLine.query.filter_by(plan_id=plan.id).all()
+        for line in existing_lines:
+            # Supprimer toutes les actions liées à cette ligne
+            InvestmentAction.query.filter_by(plan_line_id=line.id).delete()
+        
+        # Maintenant supprimer toutes les anciennes lignes
         InvestmentPlanLine.query.filter_by(plan_id=plan.id).delete()
         
         # Ajouter les nouvelles lignes

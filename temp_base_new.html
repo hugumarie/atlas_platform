@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Atlas - Plateforme Patrimoniale{% endblock %}</title>
+    
+    <!-- Favicon blanc -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-white.png') }}?v=4">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon-white.png') }}?v=4">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Mobile Navigation Fix -->
+    <link href="{{ url_for('static', filename='css/mobile-nav-fix.css') }}" rel="stylesheet">
+    <!-- Google Fonts - Inter (exact match to Qlower) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+    :root {
+        /* Atlas Color Palette */
+        --primary-color: #137C8B;
+        --secondary-color: #709CA7;
+        --tertiary-color: #B8CBD0;
+        --quaternary-color: #7A90A4;
+        --dark-color: #344D59;
+        
+        /* Site vitrine colors (white background) */
+        --bg-color: #ffffff;
+        --text-primary: #344D59;
+        --text-secondary: #7A90A4;
+        --text-muted: #709CA7;
+        --border-color: #B8CBD0;
+        
+        /* System colors */
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+    }
+
+    /* Global Styles */
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+    }
+
+    /* Override Bootstrap colors */
+    .text-primary { color: var(--primary-color) !important; }
+    .bg-primary { background-color: var(--primary-color) !important; }
+    .border-primary { border-color: var(--primary-color) !important; }
+    .btn-primary { 
+        background-color: var(--primary-color) !important; 
+        border-color: var(--primary-color) !important; 
+    }
+    .btn-primary:hover { 
+        background-color: var(--secondary-color) !important; 
+        border-color: var(--secondary-color) !important; 
+    }
+
+    /* ATLAS MODAL - Design moderne et compact */
+    .atlas-modal {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+    }
+
+    .atlas-modal-header {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 10;
+        padding: 12px;
+    }
+
+    .atlas-modal-close {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: none;
+        border-radius: 8px;
+        color: var(--text-secondary);
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .atlas-modal-close:hover {
+        background: rgba(255, 255, 255, 1);
+        color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .atlas-modal-body {
+        padding: 0;
+    }
+
+    /* Section gauche - Informations */
+    .atlas-modal-left {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .atlas-modal-left::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
+        animation: float 20s linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes float {
+        0% { transform: rotate(0deg) translateX(-50%); }
+        100% { transform: rotate(360deg) translateX(-50%); }
+    }
+
+    .atlas-modal-content-left {
+        padding: 32px 24px 24px;
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .atlas-modal-title-section {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .atlas-modal-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(20px);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 20px;
+        color: white;
+    }
+
+    .atlas-modal-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        line-height: 1.2;
+        color: white;
+    }
+
+    .atlas-modal-subtitle {
+        font-size: 14px;
+        opacity: 0.9;
+        margin: 0;
+        font-weight: 400;
+    }
+
+    .atlas-modal-benefits {
+        flex: 1;
+    }
+
+    .atlas-benefit-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 12px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+    }
+
+    .atlas-benefit-icon {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+        color: white;
+        font-size: 14px;
+    }
+
+    .atlas-benefit-content h6 {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 2px;
+        color: white;
+    }
+
+    .atlas-benefit-content p {
+        font-size: 12px;
+        margin: 0;
+        opacity: 0.8;
+        line-height: 1.3;
+    }
+
+    .atlas-modal-info {
+        margin-top: 20px;
+    }
+
+    .atlas-info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .atlas-info-item {
+        text-align: center;
+        padding: 12px 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 70px;
+    }
+
+    .atlas-info-item i {
+        font-size: 18px;
+        margin-bottom: 6px;
+        display: block;
+        color: white;
+    }
+
+    .atlas-info-item strong {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 2px;
+        line-height: 1.2;
+    }
+
+    .atlas-info-item span {
+        font-size: 11px;
+        opacity: 0.9;
+        color: white;
+        font-weight: 500;
+    }
+
+    /* Section droite - Formulaire */
+    .atlas-modal-right {
+        background: white;
+    }
+
+    .atlas-modal-content-right {
+        padding: 32px 24px 24px;
+        height: 100%;
+    }
+
+    .atlas-form-header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .atlas-form-header h4 {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 4px;
+    }
+
+    .atlas-form-header p {
+        color: var(--text-secondary);
+        margin: 0;
+        font-size: 13px;
+    }
+
+    .atlas-appointment-form {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .atlas-form-group {
+        margin-bottom: 16px;
+    }
+
+    .atlas-form-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .atlas-input-wrapper {
+        position: relative;
+    }
+
+    .atlas-input-wrapper i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 14px;
+        z-index: 2;
+    }
+
+    .atlas-form-input {
+        width: 100%;
+        padding: 12px 12px 12px 36px;
+        border: 2px solid #e8ecef;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-primary);
+        background: #fafbfc;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .atlas-form-input::placeholder {
+        color: var(--text-secondary);
+        font-weight: 400;
+    }
+
+    .atlas-form-input:focus {
+        border-color: var(--primary-color);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(19, 124, 139, 0.1);
+    }
+
+    .atlas-form-input:focus + i {
+        color: var(--primary-color);
+    }
+
+    .atlas-submit-btn {
+        width: 100%;
+        padding: 14px 24px;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 12px;
+        box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+    }
+
+    .atlas-submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(19, 124, 139, 0.4);
+        background: linear-gradient(135deg, #0f6b75 0%, #5d8a94 100%);
+    }
+
+    .atlas-submit-btn:active {
+        transform: translateY(0);
+    }
+
+    .atlas-btn-content,
+    .atlas-btn-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .atlas-btn-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+    }
+
+    .atlas-submit-btn.loading .atlas-btn-content {
+        opacity: 0;
+    }
+
+    .atlas-submit-btn.loading .atlas-btn-loading {
+        opacity: 1;
+    }
+
+    .atlas-form-disclaimer {
+        text-align: center;
+        font-size: 11px;
+        color: var(--text-secondary);
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        line-height: 1.3;
+    }
+
+    .atlas-form-disclaimer i {
+        color: var(--primary-color);
+        font-size: 14px;
+    }
+
+    /* Messages d'erreur */
+    .invalid-feedback {
+        font-size: 11px;
+        color: #dc3545;
+        margin-top: 4px;
+        padding-left: 6px;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .atlas-modal-content-left,
+        .atlas-modal-content-right {
+            padding: 24px 16px 16px;
+        }
+
+        .atlas-modal-title {
+            font-size: 20px;
+        }
+
+        .atlas-info-grid {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .atlas-benefit-item {
+            margin-bottom: 10px;
+            padding: 8px;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .modal-lg {
+            max-width: 95%;
+            margin: 1rem auto;
+        }
+
+        .atlas-modal {
+            border-radius: 12px;
+        }
+
+        .atlas-modal-close {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
+
+        .atlas-modal-content-left,
+        .atlas-modal-content-right {
+            padding: 20px 16px 16px;
+        }
+
+        .atlas-modal-title {
+            font-size: 18px;
+        }
+
+        .atlas-form-header h4 {
+            font-size: 18px;
+        }
+
+        .atlas-modal-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+        }
+    }
+
+    /* FOOTER STYLES - Style menu avec boîte blanche sur fond vert */
+    .qlower-footer {
+        background: var(--primary-color);
+        padding: 60px 24px 24px;
+        margin-top: 0;
+    }
+
+    .qlower-footer-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: var(--bg-color);
+        border-radius: 20px;
+        padding: 48px 40px 32px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .qlower-footer-content {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 60px;
+        margin-bottom: 40px;
+    }
+
+    .qlower-footer-brand {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .qlower-footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    .qlower-footer-logo span {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--dark-color);
+        letter-spacing: -0.025em;
+    }
+
+    .qlower-footer-description {
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--text-secondary);
+        margin: 0;
+        max-width: 280px;
+    }
+
+    .qlower-footer-social {
+        display: flex;
+        gap: 16px;
+    }
+
+    .qlower-social-link {
+        width: 40px;
+        height: 40px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .qlower-social-link:hover {
+        background: var(--primary-color);
+        color: var(--bg-color);
+        transform: translateY(-2px);
+    }
+
+    .qlower-footer-links {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 40px;
+    }
+
+    .qlower-footer-column h6 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 20px;
+    }
+
+    .qlower-footer-column ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .qlower-footer-column li {
+        margin-bottom: 12px;
+    }
+
+    .qlower-footer-link {
+        font-size: 15px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: block;
+        padding: 4px 0;
+    }
+
+    .qlower-footer-link:hover {
+        color: var(--primary-color);
+        padding-left: 8px;
+    }
+
+    .qlower-footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 32px;
+        border-top: 1px solid var(--border-color);
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .qlower-footer-bottom p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .qlower-footer-bottom i {
+        color: var(--primary-color);
+    }
+
+    /* Footer Responsive */
+    @media (max-width: 991px) {
+        .qlower-footer-content {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+        
+        .qlower-footer-links {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .qlower-footer-container {
+            padding: 32px 24px 24px;
+        }
+        
+        .qlower-footer-links {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+        
+        .qlower-footer-bottom {
+            flex-direction: column;
+            text-align: center;
+            gap: 12px;
+        }
+    }
+    </style>
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Messages Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055; margin-top: 80px;">
+                {% for category, message in messages %}
+                    <div class="toast align-items-center text-white bg-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'primary' }} border-0 show" role="alert">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }} me-2"></i>
+                                {{ message }}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Contenu principal -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer centralisé -->
+    {% block footer %}
+    <footer class="qlower-footer">
+        <div class="qlower-footer-container">
+            <div class="qlower-footer-content">
+                <div class="qlower-footer-brand">
+                    <div class="qlower-footer-logo">
+                        <img src="{{ url_for('static', filename='images/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto;">
+                    </div>
+                    <p class="qlower-footer-description">
+                        Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
+                    </p>
+                    <div class="qlower-footer-social">
+                        <a href="#" class="qlower-social-link"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="qlower-social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="qlower-social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="qlower-social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="qlower-footer-links">
+                    <div class="qlower-footer-column">
+                        <h6>Produit</h6>
+                        <ul>
+                            <li><a href="{{ url_for('site_pages.solutions') }}" class="qlower-footer-link">Nos solutions</a></li>
+                            <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Tarifs</a></li>
+                            <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
+                            <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="qlower-footer-column">
+                        <h6>Ressources</h6>
+                        <ul>
+                            <li><a href="#" class="qlower-footer-link">Blog</a></li>
+                            <li><a href="#" class="qlower-footer-link">Guides</a></li>
+                            <li><a href="#" class="qlower-footer-link">FAQ</a></li>
+                            <li><a href="{{ url_for('site_pages.contact') }}" class="qlower-footer-link">Contact</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="qlower-footer-column">
+                        <h6>Entreprise</h6>
+                        <ul>
+                            <li><a href="{{ url_for('site_pages.about') }}" class="qlower-footer-link">À propos</a></li>
+                            <li><a href="#" class="qlower-footer-link">Devenir Partenaire</a></li>
+                            <li><a href="#" class="qlower-footer-link">Carrières</a></li>
+                            <li><a href="#" class="qlower-footer-link">Presse</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="qlower-footer-column">
+                        <h6>Légal</h6>
+                        <ul>
+                            <li><a href="{{ url_for('site_pages.cgu') }}" class="qlower-footer-link">CGU</a></li>
+                            <li><a href="{{ url_for('site_pages.privacy') }}" class="qlower-footer-link">Confidentialité</a></li>
+                            <li><a href="{{ url_for('site_pages.cookies') }}" class="qlower-footer-link">Cookies</a></li>
+                            <li><a href="{{ url_for('site_pages.legal') }}" class="qlower-footer-link">Mentions légales</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="qlower-footer-bottom">
+                <p>&copy; 2026 Atlas. Tous droits réservés.</p>
+                <p>
+                    <i class="fas fa-shield-alt"></i>
+                    Données sécurisées et cryptées
+                </p>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <!-- Popup de prise de rendez-vous - Design Atlas moderne -->

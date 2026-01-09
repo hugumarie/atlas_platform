@@ -106,6 +106,18 @@ def dashboard():
                          recent_users=recent_users, 
                          recent_prospects=recent_prospects)
 
+@platform_admin_bp.route('/assistant-ia')
+@login_required
+def rag_management():
+    """
+    Interface de gestion de l'assistant IA et du système RAG.
+    """
+    if not current_user.is_admin:
+        flash('Accès non autorisé.', 'error')
+        return redirect(url_for('site_pages.index'))
+    
+    return render_template('platform/admin/rag_management.html')
+
 @platform_admin_bp.route('/utilisateurs')
 @login_required
 def users():

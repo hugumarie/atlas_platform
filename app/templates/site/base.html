@@ -83,77 +83,52 @@
     </main>
 
     <!-- Popup de prise de rendez-vous -->
+    <!-- Modal de prise de RDV avec intégration Cal.com -->
     <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="appointmentModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Réservez votre consultation gratuite
+                        <i class="fas fa-calendar-alt me-2"></i>Rencontrer votre futur conseiller Atlas
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="mb-4">
-                                <h6 class="fw-bold text-primary mb-3">
-                                    <i class="fas fa-lightbulb me-2"></i>Découvrez comment optimiser votre patrimoine
-                                </h6>
-                                <ul class="list-unstyled">
-                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Optimisation de votre épargne</li>
-                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Analyse gratuite de votre situation financière</li>
-                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Stratégie personnalisée d'investissement</li>
-                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Questions/réponses avec nos experts</li>
-                                </ul>
-                                <div class="bg-light p-3 rounded mt-3">
-                                    <small class="text-muted">
-                                        <i class="fas fa-clock me-2"></i><strong>Durée :</strong> 30 minutes<br>
-                                        <i class="fas fa-video me-2"></i><strong>Format :</strong> Visioconférence<br>
-                                        <i class="fas fa-gift me-2"></i><strong>Prix :</strong> Gratuit et sans engagement
-                                    </small>
-                                </div>
-                            </div>
+                <div class="modal-body p-0">
+                    <!-- Loader pendant le chargement -->
+                    <div id="cal-loader" class="text-center p-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Chargement...</span>
                         </div>
-                        <div class="col-lg-6">
-                            <form id="appointmentForm" class="needs-validation" novalidate>
-                                <div class="mb-3">
-                                    <label for="firstName" class="form-label">Prénom *</label>
-                                    <input type="text" class="form-control" id="firstName" name="firstName" required>
-                                    <div class="invalid-feedback">
-                                        Veuillez saisir votre prénom.
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="lastName" class="form-label">Nom *</label>
-                                    <input type="text" class="form-control" id="lastName" name="lastName" required>
-                                    <div class="invalid-feedback">
-                                        Veuillez saisir votre nom.
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Email *</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
-                                    <div class="invalid-feedback">
-                                        Veuillez saisir une adresse email valide.
-                                    </div>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="phone" class="form-label">Numéro de téléphone *</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" required>
-                                    <div class="invalid-feedback">
-                                        Veuillez saisir votre numéro de téléphone.
-                                    </div>
-                                </div>
-                                
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-primary btn-lg w-100" id="submitAppointment">
-                                        <i class="fas fa-calendar-check me-2"></i>Réserver ma consultation gratuite
-                                    </button>
-                                    <small class="text-muted d-block mt-2">
-                                        Vous serez redirigé vers notre agenda en ligne
-                                    </small>
-                                </div>
-                            </form>
+                        <p class="mt-3 text-muted">Chargement du calendrier...</p>
+                    </div>
+                    
+                    <!-- Container pour Cal.com -->
+                    <div id="cal-embed-container" class="d-none">
+                        <!-- L'iframe Cal.com sera injecté ici -->
+                    </div>
+                    
+                    <!-- Fallback en cas d'erreur -->
+                    <div id="cal-fallback" class="d-none text-center p-5">
+                        <div class="mb-4">
+                            <i class="fas fa-exclamation-triangle text-warning fs-1 mb-3"></i>
+                            <h6 class="fw-bold mb-3">Impossible de charger le calendrier</h6>
+                            <p class="text-muted mb-4">
+                                Une erreur s'est produite lors du chargement du calendrier intégré.
+                            </p>
+                        </div>
+                        <div class="d-flex gap-3 justify-content-center">
+                            <a href="https://app.cal.com/atlas-finance/30min" 
+                               target="_blank" 
+                               class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-2"></i>
+                                Ouvrir le calendrier
+                            </a>
+                            <button type="button" 
+                                    class="btn btn-secondary" 
+                                    onclick="reloadCalEmbed()">
+                                <i class="fas fa-redo me-2"></i>
+                                Réessayer
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -238,46 +213,47 @@
     <!-- JS personnalisé -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
-    <!-- CSS personnalisé pour la responsivité -->
+    <!-- CSS pour l'intégration Cal.com -->
     <style>
-        /* Amélioration responsive pour le popup */
+        /* Modal responsive pour Cal.com */
+        #appointmentModal .modal-xl {
+            max-width: 95vw;
+        }
+        
+        #appointmentModal .modal-body {
+            min-height: 600px;
+            position: relative;
+        }
+        
+        /* Container Cal.com */
+        #cal-embed-container {
+            width: 100%;
+            height: 600px;
+            position: relative;
+        }
+        
+        #cal-embed-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        /* Responsive design */
         @media (max-width: 768px) {
-            #appointmentModal .modal-dialog {
-                margin: 1rem;
-                max-width: calc(100% - 2rem);
+            #appointmentModal .modal-xl {
+                max-width: 98vw;
+                margin: 10px;
             }
             
             #appointmentModal .modal-body {
-                padding: 1.5rem 1rem;
+                min-height: 500px;
             }
             
-            #appointmentModal .row {
-                margin: 0;
+            #cal-embed-container {
+                height: 500px;
             }
             
-            #appointmentModal .col-lg-6 {
-                padding: 0;
-            }
-            
-            #appointmentModal .col-lg-6:first-child {
-                margin-bottom: 2rem;
-            }
-            
-            #appointmentModal .list-unstyled {
-                font-size: 14px;
-            }
-            
-            #appointmentModal .form-control {
-                font-size: 16px; /* Évite le zoom sur iOS */
-            }
-            
-            #appointmentModal .btn-lg {
-                padding: 12px 20px;
-                font-size: 16px;
-            }
-        }
-        
-        @media (max-width: 576px) {
             #appointmentModal .modal-header {
                 padding: 1rem;
             }
@@ -285,14 +261,33 @@
             #appointmentModal .modal-title {
                 font-size: 1.1rem;
             }
-            
+        }
+        
+        @media (max-width: 576px) {
             #appointmentModal .modal-body {
-                padding: 1rem;
+                min-height: 450px;
             }
             
-            #appointmentModal .bg-light {
-                padding: 1rem !important;
+            #cal-embed-container {
+                height: 450px;
             }
+        }
+        
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+            padding-right: 0 !important;
+        }
+        
+        /* Loading animation */
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        /* Fallback buttons styling */
+        #cal-fallback .btn {
+            min-width: 180px;
         }
         
         /* Animation pour les notifications */
@@ -312,108 +307,197 @@
         }
     </style>
 
-    <!-- Script pour le formulaire de RDV -->
+    <!-- Script pour l'intégration Cal.com -->
     <script>
+        // Variables globales pour Cal.com
+        let calEmbed = null;
+        let calLoadTimeout = null;
+        const EMBED_TIMEOUT = 10000; // 10 secondes
+
         document.addEventListener('DOMContentLoaded', function() {
-            const appointmentForm = document.getElementById('appointmentForm');
-            const submitButton = document.getElementById('submitAppointment');
-            
-            if (appointmentForm) {
-                appointmentForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    // Validation du formulaire
-                    if (!appointmentForm.checkValidity()) {
-                        e.stopPropagation();
-                        appointmentForm.classList.add('was-validated');
-                        return;
-                    }
-                    
-                    // Désactiver le bouton pendant l'envoi
-                    submitButton.disabled = true;
-                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Envoi en cours...';
-                    
-                    // Récupération des données du formulaire
-                    const formData = {
-                        firstName: document.getElementById('firstName').value.trim(),
-                        lastName: document.getElementById('lastName').value.trim(),
-                        email: document.getElementById('email').value.trim(),
-                        phone: document.getElementById('phone').value.trim()
-                    };
-                    
-                    try {
-                        // Envoi des données au serveur
-                        const response = await fetch('/site/api/prospect', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(formData)
-                        });
-                        
-                        const result = await response.json();
-                        
-                        if (result.success) {
-                            // Fermer le modal
-                            const modal = bootstrap.Modal.getInstance(document.getElementById('appointmentModal'));
-                            modal.hide();
-                            
-                            // Afficher un message de succès
-                            showNotification('Merci ! Vos informations ont été enregistrées. Vous allez être redirigé vers notre agenda.', 'success');
-                            
-                            // Redirection vers Cal.com après 2 secondes
-                            setTimeout(() => {
-                                window.open(result.cal_url, '_blank');
-                            }, 2000);
-                            
-                            // Réinitialiser le formulaire
-                            appointmentForm.reset();
-                            appointmentForm.classList.remove('was-validated');
-                            
-                        } else {
-                            showNotification(result.error || 'Une erreur est survenue', 'error');
-                        }
-                        
-                    } catch (error) {
-                        console.error('Erreur:', error);
-                        showNotification('Erreur de connexion. Veuillez réessayer.', 'error');
-                    } finally {
-                        // Réactiver le bouton
-                        submitButton.disabled = false;
-                        submitButton.innerHTML = '<i class="fas fa-calendar-check me-2"></i>Réserver ma consultation gratuite';
-                    }
+            // Charger Cal.com embed quand le modal s'ouvre
+            const appointmentModal = document.getElementById('appointmentModal');
+            if (appointmentModal) {
+                appointmentModal.addEventListener('show.bs.modal', function() {
+                    loadCalEmbed();
+                });
+                
+                appointmentModal.addEventListener('hidden.bs.modal', function() {
+                    cleanupCalEmbed();
                 });
             }
+        });
+
+        // Fonction pour charger l'embed Cal.com
+        function loadCalEmbed() {
+            const container = document.getElementById('cal-embed-container');
+            const loader = document.getElementById('cal-loader');
+            const fallback = document.getElementById('cal-fallback');
             
-            // Fonction pour afficher les notifications
-            function showNotification(message, type) {
-                const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-                const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
+            // Reset des états
+            container.classList.add('d-none');
+            fallback.classList.add('d-none');
+            loader.classList.remove('d-none');
+            
+            try {
+                // Nettoyer le container
+                container.innerHTML = '';
                 
-                const notification = document.createElement('div');
-                notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
-                notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-                notification.innerHTML = `
-                    <i class="${iconClass} me-2"></i>${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
+                // Créer le container Cal.com
+                const calDiv = document.createElement('div');
+                calDiv.style.width = '100%';
+                calDiv.style.height = '100%';
+                calDiv.style.overflow = 'scroll';
+                calDiv.id = 'my-cal-inline-30min';
+                container.appendChild(calDiv);
                 
-                document.body.appendChild(notification);
+                // Charger le script Cal.com et initialiser l'embed
+                (function (C, A, L) { 
+                    let p = function (a, ar) { a.q.push(ar); }; 
+                    let d = C.document; 
+                    C.Cal = C.Cal || function () { 
+                        let cal = C.Cal; 
+                        let ar = arguments; 
+                        if (!cal.loaded) { 
+                            cal.ns = {}; 
+                            cal.q = cal.q || []; 
+                            d.head.appendChild(d.createElement("script")).src = A; 
+                            cal.loaded = true; 
+                        } 
+                        if (ar[0] === L) { 
+                            const api = function () { p(api, arguments); }; 
+                            const namespace = ar[1]; 
+                            api.q = api.q || []; 
+                            if(typeof namespace === "string"){
+                                cal.ns[namespace] = cal.ns[namespace] || api;
+                                p(cal.ns[namespace], ar);
+                                p(cal, ["initNamespace", namespace]);
+                            } else p(cal, ar); 
+                            return;
+                        } 
+                        p(cal, ar); 
+                    }; 
+                })(window, "https://app.cal.com/embed/embed.js", "init");
                 
-                // Supprimer automatiquement après 5 secondes
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.remove();
-                    }
-                }, 5000);
+                Cal("init", "30min", {origin:"https://app.cal.com"});
+
+                Cal.ns["30min"]("inline", {
+                    elementOrSelector:"#my-cal-inline-30min",
+                    config: {"layout":"month_view"},
+                    calLink: "atlas-finance/30min",
+                });
+
+                Cal.ns["30min"]("ui", {
+                    "cssVarsPerTheme":{"light":{"cal-brand":"#268290"}},
+                    "hideEventTypeDetails":false,
+                    "layout":"month_view"
+                });
+                
+                // Masquer le loader et afficher le container après un court délai
+                setTimeout(function() {
+                    clearTimeout(calLoadTimeout);
+                    loader.classList.add('d-none');
+                    container.classList.remove('d-none');
+                    console.log('✅ Cal.com embed chargé avec succès');
+                }, 2000);
+                
+                calEmbed = calDiv;
+                
+            } catch (error) {
+                console.error('❌ Erreur lors de la création de l\'embed:', error);
+                showCalFallback();
             }
             
-            // Réinitialiser le formulaire quand le modal se ferme
-            document.getElementById('appointmentModal').addEventListener('hidden.bs.modal', function() {
-                const form = document.getElementById('appointmentForm');
-                form.reset();
-                form.classList.remove('was-validated');
-            });
+            // Timeout de sécurité
+            calLoadTimeout = setTimeout(function() {
+                if (container.classList.contains('d-none')) {
+                    showCalFallback();
+                    console.warn('⏰ Timeout: Cal.com prend trop de temps à charger');
+                }
+            }, EMBED_TIMEOUT);
+        }
+
+        // Fonction pour afficher le fallback
+        function showCalFallback() {
+            const container = document.getElementById('cal-embed-container');
+            const loader = document.getElementById('cal-loader');
+            const fallback = document.getElementById('cal-fallback');
+            
+            loader.classList.add('d-none');
+            container.classList.add('d-none');
+            fallback.classList.remove('d-none');
+        }
+
+        // Fonction pour réessayer le chargement
+        function reloadCalEmbed() {
+            console.log('🔄 Rechargement de l\'embed Cal.com...');
+            cleanupCalEmbed();
+            loadCalEmbed();
+        }
+
+        // Fonction pour nettoyer l'embed
+        function cleanupCalEmbed() {
+            if (calLoadTimeout) {
+                clearTimeout(calLoadTimeout);
+                calLoadTimeout = null;
+            }
+            
+            const container = document.getElementById('cal-embed-container');
+            if (container) {
+                container.innerHTML = '';
+            }
+            
+            // Nettoyer les objets Cal.com globaux
+            if (window.Cal && window.Cal.ns && window.Cal.ns["30min"]) {
+                try {
+                    // Essayer de nettoyer l'instance Cal.com
+                    delete window.Cal.ns["30min"];
+                } catch (e) {
+                    console.warn('Erreur lors du nettoyage Cal.com:', e);
+                }
+            }
+            
+            calEmbed = null;
+            console.log('🧹 Cal.com embed nettoyé');
+        }
+
+        // Fonction pour afficher les notifications
+        function showNotification(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
+            
+            const notification = document.createElement('div');
+            notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                <i class="${iconClass} me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Supprimer automatiquement après 5 secondes
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Gestion du message de booking réussi (optionnel)
+        window.addEventListener('message', function(e) {
+            if (e.origin === 'https://cal.com') {
+                if (e.data.type === 'booking_completed') {
+                    console.log('🎉 Rendez-vous réservé avec succès!');
+                    showNotification('Rendez-vous réservé avec succès! Vous allez recevoir un email de confirmation.', 'success');
+                    
+                    // Fermer le modal après 2 secondes
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('appointmentModal'));
+                        if (modal) modal.hide();
+                    }, 2000);
+                }
+            }
         });
     </script>
     

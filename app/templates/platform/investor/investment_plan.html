@@ -68,13 +68,80 @@
             {% endif %}
         </div>
     </div>
+
+    <!-- FAQ Section -->
+    <div class="faq-section">
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ('faq1')">
+                <span>Comment fonctionne ton plan Atlas ?</span>
+                <i class="fas fa-chevron-down faq-arrow" id="arrow1"></i>
+            </div>
+            <div class="faq-answer" id="faq1">
+                <div class="faq-content">
+                    <p>Cette répartition correspond à la façon dont tes versements mensuels sont investis.
+                    Chaque mois, lorsque tu investis, tu dois répartir les montants sur les différentes enveloppes
+                    selon les pourcentages indiqués.</p>
+                    
+                    <p>Cette logique permet :</p>
+                    <ul>
+                        <li>de diversifier ton épargne.</li>
+                        <li>de lisser les variations des marchés.</li>
+                        <li>et d'avancer vers tes objectifs sans avoir à prendre de décisions complexes.</li>
+                    </ul>
+                    
+                    <p>Ton plan est suivi et ajusté régulièrement par Atlas en fonction de l'évolution de ta
+                    situation, des marchés et de tes objectifs.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ('faq2')">
+                <span>Comment lire ton plan d'investissement ?</span>
+                <i class="fas fa-chevron-down faq-arrow" id="arrow2"></i>
+            </div>
+            <div class="faq-answer" id="faq2">
+                <div class="faq-content">
+                    <p>Chaque ligne de ce tableau correspond à une action concrète à réaliser lors de tes
+                    versements mensuels.</p>
+                    
+                    <ul>
+                        <li><strong>Description :</strong> indique l'enveloppe à utiliser et le type de placement à acheter.</li>
+                        <li><strong>Référence :</strong> c'est l'identifiant du produit financier (ETF, fonds, ETC…) qui te permet
+                        de sélectionner le bon support dans ton interface bancaire ou chez ton assureur.</li>
+                        <li><strong>Pourcentage :</strong> représente la part de ton versement mensuel à affecter à ce support.
+                        Exemple : 40 % signifie que 40 % de ton montant investi ce mois-ci doit être placé
+                        sur cette ligne.</li>
+                    </ul>
+                    
+                    <p><strong>Précisions :</strong> pour les enveloppes PEA, CTO et Livret A, les investissements sont à réaliser
+                    manuellement chaque mois. Pour les enveloppes Assurance-vie et PER, les investissements
+                    sont réalisés par prélèvement automatique chaque mois, il faut juste les configurer lors de
+                    l'ouverture des comptes.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 
 {% endblock %}
 
 {% block scripts %}
-<!-- Pas de JavaScript nécessaire pour l'affichage en lecture seule -->
+<script>
+function toggleFAQ(faqId) {
+    const faqAnswer = document.getElementById(faqId);
+    const arrow = document.getElementById('arrow' + faqId.slice(-1));
+    
+    if (faqAnswer.style.maxHeight) {
+        faqAnswer.style.maxHeight = null;
+        arrow.style.transform = 'rotate(0deg)';
+    } else {
+        faqAnswer.style.maxHeight = faqAnswer.scrollHeight + "px";
+        arrow.style.transform = 'rotate(180deg)';
+    }
+}
+</script>
 
 <style>
 /* Styles spécifiques pour l'interface investisseur */
@@ -530,6 +597,162 @@
     
     .total-section {
         padding: 20px;
+    }
+}
+
+/* FAQ Section Styles */
+.faq-section {
+    margin-top: 32px;
+    width: 100%;
+}
+
+.faq-item {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+    border-color: var(--qlower-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(19, 124, 139, 0.15);
+}
+
+.faq-question {
+    padding: 24px 32px;
+    background: linear-gradient(135deg, var(--qlower-primary), var(--qlower-dark));
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    color: white;
+    font-size: 1.15rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.faq-question::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.faq-question:hover::before {
+    opacity: 1;
+}
+
+.faq-arrow {
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.faq-question:hover .faq-arrow {
+    background: rgba(255,255,255,0.25);
+    transform: scale(1.1);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.faq-content {
+    padding: 32px;
+    background: linear-gradient(135deg, #fafbfc, #ffffff);
+    border-top: 1px solid rgba(19, 124, 139, 0.1);
+}
+
+.faq-content p {
+    margin-bottom: 20px;
+    line-height: 1.7;
+    color: #495057;
+    font-size: 1rem;
+}
+
+.faq-content p:last-child {
+    margin-bottom: 0;
+}
+
+.faq-content ul {
+    margin: 20px 0;
+    padding-left: 24px;
+    background: rgba(19, 124, 139, 0.03);
+    border-left: 4px solid var(--qlower-primary);
+    padding: 16px 24px;
+    border-radius: 8px;
+}
+
+.faq-content li {
+    margin-bottom: 12px;
+    line-height: 1.7;
+    color: #495057;
+    font-size: 1rem;
+    position: relative;
+}
+
+.faq-content li::before {
+    content: '•';
+    color: var(--qlower-primary);
+    font-weight: bold;
+    position: absolute;
+    left: -16px;
+}
+
+.faq-content li:last-child {
+    margin-bottom: 0;
+}
+
+.faq-content strong {
+    color: var(--qlower-dark);
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .faq-question {
+        padding: 20px 24px;
+        font-size: 1rem;
+    }
+    
+    .faq-content {
+        padding: 24px;
+    }
+    
+    .faq-section {
+        margin-top: 24px;
+    }
+    
+    .faq-arrow {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    .faq-content ul {
+        padding: 12px 20px;
+        margin: 16px 0;
     }
 }
 </style>

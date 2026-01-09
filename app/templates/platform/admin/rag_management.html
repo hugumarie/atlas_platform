@@ -1,0 +1,430 @@
+{% extends "platform/base.html" %}
+
+{% block title %}Gestion RAG - Atlas Admin{% endblock %}
+
+{% block page_title %}
+<i class="fas fa-robot me-2"></i>Gestion Assistant IA Atlas
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Section d'état du système -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card atlas-card">
+                <div class="card-header atlas-card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        État du système RAG
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat-card bg-primary">
+                                <div class="stat-icon">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-number" id="totalDocuments">-</span>
+                                    <span class="stat-label">Documents indexés</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-success">
+                                <div class="stat-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-number" id="systemStatus">En ligne</span>
+                                    <span class="stat-label">Statut système</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-info">
+                                <div class="stat-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-number">GPT-4o-mini</span>
+                                    <span class="stat-label">Modèle IA</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card bg-warning">
+                                <div class="stat-icon">
+                                    <i class="fas fa-sync"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-number" id="lastUpdate">-</span>
+                                    <span class="stat-label">Dernier index</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions d'administration -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card atlas-card">
+                <div class="card-header atlas-card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tools me-2"></i>
+                        Actions système
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-warning" onclick="rebuildIndex()">
+                            <i class="fas fa-sync-alt me-2"></i>
+                            Reconstruire l'index RAG
+                        </button>
+                        <small class="text-muted">
+                            Reconstruit l'index de recherche sémantique à partir de tous les documents Atlas-knowledge.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card atlas-card">
+                <div class="card-header atlas-card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-search me-2"></i>
+                        Test de recherche
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="text" 
+                               class="form-control" 
+                               id="testQuery" 
+                               placeholder="Entrez une requête de test..."
+                               onkeypress="if(event.key==='Enter') testSearch()">
+                        <button class="btn btn-primary" type="button" onclick="testSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">
+                        Testez la recherche sémantique dans la base de connaissance.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Résultats de test -->
+    <div class="row" id="searchResults" style="display: none;">
+        <div class="col-12">
+            <div class="card atlas-card">
+                <div class="card-header atlas-card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Résultats de recherche
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="searchResultsContent">
+                        <!-- Les résultats seront affichés ici -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs et informations -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card atlas-card">
+                <div class="card-header atlas-card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-terminal me-2"></i>
+                        Logs système
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="systemLogs" class="system-logs">
+                        <div class="log-entry">
+                            <span class="log-time">[{{ "now"|strftime('%H:%M:%S') }}]</span>
+                            <span class="log-level info">INFO</span>
+                            Interface d'administration RAG chargée
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    height: 100%;
+}
+
+.stat-icon {
+    font-size: 24px;
+    opacity: 0.8;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.system-logs {
+    background: #1a1a1a;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 15px;
+    border-radius: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.log-entry {
+    margin-bottom: 5px;
+}
+
+.log-time {
+    color: #888;
+}
+
+.log-level {
+    font-weight: bold;
+    margin: 0 10px;
+}
+
+.log-level.info {
+    color: #00ff00;
+}
+
+.log-level.warning {
+    color: #ffff00;
+}
+
+.log-level.error {
+    color: #ff4444;
+}
+
+.search-result-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+}
+
+.search-result-title {
+    font-weight: 600;
+    color: var(--qlower-primary);
+    margin-bottom: 8px;
+}
+
+.search-result-meta {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.search-result-content {
+    font-size: 14px;
+    line-height: 1.4;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.relevance-score {
+    float: right;
+    background: var(--qlower-primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Charger les informations système au démarrage
+    loadSystemInfo();
+});
+
+function logMessage(level, message) {
+    const logs = document.getElementById('systemLogs');
+    const now = new Date().toLocaleTimeString();
+    const logEntry = document.createElement('div');
+    logEntry.className = 'log-entry';
+    logEntry.innerHTML = `
+        <span class="log-time">[${now}]</span>
+        <span class="log-level ${level}">${level.toUpperCase()}</span>
+        ${message}
+    `;
+    logs.appendChild(logEntry);
+    logs.scrollTop = logs.scrollHeight;
+}
+
+function loadSystemInfo() {
+    // Effectuer une recherche test pour récupérer les informations système
+    fetch('/plateforme/api/rag/search', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: 'test system info' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.total_documents !== undefined) {
+            document.getElementById('totalDocuments').textContent = data.total_documents;
+            document.getElementById('lastUpdate').textContent = 'Maintenant';
+            logMessage('info', `${data.total_documents} documents indexés`);
+        }
+    })
+    .catch(error => {
+        logMessage('error', 'Erreur lors du chargement des informations système');
+        document.getElementById('systemStatus').textContent = 'Erreur';
+        document.getElementById('systemStatus').closest('.stat-card').className = 'stat-card bg-danger';
+    });
+}
+
+function rebuildIndex() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Reconstruction en cours...';
+    
+    logMessage('info', 'Début de la reconstruction de l\'index RAG...');
+    
+    fetch('/plateforme/api/rag/rebuild', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            logMessage('info', 'Index RAG reconstruit avec succès');
+            loadSystemInfo(); // Recharger les infos
+        } else {
+            logMessage('error', `Erreur: ${data.error || 'Erreur inconnue'}`);
+        }
+    })
+    .catch(error => {
+        logMessage('error', `Erreur réseau: ${error.message}`);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+function testSearch() {
+    const query = document.getElementById('testQuery').value.trim();
+    
+    if (!query) {
+        logMessage('warning', 'Veuillez entrer une requête de test');
+        return;
+    }
+    
+    logMessage('info', `Recherche: "${query}"`);
+    
+    fetch('/plateforme/api/rag/search', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: query })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.results) {
+            displaySearchResults(data);
+            logMessage('info', `${data.results.length} résultats trouvés`);
+        } else {
+            logMessage('error', `Erreur: ${data.error || 'Erreur inconnue'}`);
+        }
+    })
+    .catch(error => {
+        logMessage('error', `Erreur réseau: ${error.message}`);
+    });
+}
+
+function displaySearchResults(data) {
+    const resultsContainer = document.getElementById('searchResults');
+    const resultsContent = document.getElementById('searchResultsContent');
+    
+    resultsContent.innerHTML = '';
+    
+    if (data.results && data.results.length > 0) {
+        // Afficher les résultats
+        data.results.forEach((result, index) => {
+            const resultElement = document.createElement('div');
+            resultElement.className = 'search-result-item';
+            resultElement.innerHTML = `
+                <div class="search-result-title">
+                    ${result.title}
+                    <span class="relevance-score">${(result.relevance_score * 100).toFixed(1)}%</span>
+                </div>
+                <div class="search-result-meta">
+                    📁 ${result.folder} • 📄 ${result.file_name} 
+                    ${result.total_chunks > 1 ? `• Chunk ${result.chunk_index + 1}/${result.total_chunks}` : ''}
+                </div>
+                <div class="search-result-content">
+                    ${result.content.substring(0, 300)}${result.content.length > 300 ? '...' : ''}
+                </div>
+            `;
+            resultsContent.appendChild(resultElement);
+        });
+        
+        // Afficher le contexte généré
+        if (data.context) {
+            const contextElement = document.createElement('div');
+            contextElement.innerHTML = `
+                <hr>
+                <h6><i class="fas fa-cog me-2"></i>Contexte généré pour l'IA</h6>
+                <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 12px; max-height: 200px; overflow-y: auto;">${data.context}</pre>
+            `;
+            resultsContent.appendChild(contextElement);
+        }
+    } else {
+        resultsContent.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="fas fa-search fa-3x mb-3"></i>
+                <p>Aucun résultat trouvé pour cette requête.</p>
+            </div>
+        `;
+    }
+    
+    resultsContainer.style.display = 'block';
+}
+</script>
+{% endblock %}

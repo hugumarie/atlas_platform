@@ -1,0 +1,1002 @@
+{% extends "site/base_new.html" %}
+
+{% block title %}Mentions Légales - Atlas{% endblock %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Encode+Sans+Condensed:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --qlower-primary: #137C8B;
+    --qlower-dark: #344D59;
+    --qlower-light: #709CA7;
+    --qlower-tertiary-color: #B8CBD0;
+    --qlower-quaternary-color: #7A90A4;
+    --qlower-bg-light: #f8f9fa;
+    --qlower-text-dark: #344D59;
+    --qlower-text-light: #7A90A4;
+    --qlower-border: #e5e7eb;
+    --qlower-white: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.qlower-navbar *, 
+.qlower-nav-container *, 
+.qlower-nav-menu *, 
+.qlower-nav-item *, 
+.qlower-nav-link *,
+.qlower-nav-actions * {
+    border: none !important;
+    outline: none !important;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: var(--qlower-text-dark);
+    background-color: var(--qlower-white);
+    overflow-x: hidden;
+}
+
+.qlower-navbar {
+    background: transparent;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 12px 24px;
+    border: none;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.qlower-nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    background: var(--qlower-white);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    min-height: 56px;
+    border: none;
+    outline: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.qlower-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    letter-spacing: -0.025em;
+}
+
+.qlower-logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.qlower-logo-icon::before {
+    content: 'A';
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.qlower-nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+    height: 100%;
+}
+
+.qlower-nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.qlower-nav-link {
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+.qlower-nav-link:hover {
+    background-color: #f9fafb;
+    color: var(--qlower-primary);
+}
+
+.qlower-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 100%;
+}
+
+.qlower-btn-demo {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: auto;
+}
+
+.qlower-btn-demo:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+    color: var(--qlower-white);
+    background: linear-gradient(135deg, #0f6b75 0%, #5d8a94 100%);
+}
+
+.qlower-btn-espace {
+    background: var(--qlower-dark);
+    color: var(--qlower-white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: auto;
+}
+
+.qlower-btn-espace:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(52, 77, 89, 0.3);
+    color: var(--qlower-white);
+    background: #2a3d47;
+}
+
+.qlower-hero {
+    padding: 140px 0 80px;
+    background: var(--qlower-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.qlower-hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    text-align: center;
+}
+
+.qlower-hero h1 {
+    font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--qlower-white);
+    margin-bottom: 24px;
+    letter-spacing: -0.025em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.qlower-hero-subtitle {
+    font-size: 20px;
+    color: var(--qlower-white);
+    margin-bottom: 40px;
+    line-height: 1.5;
+    font-weight: 400;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.qlower-section {
+    padding: 100px 0;
+}
+
+.qlower-section-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.qlower-legal-content h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    margin: 40px 0 20px 0;
+    border-bottom: 2px solid var(--qlower-primary);
+    padding-bottom: 8px;
+}
+
+.qlower-legal-content h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin: 32px 0 16px 0;
+}
+
+.qlower-legal-content p {
+    margin-bottom: 16px;
+    line-height: 1.7;
+    color: var(--qlower-text-dark);
+}
+
+.qlower-legal-content ul {
+    margin: 16px 0 16px 24px;
+    color: var(--qlower-text-dark);
+}
+
+.qlower-legal-content li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.qlower-legal-content strong {
+    color: var(--qlower-dark);
+    font-weight: 600;
+}
+
+.qlower-last-update {
+    background: var(--qlower-bg-light);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+    text-align: center;
+    color: var(--qlower-text-light);
+    font-size: 14px;
+}
+
+.qlower-footer {
+    background: var(--qlower-primary);
+    padding: 60px 24px 24px;
+    margin-top: 0;
+}
+
+.qlower-footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--qlower-white);
+    border-radius: 20px;
+    padding: 48px 40px 32px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.qlower-footer-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 60px;
+    margin-bottom: 40px;
+}
+
+.qlower-footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.qlower-footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.qlower-footer-logo span {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    letter-spacing: -0.025em;
+}
+
+.qlower-footer-description {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--qlower-text-light);
+    margin: 0;
+    max-width: 280px;
+}
+
+.qlower-footer-social {
+    display: flex;
+    gap: 16px;
+}
+
+.qlower-social-link {
+    width: 40px;
+    height: 40px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--qlower-text-light);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.qlower-social-link:hover {
+    background: var(--qlower-primary);
+    color: var(--qlower-white);
+    transform: translateY(-2px);
+}
+
+.qlower-footer-links {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+}
+
+.qlower-footer-column h6 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin-bottom: 20px;
+}
+
+.qlower-footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.qlower-footer-column li {
+    margin-bottom: 12px;
+}
+
+.qlower-footer-link {
+    font-size: 15px;
+    color: var(--qlower-text-light);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: block;
+    padding: 4px 0;
+}
+
+.qlower-footer-link:hover {
+    color: var(--qlower-primary);
+    padding-left: 8px;
+}
+
+.qlower-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 32px;
+    border-top: 1px solid var(--qlower-border);
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.qlower-footer-bottom p {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qlower-footer-bottom i {
+    color: var(--qlower-primary);
+}
+
+/* Hamburger Menu Button */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 24px;
+    height: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    z-index: 10001;
+}
+
+.hamburger span {
+    width: 24px;
+    height: 2px;
+    background: var(--qlower-text-dark);
+    border-radius: 3px;
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    position: relative;
+    transform-origin: 2px 1px;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg);
+}
+
+.hamburger.active span {
+    background: var(--qlower-primary) !important;
+}
+
+/* Mobile Menu Overlay - Complete version from index_exact.html */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 99999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-menu-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+.mobile-menu-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-menu-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-menu-close::before,
+.mobile-menu-close::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background: var(--qlower-primary);
+    border-radius: 1px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-close::before {
+    transform: rotate(45deg);
+}
+
+.mobile-menu-close::after {
+    transform: rotate(-45deg);
+}
+
+.mobile-menu-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    gap: 2rem;
+    padding: 60px 20px 20px;
+}
+
+.mobile-menu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+}
+
+.mobile-menu-link {
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 18px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-link:nth-child(1) { animation-delay: 0.1s; }
+.mobile-menu-link:nth-child(2) { animation-delay: 0.2s; }
+.mobile-menu-link:nth-child(3) { animation-delay: 0.3s; }
+.mobile-menu-link:nth-child(4) { animation-delay: 0.4s; }
+.mobile-menu-link:nth-child(5) { animation-delay: 0.5s; }
+
+.mobile-menu-link:hover {
+    background-color: rgba(19, 124, 139, 0.1);
+    color: var(--qlower-primary);
+}
+
+.mobile-menu-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 280px;
+    margin-top: 1rem;
+}
+
+.mobile-menu-btn {
+    padding: 15px 25px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.mobile-menu-btn:nth-child(1) { animation-delay: 0.6s; }
+.mobile-menu-btn:nth-child(2) { animation-delay: 0.7s; }
+
+.mobile-menu-btn-primary {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.3);
+}
+
+.mobile-menu-btn-secondary {
+    background: var(--qlower-dark);
+    color: var(--qlower-white);
+}
+
+.mobile-menu-btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 77, 89, 0.3);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 991px) {
+    .qlower-nav-menu {
+        display: none;
+    }
+    
+    .qlower-nav-actions {
+        display: none;
+    }
+    
+    .hamburger {
+        display: flex;
+    }
+    
+    .qlower-footer-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .qlower-footer-links {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+}
+
+@media (max-width: 767px) {
+    .qlower-navbar {
+        padding: 8px 16px;
+    }
+    
+    .qlower-nav-container {
+        padding: 0 16px;
+        height: 48px;
+    }
+    
+    .qlower-hero {
+        padding: 100px 0 60px;
+    }
+    
+    .qlower-hero h1 {
+        font-size: 36px;
+    }
+    
+    .qlower-footer-container {
+        padding: 32px 24px 24px;
+    }
+    
+    .qlower-footer-links {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .qlower-footer-bottom {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 479px) {
+    .qlower-nav-container,
+    .qlower-section-container {
+        padding: 0 16px;
+    }
+    
+    .qlower-hero h1 {
+        font-size: 28px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="qlower-navbar">
+    <div class="qlower-nav-container">
+        <!-- Logo exact comme Qlower -->
+        <a href="{{ url_for('site_pages.index') }}" class="qlower-logo">
+            <img src="{{ url_for('static', filename='images/logo-atlas.png') }}" alt="Atlas" style="height: 32px; width: auto;">
+        </a>
+        
+        <!-- Menu exact comme Qlower -->
+        <div class="qlower-nav-menu">
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.index') }}" class="qlower-nav-link">Accueil</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.solutions') }}" class="qlower-nav-link">Nos solutions</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.pricing') }}" class="qlower-nav-link">Tarifs</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.contact') }}" class="qlower-nav-link">Contact</a>
+            </div>
+            <div class="qlower-nav-item">
+                <a href="{{ url_for('site_pages.about') }}" class="qlower-nav-link">À propos</a>
+            </div>
+        </div>
+        
+        <!-- Actions droite exact comme Qlower -->
+        <div class="qlower-nav-actions">
+            <button type="button" class="qlower-btn-demo" data-bs-toggle="modal" data-bs-target="#appointmentModal">Prendre RDV</button>
+            <a href="/plateforme/connexion" class="qlower-btn-espace">Mon espace</a>
+        </div>
+        
+        <button class="hamburger" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay">
+    <div class="mobile-menu-container">
+        <!-- Close Button -->
+        <button class="mobile-menu-close" onclick="toggleMobileMenu()"></button>
+        
+        <!-- Menu Content -->
+        <div class="mobile-menu-content">
+            <!-- Navigation Links -->
+            <nav class="mobile-menu-nav">
+                <a href="{{ url_for('site_pages.index') }}" class="mobile-menu-link">Accueil</a>
+                <a href="{{ url_for('site_pages.solutions') }}" class="mobile-menu-link">Nos solutions</a>
+                <a href="{{ url_for('site_pages.pricing') }}" class="mobile-menu-link">Tarifs</a>
+                <a href="{{ url_for('site_pages.contact') }}" class="mobile-menu-link">Contact</a>
+                <a href="{{ url_for('site_pages.about') }}" class="mobile-menu-link">À propos</a>
+            </nav>
+            
+            <!-- Action Buttons -->
+            <div class="mobile-menu-actions">
+                <button type="button" class="mobile-menu-btn mobile-menu-btn-primary" data-bs-toggle="modal" data-bs-target="#appointmentModal">
+                    Prendre RDV
+                </button>
+                <a href="/plateforme/connexion" class="mobile-menu-btn mobile-menu-btn-secondary">
+                    Mon espace
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="qlower-hero">
+    <div class="qlower-hero-container">
+        <h1>Mentions Légales</h1>
+        <p class="qlower-hero-subtitle">
+            Informations légales concernant la société Atlas et la plateforme.
+        </p>
+    </div>
+</section>
+
+<section class="qlower-section">
+    <div class="qlower-section-container">
+        <div class="qlower-last-update">
+            <strong>Dernière mise à jour :</strong> décembre 2025
+        </div>
+        
+        <div class="qlower-legal-content">
+            <p>La consultation du site ainsi que son utilisation valent acceptation de nos Conditions Générales d'Utilisation.</p>
+
+            <h2>Éditeur du site</h2>
+            <p>Le présent site est édité dans le cadre du projet Atlas, société en cours de création.</p>
+            <p>Atlas est un projet porté par ses fondateurs, actuellement en phase de structuration juridique et réglementaire.</p>
+            <ul>
+                <li><strong>Dénomination du projet :</strong> Atlas</li>
+                <li><strong>Statut :</strong> Société en cours de création</li>
+                <li><strong>Adresse de contact :</strong> contact@atlas.fr</li>
+            </ul>
+
+            <h2>Activité du site</h2>
+            <p>Atlas propose un service d'accompagnement pédagogique à l'investissement, incluant des contenus éducatifs, des outils de simulation, et un espace client permettant de suivre ses objectifs financiers.</p>
+            <p><strong>La Société ne fournit pas de conseil en investissement personnalisé au sens de la réglementation française et n'est pas inscrite en tant que CIF (Conseiller en Investissement Financier).</strong></p>
+
+            <h2>Statut réglementaire</h2>
+            <p>À ce stade, Atlas n'est pas immatriculée et ne dispose pas encore d'un statut réglementaire définitif concernant les services financiers.</p>
+            <p><strong>Aucune prestation de conseil réglementée n'est fournie via le site à ce jour.</strong></p>
+
+            <h2>Hébergement</h2>
+            <p>Le site est hébergé par :</p>
+            <p><strong>IONOS<br>
+            IONOS SE<br>
+            7, place de la Gare<br>
+            57200 Sarreguemines – France<br>
+            Site web : ionos.fr</strong></p>
+            <p>Les données sont hébergées au sein de l'Union européenne.</p>
+
+            <h2>Propriété intellectuelle</h2>
+            <p>L'ensemble des éléments présents sur le site (textes, visuels, logo, charte graphique, contenus pédagogiques, structure) est protégé par le droit de la propriété intellectuelle.</p>
+            <p><strong>Toute reproduction ou utilisation non autorisée est interdite.</strong></p>
+
+            <h2>Responsabilité</h2>
+            <p>Les informations diffusées sur le site sont fournies à titre indicatif.</p>
+            <p>L'utilisateur reconnaît utiliser ces informations sous sa responsabilité exclusive.</p>
+            <p><strong>Atlas ne saurait être tenue responsable de décisions prises sur la base des contenus publiés.</strong></p>
+
+            <h2>Données personnelles</h2>
+            <p>Le site peut collecter certaines données personnelles dans le cadre de prises de contact.</p>
+            <p>Conformément à la réglementation en vigueur, l'utilisateur dispose d'un droit d'accès, de rectification et de suppression de ses données.</p>
+            <p>Toute demande peut être adressée à : <strong>contact@atlas.fr</strong></p>
+
+            <h2>Cookies</h2>
+            <p>Le site peut utiliser des cookies nécessaires à son bon fonctionnement et à la mesure d'audience. Les modalités sont précisées dans la politique de confidentialité du site.</p>
+        </div>
+    </div>
+</section>
+
+<footer class="qlower-footer">
+    <div class="qlower-footer-container">
+        <div class="qlower-footer-content">
+            <div class="qlower-footer-brand">
+                <div class="qlower-footer-logo">
+                    <img src="{{ url_for('static', filename='img/logo-atlas.png') }}" alt="Atlas" style="height: 28px; width: auto;">
+                </div>
+                <p class="qlower-footer-description">
+                    Votre plateforme patrimoniale digitale. Optimisez vos finances avec nos conseils personnalisés.
+                </p>
+                <div class="qlower-footer-social">
+                    <a href="#" class="qlower-social-link"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="qlower-social-link"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="qlower-footer-links">
+                <div class="qlower-footer-column">
+                    <h6>Produit</h6>
+                    <ul>
+                        <li><a href="{{ url_for('site_pages.solutions') }}" class="qlower-footer-link">Nos solutions</a></li>
+                        <li><a href="{{ url_for('site_pages.pricing') }}" class="qlower-footer-link">Tarifs</a></li>
+                        <li><a href="#" class="qlower-footer-link">Sécurité</a></li>
+                        <li><a href="#" class="qlower-footer-link">Simulateur</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Ressources</h6>
+                    <ul>
+                        <li><a href="#" class="qlower-footer-link">Blog</a></li>
+                        <li><a href="#" class="qlower-footer-link">Guides</a></li>
+                        <li><a href="#" class="qlower-footer-link">FAQ</a></li>
+                        <li><a href="{{ url_for('site_pages.contact') }}" class="qlower-footer-link">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Entreprise</h6>
+                    <ul>
+                        <li><a href="{{ url_for('site_pages.about') }}" class="qlower-footer-link">À propos</a></li>
+                        <li><a href="#" class="qlower-footer-link">Devenir Partenaire</a></li>
+                        <li><a href="#" class="qlower-footer-link">Carrières</a></li>
+                        <li><a href="#" class="qlower-footer-link">Presse</a></li>
+                    </ul>
+                </div>
+                
+                <div class="qlower-footer-column">
+                    <h6>Légal</h6>
+                    <ul>
+                        <li><a href="{{ url_for('site_pages.cgu') }}" class="qlower-footer-link">CGU</a></li>
+                        <li><a href="{{ url_for('site_pages.privacy') }}" class="qlower-footer-link">Confidentialité</a></li>
+                        <li><a href="{{ url_for('site_pages.cookies') }}" class="qlower-footer-link">Cookies</a></li>
+                        <li><a href="{{ url_for('site_pages.legal') }}" class="qlower-footer-link">Mentions légales</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="qlower-footer-bottom">
+            <p>&copy; 2026 Atlas. Tous droits réservés.</p>
+            <p>
+                <i class="fas fa-shield-alt"></i>
+                Données sécurisées et cryptées
+            </p>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// EXACT QLOWER INTERACTIONS - Complete version from index
+
+// Smooth scrolling
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Modern hamburger menu toggle
+function toggleMobileMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    
+    if (hamburger && mobileMenuOverlay) {
+        // Toggle active classes
+        hamburger.classList.toggle('active');
+        mobileMenuOverlay.classList.toggle('active');
+        
+        // Prevent body scroll when menu is open
+        if (mobileMenuOverlay.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// Setup mobile menu event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Close menu when clicking mobile links
+    document.querySelectorAll('.mobile-menu-link').forEach(link => {
+        link.addEventListener('click', function() {
+            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+        });
+    });
+    
+    // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
+    // Handle clicking outside the menu content to close (on the overlay background)
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', function(e) {
+            // Only close if clicking on the overlay itself, not its children
+            if (e.target === mobileMenuOverlay) {
+                toggleMobileMenu();
+            }
+        });
+    }
+});
+
+// Navbar scroll effect - transparent background with enhanced container
+const navbar = document.querySelector('.qlower-navbar');
+const navContainer = navbar.querySelector('.qlower-nav-container');
+
+window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    
+    if (currentScrollY > 100) {
+        // Enhanced container effect when scrolling
+        navContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+        navContainer.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.2)';
+        navContainer.style.backdropFilter = 'blur(15px)';
+    } else {
+        // Original container appearance at top
+        navContainer.style.backgroundColor = 'rgba(255, 255, 255, 1)';
+        navContainer.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.15)';
+        navContainer.style.backdropFilter = 'blur(10px)';
+    }
+    
+    // Always keep navbar visible
+    navbar.style.transform = 'translateY(0)';
+});
+
+// Enhanced button interactions
+document.querySelectorAll('[class*="qlower-btn"]').forEach(button => {
+    button.addEventListener('mouseenter', function() {
+        this.style.transform = this.style.transform.includes('scale') ? 
+            this.style.transform + ' scale(1.02)' : 'translateY(-2px) scale(1.02)';
+    });
+    
+    button.addEventListener('mouseleave', function() {
+        this.style.transform = this.style.transform.replace(' scale(1.02)', '');
+    });
+});
+</script>
+{% endblock %}

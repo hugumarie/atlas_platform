@@ -82,12 +82,12 @@ def create_prospect():
         # Vérification si l'utilisateur/prospect existe déjà
         existing_user = User.query.filter_by(email=data['email'].strip().lower()).first()
         if existing_user:
-            if existing_user.is_prospect():
+            if existing_user.is_prospect_type():
                 return jsonify({
                     'success': True,
                     'message': 'Prospect déjà enregistré',
                     'prospect_id': existing_user.id,
-                    'cal_url': 'https://cal.com/atlas-finance/30min'
+                    'cal_url': 'https://app.cal.com/atlas-finance/30min'
                 })
             else:
                 # C'est déjà un client
@@ -95,7 +95,7 @@ def create_prospect():
                     'success': True,
                     'message': 'Vous êtes déjà client, connectez-vous à votre espace',
                     'prospect_id': existing_user.id,
-                    'cal_url': 'https://cal.com/atlas-finance/30min'
+                    'cal_url': 'https://app.cal.com/atlas-finance/30min'
                 })
         
         # Création du nouveau prospect (utilisateur de type prospect)

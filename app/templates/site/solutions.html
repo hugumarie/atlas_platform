@@ -1539,6 +1539,8 @@ button.btn-solution-secondary {
     color: var(--qlower-dark);
     margin-bottom: 12px;
     line-height: 1.3;
+    text-align: center;
+    width: 100%;
 }
 
 .initia-unique-list {
@@ -1548,18 +1550,21 @@ button.btn-solution-secondary {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 }
 
 .initia-unique-list li {
     display: flex;
     align-items: flex-start;
+    justify-content: center;
     gap: 10px;
     margin-bottom: 8px;
     font-size: 13px;
     line-height: 1.5;
     color: var(--qlower-text-dark);
-    text-align: left;
+    text-align: center;
     max-width: 280px;
+    width: 100%;
 }
 
 .initia-unique-list li:last-child {
@@ -1751,12 +1756,226 @@ button.btn-solution-secondary {
     margin-top: 8px;
 }
 
+/* Modern Fee Comparison Grid */
+.fees-comparison-container {
+    margin: 40px 0;
+}
+
+.fees-comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.fee-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+    border: 2px solid var(--qlower-border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.fee-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.fee-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(19, 124, 139, 0.15);
+    border-color: var(--qlower-primary);
+}
+
+.fee-card:hover::before {
+    opacity: 1;
+}
+
+.fee-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.fee-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    margin: 0;
+}
+
+.fee-card-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.fee-card:hover .fee-card-icon {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(19, 124, 139, 0.3);
+}
+
+.fee-card-icon i {
+    color: white;
+    font-size: 16px;
+}
+
+.fee-comparison {
+    margin-bottom: 20px;
+}
+
+.fee-traditional, .fee-atlas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.fee-label {
+    font-size: 12px;
+    color: var(--qlower-text-light);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.fee-amount {
+    font-size: 16px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 8px;
+    min-width: 120px;
+    display: inline-block;
+}
+
+.fee-amount.traditional {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.fee-amount.atlas {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(19, 124, 139, 0.2);
+}
+
+.fee-amount.unavailable {
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.fee-arrow {
+    text-align: center;
+    margin: 8px 0;
+}
+
+.fee-arrow i {
+    color: var(--qlower-primary);
+    font-size: 20px;
+    animation: bounceArrow 2s infinite;
+}
+
+@keyframes bounceArrow {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-4px);
+    }
+    60% {
+        transform: translateY(-2px);
+    }
+}
+
+.fee-savings {
+    text-align: center;
+}
+
+.savings-badge {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.savings-badge.exclusive {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.fees-comparison-notes {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid var(--qlower-border);
+}
+
+.fees-comparison-notes p {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    color: var(--qlower-text-light);
+}
+
+.fees-comparison-notes p:last-child {
+    margin-bottom: 0;
+}
+
+.note-marker {
+    font-weight: 700;
+    color: var(--qlower-primary);
+}
+
+.atlas-commitment {
+    margin-top: 12px !important;
+    font-weight: 600 !important;
+    color: var(--qlower-dark) !important;
+}
+
 /* Responsive pour unique et fees sections */
 @media (max-width: 991px) {
     .initia-unique-grid {
         grid-template-columns: 1fr;
     }
     
+    .fees-comparison-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .fee-card {
+        padding: 20px;
+    }
+    
+    .fee-card-title {
+        font-size: 16px;
+    }
+    
+    .fee-amount {
+        font-size: 14px;
+        min-width: 100px;
+    }
+    
+    /* Legacy table styles (if any remain) */
     .initia-fees-table-header,
     .initia-fees-row {
         grid-template-columns: 1fr;
@@ -1800,6 +2019,51 @@ button.btn-solution-secondary {
     .initia-unique-list li {
         font-size: 14px;
         max-width: 100%;
+    }
+    
+    /* Mobile styles for modern fee cards */
+    .fee-card {
+        padding: 16px;
+    }
+    
+    .fee-card-header {
+        margin-bottom: 16px;
+    }
+    
+    .fee-card-title {
+        font-size: 14px;
+    }
+    
+    .fee-card-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .fee-card-icon i {
+        font-size: 14px;
+    }
+    
+    .fee-amount {
+        font-size: 13px;
+        min-width: 90px;
+        padding: 6px 12px;
+    }
+    
+    .fee-label {
+        font-size: 11px;
+    }
+    
+    .savings-badge {
+        font-size: 11px;
+        padding: 4px 12px;
+    }
+    
+    .fees-comparison-notes {
+        padding: 16px;
+    }
+    
+    .fees-comparison-notes p {
+        font-size: 12px;
     }
     
     .initia-fees-highlight {
@@ -2585,6 +2849,7 @@ button.btn-solution-secondary {
                             <h4>Un accompagnement structuré, étape par étape</h4>
                             <ul class="initia-feature-list">
                                 <li><i class="fas fa-check"></i> Analyse de votre situation et de vos objectifs</li>
+                                <li><i class="fas fa-check"></i> 2 rendez-vous de suivi par an avec votre conseiller Atlas</li>
                                 <li><i class="fas fa-check"></i> Construction de votre stratégie d'investissement</li>
                                 <li><i class="fas fa-check"></i> Mise en place de vos premiers investissements, accompagné pas à pas</li>
                                 <li><i class="fas fa-check"></i> Suivi régulier et ajustements si nécessaire</li>
@@ -2634,7 +2899,7 @@ button.btn-solution-secondary {
                             <i class="fas fa-user-shield"></i>
                         </div>
                         <div class="initia-unique-content">
-                            <h4>Approche « conseil », jamais « produit »</h4>
+                            <h4>Approche « conseil », <br>jamais « produit »</h4>
                             <ul class="initia-unique-list">
                                 <li><i class="fas fa-shield-check"></i> Atlas ne commercialise aucun produit d'investissement</li>
                                 <li><i class="fas fa-shield-check"></i> Vous restez maître de votre argent : aucun placement n'est logé chez Atlas</li>
@@ -2669,44 +2934,109 @@ button.btn-solution-secondary {
                             <div class="initia-fees-highlight-text">Les solutions proposées par Atlas sont en moyenne <strong>3x moins chères</strong> que les solutions traditionnelles</div>
                         </div>
                     </div>
-                    <p>Sur le long terme, les frais ont un impact significatif sur la performance de vos investissements. Atlas vous oriente vers des enveloppes sélectionnées pour leur qualité et leurs frais optimisés.</p>
                 </div>
                 
-                <div class="initia-fees-table-container">
-                    <h4 class="initia-fees-table-title">Comparatif des frais de gestion annuels</h4>
-                    <div class="initia-fees-table">
-                        <div class="initia-fees-table-header">
-                            <div class="initia-fees-col">Enveloppe</div>
-                            <div class="initia-fees-col">Banques traditionnelles</div>
-                            <div class="initia-fees-col">Choix Atlas</div>
-                        </div>
-                        <div class="initia-fees-table-body">
-                            <div class="initia-fees-row">
-                                <div class="initia-fees-col"><strong>PEA</strong></div>
-                                <div class="initia-fees-col">≈ 2,20% / an</div>
-                                <div class="initia-fees-col atlas-price"><strong>0,59% / an max</strong></div>
-                            </div>
-                            <div class="initia-fees-row">
-                                <div class="initia-fees-col"><strong>Assurance-vie</strong></div>
-                                <div class="initia-fees-col">≈ 2,80%* / an</div>
-                                <div class="initia-fees-col atlas-price"><strong>1,05%* / an max</strong></div>
-                            </div>
-                            <div class="initia-fees-row">
-                                <div class="initia-fees-col"><strong>PER</strong></div>
-                                <div class="initia-fees-col">≈ 3,20%** / an</div>
-                                <div class="initia-fees-col atlas-price"><strong>1,02%** / an max</strong></div>
-                            </div>
-                            <div class="initia-fees-row">
-                                <div class="initia-fees-col"><strong>Crypto</strong></div>
-                                <div class="initia-fees-col">Indisponible ❌</div>
-                                <div class="initia-fees-col atlas-price"><strong>≈ 0,25% / an max</strong></div>
-                            </div>
-                        </div>
+                <!-- Section frais Atlas - Design ChatGPT exact -->
+                <div style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto;">
+                
+                  <!-- Intro -->
+                  <p style="text-align: center; margin-bottom: 22px; line-height: 1.5;">
+                    Sur le long terme, les frais ont un impact significatif sur la performance de vos investissements.<br>
+                    Atlas vous oriente vers des enveloppes sélectionnées pour leur qualité et leurs frais optimisés.
+                  </p>
+                
+                  <!-- Encadrés 0% -->
+                  <div style="display: flex; flex-wrap: nowrap; gap: 20px;">
+                    <div style="flex: 1; border: 2px solid var(--qlower-primary); border-radius: 18px; padding: 22px 24px; background: rgba(19,124,139,0.05);">
+                      <p style="margin: 0; text-align: center; font-weight: 600; font-size: 1.05rem;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: var(--qlower-primary); display: inline-block; margin-bottom: 10px;">0%</span><br>
+                        de frais de versement
+                      </p>
                     </div>
-                    <div class="initia-fees-notes">
-                        <p>*Hors investissements alternatifs | **En gestion pilotée</p>
-                        <p><strong>Atlas ne perçoit aucune rémunération sur ces frais.</strong></p>
+                
+                    <div style="flex: 1; border: 2px solid var(--qlower-primary); border-radius: 18px; padding: 22px 24px; background: rgba(19,124,139,0.05);">
+                      <p style="margin: 0; text-align: center; font-weight: 600; font-size: 1.05rem;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: var(--qlower-primary); display: inline-block; margin-bottom: 10px;">0%</span><br>
+                        de frais d'arbitrage
+                      </p>
                     </div>
+                
+                    <div style="flex: 1; border: 2px solid var(--qlower-primary); border-radius: 18px; padding: 22px 24px; background: rgba(19,124,139,0.05);">
+                      <p style="margin: 0; text-align: center; font-weight: 600; font-size: 1.05rem;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: var(--qlower-primary); display: inline-block; margin-bottom: 10px;">0%</span><br>
+                        de frais de rétrocessions
+                      </p>
+                    </div>
+                  </div>
+                
+                
+                  <!-- ENCADRÉ COF -->
+                  <div style="
+                    margin: 20px auto 26px auto;
+                    padding: 18px 22px;
+                    border: 2px solid var(--qlower-primary);
+                    border-radius: 18px;
+                    background: rgba(19,124,139,0.06);
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                  ">
+                    <!-- Petite courbe montante -->
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 16L9.5 10.5L13 14L20 7" stroke="var(--qlower-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M20 7H14" stroke="var(--qlower-primary)" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
+                
+                    <span style="font-weight: 600; line-height: 1.4;">
+                      Atlas ne prélève aucune commission sur vos placements — seulement un abonnement fixe et transparent.
+                    </span>
+                  </div>
+                
+                  <!-- Titre frais solutions -->
+                  <div style="margin-top: 10px; text-align: center;">
+                    <p style="font-weight: 600; margin-bottom: 4px;">
+                      Les seuls frais liés aux solutions que nous recommandons
+                    </p>
+                    <p style="font-size: 0.9em; color: #555; margin-top: 0; margin-bottom: 18px;">
+                      Ils sont prélevés par les assureurs, banques et sociétés de gestion — jamais par Atlas.
+                    </p>
+                  </div>
+                
+                  <!-- Cartes frais -->
+                  <div style="display: flex; flex-wrap: wrap; gap: 18px;">
+                
+                    <div style="flex: 1 1 200px; border: 1px solid #e0e0e0; border-radius: 14px; padding: 18px 20px; background: #fafafa;">
+                      <p style="margin: 0 0 10px 0; font-weight: 700; text-align: center;">
+                        PEA
+                      </p>
+                      <p style="margin: 0; text-align: center; font-size: 0.95rem;">
+                        <strong style="display: inline-block; margin-bottom: 6px;">Frais tout compris (enveloppe + supports)</strong><br>
+                        ≈ 0,59&nbsp;% / an maximum
+                      </p>
+                    </div>
+                
+                    <div style="flex: 1 1 200px; border: 1px solid #e0e0e0; border-radius: 14px; padding: 18px 20px; background: #fafafa;">
+                      <p style="margin: 0 0 10px 0; font-weight: 700; text-align: center;">
+                        Assurance-vie
+                      </p>
+                      <p style="margin: 0; text-align: center; font-size: 0.95rem;">
+                        <strong style="display: inline-block; margin-bottom: 6px;">Frais tout compris (enveloppe + supports)</strong><br>
+                        ≈ 1,05&nbsp;% / an maximum
+                      </p>
+                    </div>
+                
+                    <div style="flex: 1 1 200px; border: 1px solid #e0e0e0; border-radius: 14px; padding: 18px 20px; background: #fafafa;">
+                      <p style="margin: 0 0 10px 0; font-weight: 700; text-align: center;">
+                        PER
+                      </p>
+                      <p style="margin: 0; text-align: center; font-size: 0.95rem;">
+                        <strong style="display: inline-block; margin-bottom: 6px;">Frais tout compris (enveloppe + supports)</strong><br>
+                        ≈ 1,02&nbsp;% / an maximum
+                      </p>
+                    </div>
+                
+                  </div>
+                
                 </div>
             </div>
 
@@ -2931,6 +3261,7 @@ button.btn-solution-secondary {
                         <div class="initia-feature-content">
                             <h4>L'investissement et l'optimisation de votre épargne existante</h4>
                             <ul class="initia-feature-list">
+                                <li><i class="fas fa-check"></i> 4 rendez-vous de suivi par an avec votre conseiller Atlas</li>
                                 <li><i class="fas fa-check"></i> Choix des enveloppes et produits adaptés</li>
                                 <li><i class="fas fa-check"></i> Définition du rythme d'investissement</li>
                                 <li><i class="fas fa-check"></i> Structuration progressive de votre patrimoine</li>
@@ -2989,7 +3320,7 @@ button.btn-solution-secondary {
                             <i class="fas fa-user-shield"></i>
                         </div>
                         <div class="initia-unique-content">
-                            <h4>Approche « conseil », jamais « produit »</h4>
+                            <h4>Approche « conseil », <br>jamais « produit »</h4>
                             <ul class="initia-unique-list">
                                 <li><i class="fas fa-shield-check"></i> Atlas ne commercialise aucun produit d'investissement</li>
                                 <li><i class="fas fa-shield-check"></i> Vous restez maître de votre argent : aucun placement n'est logé chez Atlas</li>
@@ -3024,44 +3355,109 @@ button.btn-solution-secondary {
                             <div class="initia-fees-highlight-text">Les solutions proposées par Atlas sont en moyenne <strong>3x moins chères</strong> que les solutions traditionnelles</div>
                         </div>
                     </div>
-                    <p>Sur le long terme, les frais ont un impact significatif sur la performance de vos investissements. Atlas vous oriente vers des enveloppes sélectionnées pour leur qualité et leurs frais optimisés.</p>
                 </div>
                 
-                <div class="initia-fees-table-container">
-                    <h4 class="initia-fees-table-title">Comparatif des frais de gestion annuels</h4>
-                    <div class="initia-fees-table">
-                        <div class="initia-fees-table-header">
-                            <div class="initia-fees-col">Enveloppe</div>
-                            <div class="initia-fees-col">Banques traditionnelles</div>
-                            <div class="initia-fees-col">Choix Atlas</div>
-                        </div>
-                        <div class="initia-fees-table-body">
-                            <div class="initia-fees-row">
-                                <div class="initia-fees-col"><strong>PEA</strong></div>
-                                <div class="initia-fees-col">≈ 2,20% / an</div>
-                                <div class="initia-fees-col atlas-price"><strong>0,59% / an max</strong></div>
-                            </div>
-                            <div class="initia-fees-row">
-                                <div class="initia-fees-col"><strong>Assurance-vie</strong></div>
-                                <div class="initia-fees-col">≈ 2,80%* / an</div>
-                                <div class="initia-fees-col atlas-price"><strong>1,05%* / an max</strong></div>
-                            </div>
-                            <div class="initia-fees-row">
-                                <div class="initia-fees-col"><strong>PER</strong></div>
-                                <div class="initia-fees-col">≈ 3,20%** / an</div>
-                                <div class="initia-fees-col atlas-price"><strong>1,02%** / an max</strong></div>
-                            </div>
-                            <div class="initia-fees-row">
-                                <div class="initia-fees-col"><strong>Crypto</strong></div>
-                                <div class="initia-fees-col">Indisponible ❌</div>
-                                <div class="initia-fees-col atlas-price"><strong>≈ 0,25% / an max</strong></div>
-                            </div>
-                        </div>
+                <!-- Section frais Atlas - Design ChatGPT exact -->
+                <div style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto;">
+                
+                  <!-- Intro -->
+                  <p style="text-align: center; margin-bottom: 22px; line-height: 1.5;">
+                    Sur le long terme, les frais ont un impact significatif sur la performance de vos investissements.<br>
+                    Atlas vous oriente vers des enveloppes sélectionnées pour leur qualité et leurs frais optimisés.
+                  </p>
+                
+                  <!-- Encadrés 0% -->
+                  <div style="display: flex; flex-wrap: nowrap; gap: 20px;">
+                    <div style="flex: 1; border: 2px solid var(--qlower-primary); border-radius: 18px; padding: 22px 24px; background: rgba(19,124,139,0.05);">
+                      <p style="margin: 0; text-align: center; font-weight: 600; font-size: 1.05rem;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: var(--qlower-primary); display: inline-block; margin-bottom: 10px;">0%</span><br>
+                        de frais de versement
+                      </p>
                     </div>
-                    <div class="initia-fees-notes">
-                        <p>*Hors investissements alternatifs | **En gestion pilotée</p>
-                        <p><strong>Atlas ne perçoit aucune rémunération sur ces frais.</strong></p>
+                
+                    <div style="flex: 1; border: 2px solid var(--qlower-primary); border-radius: 18px; padding: 22px 24px; background: rgba(19,124,139,0.05);">
+                      <p style="margin: 0; text-align: center; font-weight: 600; font-size: 1.05rem;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: var(--qlower-primary); display: inline-block; margin-bottom: 10px;">0%</span><br>
+                        de frais d'arbitrage
+                      </p>
                     </div>
+                
+                    <div style="flex: 1; border: 2px solid var(--qlower-primary); border-radius: 18px; padding: 22px 24px; background: rgba(19,124,139,0.05);">
+                      <p style="margin: 0; text-align: center; font-weight: 600; font-size: 1.05rem;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: var(--qlower-primary); display: inline-block; margin-bottom: 10px;">0%</span><br>
+                        de frais de rétrocessions
+                      </p>
+                    </div>
+                  </div>
+                
+                
+                  <!-- ENCADRÉ COF -->
+                  <div style="
+                    margin: 20px auto 26px auto;
+                    padding: 18px 22px;
+                    border: 2px solid var(--qlower-primary);
+                    border-radius: 18px;
+                    background: rgba(19,124,139,0.06);
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                  ">
+                    <!-- Petite courbe montante -->
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 16L9.5 10.5L13 14L20 7" stroke="var(--qlower-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M20 7H14" stroke="var(--qlower-primary)" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
+                
+                    <span style="font-weight: 600; line-height: 1.4;">
+                      Atlas ne prélève aucune commission sur vos placements — seulement un abonnement fixe et transparent.
+                    </span>
+                  </div>
+                
+                  <!-- Titre frais solutions -->
+                  <div style="margin-top: 10px; text-align: center;">
+                    <p style="font-weight: 600; margin-bottom: 4px;">
+                      Les seuls frais liés aux solutions que nous recommandons
+                    </p>
+                    <p style="font-size: 0.9em; color: #555; margin-top: 0; margin-bottom: 18px;">
+                      Ils sont prélevés par les assureurs, banques et sociétés de gestion — jamais par Atlas.
+                    </p>
+                  </div>
+                
+                  <!-- Cartes frais -->
+                  <div style="display: flex; flex-wrap: wrap; gap: 18px;">
+                
+                    <div style="flex: 1 1 200px; border: 1px solid #e0e0e0; border-radius: 14px; padding: 18px 20px; background: #fafafa;">
+                      <p style="margin: 0 0 10px 0; font-weight: 700; text-align: center;">
+                        PEA
+                      </p>
+                      <p style="margin: 0; text-align: center; font-size: 0.95rem;">
+                        <strong style="display: inline-block; margin-bottom: 6px;">Frais tout compris (enveloppe + supports)</strong><br>
+                        ≈ 0,59&nbsp;% / an maximum
+                      </p>
+                    </div>
+                
+                    <div style="flex: 1 1 200px; border: 1px solid #e0e0e0; border-radius: 14px; padding: 18px 20px; background: #fafafa;">
+                      <p style="margin: 0 0 10px 0; font-weight: 700; text-align: center;">
+                        Assurance-vie
+                      </p>
+                      <p style="margin: 0; text-align: center; font-size: 0.95rem;">
+                        <strong style="display: inline-block; margin-bottom: 6px;">Frais tout compris (enveloppe + supports)</strong><br>
+                        ≈ 1,05&nbsp;% / an maximum
+                      </p>
+                    </div>
+                
+                    <div style="flex: 1 1 200px; border: 1px solid #e0e0e0; border-radius: 14px; padding: 18px 20px; background: #fafafa;">
+                      <p style="margin: 0 0 10px 0; font-weight: 700; text-align: center;">
+                        PER
+                      </p>
+                      <p style="margin: 0; text-align: center; font-size: 0.95rem;">
+                        <strong style="display: inline-block; margin-bottom: 6px;">Frais tout compris (enveloppe + supports)</strong><br>
+                        ≈ 1,02&nbsp;% / an maximum
+                      </p>
+                    </div>
+                
+                  </div>
+                
                 </div>
             </div>
 
