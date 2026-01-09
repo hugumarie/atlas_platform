@@ -1791,7 +1791,7 @@ def apprentissage_edit(id):
 @platform_admin_bp.route('/apprentissages/<int:id>/supprimer', methods=['POST'])
 @login_required
 def apprentissage_delete(id):
-    """Supprimer une formation"""
+    """Supprimer une formation et tous ses fichiers associés"""
     if not current_user.is_admin:
         flash('Accès non autorisé.', 'error')
         return redirect(url_for('site_pages.index'))
@@ -1800,28 +1800,89 @@ def apprentissage_delete(id):
     nom = apprentissage.nom
     
     try:
-        # Supprimer les fichiers associés
-        upload_dir = os.path.join('app', 'static', 'uploads', 'apprentissages')
+        # Initialiser le service DigitalOcean Spaces
+        from app.services.digitalocean_storage import get_spaces_service
+        spaces_service = get_spaces_service()
         
+        files_deleted = []
+        errors = []
+        
+        # 1. Supprimer l'image
         if apprentissage.image:
-            image_path = os.path.join(upload_dir, apprentissage.image)
-            if os.path.exists(image_path):
-                os.remove(image_path)
+            if apprentissage.storage_type == 'digitalocean' and spaces_service:
+                # Suppression sur DigitalOcean Spaces
+                try:
+                    result = spaces_service.delete_file(apprentissage.image)
+                    if result.get('success', False):
+                        files_deleted.append(f"Image: {apprentissage.image} (DigitalOcean)")
+                        print(f"✅ Image supprimée sur Spaces: {apprentissage.image}")
+                    else:
+                        error_detail = result.get('error', 'Erreur inconnue')
+                        errors.append(f"Image: {apprentissage.image} (Spaces: {error_detail})")
+                        print(f"⚠️ Erreur suppression image Spaces: {error_detail}")
+                except Exception as e:
+                    errors.append(f"Image Spaces: {e}")
+                    print(f"❌ Erreur suppression image Spaces: {e}")
+            
+            # Toujours essayer de supprimer en local au cas où
+            local_image_path = os.path.join('app', 'static', 'uploads', 'apprentissages', apprentissage.image)
+            if os.path.exists(local_image_path):
+                try:
+                    os.remove(local_image_path)
+                    files_deleted.append(f"Image: {apprentissage.image} (local)")
+                    print(f"✅ Image locale supprimée: {local_image_path}")
+                except Exception as e:
+                    errors.append(f"Image locale: {e}")
         
+        # 2. Supprimer le PDF
         if apprentissage.fichier_pdf:
-            pdf_path = os.path.join(upload_dir, apprentissage.fichier_pdf)
-            if os.path.exists(pdf_path):
-                os.remove(pdf_path)
+            if apprentissage.storage_type == 'digitalocean' and spaces_service:
+                # Suppression sur DigitalOcean Spaces
+                try:
+                    result = spaces_service.delete_file(apprentissage.fichier_pdf)
+                    if result.get('success', False):
+                        files_deleted.append(f"PDF: {apprentissage.fichier_pdf} (DigitalOcean)")
+                        print(f"✅ PDF supprimé sur Spaces: {apprentissage.fichier_pdf}")
+                    else:
+                        error_detail = result.get('error', 'Erreur inconnue')
+                        errors.append(f"PDF: {apprentissage.fichier_pdf} (Spaces: {error_detail})")
+                        print(f"⚠️ Erreur suppression PDF Spaces: {error_detail}")
+                except Exception as e:
+                    errors.append(f"PDF Spaces: {e}")
+                    print(f"❌ Erreur suppression PDF Spaces: {e}")
+            
+            # Toujours essayer de supprimer en local au cas où
+            local_pdf_path = os.path.join('app', 'static', 'uploads', 'apprentissages', apprentissage.fichier_pdf)
+            if os.path.exists(local_pdf_path):
+                try:
+                    os.remove(local_pdf_path)
+                    files_deleted.append(f"PDF: {apprentissage.fichier_pdf} (local)")
+                    print(f"✅ PDF local supprimé: {local_pdf_path}")
+                except Exception as e:
+                    errors.append(f"PDF local: {e}")
         
-        # Supprimer de la base de données
+        # 3. Supprimer de la base de données
         db.session.delete(apprentissage)
         db.session.commit()
         
-        flash(f'Formation "{nom}" supprimée avec succès.', 'success')
+        # Message de succès détaillé
+        success_msg = f'Formation "{nom}" supprimée avec succès.'
+        if files_deleted:
+            success_msg += f' Fichiers supprimés: {len(files_deleted)}'
+        if errors:
+            success_msg += f' ⚠️ Erreurs: {len(errors)}'
+            
+        flash(success_msg, 'success')
+        print(f"✅ Formation supprimée: {nom}")
+        print(f"   - Fichiers supprimés: {files_deleted}")
+        if errors:
+            print(f"   - Erreurs: {errors}")
         
     except Exception as e:
         db.session.rollback()
-        flash(f'Erreur lors de la suppression de la formation: {str(e)}', 'error')
+        error_msg = f'Erreur lors de la suppression de la formation: {str(e)}'
+        flash(error_msg, 'error')
+        print(f"❌ Erreur suppression formation {nom}: {e}")
     
     return redirect(url_for('platform_admin.apprentissages'))
 
