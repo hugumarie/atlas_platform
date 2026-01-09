@@ -51,7 +51,22 @@ test_email*.py
 test_prod*.py
 test_services*.py
 configure_dokku_production.sh
+configure_production_vars.sh
+configure_stripe_production.sh
 *_simple.py
+simple_stripe_test.py
+debug_mrr_production.py
+debug_donnees_investisseur.sh
+
+# Cookies et sessions
+cookies.txt
+*.cookies
+session_*
+
+# Scripts de backup et configuration
+backup_restore_db.sh
+*_backup.sh
+*_restore.sh
 
 # Mac
 .DS_Store
