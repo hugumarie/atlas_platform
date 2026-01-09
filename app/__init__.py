@@ -50,11 +50,21 @@ def create_app():
     app.config['TEMPLATES_AUTO_RELOAD'] = True
     
     # Configuration DigitalOcean Spaces
-    # Note: Les vraies clés doivent être dans les variables d'environnement pour la production
-    app.config['DO_SPACES_ACCESS_KEY'] = os.environ.get('DO_SPACES_ACCESS_KEY')
-    app.config['DO_SPACES_SECRET_KEY'] = os.environ.get('DO_SPACES_SECRET_KEY', 'BfYxk8Oegh5/75dm5+TiZQwXdc8qqZ1AB+S+Ou5j3D8')
+    # Support des deux formats de variables d'environnement
+    app.config['DO_SPACES_ACCESS_KEY'] = (
+        os.environ.get('DO_SPACES_ACCESS_KEY') or 
+        os.environ.get('DIGITALOCEAN_SPACES_KEY')
+    )
+    app.config['DO_SPACES_SECRET_KEY'] = (
+        os.environ.get('DO_SPACES_SECRET_KEY') or 
+        os.environ.get('DIGITALOCEAN_SPACES_SECRET')
+    )
     app.config['DO_SPACES_REGION'] = 'fra1'
-    app.config['DO_SPACES_BUCKET'] = 'atlas-database'
+    app.config['DO_SPACES_BUCKET'] = (
+        os.environ.get('DO_SPACES_BUCKET') or 
+        os.environ.get('DIGITALOCEAN_SPACES_BUCKET') or 
+        'atlas-database'
+    )
     
     # Configuration DEBUG pour auto-reload du code Python
     if os.environ.get('FLASK_ENV') != 'production':
