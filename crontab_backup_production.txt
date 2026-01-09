@@ -1,0 +1,26 @@
+# Crontab pour les backups automatiques Atlas Production
+# 
+# Installation sur le serveur de production :
+# 1. Copiez ce contenu dans votre crontab : sudo crontab -e
+# 2. Ou ajoutez directement : sudo crontab crontab_backup_production.txt
+#
+# Format : minute heure jour mois jour_semaine commande
+# 
+# ATTENTION : Modifiez le chemin /path/to/atlas pour pointer vers votre installation
+
+# Variables d'environnement pour cron
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+SHELL=/bin/bash
+
+# Backup toutes les heures à la minute 5
+# Exemple : 05:05, 06:05, 07:05, etc.
+5 * * * * /path/to/atlas/run_backup_production.sh >> /var/log/atlas/backup_cron.log 2>&1
+
+# Alternative : Backup toutes les 6 heures (moins fréquent)
+# 0 */6 * * * /path/to/atlas/run_backup_production.sh >> /var/log/atlas/backup_cron.log 2>&1
+
+# Alternative : Backup quotidien à 2h00 du matin
+# 0 2 * * * /path/to/atlas/run_backup_production.sh >> /var/log/atlas/backup_cron.log 2>&1
+
+# Alternative : Backup toutes les 4 heures pendant les heures de bureau
+# 0 8,12,16,20 * * * /path/to/atlas/run_backup_production.sh >> /var/log/atlas/backup_cron.log 2>&1

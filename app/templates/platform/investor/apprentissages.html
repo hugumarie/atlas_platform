@@ -24,36 +24,55 @@
     
     <!-- Onglet Guide Investisseur (formations PDF de la base) -->
     <div class="tab-content active" id="guide-investisseur">
+
+<!-- Filtres par catégorie -->
+{% if categories_info %}
+<div class="category-filters-container mb-4">
+    <div class="category-filters">
+        <!-- Bouton "Toutes les formations" -->
+        <button class="category-filter active" data-category="all">
+            <i class="fas fa-list"></i>
+            <span class="category-name">Toutes les formations</span>
+            <span class="category-count">{{ formations|length }}</span>
+        </button>
+        
+        <!-- Boutons pour chaque catégorie -->
+        {% for category in categories_info %}
+            <button class="category-filter" data-category="{{ category.key }}">
+                <i class="fas fa-tag"></i>
+                <span class="category-name">{{ category.label }}</span>
+                <span class="category-count">{{ category.count }}</span>
+            </button>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <!-- Liste des formations -->
 <div class="formations-container">
     {% for formation in formations %}
-    <div class="platform-card formation-card mb-4">
+    <div class="platform-card formation-card mb-4" data-category="{{ 'autres' if not formation.categorie or formation.categorie == 'autres' else formation.categorie }}">
         <div class="formation-card-content">
-            {% if formation.image_file %}
-            <div class="formation-image" style="background-image: url('{{ url_for('static', filename='uploads/apprentissages/' + formation.image_file) }}');"></div>
+            {% if formation.has_image() %}
+            <div class="formation-image" style="background-image: url('{{ formation.get_image_url() }}');"></div>
             {% else %}
             <div class="formation-image-placeholder"></div>
             {% endif %}
             <div class="formation-content">
-                <h3 class="formation-title">{{ formation.title }}</h3>
-                <p class="formation-description">{{ formation.description }}</p>
+                <h3 class="formation-title">{{ formation.nom }}</h3>
+                <p class="formation-description">{{ formation.description or 'Formation à découvrir' }}</p>
             </div>
             <div class="formation-meta">
                 <!-- Durée masquée pour le Guide Investisseur -->
                 <div class="formation-duration" style="display: none;">
                     <i class="fas fa-clock"></i>
-                    <span>{{ formation.duration }}</span>
+                    <span>À définir</span>
                 </div>
-                {% if formation.has_pdf %}
+                {% if formation.has_pdf() %}
                 <a href="{{ url_for('platform_investor.learning_pdf', id=formation.id) }}" 
                    class="platform-btn platform-btn-primary formation-btn">
-                    {% if formation.completed %}
-                        <i class="fas fa-check-circle"></i>
-                        Revoir
-                    {% else %}
-                        <i class="fas fa-file-pdf"></i>
-                        Consulter PDF
-                    {% endif %}
+                    <i class="fas fa-file-pdf"></i>
+                    Consulter PDF
                 </a>
                 {% else %}
                 <button class="platform-btn platform-btn-secondary formation-btn" disabled>
@@ -68,135 +87,153 @@
 </div>
     </div>
     
-    <!-- Onglet Formation Vidéo (contenu statique) -->
+    <!-- Onglet Formation Vidéo (section vide pour l'instant) -->
     <div class="tab-content" id="formation-video">
-        <!-- Formations vidéo statiques -->
-        <div class="formations-container">
-            <div class="platform-card formation-card mb-4">
-                <div class="formation-card-content">
-                    <div class="formation-image-placeholder"></div>
-                    <div class="formation-content">
-                        <h3 class="formation-title">Les bases de l'investissement</h3>
-                        <p class="formation-description">Comprendre les fondamentaux de l'investissement et les différents types de placements disponibles sur le marché financier pour débuter sereinement.</p>
-                    </div>
-                    <div class="formation-meta">
-                        <div class="formation-duration">
-                            <i class="fas fa-clock"></i>
-                            <span>45 min</span>
-                        </div>
-                        <button class="platform-btn platform-btn-secondary formation-btn" disabled>
-                            <i class="fas fa-hourglass-half"></i>
-                            Bientôt disponible
-                        </button>
-                    </div>
-                </div>
+        <div class="empty-video-state">
+            <div class="empty-video-icon">
+                <i class="fas fa-video"></i>
             </div>
-
-            <div class="platform-card formation-card mb-4">
-                <div class="formation-card-content">
-                    <div class="formation-image-placeholder"></div>
-                    <div class="formation-content">
-                        <h3 class="formation-title">Diversification de portefeuille</h3>
-                        <p class="formation-description">Apprendre à répartir ses investissements pour optimiser le rapport rendement/risque et minimiser les pertes potentielles grâce aux bonnes pratiques.</p>
-                    </div>
-                    <div class="formation-meta">
-                        <div class="formation-duration">
-                            <i class="fas fa-clock"></i>
-                            <span>60 min</span>
-                        </div>
-                        <button class="platform-btn platform-btn-secondary formation-btn" disabled>
-                            <i class="fas fa-hourglass-half"></i>
-                            Bientôt disponible
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="platform-card formation-card mb-4">
-                <div class="formation-card-content">
-                    <div class="formation-image-placeholder"></div>
-                    <div class="formation-content">
-                        <h3 class="formation-title">PEA et optimisation fiscale</h3>
-                        <p class="formation-description">Tout savoir sur le Plan d'Épargne en Actions et les stratégies d'optimisation fiscale pour maximiser vos gains et réduire votre imposition.</p>
-                    </div>
-                    <div class="formation-meta">
-                        <div class="formation-duration">
-                            <i class="fas fa-clock"></i>
-                            <span>50 min</span>
-                        </div>
-                        <button class="platform-btn platform-btn-secondary formation-btn" disabled>
-                            <i class="fas fa-hourglass-half"></i>
-                            Bientôt disponible
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="platform-card formation-card mb-4">
-                <div class="formation-card-content">
-                    <div class="formation-image-placeholder"></div>
-                    <div class="formation-content">
-                        <h3 class="formation-title">Assurance Vie stratégique</h3>
-                        <p class="formation-description">Comprendre l'assurance vie, ses avantages fiscaux et comment l'utiliser efficacement dans votre stratégie patrimoniale globale.</p>
-                    </div>
-                    <div class="formation-meta">
-                        <div class="formation-duration">
-                            <i class="fas fa-clock"></i>
-                            <span>55 min</span>
-                        </div>
-                        <button class="platform-btn platform-btn-secondary formation-btn" disabled>
-                            <i class="fas fa-hourglass-half"></i>
-                            Bientôt disponible
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="platform-card formation-card mb-4">
-                <div class="formation-card-content">
-                    <div class="formation-image-placeholder"></div>
-                    <div class="formation-content">
-                        <h3 class="formation-title">Investissement immobilier</h3>
-                        <p class="formation-description">Découvrir les différentes stratégies d'investissement immobilier et leurs avantages fiscaux spécifiques pour développer votre patrimoine.</p>
-                    </div>
-                    <div class="formation-meta">
-                        <div class="formation-duration">
-                            <i class="fas fa-clock"></i>
-                            <span>75 min</span>
-                        </div>
-                        <button class="platform-btn platform-btn-secondary formation-btn" disabled>
-                            <i class="fas fa-hourglass-half"></i>
-                            Bientôt disponible
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="platform-card formation-card mb-4">
-                <div class="formation-card-content">
-                    <div class="formation-image-placeholder"></div>
-                    <div class="formation-content">
-                        <h3 class="formation-title">Cryptomonnaies et DeFi</h3>
-                        <p class="formation-description">Introduction aux cryptomonnaies, blockchain et à la finance décentralisée pour diversifier intelligemment votre portefeuille moderne.</p>
-                    </div>
-                    <div class="formation-meta">
-                        <div class="formation-duration">
-                            <i class="fas fa-clock"></i>
-                            <span>65 min</span>
-                        </div>
-                        <button class="platform-btn platform-btn-secondary formation-btn" disabled>
-                            <i class="fas fa-hourglass-half"></i>
-                            Bientôt disponible
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <h3 class="empty-video-title">Formations vidéo bientôt disponibles</h3>
+            <p class="empty-video-text">
+                Nous travaillons actuellement sur du contenu vidéo interactif pour enrichir votre expérience d'apprentissage.
+                <br>En attendant, découvrez nos guides PDF complets dans l'onglet "Guide Investisseur".
+            </p>
         </div>
     </div>
     
 </div>
 
 <style>
+/* Filtres de catégories */
+.category-filters-container {
+    margin-bottom: 32px;
+}
+
+.category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    padding: 20px 16px;
+    background: rgba(19, 124, 139, 0.03);
+    border-radius: 16px;
+    border: 1px solid rgba(19, 124, 139, 0.08);
+}
+
+.category-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: white;
+    border: 2px solid rgba(19, 124, 139, 0.15);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--qlower-primary);
+    box-shadow: 0 2px 8px rgba(19, 124, 139, 0.08);
+    min-height: 44px;
+}
+
+.category-filter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(19, 124, 139, 0.15);
+    border-color: var(--qlower-primary);
+    background: rgba(19, 124, 139, 0.02);
+}
+
+.category-filter.active {
+    background: var(--qlower-primary);
+    color: white;
+    border-color: var(--qlower-primary);
+    box-shadow: 0 4px 16px rgba(19, 124, 139, 0.25);
+}
+
+.category-filter.active:hover {
+    background: var(--qlower-dark);
+    border-color: var(--qlower-dark);
+}
+
+.category-filter i {
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.category-filter.active i {
+    opacity: 1;
+}
+
+.category-name {
+    flex: 1;
+    white-space: nowrap;
+}
+
+.category-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: currentColor;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 20px;
+    text-align: center;
+    opacity: 0.9;
+}
+
+.category-filter.active .category-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    opacity: 1;
+}
+
+/* Masquer les formations filtrées */
+.formation-card.filtered-hidden {
+    display: none !important;
+}
+
+/* Section vide pour les vidéos */
+.empty-video-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--qlower-text-light);
+}
+
+.empty-video-icon {
+    font-size: 64px;
+    color: var(--qlower-primary);
+    opacity: 0.6;
+    margin-bottom: 24px;
+}
+
+.empty-video-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--qlower-primary);
+    margin-bottom: 16px;
+}
+
+.empty-video-text {
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto;
+    color: var(--qlower-text-light);
+}
+
+/* Animation pour les filtres */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Styles pour les onglets */
 .apprentissage-tabs-container {
     border-bottom: 2px solid #e9ecef;
@@ -385,6 +422,22 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    .category-filters {
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px 12px;
+    }
+    
+    .category-filter {
+        justify-content: space-between;
+        width: 100%;
+        padding: 12px 16px;
+    }
+    
+    .category-name {
+        text-align: left;
+    }
+    
     .formation-card-content {
         flex-direction: column;
         text-align: center;
@@ -444,6 +497,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Gestion du filtrage par catégorie
+    const categoryFilters = document.querySelectorAll('.category-filter');
+    const formationCards = document.querySelectorAll('.formation-card');
+    
+    categoryFilters.forEach(filter => {
+        filter.addEventListener('click', function() {
+            const selectedCategory = this.getAttribute('data-category');
+            
+            // Retirer la classe active de tous les filtres
+            categoryFilters.forEach(f => f.classList.remove('active'));
+            
+            // Ajouter la classe active au filtre cliqué
+            this.classList.add('active');
+            
+            // Filtrer les formations
+            formationCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                
+                if (selectedCategory === 'all' || cardCategory === selectedCategory) {
+                    card.classList.remove('filtered-hidden');
+                    card.style.display = 'block';
+                } else {
+                    card.classList.add('filtered-hidden');
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Animation de réapparition des cartes visibles
+            setTimeout(() => {
+                const visibleCards = document.querySelectorAll('.formation-card:not(.filtered-hidden)');
+                visibleCards.forEach((card, index) => {
+                    card.style.animation = 'none';
+                    setTimeout(() => {
+                        card.style.animation = 'fadeInUp 0.6s ease forwards';
+                    }, index * 100);
+                });
+            }, 50);
+        });
+    });
+    
     // Animation d'entrée des cartes
     const cards = document.querySelectorAll('.formation-card');
     cards.forEach((card, index) => {
@@ -457,50 +550,8 @@ document.addEventListener('DOMContentLoaded', function() {
         card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
     });
     
-    // Gestion des clics sur les boutons de formation
-    const buttons = document.querySelectorAll('.formation-btn');
-    buttons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.stopPropagation();
-            
-            if (this.disabled) return;
-            
-            const formationId = this.getAttribute('data-formation-id');
-            const title = this.closest('.formation-card').querySelector('.formation-title').textContent;
-            
-            console.log('Formation sélectionnée:', title, '(ID:', formationId, ')');
-            
-            // Animation de chargement
-            const originalContent = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Chargement...';
-            this.disabled = true;
-            
-            // Simulation de chargement
-            setTimeout(() => {
-                // Ici on pourrait rediriger vers la page de visionnage
-                // window.location.href = `/plateforme/formation/${formationId}`;
-                alert(`Lancement de la formation: ${title}`);
-                
-                // Restaurer le bouton
-                this.innerHTML = originalContent;
-                this.disabled = false;
-            }, 1500);
-        });
-    });
-    
-    // Clic sur les cartes (sauf sur les boutons)
-    cards.forEach(card => {
-        card.addEventListener('click', function(e) {
-            if (e.target.closest('.formation-btn')) return;
-            
-            const title = this.querySelector('.formation-title').textContent;
-            const button = this.querySelector('.formation-btn');
-            
-            if (!button.disabled) {
-                button.click();
-            }
-        });
-    });
+    // Les boutons de formation utilisent maintenant directement leurs href
+    // Plus besoin de JavaScript complexe, les liens fonctionnent naturellement
 });
 </script>
 {% endblock %}

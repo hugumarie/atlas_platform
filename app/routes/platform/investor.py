@@ -364,23 +364,33 @@ def apprentissages():
     # Récupération des vraies formations depuis la base de données
     formations = Apprentissage.query.filter_by(actif=True).order_by(Apprentissage.ordre.asc(), Apprentissage.date_creation.desc()).all()
     
-    # Conversion des formations pour le template avec détection du statut completed
-    formations_data = []
-    for formation in formations:
-        # Pour l'instant, toutes les formations sont marquées comme non complétées
-        # TODO: Ajouter un système de suivi de progression utilisateur
-        formations_data.append({
-            'id': formation.id,
-            'title': formation.nom,  # Utiliser 'nom' au lieu de 'titre'
-            'description': formation.description or "Description non disponible",
-            'duration': "Durée non définie",  # Le modèle n'a pas de champ durée pour l'instant
-            'completed': False,  # À améliorer avec un vrai système de suivi
-            'pdf_file': formation.fichier_pdf,  # Disponible pour consultation
-            'image_file': formation.image,  # Image de la formation
-            'has_pdf': bool(formation.fichier_pdf)  # Indique si un PDF est disponible
-        })
+    # Préparation des catégories avec comptes pour le filtrage
+    from sqlalchemy import func
     
-    return render_template('platform/investor/apprentissages.html', formations=formations_data)
+    # Catégories prédéfinies + "Autres"
+    categories_info = []
+    
+    # Compter les formations par catégorie
+    for key, label in Apprentissage.CATEGORIES:
+        if key == 'autres':
+            # Pour "autres", compter les formations avec categorie='autres' OU categorie=None
+            count = Apprentissage.query.filter(
+                Apprentissage.actif == True,
+                (Apprentissage.categorie == 'autres') | (Apprentissage.categorie == None)
+            ).count()
+        else:
+            count = Apprentissage.query.filter_by(actif=True, categorie=key).count()
+            
+        if count > 0:  # Afficher seulement les catégories qui ont des formations
+            categories_info.append({
+                'key': key,
+                'label': label,
+                'count': count
+            })
+    
+    return render_template('platform/investor/apprentissages.html', 
+                         formations=formations, 
+                         categories_info=categories_info)
 
 @platform_investor_bp.route('/donnees-investisseur')
 @login_required
@@ -779,31 +789,64 @@ def update_investor_data():
         print(f"🔍 MAPPED TO: '{mapped_value}'")
         print(f"🔍 PROFILE FIELDS: exp_invest='{profile.experience_investissement}', invest_exp='{profile.investment_experience}'")
         
-        # Section 6: QUESTIONNAIRE DE RISQUE DÉTAILLÉ
-        profile.tolerance_risque = request.form.get('tolerance_baisse', '').strip() or 'moderee'
-        profile.horizon_placement = request.form.get('horizon_placement', '').strip() or 'moyen'  
-        profile.besoin_liquidite = request.form.get('besoin_liquidite', '').strip() or 'non'
+        # Section 6: QUESTIONNAIRE DE RISQUE DÉTAILLÉ avec mapping des valeurs
+        
+        # Q1: Tolérance à la baisse (mapping des valeurs numériques vers texte)
+        tolerance_baisse_raw = request.form.get('tolerance_baisse', '').strip()
+        if tolerance_baisse_raw == '5':
+            profile.tolerance_risque = 'faible'          # Jusqu'à -5%
+        elif tolerance_baisse_raw == '15':
+            profile.tolerance_risque = 'moderee'         # Jusqu'à -15%
+        elif tolerance_baisse_raw == '30':
+            profile.tolerance_risque = 'elevee'          # Jusqu'à -30% ou plus
+        else:
+            profile.tolerance_risque = 'moderee'         # Défaut
+        
+        # Q2: Horizon de placement (pas de mapping nécessaire)
+        profile.horizon_placement = request.form.get('horizon_placement', '').strip() or 'moyen'
+        
+        # Q3: Besoin de liquidité (mapping oui/non vers court_terme/long_terme)
+        besoin_liquidite_raw = request.form.get('besoin_liquidite', '').strip()
+        if besoin_liquidite_raw == 'oui':
+            profile.besoin_liquidite = 'court_terme'     # Besoin à court terme
+        elif besoin_liquidite_raw == 'non':
+            profile.besoin_liquidite = 'long_terme'      # Pas de besoin, investi plusieurs années
+        else:
+            profile.besoin_liquidite = 'long_terme'      # Défaut
+        
+        # Q4: Expérience (déjà mappée plus haut, ne pas écraser)
+        
+        # Q5: Attitude face à la volatilité (pas de mapping nécessaire)
         profile.attitude_volatilite = request.form.get('attitude_volatilite', '').strip() or 'attendre'
         
-        # CALCUL DU PROFIL DE RISQUE AUTOMATIQUE
+        # CALCUL DU PROFIL DE RISQUE SELON LE NOUVEL ALGORITHME
         try:
-            from app.services.risk_profile_calculator import RiskProfileCalculator
+            print(f"🎯 Calcul du profil de risque avec les réponses:")
+            print(f"   - Tolerance risque: {profile.tolerance_risque}")
+            print(f"   - Horizon placement: {profile.horizon_placement}")
+            print(f"   - Besoin liquidité: {profile.besoin_liquidite}")
+            print(f"   - Experience investissement: {profile.experience_investissement}")
+            print(f"   - Attitude volatilité: {profile.attitude_volatilite}")
             
-            # Collecte des réponses au questionnaire
-            risk_responses = {
-                'baisse_acceptable': profile.tolerance_risque,
-                'horizon_placement': profile.horizon_placement,
-                'besoin_liquidite': profile.besoin_liquidite, 
-                'experience_marches': profile.experience_investissement,
-                'attitude_volatilite': profile.attitude_volatilite
-            }
+            # Calcul du profil de risque avec la nouvelle méthode
+            calculated_profile = profile.calculate_risk_profile()
+            profile.calculated_risk_profile = calculated_profile
             
-            # Calcul du profil de risque
-            risk_calculation = RiskProfileCalculator.calculate_profile(risk_responses)
-            profile.risk_tolerance = risk_calculation['profile']
+            print(f"✅ Profil calculé: {calculated_profile}")
+            
+            # Maintenir l'ancien champ pour compatibilité
+            if calculated_profile:
+                if calculated_profile == 'PRUDENT':
+                    profile.risk_tolerance = 'conservateur'
+                elif calculated_profile == 'EQUILIBRE':
+                    profile.risk_tolerance = 'modéré'
+                elif calculated_profile == 'DYNAMIQUE':
+                    profile.risk_tolerance = 'dynamique'
             
         except Exception as risk_calc_error:
-            # En cas d'erreur, garder la valeur par défaut
+            print(f"❌ Erreur calcul profil de risque: {risk_calc_error}")
+            # En cas d'erreur, garder les valeurs par défaut
+            profile.calculated_risk_profile = None
             profile.risk_tolerance = 'modéré'
         
         # Nouveaux objectifs d'investissement étendus
@@ -2318,40 +2361,107 @@ def learning_pdf(id):
     # Récupérer la formation
     apprentissage = Apprentissage.query.filter_by(id=id, actif=True).first_or_404()
     
-    if not apprentissage.fichier_pdf:
+    if not apprentissage.has_pdf():
         flash('Aucun contenu PDF disponible pour cette formation.', 'error')
         if current_user.is_admin:
             return redirect(url_for('platform_admin.apprentissages'))
-        return redirect(url_for('platform_investor.apprentissages'))  # Corriger la redirection
+        return redirect(url_for('platform_investor.apprentissages'))
     
     try:
-        import os
-        pdf_path = os.path.join('app', 'static', 'uploads', 'apprentissages', apprentissage.fichier_pdf)
-        
-        # Vérifier que le fichier existe
-        if not os.path.exists(pdf_path):
-            flash('Fichier de formation introuvable.', 'error')
-            if current_user.is_admin:
-                return redirect(url_for('platform_admin.apprentissages'))
-            return redirect(url_for('platform_investor.apprentissages'))  # Corriger la redirection
+        # Utiliser uniquement la route proxy sécurisée pour tous les PDFs
+        proxy_url = url_for('platform_investor.pdf_proxy', formation_id=apprentissage.id)
         
         # Utiliser le template approprié selon le type d'utilisateur (SÉCURITÉ)
         if current_user.is_admin:
             # Template admin pour maintenir le contexte administrateur
             return render_template('platform/admin/learning_pdf.html', 
                                  apprentissage=apprentissage,
-                                 pdf_url=url_for('static', filename=f'uploads/apprentissages/{apprentissage.fichier_pdf}'))
+                                 pdf_url=proxy_url)
         else:
             # Template utilisateur standard
             return render_template('platform/investor/learning_pdf.html', 
                                  apprentissage=apprentissage,
-                                 pdf_url=url_for('static', filename=f'uploads/apprentissages/{apprentissage.fichier_pdf}'))
+                                 pdf_url=proxy_url)
         
     except Exception as e:
         flash('Erreur lors de l\'accès à la formation.', 'error')
         if current_user.is_admin:
             return redirect(url_for('platform_admin.apprentissages'))
-        return redirect(url_for('platform_investor.apprentissages'))  # Corriger la redirection
+        return redirect(url_for('platform_investor.apprentissages'))
+
+
+@platform_investor_bp.route('/pdf-proxy/<int:formation_id>')
+@login_required
+def pdf_proxy(formation_id):
+    """
+    Route proxy pour servir les PDFs depuis DigitalOcean sans problèmes CORS
+    """
+    from flask import Response
+    import requests
+    
+    # Vérifier les permissions
+    if not current_user.is_admin:
+        if not current_user.can_access_platform():
+            return "Accès non autorisé", 403
+    
+    try:
+        # Récupérer la formation
+        apprentissage = Apprentissage.query.filter_by(id=formation_id, actif=True).first()
+        if not apprentissage or not apprentissage.has_pdf():
+            return "Formation non trouvée", 404
+        
+        print(f"📤 Proxy PDF request for: {apprentissage.nom} (Storage: {apprentissage.storage_type})")
+        
+        if apprentissage.storage_type == 'digitalocean':
+            # Récupérer depuis DigitalOcean Spaces
+            pdf_url = apprentissage.get_pdf_url()
+            if not pdf_url:
+                return "PDF non disponible", 404
+            
+            print(f"🌐 Fetching from DigitalOcean: {pdf_url}")
+            response = requests.get(pdf_url, stream=True, timeout=30)
+            response.raise_for_status()
+            
+            def generate():
+                for chunk in response.iter_content(chunk_size=8192):
+                    yield chunk
+                    
+        else:
+            # Récupérer depuis fichier local
+            import os
+            pdf_path = os.path.join('app', 'static', 'uploads', 'apprentissages', apprentissage.fichier_pdf)
+            if not os.path.exists(pdf_path):
+                return "Fichier local non trouvé", 404
+                
+            print(f"💾 Serving local file: {pdf_path}")
+            
+            def generate():
+                with open(pdf_path, 'rb') as f:
+                    while True:
+                        chunk = f.read(8192)
+                        if not chunk:
+                            break
+                        yield chunk
+        
+        print(f"✅ PDF proxy serving: {apprentissage.nom}")
+        
+        return Response(
+            generate(),
+            content_type='application/pdf',
+            headers={
+                'Content-Disposition': f'inline; filename="{apprentissage.nom}.pdf"',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        )
+        
+    except requests.RequestException as e:
+        print(f"❌ PDF proxy error: {e}")
+        return f"Erreur de téléchargement: {str(e)}", 500
+    except Exception as e:
+        print(f"❌ PDF proxy unexpected error: {e}")
+        return f"Erreur serveur: {str(e)}", 500
 
 
 @platform_investor_bp.route('/api/credit/calculate', methods=['POST'])
@@ -2490,41 +2600,57 @@ def save_investment_plan():
             db.session.add(plan)
             db.session.flush()  # Pour obtenir l'ID
         
-        # Supprimer d'abord toutes les actions liées aux anciennes lignes
+        # Supprimer d'abord toutes les actions liées aux anciennes lignes avec une transaction séparée
         from app.models.investment_action import InvestmentAction
         existing_lines = InvestmentPlanLine.query.filter_by(plan_id=plan.id).all()
-        for line in existing_lines:
-            # Supprimer toutes les actions liées à cette ligne
-            InvestmentAction.query.filter_by(plan_line_id=line.id).delete()
         
-        # Maintenant supprimer toutes les anciennes lignes
-        InvestmentPlanLine.query.filter_by(plan_id=plan.id).delete()
+        # Créer une liste des IDs de lignes à supprimer pour éviter les problèmes de session
+        line_ids = [line.id for line in existing_lines]
         
-        # Ajouter les nouvelles lignes
-        for index, line_data in enumerate(lines_data):
-            if not line_data.get('description', '').strip():
-                continue  # Ignorer les lignes vides
-                
-            line = InvestmentPlanLine(
-                plan_id=plan.id,
-                support_envelope=line_data.get('support_envelope', ''),
-                description=line_data.get('description', ''),
-                reference=line_data.get('reference', ''),
-                percentage=float(line_data.get('percentage', 0)),
-                order_index=index
-            )
-            db.session.add(line)
+        # Supprimer toutes les actions liées dans une transaction séparée
+        if line_ids:
+            try:
+                for line_id in line_ids:
+                    InvestmentAction.query.filter_by(plan_line_id=line_id).delete()
+                db.session.commit()
+            except Exception as delete_error:
+                db.session.rollback()
+                raise Exception(f"Erreur lors de la suppression des actions: {delete_error}")
         
-        # Mettre à jour la date du plan
-        plan.updated_at = datetime.utcnow()
-        
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Plan d\'investissement sauvegardé avec succès',
-            'plan': plan.to_dict()
-        })
+        # Dans une nouvelle transaction, supprimer les lignes et ajouter les nouvelles
+        try:
+            # Supprimer les anciennes lignes
+            InvestmentPlanLine.query.filter_by(plan_id=plan.id).delete()
+            
+            # Ajouter les nouvelles lignes
+            for index, line_data in enumerate(lines_data):
+                if not line_data.get('description', '').strip():
+                    continue  # Ignorer les lignes vides
+                    
+                line = InvestmentPlanLine(
+                    plan_id=plan.id,
+                    support_envelope=line_data.get('support_envelope', ''),
+                    description=line_data.get('description', ''),
+                    reference=line_data.get('reference', ''),
+                    percentage=float(line_data.get('percentage', 0)),
+                    order_index=index
+                )
+                db.session.add(line)
+            
+            # Mettre à jour la date du plan
+            plan.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': 'Plan d\'investissement sauvegardé avec succès',
+                'plan': plan.to_dict()
+            })
+            
+        except Exception as plan_error:
+            db.session.rollback()
+            raise Exception(f"Erreur lors de la mise à jour du plan: {plan_error}")
         
     except Exception as e:
         db.session.rollback()

@@ -658,4 +658,275 @@ En cas de problème critique :
 
 ---
 
+## 💾 Système de Backup Automatique (Production) 🆕
+
+### Vue d'Ensemble
+**Système complet de sauvegarde automatique** de la base de données PostgreSQL de production vers DigitalOcean Spaces, avec rotation automatique et monitoring.
+
+#### Architecture du Système
+```
+PostgreSQL Production → pg_dump → Compression gzip → DigitalOcean Spaces
+     ↓                    ↓            ↓                    ↓
+  Données Atlas    Backup SQL    Fichier .gz        backups/database/YYYY/MM/DD/
+```
+
+### 📁 Fichiers du Système
+
+#### Scripts Principaux
+- **`backup_database_production.py`** : Script principal de backup
+- **`run_backup_production.sh`** : Wrapper avec chargement des variables d'environnement  
+- **`backup_config.env.example`** : Template de configuration
+- **`install_backup_system.sh`** : Script d'installation automatique
+- **`test_backup_system.py`** : Script de test et validation
+- **`crontab_backup_production.txt`** : Configuration cron
+
+#### Configuration Requise (`backup_config.env`)
+```bash
+# Base de données PostgreSQL
+DB_HOST=your_production_db_host
+DB_NAME=atlas_production
+DB_USER=atlas_user
+DB_PASSWORD=your_secure_password
+
+# DigitalOcean Spaces
+DIGITALOCEAN_SPACES_KEY=your_access_key
+DIGITALOCEAN_SPACES_SECRET=your_secret_key
+DIGITALOCEAN_SPACES_ENDPOINT=https://fra1.digitaloceanspaces.com
+DIGITALOCEAN_SPACES_BUCKET=atlas-storage
+```
+
+### 🔧 Configuration DigitalOcean Spaces Production
+
+#### 1. Configuration des Clés Spaces (Dokku)
+```bash
+# Copier le script de configuration
+scp configure_spaces_production.sh root@atlas-invest.fr:/root/
+
+# Se connecter et configurer
+ssh root@atlas-invest.fr
+cd /root
+chmod +x configure_spaces_production.sh
+./configure_spaces_production.sh
+```
+
+#### Alternative: Configuration Manuelle Dokku
+```bash
+# Variables Spaces requises
+dokku config:set atlas \
+    DIGITALOCEAN_SPACES_KEY="your_access_key" \
+    DIGITALOCEAN_SPACES_SECRET="your_secret_key" \
+    DIGITALOCEAN_SPACES_ENDPOINT="https://fra1.digitaloceanspaces.com" \
+    DIGITALOCEAN_SPACES_BUCKET="atlas-storage"
+
+# Redémarrer l'application
+dokku ps:restart atlas
+```
+
+### 🚀 Installation sur Serveur Production
+
+#### 1. Déploiement des Scripts
+```bash
+# Copier tous les scripts de backup sur le serveur
+scp backup_*.* root@atlas-invest.fr:/opt/atlas/
+scp run_backup_production.sh root@atlas-invest.fr:/opt/atlas/
+scp install_backup_system.sh root@atlas-invest.fr:/opt/atlas/
+```
+
+#### 2. Installation Automatique
+```bash
+# Sur le serveur de production
+cd /opt/atlas
+chmod +x install_backup_system.sh
+sudo ./install_backup_system.sh
+```
+
+#### 3. Configuration
+```bash
+# Configurer les paramètres de production
+cp backup_config.env.example backup_config.env
+nano backup_config.env  # Remplir avec les vraies valeurs
+chmod 600 backup_config.env  # Sécuriser le fichier
+```
+
+#### 4. Test Initial
+```bash
+# Tester le système
+python3 test_backup_system.py
+
+# Test manuel du backup
+sudo -u atlas ./run_backup_production.sh
+```
+
+### ⏰ Automatisation Cron
+
+#### Configuration Active (Toutes les Heures)
+```bash
+# Cron job automatique à la minute 5 de chaque heure
+5 * * * * /opt/atlas/run_backup_production.sh >> /var/log/atlas/backup_cron.log 2>&1
+```
+
+#### Alternatives Disponibles
+```bash
+# Toutes les 6 heures
+0 */6 * * * /opt/atlas/run_backup_production.sh
+
+# Quotidien à 2h00
+0 2 * * * /opt/atlas/run_backup_production.sh
+
+# 4 fois par jour (heures de bureau)
+0 8,12,16,20 * * * /opt/atlas/run_backup_production.sh
+```
+
+### 🏗️ Fonctionnalités du Système
+
+#### Backup Intelligent
+- **pg_dump complet** : Dump SQL avec structure + données
+- **Compression gzip** : Réduction de 80-90% de la taille
+- **Métadonnées** : Date, base source, type de backup
+- **Timeout protection** : Limite de 1 heure max par backup
+
+#### Stockage Organisé
+```
+DigitalOcean Spaces/
+└── backups/
+    └── database/
+        └── 2025/
+            └── 01/
+                └── 09/
+                    ├── atlas_backup_20250109_050001.sql.gz
+                    ├── atlas_backup_20250109_110001.sql.gz
+                    └── atlas_backup_20250109_170001.sql.gz
+```
+
+#### Gestion Automatique
+- **Rotation** : Conservation de 30 jours (configurable)
+- **Nettoyage automatique** : Suppression des anciens backups
+- **Logging complet** : Toutes les opérations tracées
+- **Gestion d'erreurs** : Notifications et codes de retour
+
+### 📊 Monitoring et Logs
+
+#### Fichiers de Logs
+- **`/var/log/atlas/backup.log`** : Logs détaillés des backups
+- **`/var/log/atlas/backup_cron.log`** : Logs des exécutions cron
+- **Rotation automatique** : logrotate configuré
+
+#### Surveillance
+```bash
+# Vérifier les derniers backups
+tail -f /var/log/atlas/backup.log
+
+# Voir le statut cron
+sudo -u atlas crontab -l
+
+# Vérifier les backups sur Spaces
+# Via interface DigitalOcean ou API boto3
+```
+
+### 🔧 Maintenance et Dépannage
+
+#### Commandes Utiles
+```bash
+# Test complet du système
+python3 test_backup_system.py
+
+# Backup manuel immédiat
+sudo -u atlas /opt/atlas/run_backup_production.sh
+
+# Vérifier la configuration cron
+sudo -u atlas crontab -l
+
+# Voir les logs en temps réel
+tail -f /var/log/atlas/backup.log
+
+# Lister les backups sur Spaces (nécessite AWS CLI configuré)
+aws s3 ls s3://atlas-storage/backups/database/ --endpoint-url=https://fra1.digitaloceanspaces.com --recursive
+```
+
+#### Problèmes Courants
+
+**❌ Backup échoue avec erreur de connexion DB**
+```bash
+# Vérifier la connectivité PostgreSQL
+pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USER
+
+# Tester la connexion manuellement
+psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c "SELECT version();"
+```
+
+**❌ Upload vers Spaces échoue**
+```bash
+# Vérifier les clés d'accès DigitalOcean
+python3 -c "
+import boto3
+client = boto3.client('s3', 
+    endpoint_url='https://fra1.digitaloceanspaces.com',
+    aws_access_key_id='$DIGITALOCEAN_SPACES_KEY',
+    aws_secret_access_key='$DIGITALOCEAN_SPACES_SECRET'
+)
+print(client.list_buckets())
+"
+```
+
+**❌ Cron ne s'exécute pas**
+```bash
+# Vérifier que le service cron tourne
+sudo systemctl status cron
+
+# Vérifier les logs système
+sudo journalctl -u cron -f
+
+# Tester l'exécution manuelle avec les mêmes variables
+sudo -u atlas bash -c 'source /opt/atlas/backup_config.env && /opt/atlas/run_backup_production.sh'
+```
+
+### 🔄 Restauration d'un Backup
+
+#### Processus de Restauration
+```bash
+# 1. Télécharger un backup depuis Spaces
+wget "https://fra1.digitaloceanspaces.com/atlas-storage/backups/database/2025/01/09/atlas_backup_20250109_050001.sql.gz"
+
+# 2. Décompresser
+gunzip atlas_backup_20250109_050001.sql.gz
+
+# 3. Restaurer (ATTENTION : écrase la base existante)
+psql -h $DB_HOST -U $DB_USER -d $DB_NAME < atlas_backup_20250109_050001.sql
+
+# 4. Alternative : restauration vers nouvelle base
+createdb -h $DB_HOST -U $DB_USER atlas_restore_test
+psql -h $DB_HOST -U $DB_USER -d atlas_restore_test < atlas_backup_20250109_050001.sql
+```
+
+### 💡 Bonnes Pratiques
+
+#### Sécurité
+- **Permissions restrictives** : backup_config.env en 600 (lecture propriétaire seul)
+- **Utilisateur dédié** : Exécution sous utilisateur `atlas` non-root
+- **Clés séparées** : Utiliser des clés Spaces dédiées aux backups
+- **Rotation des clés** : Renouveler régulièrement les accès
+
+#### Performance
+- **Horaires optimaux** : Backups pendant les heures creuses
+- **Monitoring espace** : Surveiller l'usage DigitalOcean Spaces
+- **Compression efficace** : gzip optimal pour SQL dumps
+- **Timeout approprié** : 1h max pour éviter les blocages
+
+#### Fiabilité
+- **Tests réguliers** : Restauration test mensuelle
+- **Monitoring actif** : Alertes en cas d'échec
+- **Redondance** : Conserver plusieurs versions
+- **Documentation** : Procédures de restauration à jour
+
+### 📈 Métriques et Statistiques
+
+#### Informations Typiques
+- **Taille DB Atlas** : ~50-200 MB (selon nombre d'utilisateurs)
+- **Compression gzip** : 80-90% de réduction
+- **Durée backup** : 30 secondes - 5 minutes
+- **Coût DigitalOcean** : ~$5-15/mois pour stockage + transfert
+- **Rétention recommandée** : 30 jours (configurée par défaut)
+
+---
+
 *Ce document est maintenu à jour à chaque session de développement importante.*

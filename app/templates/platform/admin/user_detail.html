@@ -16,8 +16,40 @@
 {% if user.investor_profile %}
 
 {% if edit_mode %}
+<!-- NAVIGATION RAPIDE FIXE ADMIN (MODE ÉDITION) -->
+<nav class="quick-nav" id="quickNav">
+    <div class="quick-nav-container">
+        <div class="quick-nav-title">Navigation rapide</div>
+        <div class="quick-nav-items">
+            <a href="#infos-personnelles" class="quick-nav-item active">
+                <i class="fas fa-user"></i>
+                <span>Infos perso</span>
+            </a>
+            <a href="#profil-risque" class="quick-nav-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Profil risque</span>
+            </a>
+            <a href="#revenus-charges" class="quick-nav-item">
+                <i class="fas fa-wallet"></i>
+                <span>Revenus</span>
+            </a>
+            <a href="#epargne-patrimoine" class="quick-nav-item">
+                <i class="fas fa-piggy-bank"></i>
+                <span>Patrimoine</span>
+            </a>
+            <a href="#credits" class="quick-nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Crédits</span>
+            </a>
+            <a href="#patrimoine-net-total" class="quick-nav-item">
+                <i class="fas fa-crown"></i>
+                <span>Bilan</span>
+            </a>
+        </div>
+    </div>
+</nav>
 <!-- MODE ÉDITION ADMIN ÉTENDU -->
-<div class="edit-mode-container">
+<div class="edit-mode-container" style="margin-top: 32px;">
     <div class="edit-header mb-4">
         <div class="alert alert-warning">
             <i class="fas fa-user-shield me-2"></i>
@@ -28,7 +60,7 @@
     <form id="adminEditFormExtended" method="POST" action="{{ url_for('platform_admin.update_user_data', user_id=user.id) }}">
         
         <!-- Section 1: INFORMATIONS PERSONNELLES -->
-        <div class="platform-card mb-4">
+        <div class="platform-card mb-4" id="infos-personnelles">
             <div class="platform-card-header">
                 <h3 class="platform-card-title">
                     <i class="fas fa-user text-primary"></i>
@@ -188,7 +220,7 @@
         </div>
 
         <!-- Section 3: PROFIL DE RISQUE -->
-        <div class="platform-card mb-4">
+        <div class="platform-card mb-4" id="profil-risque">
             <div class="platform-card-header">
                 <h3 class="platform-card-title">
                     <i class="fas fa-check-circle text-atlas"></i>
@@ -205,15 +237,21 @@
                     </div>
                     <div class="risk-answers">
                         <label class="risk-answer-label">
-                            <input type="radio" name="tolerance_risque" value="faible" onchange="updateRiskProfile()">
+                            <input type="radio" name="tolerance_risque" value="faible" onchange="updateRiskProfile()" 
+                                   style="accent-color: #137C8B;" 
+                                   {{ 'checked' if user.investor_profile.tolerance_risque == 'faible' else '' }}>
                             <span>Jusqu'à –5 %</span>
                         </label>
                         <label class="risk-answer-label">
-                            <input type="radio" name="tolerance_risque" value="moderee" onchange="updateRiskProfile()" checked>
+                            <input type="radio" name="tolerance_risque" value="moderee" onchange="updateRiskProfile()" 
+                                   style="accent-color: #137C8B;" 
+                                   {{ 'checked' if user.investor_profile.tolerance_risque == 'moderee' or not user.investor_profile.tolerance_risque else '' }}>
                             <span>Jusqu'à –15 %</span>
                         </label>
                         <label class="risk-answer-label">
-                            <input type="radio" name="tolerance_risque" value="elevee" onchange="updateRiskProfile()">
+                            <input type="radio" name="tolerance_risque" value="elevee" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;" 
+                                   {{ 'checked' if user.investor_profile.tolerance_risque == 'elevee' else '' }}>
                             <span>Jusqu'à –30 % ou plus</span>
                         </label>
                     </div>
@@ -227,15 +265,21 @@
                     </div>
                     <div class="risk-answers">
                         <label class="risk-answer-label">
-                            <input type="radio" name="horizon_placement" value="court" onchange="updateRiskProfile()">
+                            <input type="radio" name="horizon_placement" value="court" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;"
+                                   {{ 'checked' if user.investor_profile.horizon_placement == 'court' else '' }}>
                             <span>Moins de 2 ans</span>
                         </label>
                         <label class="risk-answer-label">
-                            <input type="radio" name="horizon_placement" value="moyen" onchange="updateRiskProfile()" checked>
+                            <input type="radio" name="horizon_placement" value="moyen" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;"
+                                   {{ 'checked' if user.investor_profile.horizon_placement == 'moyen' or not user.investor_profile.horizon_placement else '' }}>
                             <span>2 à 5 ans</span>
                         </label>
                         <label class="risk-answer-label">
-                            <input type="radio" name="horizon_placement" value="long" onchange="updateRiskProfile()">
+                            <input type="radio" name="horizon_placement" value="long" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;"
+                                   {{ 'checked' if user.investor_profile.horizon_placement == 'long' else '' }}>
                             <span>Plus de 5 ans</span>
                         </label>
                     </div>
@@ -249,11 +293,15 @@
                     </div>
                     <div class="risk-answers">
                         <label class="risk-answer-label">
-                            <input type="radio" name="besoin_liquidite" value="court_terme" onchange="updateRiskProfile()">
+                            <input type="radio" name="besoin_liquidite" value="court_terme" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;"
+                                   {{ 'checked' if user.investor_profile.besoin_liquidite == 'court_terme' else '' }}>
                             <span>Oui, à court terme</span>
                         </label>
                         <label class="risk-answer-label">
-                            <input type="radio" name="besoin_liquidite" value="long_terme" onchange="updateRiskProfile()" checked>
+                            <input type="radio" name="besoin_liquidite" value="long_terme" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;"
+                                   {{ 'checked' if user.investor_profile.besoin_liquidite == 'long_terme' or not user.investor_profile.besoin_liquidite else '' }}>
                             <span>Non, je peux laisser mon argent investi plusieurs années</span>
                         </label>
                     </div>
@@ -267,15 +315,21 @@
                     </div>
                     <div class="risk-answers">
                         <label class="risk-answer-label">
-                            <input type="radio" name="experience_investissement" value="debutant" onchange="updateRiskProfile()">
+                            <input type="radio" name="experience_investissement" value="debutant" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;"
+                                   {{ 'checked' if user.investor_profile.experience_investissement == 'debutant' else '' }}>
                             <span>Débutant – Je découvre l'investissement</span>
                         </label>
                         <label class="risk-answer-label">
-                            <input type="radio" name="experience_investissement" value="intermediaire" onchange="updateRiskProfile()" checked>
+                            <input type="radio" name="experience_investissement" value="intermediaire" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;"
+                                   {{ 'checked' if user.investor_profile.experience_investissement == 'intermediaire' or not user.investor_profile.experience_investissement else '' }}>
                             <span>Intermédiaire – J'ai déjà quelques placements</span>
                         </label>
                         <label class="risk-answer-label">
-                            <input type="radio" name="experience_investissement" value="confirme" onchange="updateRiskProfile()">
+                            <input type="radio" name="experience_investissement" value="confirme" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;"
+                                   {{ 'checked' if user.investor_profile.experience_investissement == 'confirme' else '' }}>
                             <span>Confirmé – Je suis à l'aise avec les marchés et la gestion du risque</span>
                         </label>
                     </div>
@@ -289,15 +343,21 @@
                     </div>
                     <div class="risk-answers">
                         <label class="risk-answer-label">
-                            <input type="radio" name="attitude_volatilite" value="vendre" onchange="updateRiskProfile()">
+                            <input type="radio" name="attitude_volatilite" value="vendre" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;"
+                                   {{ 'checked' if user.investor_profile.attitude_volatilite == 'vendre' else '' }}>
                             <span>Je vendrais pour limiter les pertes</span>
                         </label>
                         <label class="risk-answer-label">
-                            <input type="radio" name="attitude_volatilite" value="attendre" onchange="updateRiskProfile()" checked>
+                            <input type="radio" name="attitude_volatilite" value="attendre" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;"
+                                   {{ 'checked' if user.investor_profile.attitude_volatilite == 'attendre' or not user.investor_profile.attitude_volatilite else '' }}>
                             <span>J'attendrais que ça remonte</span>
                         </label>
                         <label class="risk-answer-label">
-                            <input type="radio" name="attitude_volatilite" value="investir_plus" onchange="updateRiskProfile()">
+                            <input type="radio" name="attitude_volatilite" value="investir_plus" onchange="updateRiskProfile()"
+                                   style="accent-color: #137C8B;"
+                                   {{ 'checked' if user.investor_profile.attitude_volatilite == 'investir_plus' else '' }}>
                             <span>J'en profiterais pour investir davantage</span>
                         </label>
                     </div>
@@ -307,15 +367,38 @@
                 <div class="risk-profile-result">
                     <div class="risk-profile-badge-atlas">
                         <i class="fas fa-user-shield"></i>
-                        <span>Votre profil d'investisseur : </span>
-                        <strong id="profileRisqueActuel">Équilibré</strong>
+                        <span>Profil d'investisseur calculé : </span>
+                        <strong id="profileRisqueActuel">
+                            {% if user.investor_profile.calculated_risk_profile %}
+                                {{ user.investor_profile.calculated_risk_profile }}
+                            {% else %}
+                                NON CALCULÉ
+                            {% endif %}
+                        </strong>
                     </div>
+                    
+                    <!-- DEBUG CONSOLE ADMIN -->
+                    <script>
+                    console.log("🔍 [ADMIN] DEBUG PROFIL DE RISQUE:");
+                    console.log("User ID:", {{ user.id }});
+                    console.log("Profile exists:", {{ 'true' if user.investor_profile else 'false' }});
+                    {% if user.investor_profile %}
+                    console.log("calculated_risk_profile raw:", {{ user.investor_profile.calculated_risk_profile|tojson }});
+                    console.log("calculated_risk_profile type:", typeof {{ user.investor_profile.calculated_risk_profile|tojson }});
+                    console.log("Is truthy:", !!{{ user.investor_profile.calculated_risk_profile|tojson }});
+                    console.log("tolerance_risque:", {{ user.investor_profile.tolerance_risque|tojson }});
+                    console.log("horizon_placement:", {{ user.investor_profile.horizon_placement|tojson }});
+                    console.log("besoin_liquidite:", {{ user.investor_profile.besoin_liquidite|tojson }});
+                    console.log("experience_investissement:", {{ user.investor_profile.experience_investissement|tojson }});
+                    console.log("attitude_volatilite:", {{ user.investor_profile.attitude_volatilite|tojson }});
+                    {% endif %}
+                    </script>
                 </div>
             </div>
         </div>
 
         <!-- Section 4: REVENUS -->
-        <div class="platform-card mb-4">
+        <div class="platform-card mb-4" id="revenus-charges">
             <div class="platform-card-header">
                 <h3 class="platform-card-title">
                     REVENUS
@@ -460,7 +543,7 @@
         </div>
 
         <!-- Section 3: EPARGNE -->
-        <div class="platform-card mb-4">
+        <div class="platform-card mb-4" id="epargne-patrimoine">
             <div class="platform-card-header">
                 <h3 class="platform-card-title">
                     EPARGNE
@@ -1004,7 +1087,7 @@
         </div>
 
         <!-- Section Crédits -->
-        <div class="platform-card mb-4">
+        <div class="platform-card mb-4" id="credits">
             <div class="platform-card-header">
                 <h3 class="platform-card-title">
                     <i class="fas fa-credit-card text-danger"></i>
@@ -1099,39 +1182,48 @@
             </div>
         </div>
 
-        <!-- Boutons d'action -->
-        <div class="edit-actions">
-            <a href="{{ url_for('platform_admin.user_detail', user_id=user.id) }}" class="admin-btn admin-btn-secondary">
-                <i class="fas fa-times"></i>
-                Annuler
-            </a>
-            <button type="submit" class="admin-btn admin-btn-primary">
-                <i class="fas fa-save"></i>
-                Sauvegarder les modifications
-            </button>
-        </div>
     </form>
 </div>
 
 {% else %}
 <!-- MODE VISUALISATION -->
 <div class="view-mode-container">
-    <!-- Actions rapides -->
-    <div class="admin-actions mb-4">
-        <a href="{{ url_for('platform_admin.user_detail', user_id=user.id, edit='true') }}" class="admin-btn admin-btn-primary">
-            <i class="fas fa-edit"></i>
-            Modifier les données
-        </a>
-        {% if user.subscription %}
-        <button class="admin-btn admin-btn-warning" onclick="manageSubscription({{ user.id }})">
-            <i class="fas fa-crown"></i>
-            Gérer l'abonnement
-        </button>
-        {% endif %}
+
+<!-- NAVIGATION RAPIDE FIXE ADMIN (MODE VISUALISATION) -->
+<nav class="quick-nav" id="quickNav">
+    <div class="quick-nav-container">
+        <div class="quick-nav-title">Navigation rapide</div>
+        <div class="quick-nav-items">
+            <a href="#infos-personnelles" class="quick-nav-item active">
+                <i class="fas fa-user"></i>
+                <span>Infos perso</span>
+            </a>
+            <a href="#profil-risque" class="quick-nav-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Profil risque</span>
+            </a>
+            <a href="#revenus-charges" class="quick-nav-item">
+                <i class="fas fa-wallet"></i>
+                <span>Revenus</span>
+            </a>
+            <a href="#epargne-patrimoine" class="quick-nav-item">
+                <i class="fas fa-piggy-bank"></i>
+                <span>Patrimoine</span>
+            </a>
+            <a href="#credits" class="quick-nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Crédits</span>
+            </a>
+            <a href="#patrimoine-net-total" class="quick-nav-item">
+                <i class="fas fa-crown"></i>
+                <span>Bilan</span>
+            </a>
+        </div>
     </div>
+</nav>
 
     <!-- Section 0: DONNÉES DU COMPTE UTILISATEUR -->
-    <div class="platform-card mb-4">
+    <div class="platform-card mb-4" style="margin-top: 32px;">
         <div class="platform-card-header">
             <h3 class="platform-card-title">
                 <i class="fas fa-database text-info"></i>
@@ -1178,7 +1270,7 @@
     </div>
 
     <!-- Section 1: INFORMATIONS PERSONNELLES -->
-    <div class="platform-card mb-4">
+    <div class="platform-card mb-4" id="infos-personnelles">
         <div class="platform-card-header">
             <h3 class="platform-card-title">
                 <i class="fas fa-user text-primary"></i>
@@ -1337,7 +1429,7 @@
     {% if user.investor_profile.tolerance_risque or user.investor_profile.horizon_placement or 
          user.investor_profile.besoin_liquidite or user.investor_profile.experience_investissement or 
          user.investor_profile.attitude_volatilite %}
-    <div class="platform-card mb-4">
+    <div class="platform-card mb-4" id="profil-risque">
         <div class="platform-card-header">
             <h3 class="platform-card-title">
                 <i class="fas fa-check-circle text-atlas"></i>
@@ -1350,7 +1442,15 @@
                 <!-- Badge du profil calculé uniquement -->
                 <div class="risk-profile-badge-view">
                     <i class="fas fa-user-shield"></i>
-                    <span>Profil d'investisseur : <strong>Équilibré</strong></span>
+                    <span>Profil d'investisseur : 
+                        <strong>
+                            {% if user.investor_profile.calculated_risk_profile %}
+                                {{ user.investor_profile.calculated_risk_profile }}
+                            {% else %}
+                                NON CALCULÉ
+                            {% endif %}
+                        </strong>
+                    </span>
                 </div>
             </div>
         </div>
@@ -1358,7 +1458,7 @@
     {% endif %}
 
     <!-- REVENUS - Section complète -->
-    <div class="platform-card mb-4">
+    <div class="platform-card mb-4" id="revenus-charges">
         <div class="platform-card-header">
             <h3 class="platform-card-title">
                 <i class="fas fa-euro-sign text-primary"></i>
@@ -1448,7 +1548,7 @@
 
 
     <!-- ÉPARGNE - Section complète -->
-    <div class="platform-card mb-4">
+    <div class="platform-card mb-4" id="epargne-patrimoine">
         <div class="platform-card-header">
             <h3 class="platform-card-title">
                 <i class="fas fa-coins text-atlas"></i>
@@ -1900,8 +2000,7 @@
 </div>
 
 <!-- Section CRÉDITS (indépendante) -->
-{% if user.investor_profile.credits_data %}
-<div class="platform-card">
+<div class="platform-card" id="credits">
     <div class="platform-card-header">
         <h3 class="platform-card-title">
             <i class="fas fa-credit-card text-atlas"></i>
@@ -1910,6 +2009,7 @@
         <p class="platform-card-subtitle">Crédits en cours (hors immobilier)</p>
     </div>
     <div class="platform-card-body">
+        {% if user.investor_profile.credits_data %}
         {% for credit in user.investor_profile.credits_data %}
         <div class="revenue-subsection mt-4 credit-view-item">
             <h5 class="revenue-subsection-title">
@@ -1962,13 +2062,18 @@
             <div class="crypto-compact-value-total">{{ "{:,.0f}".format(total_credits_restant) }}€</div>
         </div>
         
+        {% else %}
+        <div class="text-center text-muted py-4">
+            <i class="fas fa-credit-card fa-2x mb-3" style="opacity: 0.5;"></i>
+            <p>Aucun crédit à la consommation déclaré</p>
+        </div>
+        {% endif %}
     </div>
 </div>
-{% endif %}
 
 <!-- PATRIMOINE TOTAL NET -->
 {% if user.investor_profile %}
-<div class="platform-card mb-4">
+<div class="platform-card mb-4" id="patrimoine-net-total">
     <div class="platform-card-body">
         <!-- Calcul du patrimoine total à partir des totaux de sections -->
         {% set ns_patrimoine = namespace(total_actifs=0) %}
@@ -2028,6 +2133,30 @@
         <p class="text-muted">Cet utilisateur n'a pas encore complété son profil investisseur.</p>
     </div>
 </div>
+{% endif %}
+
+<!-- BOUTONS FLOTTANTS ADMIN -->
+{% if edit_mode %}
+<!-- Boutons d'action en mode édition -->
+<div class="action-floating-buttons">
+    <button type="button" onclick="window.location.href='{{ url_for('platform_admin.user_detail', user_id=user.id) }}'" 
+            class="action-floating-btn cancel-btn" title="Annuler les modifications">
+        <i class="fas fa-times"></i>
+        <span>Annuler</span>
+    </button>
+    <button type="submit" form="adminEditFormExtended"
+            class="action-floating-btn save-btn" title="Sauvegarder les modifications">
+        <i class="fas fa-save"></i>
+        <span>Sauvegarder les modifications</span>
+    </button>
+</div>
+{% else %}
+<!-- Bouton d'édition en mode visualisation -->
+<button class="edit-floating-btn" type="button" title="Modifier les données"
+        onclick="window.location.href='{{ url_for('platform_admin.user_detail', user_id=user.id, edit='true') }}'">
+    <i class="fas fa-edit"></i>
+    <span>Modifier les données</span>
+</button>
 {% endif %}
 
 <!-- Import des styles de la page profil -->
@@ -4615,6 +4744,276 @@
     color: #424242;
 }
 
+/* NAVIGATION RAPIDE STICKY ADMIN */
+.quick-nav {
+    background: linear-gradient(135deg, var(--qlower-white) 0%, #fafbfc 100%);
+    border-radius: 16px;
+    border: 1px solid var(--qlower-border);
+    box-shadow: 0 4px 20px rgba(19, 124, 139, 0.08);
+    position: sticky;
+    top: 24px;
+    z-index: 500;
+    backdrop-filter: blur(10px);
+    margin-bottom: 24px;
+}
+
+.quick-nav-container {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.quick-nav-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--qlower-text-dark);
+    white-space: nowrap;
+}
+
+.quick-nav-items {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.quick-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--qlower-text-dark);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.quick-nav-item:hover {
+    background: rgba(19, 124, 139, 0.08);
+    color: var(--qlower-primary);
+    border-color: rgba(19, 124, 139, 0.15);
+    transform: translateY(-1px);
+    text-decoration: none;
+}
+
+.quick-nav-item.active {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    color: white;
+    border-color: var(--qlower-primary);
+}
+
+.quick-nav-item i {
+    font-size: 12px;
+}
+
+.quick-nav-item span {
+    font-size: 13px;
+}
+
+/* Responsive Navigation */
+@media (max-width: 768px) {
+    .quick-nav {
+        top: 16px;
+    }
+    
+    .quick-nav-container {
+        padding: 12px 16px;
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    
+    .quick-nav-title {
+        font-size: 12px;
+    }
+    
+    .quick-nav-items {
+        gap: 4px;
+        width: 100%;
+    }
+    
+    .quick-nav-item {
+        padding: 6px 12px;
+        font-size: 12px;
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
+    }
+    
+    .quick-nav-item span {
+        font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* BOUTONS FLOTTANTS ADMIN */
+.edit-floating-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%);
+    border: none;
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(19, 124, 139, 0.3);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.edit-floating-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 40px rgba(19, 124, 139, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.edit-floating-btn:active {
+    transform: translateY(-2px) scale(1.02);
+}
+
+.edit-floating-btn i {
+    font-size: 16px;
+}
+
+/* Animation d'apparition pour le bouton d'édition */
+.edit-floating-btn {
+    opacity: 0;
+    transform: translateY(100px);
+    animation: slideUpFadeIn 0.8s ease forwards;
+    animation-delay: 0.3s;
+}
+
+@keyframes slideUpFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* BOUTONS D'ACTION FLOTTANTS EN BAS A DROITE */
+.action-floating-buttons {
+    position: fixed;
+    bottom: 80px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+}
+
+.action-floating-btn {
+    padding: 14px 20px;
+    border: none;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.action-floating-btn i {
+    font-size: 16px;
+}
+
+.cancel-btn {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
+
+.cancel-btn:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 40px rgba(220, 53, 69, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.save-btn {
+    background: linear-gradient(135deg, #137C8B 0%, #109CA7 100%);
+    color: white;
+}
+
+.save-btn:hover {
+    background: linear-gradient(135deg, #109CA7 0%, #0E8B99 100%);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 40px rgba(19, 124, 139, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.action-floating-btn:active {
+    transform: translateY(-2px) scale(1.05);
+}
+
+/* Animation d'apparition pour les boutons d'action */
+.action-floating-buttons {
+    opacity: 0;
+    transform: translateX(100px);
+    animation: slideRightFadeIn 0.6s ease forwards;
+    animation-delay: 0.5s;
+}
+
+@keyframes slideRightFadeIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .edit-floating-btn {
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .edit-floating-btn i {
+        font-size: 14px;
+    }
+    
+    .action-floating-buttons {
+        bottom: 70px;
+        right: 20px;
+    }
+    
+    .action-floating-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .action-floating-btn i {
+        font-size: 14px;
+    }
+}
+
 </style>
 {% endblock %}
 
@@ -6184,37 +6583,143 @@ function calculateTotalCredits() {
 
 // Fonction pour calculer et mettre à jour le profil de risque
 function updateRiskProfile() {
-    // Récupération des valeurs sélectionnées
-    const tolerance = document.querySelector('input[name="tolerance_risque"]:checked')?.value || 'moderee';
-    const horizon = document.querySelector('input[name="horizon_placement"]:checked')?.value || 'moyen';
-    const liquidite = document.querySelector('input[name="besoin_liquidite"]:checked')?.value || 'long_terme';
-    const experience = document.querySelector('input[name="experience_investissement"]:checked')?.value || 'intermediaire';
-    const volatilite = document.querySelector('input[name="attitude_volatilite"]:checked')?.value || 'attendre';
+    // Récupérer toutes les réponses (noms des champs admin)
+    const toleranceRisque = document.querySelector('input[name="tolerance_risque"]:checked');
+    const horizonPlacement = document.querySelector('input[name="horizon_placement"]:checked');
+    const besoinLiquidite = document.querySelector('input[name="besoin_liquidite"]:checked');
+    const experienceInvestissement = document.querySelector('input[name="experience_investissement"]:checked');
+    const attitudeVolatilite = document.querySelector('input[name="attitude_volatilite"]:checked');
     
-    // Calcul simple du profil (pour le moment tout le monde est "Équilibré")
-    let profil = 'Équilibré';
+    // Vérifier que toutes les questions ont été répondues
+    if (!toleranceRisque || !horizonPlacement || !besoinLiquidite || !experienceInvestissement || !attitudeVolatilite) {
+        return; // Pas assez de réponses
+    }
     
-    // Logique future pour calculer le profil selon les réponses
-    // Pour l'instant on garde "Équilibré" par défaut comme demandé
+    console.log("🎯 [ADMIN] Calcul profil de risque en temps réel...");
+    console.log("   - tolerance_risque:", toleranceRisque.value);
+    console.log("   - horizon_placement:", horizonPlacement.value);
+    console.log("   - besoin_liquidite:", besoinLiquidite.value);
+    console.log("   - experience_investissement:", experienceInvestissement.value);
+    console.log("   - attitude_volatilite:", attitudeVolatilite.value);
     
-    // Mise à jour de l'affichage
+    // ÉTAPE 1: Freins prudents automatiques
+    // Frein 1: Q2-A "Moins de 2 ans" → Prudent automatique
+    if (horizonPlacement.value === "court") {
+        updateRiskProfileDisplay("PRUDENT");
+        console.log("   → FREIN: Horizon court → PRUDENT");
+        return;
+    }
+    
+    // Frein 2: Q3-A "Oui, à court terme" → Prudent automatique  
+    if (besoinLiquidite.value === "court_terme") {
+        updateRiskProfileDisplay("PRUDENT");
+        console.log("   → FREIN: Liquidité court terme → PRUDENT");
+        return;
+    }
+    
+    // ÉTAPE 2: Comptage des tendances
+    const votes = {
+        "PRUDENT": 0,
+        "EQUILIBRE": 0, 
+        "DYNAMIQUE": 0
+    };
+    
+    // Question 1: Tolérance au risque (admin utilise directement les valeurs database)
+    if (toleranceRisque.value === "faible") {        // Q1-A: Jusqu'à -5%
+        votes["PRUDENT"]++;
+    } else if (toleranceRisque.value === "moderee") {     // Q1-B: Jusqu'à -15%
+        votes["EQUILIBRE"]++;
+    } else if (toleranceRisque.value === "elevee") {      // Q1-C: Jusqu'à -30% ou plus
+        votes["DYNAMIQUE"]++;
+    }
+    
+    // Question 2: Horizon de placement (si pas frein)
+    if (horizonPlacement.value === "moyen") {        // Q2-B: 2 à 5 ans
+        votes["EQUILIBRE"]++;
+    } else if (horizonPlacement.value === "long") {       // Q2-C: Plus de 5 ans
+        votes["DYNAMIQUE"]++;
+    }
+    // Q2-A (court) déjà traité comme frein
+    
+    // Question 3: Besoin de liquidité (si pas frein)
+    if (besoinLiquidite.value === "long_terme") {    // Q3-C: Non, plusieurs années
+        votes["DYNAMIQUE"]++;
+    }
+    // Q3-A (court_terme) déjà traité comme frein
+    
+    // Question 4: Expérience
+    if (experienceInvestissement.value === "debutant") {      // Q4-A: Débutant
+        votes["PRUDENT"]++;
+    } else if (experienceInvestissement.value === "intermediaire") { // Q4-B: Intermédiaire  
+        votes["EQUILIBRE"]++;
+    } else if (experienceInvestissement.value === "confirme") {    // Q4-C: Confirmé
+        votes["DYNAMIQUE"]++;
+    }
+    
+    // Question 5: Attitude face à la volatilité
+    if (attitudeVolatilite.value === "vendre") {          // Q5-A: Je vendrais
+        votes["PRUDENT"]++;
+    } else if (attitudeVolatilite.value === "attendre") {      // Q5-B: J'attendrais
+        votes["EQUILIBRE"]++;
+    } else if (attitudeVolatilite.value === "investir_plus") { // Q5-C: J'investirais plus
+        votes["DYNAMIQUE"]++;
+    }
+    
+    // ÉTAPE 3: Règles de décision finales
+    const p = votes["PRUDENT"];
+    const e = votes["EQUILIBRE"];
+    const d = votes["DYNAMIQUE"];
+    
+    console.log(`   → Votes: P=${p}, E=${e}, D=${d}`);
+    
+    let calculatedProfile;
+    
+    // 3.1. Dynamique fort: au moins 3 réponses dynamiques
+    if (d >= 3) {
+        calculatedProfile = "DYNAMIQUE";
+    }
+    // 3.2. Prudent marqué: au moins 3 réponses prudentes  
+    else if (p >= 3) {
+        calculatedProfile = "PRUDENT";
+    }
+    // 3.3. Cas spécifique: 2 prudents, 2 dynamiques, 1 équilibré
+    else if (p === 2 && d === 2 && e === 1) {
+        calculatedProfile = "EQUILIBRE";
+    }
+    // 3.4. Tous les autres cas → ÉQUILIBRÉ
+    else {
+        calculatedProfile = "EQUILIBRE";
+    }
+    
+    console.log(`   → Profil calculé: ${calculatedProfile}`);
+    updateRiskProfileDisplay(calculatedProfile);
+}
+
+function updateRiskProfileDisplay(profile) {
     const profilDisplay = document.getElementById('profileRisqueActuel');
     if (profilDisplay) {
-        profilDisplay.textContent = profil;
-        
-        // Ajout d'une couleur selon le profil
-        profilDisplay.className = 'profil-equilibre';
-        
         // Animation de changement
+        profilDisplay.style.transition = 'all 0.3s ease';
         profilDisplay.style.opacity = '0.5';
+        
         setTimeout(() => {
+            profilDisplay.textContent = profile;
             profilDisplay.style.opacity = '1';
-        }, 200);
+            
+            // Ajout d'une couleur selon le profil
+            profilDisplay.className = `profil-${profile.toLowerCase()}`;
+        }, 150);
     }
 }
 
 // Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
+    // Calculer le profil de risque initial
+    updateRiskProfile();
+    
+    // Initialiser la navigation rapide
+    initQuickNavigation();
+    
     // Calculer les totaux de la section EPARGNE
     calculateTotalEpargneLiquidites();
     calculateTotalEpargnePlacements();
@@ -6698,6 +7203,73 @@ function displayDebugData(debug) {
     `;
     
     dataDiv.innerHTML = html;
+}
+
+// ========== FONCTIONS NAVIGATION RAPIDE ==========
+
+function initQuickNavigation() {
+    console.log('🧭 Initialisation navigation rapide admin');
+    const navItems = document.querySelectorAll('.quick-nav-item');
+    const sections = document.querySelectorAll('[id]');
+    
+    console.log('🧭 Nav items trouvés:', navItems.length);
+    console.log('🧭 Sections avec ID trouvées:', sections.length);
+    
+    // Smooth scroll pour les liens de navigation
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            const targetSection = document.getElementById(targetId);
+            
+            if (targetSection) {
+                const navHeight = 100; // Compensation pour le sticky nav
+                const targetPosition = targetSection.offsetTop - navHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+                
+                // Mettre à jour l'élément actif
+                updateActiveNavItem(this);
+            }
+        });
+    });
+
+    // Observer de scroll pour mettre à jour automatiquement l'élément actif
+    const observerOptions = {
+        root: null,
+        rootMargin: '-100px 0px -80% 0px',
+        threshold: 0
+    };
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const targetId = entry.target.id;
+                const correspondingNavItem = document.querySelector(`.quick-nav-item[href="#${targetId}"]`);
+                if (correspondingNavItem) {
+                    updateActiveNavItem(correspondingNavItem);
+                }
+            }
+        });
+    }, observerOptions);
+
+    // Observer les sections avec un ID
+    document.querySelectorAll('#infos-personnelles, #profil-risque, #revenus-charges, #epargne-patrimoine, #credits, #patrimoine-net-total').forEach(section => {
+        observer.observe(section);
+    });
+}
+
+function updateActiveNavItem(activeItem) {
+    // Retirer la classe active de tous les éléments
+    document.querySelectorAll('.quick-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Ajouter la classe active à l'élément courant
+    activeItem.classList.add('active');
 }
 
 </script>

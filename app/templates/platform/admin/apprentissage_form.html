@@ -54,6 +54,19 @@
                     </div>
                     
                     <div class="atlas-form-group">
+                        <label for="categorie" class="atlas-form-label">Catégorie</label>
+                        <select class="atlas-form-input" id="categorie" name="categorie">
+                            <option value="">-- Choisir une catégorie --</option>
+                            {% for key, label in categories %}
+                                <option value="{{ key }}" {{ 'selected' if apprentissage and apprentissage.categorie == key else '' }}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="atlas-form-help">Catégorie pour organiser et classer vos formations</div>
+                    </div>
+                    
+                    <div class="atlas-form-group">
                         <label for="ordre" class="atlas-form-label">Ordre d'affichage</label>
                         <input type="number" 
                                class="atlas-form-input" 

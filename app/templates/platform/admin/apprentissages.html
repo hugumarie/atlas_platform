@@ -31,8 +31,8 @@
                     <div class="formation-card-content">
                         <div class="formation-card-layout">
                             <div class="formation-image-container">
-                                {% if apprentissage.image %}
-                                    <img src="{{ url_for('static', filename='uploads/apprentissages/' + apprentissage.image) }}" 
+                                {% if apprentissage.has_image() %}
+                                    <img src="{{ apprentissage.get_image_url() }}" 
                                          alt="{{ apprentissage.nom }}" 
                                          class="formation-image">
                                 {% else %}
@@ -69,7 +69,7 @@
                                     </div>
                                     
                                     <div class="formation-pdf-status">
-                                        {% if apprentissage.fichier_pdf %}
+                                        {% if apprentissage.has_pdf() %}
                                             <span class="status-badge status-success">
                                                 <i class="fas fa-file-pdf"></i>
                                                 PDF
@@ -78,6 +78,20 @@
                                             <span class="status-badge status-warning">
                                                 <i class="fas fa-exclamation-triangle"></i>
                                                 Pas de PDF
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="formation-category-status">
+                                        {% if apprentissage.categorie %}
+                                            <span class="status-badge status-category">
+                                                <i class="fas fa-tag"></i>
+                                                {{ apprentissage.get_categorie_display() }}
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge status-category">
+                                                <i class="fas fa-tag"></i>
+                                                Autres formations
                                             </span>
                                         {% endif %}
                                     </div>
@@ -94,7 +108,7 @@
                             Modifier
                         </a>
                         
-                        {% if apprentissage.fichier_pdf and apprentissage.actif %}
+                        {% if apprentissage.has_pdf() and apprentissage.actif %}
                             <a href="{{ url_for('platform_investor.learning_pdf', id=apprentissage.id) }}" 
                                class="admin-btn admin-btn-primary">
                                 <i class="fas fa-eye"></i>
@@ -239,6 +253,7 @@
 
 .formation-meta {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
     margin-bottom: 8px;
 }
@@ -269,6 +284,12 @@
     background: rgba(108, 117, 125, 0.1);
     color: #6c757d;
     border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+.status-category {
+    background: rgba(19, 124, 139, 0.1);
+    color: var(--qlower-primary);
+    border: 1px solid rgba(19, 124, 139, 0.2);
 }
 
 .formation-actions {

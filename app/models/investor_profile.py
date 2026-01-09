@@ -162,6 +162,9 @@ class InvestorProfile(db.Model):
     experience_investissement = db.Column(db.String(50), nullable=True)  # debutant, intermediaire, confirme
     attitude_volatilite = db.Column(db.String(50), nullable=True)  # vendre, attendre, investir_plus
     
+    # Profil de risque calculé selon l'algorithme
+    calculated_risk_profile = db.Column(db.String(20), nullable=True)  # PRUDENT, EQUILIBRE, DYNAMIQUE
+    
     # Anciennes questions (maintenues pour compatibilité)
     question_1_reponse = db.Column(db.String(100), nullable=True)
     question_2_reponse = db.Column(db.String(100), nullable=True)
@@ -301,42 +304,96 @@ class InvestorProfile(db.Model):
                 
         return total_patrimoine - total_credits
     
-    def calculate_profil_risque_from_questions(self):
+    def calculate_risk_profile(self):
         """
-        Calcule le profil de risque basé sur les réponses aux questions.
+        Calcule le profil de risque selon l'algorithme officiel.
+        Basé sur les 5 questions du questionnaire de profil investisseur.
         
         Returns:
-            str: Profil de risque calculé
+            str: Profil de risque calculé (PRUDENT, EQUILIBRE, DYNAMIQUE)
         """
-        if not all([self.question_1_reponse, self.question_2_reponse, self.question_3_reponse, 
-                   self.question_4_reponse, self.question_5_reponse]):
+        # Vérifier que toutes les réponses sont présentes
+        if not all([
+            self.tolerance_risque,           # Q1: Tolérance à la baisse
+            self.horizon_placement,          # Q2: Horizon de placement  
+            self.besoin_liquidite,          # Q3: Besoin de liquidité
+            self.experience_investissement,  # Q4: Expérience
+            self.attitude_volatilite        # Q5: Réaction face à une forte baisse
+        ]):
             return None
             
-        # TODO: Implémenter la logique de calcul du profil de risque
-        # basée sur les réponses aux questions
-        score = 0
-        
-        # Exemple de logique de scoring
-        # Question 1: Horizon de placement
-        if "long terme" in (self.question_1_reponse or "").lower():
-            score += 2
-        elif "moyen terme" in (self.question_1_reponse or "").lower():
-            score += 1
+        # ÉTAPE 1: Freins prudents automatiques
+        # Frein 1: Q2-A "Moins de 2 ans" → Prudent automatique
+        if self.horizon_placement == "court":
+            return "PRUDENT"
             
-        # Question 2: Tolérance aux fluctuations
-        if "acceptable" in (self.question_2_reponse or "").lower():
-            score += 2
-        elif "modérée" in (self.question_2_reponse or "").lower():
-            score += 1
-            
-        # Questions 3-5: Ajouter logique similaire
+        # Frein 2: Q3-A "Oui, à court terme" → Prudent automatique  
+        if self.besoin_liquidite == "court_terme":
+            return "PRUDENT"
         
-        if score >= 8:
-            return "dynamique"
-        elif score >= 4:
-            return "modéré"
-        else:
-            return "conservateur"
+        # ÉTAPE 2: Comptage des tendances
+        votes = {
+            "PRUDENT": 0,
+            "EQUILIBRE": 0, 
+            "DYNAMIQUE": 0
+        }
+        
+        # Question 1: Tolérance à la baisse
+        if self.tolerance_risque == "faible":        # Q1-A: Jusqu'à -5%
+            votes["PRUDENT"] += 1
+        elif self.tolerance_risque == "moderee":     # Q1-B: Jusqu'à -15%
+            votes["EQUILIBRE"] += 1
+        elif self.tolerance_risque == "elevee":      # Q1-C: Jusqu'à -30% ou plus
+            votes["DYNAMIQUE"] += 1
+        
+        # Question 2: Horizon de placement (si pas frein)
+        if self.horizon_placement == "moyen":        # Q2-B: 2 à 5 ans
+            votes["EQUILIBRE"] += 1
+        elif self.horizon_placement == "long":       # Q2-C: Plus de 5 ans
+            votes["DYNAMIQUE"] += 1
+        # Q2-A (court) déjà traité comme frein
+        
+        # Question 3: Besoin de liquidité (si pas frein)
+        if self.besoin_liquidite == "long_terme":    # Q3-C: Non, plusieurs années
+            votes["DYNAMIQUE"] += 1
+        # Q3-A (court_terme) déjà traité comme frein
+        # Pas de Q3-B selon les règles
+        
+        # Question 4: Expérience
+        if self.experience_investissement == "debutant":      # Q4-A: Débutant
+            votes["PRUDENT"] += 1
+        elif self.experience_investissement == "intermediaire": # Q4-B: Intermédiaire  
+            votes["EQUILIBRE"] += 1
+        elif self.experience_investissement == "confirme":    # Q4-C: Confirmé
+            votes["DYNAMIQUE"] += 1
+        
+        # Question 5: Attitude face à la volatilité
+        if self.attitude_volatilite == "vendre":          # Q5-A: Je vendrais
+            votes["PRUDENT"] += 1
+        elif self.attitude_volatilite == "attendre":      # Q5-B: J'attendrais
+            votes["EQUILIBRE"] += 1
+        elif self.attitude_volatilite == "investir_plus": # Q5-C: J'investirais plus
+            votes["DYNAMIQUE"] += 1
+        
+        # ÉTAPE 3: Règles de décision finales
+        p = votes["PRUDENT"] 
+        e = votes["EQUILIBRE"]
+        d = votes["DYNAMIQUE"]
+        
+        # 3.1. Dynamique fort: au moins 3 réponses dynamiques
+        if d >= 3:
+            return "DYNAMIQUE"
+        
+        # 3.2. Prudent marqué: au moins 3 réponses prudentes  
+        if p >= 3:
+            return "PRUDENT"
+        
+        # 3.3. Cas spécifique: 2 prudents, 2 dynamiques, 1 équilibré
+        if p == 2 and d == 2 and e == 1:
+            return "EQUILIBRE"
+        
+        # 3.4. Tous les autres cas → ÉQUILIBRÉ
+        return "EQUILIBRE"
     
     def get_investment_distribution(self):
         """

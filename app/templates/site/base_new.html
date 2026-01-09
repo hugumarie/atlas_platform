@@ -777,7 +777,7 @@
                     <div class="row g-0">
                         <!-- Section gauche - Informations -->
                         <div class="col-lg-6 atlas-modal-left">
-                            <div class="atlas-modal-content-left">
+                            <div class="atlas-modal-content-left d-none d-md-block">
                                 <!-- Titre principal -->
                                 <div class="atlas-modal-title-section">
                                     <div class="atlas-modal-icon">
@@ -1499,6 +1499,220 @@
                 }
             }
         });
+    </script>
+
+    <!-- POPUP COOKIES RGPD -->
+    <div id="cookies-banner" class="cookies-banner" style="display: none;">
+        <div class="cookies-content">
+            <div class="cookies-text">
+                <h6><i class="fas fa-cookie-bite me-2"></i>Gestion des cookies</h6>
+                <p>
+                    Atlas place la protection de vos données personnelles au cœur de ses préoccupations. 
+                    Nous utilisons des cookies pour améliorer votre expérience sur notre site. 
+                    Ils nous aident également à améliorer la performance du site et à vous présenter des contenus pertinents. 
+                    Le choix de ne pas permettre l'utilisation de certains cookies pourrait ainsi impacter votre expérience du site.
+                </p>
+                <p class="mb-0">
+                    <small>Vos choix seront enregistrés pour une durée de 3 mois.</small>
+                </p>
+            </div>
+            <div class="cookies-actions">
+                <button type="button" class="btn btn-outline-light btn-sm me-2" onclick="acceptAllCookies()">
+                    <i class="fas fa-check me-1"></i>Accepter
+                </button>
+                <button type="button" class="btn btn-outline-light btn-sm" onclick="rejectAllCookies()">
+                    <i class="fas fa-times me-1"></i>Tout refuser
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .cookies-banner {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, rgba(19, 124, 139, 0.95) 0%, rgba(52, 77, 89, 0.95) 100%);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        z-index: 9999;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        animation: slideUp 0.5s ease;
+    }
+
+    .cookies-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        color: white;
+    }
+
+    .cookies-text {
+        flex: 1;
+    }
+
+    .cookies-text h6 {
+        color: white;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 16px;
+    }
+
+    .cookies-text p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 8px;
+    }
+
+    .cookies-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 140px;
+    }
+
+    .cookies-actions .btn {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .cookies-actions .btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .cookies-content {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .cookies-actions {
+            flex-direction: row;
+            min-width: auto;
+            width: 100%;
+        }
+        
+        .cookies-actions .btn {
+            flex: 1;
+        }
+        
+        .cookies-text p {
+            font-size: 13px;
+        }
+        
+        .cookies-banner {
+            padding: 15px;
+        }
+    }
+    </style>
+
+    <script>
+    // Gestion des cookies
+    function acceptAllCookies() {
+        setCookieConsent('accepted');
+        hideCookiesBanner();
+        console.log('✅ Cookies acceptés');
+    }
+
+    function rejectAllCookies() {
+        setCookieConsent('rejected');
+        hideCookiesBanner();
+        console.log('❌ Cookies refusés');
+    }
+
+    function setCookieConsent(consent) {
+        // Enregistrer le choix pour 3 mois
+        const expiryDate = new Date();
+        expiryDate.setMonth(expiryDate.getMonth() + 3);
+        
+        document.cookie = `atlas_cookie_consent=${consent}; expires=${expiryDate.toUTCString()}; path=/; SameSite=Lax`;
+    }
+
+    function getCookieConsent() {
+        const name = 'atlas_cookie_consent=';
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const ca = decodedCookie.split(';');
+        
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return '';
+    }
+
+    function hideCookiesBanner() {
+        const banner = document.getElementById('cookies-banner');
+        if (banner) {
+            banner.style.animation = 'slideDown 0.5s ease';
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 500);
+        }
+    }
+
+    function showCookiesBanner() {
+        const banner = document.getElementById('cookies-banner');
+        if (banner) {
+            banner.style.display = 'block';
+        }
+    }
+
+    // Vérifier le consentement au chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+        const consent = getCookieConsent();
+        
+        // Afficher le banner seulement si aucun choix n'a été fait
+        if (!consent) {
+            // Attendre 1 seconde avant d'afficher pour une meilleure UX
+            setTimeout(showCookiesBanner, 1000);
+        } else {
+            console.log('Consentement cookies déjà donné:', consent);
+        }
+    });
+
+    // Animation de fermeture
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideDown {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
     </script>
     
     {% block scripts %}{% endblock %}

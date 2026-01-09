@@ -369,9 +369,9 @@
     
     <div class="formation-hero">
         <div class="formation-content-header">
-            {% if apprentissage.image %}
+            {% if apprentissage.has_image() %}
             <div class="formation-hero-image">
-                <img src="{{ url_for('static', filename='uploads/apprentissages/' + apprentissage.image) }}" 
+                <img src="{{ apprentissage.get_image_url() }}" 
                      alt="{{ apprentissage.nom }}" 
                      class="formation-image">
             </div>
@@ -549,7 +549,7 @@ function fitToWidth() {
     
     pdfDoc.getPage(1).then(function(page) {
         const viewport = page.getViewport({ scale: 1 });
-        scale = containerWidth / viewport.width;
+        scale = (containerWidth / viewport.width) / 2;
         renderAllPages();
     });
 }
@@ -567,10 +567,14 @@ document.getElementById('zoomOut').addEventListener('click', function() {
 
 document.getElementById('fitWidth').addEventListener('click', fitToWidth);
 
-// Charger le PDF
+// Charger le PDF via la route proxy sécurisée
 const pdfUrl = '{{ pdf_url }}';
 
+console.log('📖 Admin - Chargement PDF sécurisé via proxy...');
+
+// Configuration PDF.js optimisée pour le proxy local
 pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+    console.log('✅ Admin - PDF chargé avec succès:', pdf.numPages, 'pages');
     pdfDoc = pdf;
     totalPages = pdf.numPages;
     
@@ -579,12 +583,12 @@ pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
     
     pdf.getPage(1).then(function(page) {
         const viewport = page.getViewport({ scale: 1 });
-        scale = Math.min((containerWidth - 40) / viewport.width, 1.5);
+        scale = Math.min((containerWidth - 40) / viewport.width, 1.5) / 2;
         renderAllPages();
     });
     
 }).catch(function(error) {
-    console.error('Erreur lors du chargement du PDF:', error);
+    console.error('❌ Admin - Erreur lors du chargement du PDF:', error);
     showError();
 });
 

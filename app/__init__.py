@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 import os
 import click
+from dotenv import load_dotenv
 
 # Initialisation des extensions
 db = SQLAlchemy()
@@ -20,6 +21,9 @@ def create_app():
     Returns:
         Flask: Instance de l'application configurée
     """
+    # Charger les variables d'environnement depuis .env
+    load_dotenv()
+    
     app = Flask(__name__)
     
     # Configuration
@@ -45,6 +49,13 @@ def create_app():
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     app.config['TEMPLATES_AUTO_RELOAD'] = True
     
+    # Configuration DigitalOcean Spaces
+    # Note: Les vraies clés doivent être dans les variables d'environnement pour la production
+    app.config['DO_SPACES_ACCESS_KEY'] = os.environ.get('DO_SPACES_ACCESS_KEY')
+    app.config['DO_SPACES_SECRET_KEY'] = os.environ.get('DO_SPACES_SECRET_KEY', 'BfYxk8Oegh5/75dm5+TiZQwXdc8qqZ1AB+S+Ou5j3D8')
+    app.config['DO_SPACES_REGION'] = 'fra1'
+    app.config['DO_SPACES_BUCKET'] = 'atlas-database'
+    
     # Configuration DEBUG pour auto-reload du code Python
     if os.environ.get('FLASK_ENV') != 'production':
         app.config['DEBUG'] = True
@@ -64,6 +75,23 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'platform_auth.login'
     login_manager.login_message = 'Veuillez vous connecter pour accéder à cette page.'
+    
+    # Initialisation DigitalOcean Spaces
+    try:
+        access_key = app.config.get('DO_SPACES_ACCESS_KEY')
+        secret_key = app.config.get('DO_SPACES_SECRET_KEY')
+        
+        if access_key and secret_key:
+            from app.services.digitalocean_storage import init_spaces_service
+            init_spaces_service(
+                access_key=access_key,
+                secret_key=secret_key
+            )
+            print("✅ DigitalOcean Spaces initialisé avec succès")
+        else:
+            print("⚠️ DigitalOcean Spaces non configuré (clés manquantes)")
+    except Exception as e:
+        print(f"❌ Erreur initialisation DigitalOcean Spaces: {e}")
     
     # Import des modèles
     from app.models.user import User

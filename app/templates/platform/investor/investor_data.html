@@ -1566,16 +1566,16 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                         <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">1. Baisse acceptable</h4>
                         <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Quelle baisse maximale acceptez-vous par an ?</p>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                                <input type="radio" name="tolerance_baisse" value="5" {{ 'checked' if current_user.investor_profile.tolerance_risque == '5' }} style="margin: 0; transform: scale(1.1);">
+                            <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                                <input type="radio" name="tolerance_baisse" value="5" {{ 'checked' if current_user.investor_profile.tolerance_risque == 'faible' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                                 <span style="color: #344D59;">Jusqu'à –5 %</span>
                             </label>
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                                <input type="radio" name="tolerance_baisse" value="15" {{ 'checked' if current_user.investor_profile.tolerance_risque == '15' }} style="margin: 0; transform: scale(1.1);">
+                            <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                                <input type="radio" name="tolerance_baisse" value="15" {{ 'checked' if current_user.investor_profile.tolerance_risque == 'moderee' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                                 <span style="color: #344D59;">Jusqu'à –15 %</span>
                             </label>
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                                <input type="radio" name="tolerance_baisse" value="30" {{ 'checked' if current_user.investor_profile.tolerance_risque == '30' }} style="margin: 0; transform: scale(1.1);">
+                            <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                                <input type="radio" name="tolerance_baisse" value="30" {{ 'checked' if current_user.investor_profile.tolerance_risque == 'elevee' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                                 <span style="color: #344D59;">Jusqu'à –30 % ou plus</span>
                             </label>
                         </div>
@@ -1586,16 +1586,16 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                         <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">2. Horizon de placement</h4>
                         <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Sur quelle durée investissez-vous ?</p>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                                <input type="radio" name="horizon_placement" value="court" {{ 'checked' if current_user.investor_profile.horizon_placement == 'court' }} style="margin: 0; transform: scale(1.1);">
+                            <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                                <input type="radio" name="horizon_placement" value="court" {{ 'checked' if current_user.investor_profile.horizon_placement == 'court' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                                 <span style="color: #344D59;">Moins de 2 ans</span>
                             </label>
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                                <input type="radio" name="horizon_placement" value="moyen" {{ 'checked' if current_user.investor_profile.horizon_placement == 'moyen' }} style="margin: 0; transform: scale(1.1);">
+                            <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                                <input type="radio" name="horizon_placement" value="moyen" {{ 'checked' if current_user.investor_profile.horizon_placement == 'moyen' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                                 <span style="color: #344D59;">2 à 5 ans</span>
                             </label>
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                                <input type="radio" name="horizon_placement" value="long" {{ 'checked' if current_user.investor_profile.horizon_placement == 'long' }} style="margin: 0; transform: scale(1.1);">
+                            <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                                <input type="radio" name="horizon_placement" value="long" {{ 'checked' if current_user.investor_profile.horizon_placement == 'long' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                                 <span style="color: #344D59;">Plus de 5 ans</span>
                             </label>
                         </div>
@@ -1606,12 +1606,12 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                         <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">3. Besoin de liquidité</h4>
                         <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Besoin de récupérer rapidement vos fonds ?</p>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                                <input type="radio" name="besoin_liquidite" value="oui" {{ 'checked' if current_user.investor_profile.besoin_liquidite == 'oui' }} style="margin: 0; transform: scale(1.1);">
+                            <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                                <input type="radio" name="besoin_liquidite" value="oui" {{ 'checked' if current_user.investor_profile.besoin_liquidite == 'court_terme' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                                 <span style="color: #344D59;">Oui, à court terme</span>
                             </label>
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                                <input type="radio" name="besoin_liquidite" value="non" {{ 'checked' if current_user.investor_profile.besoin_liquidite == 'non' }} style="margin: 0; transform: scale(1.1);">
+                            <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                                <input type="radio" name="besoin_liquidite" value="non" {{ 'checked' if current_user.investor_profile.besoin_liquidite == 'long_terme' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                                 <span style="color: #344D59;">Non, plusieurs années OK</span>
                             </label>
                         </div>
@@ -1622,16 +1622,16 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                         <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">4. Expérience</h4>
                         <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Votre niveau en investissement ?</p>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                                <input type="radio" name="experience_investissement" value="debutant" {{ 'checked' if current_user.investor_profile.experience_investissement in ['débutant', 'debutant'] or current_user.investor_profile.investment_experience in ['débutant', 'debutant'] }} style="margin: 0; transform: scale(1.1);">
+                            <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                                <input type="radio" name="experience_investissement" value="debutant" {{ 'checked' if current_user.investor_profile.experience_investissement in ['débutant', 'debutant'] }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                                 <span style="color: #344D59;">Débutant</span>
                             </label>
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                                <input type="radio" name="experience_investissement" value="intermediaire" {{ 'checked' if current_user.investor_profile.experience_investissement in ['intermédiaire', 'intermediaire'] or current_user.investor_profile.investment_experience in ['intermédiaire', 'intermediaire'] }} style="margin: 0; transform: scale(1.1);">
+                            <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                                <input type="radio" name="experience_investissement" value="intermediaire" {{ 'checked' if current_user.investor_profile.experience_investissement in ['intermédiaire', 'intermediaire'] }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                                 <span style="color: #344D59;">Intermédiaire</span>
                             </label>
-                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                                <input type="radio" name="experience_investissement" value="confirme" {{ 'checked' if current_user.investor_profile.experience_investissement in ['confirmé', 'confirme'] or current_user.investor_profile.investment_experience in ['confirmé', 'confirme'] }} style="margin: 0; transform: scale(1.1);">
+                            <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                                <input type="radio" name="experience_investissement" value="confirme" {{ 'checked' if current_user.investor_profile.experience_investissement in ['confirmé', 'confirme'] }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                                 <span style="color: #344D59;">Confirmé</span>
                             </label>
                         </div>
@@ -1643,16 +1643,16 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                     <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">5. Attitude face à la volatilité</h4>
                     <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Comment réagiriez-vous si vos placements baissaient fortement ?</p>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px;">
-                        <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                            <input type="radio" name="attitude_volatilite" value="vendre" {{ 'checked' if current_user.investor_profile.attitude_volatilite == 'vendre' }} style="margin: 0; transform: scale(1.1);">
+                        <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                            <input type="radio" name="attitude_volatilite" value="vendre" {{ 'checked' if current_user.investor_profile.attitude_volatilite == 'vendre' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                             <span style="color: #344D59;">Je vendrais pour limiter les pertes</span>
                         </label>
-                        <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                            <input type="radio" name="attitude_volatilite" value="attendre" {{ 'checked' if current_user.investor_profile.attitude_volatilite == 'attendre' }} style="margin: 0; transform: scale(1.1);">
+                        <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                            <input type="radio" name="attitude_volatilite" value="attendre" {{ 'checked' if current_user.investor_profile.attitude_volatilite == 'attendre' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                             <span style="color: #344D59;">J'attendrais que ça remonte</span>
                         </label>
-                        <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
-                            <input type="radio" name="attitude_volatilite" value="investir_plus" {{ 'checked' if current_user.investor_profile.attitude_volatilite == 'investir_plus' }} style="margin: 0; transform: scale(1.1);">
+                        <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
+                            <input type="radio" name="attitude_volatilite" value="investir_plus" {{ 'checked' if current_user.investor_profile.attitude_volatilite == 'investir_plus' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                             <span style="color: #344D59;">J'en profiterais pour investir davantage</span>
                         </label>
                     </div>
@@ -1663,113 +1663,50 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                     <div style="font-size: 14px; font-weight: 600; color: white; font-family: 'Inter', sans-serif;">
                         Profil d'investisseur
                     </div>
-                    <div style="font-size: 16px; font-weight: 700; color: white; font-family: 'Inter', sans-serif;">
-                        {% if current_user.investor_profile.risk_tolerance == 'faible' or current_user.investor_profile.risk_tolerance == 'prudent' %}
-                            PRUDENT
-                        {% elif current_user.investor_profile.risk_tolerance == 'modéré' or current_user.investor_profile.risk_tolerance == 'moderate' %}
-                            MODÉRÉ
-                        {% elif current_user.investor_profile.risk_tolerance == 'élevé' or current_user.investor_profile.risk_tolerance == 'dynamique' %}
-                            DYNAMIQUE
+                    <div id="riskProfileDisplay" style="font-size: 16px; font-weight: 700; color: white; font-family: 'Inter', sans-serif;">
+                        {% if current_user.investor_profile.calculated_risk_profile %}
+                            {{ current_user.investor_profile.calculated_risk_profile }}
                         {% else %}
-                            MODÉRÉ
+                            NON CALCULÉ
                         {% endif %}
                     </div>
+                    
+                    <!-- DEBUG CONSOLE -->
+                    <script>
+                    console.log("🔍 DEBUG PROFIL DE RISQUE:");
+                    console.log("User ID:", {{ current_user.id }});
+                    console.log("Profile exists:", {{ 'true' if current_user.investor_profile else 'false' }});
+                    {% if current_user.investor_profile %}
+                    console.log("calculated_risk_profile raw:", {{ current_user.investor_profile.calculated_risk_profile|tojson }});
+                    console.log("calculated_risk_profile type:", typeof {{ current_user.investor_profile.calculated_risk_profile|tojson }});
+                    console.log("Is truthy:", !!{{ current_user.investor_profile.calculated_risk_profile|tojson }});
+                    console.log("tolerance_risque:", {{ current_user.investor_profile.tolerance_risque|tojson }});
+                    console.log("horizon_placement:", {{ current_user.investor_profile.horizon_placement|tojson }});
+                    console.log("besoin_liquidite:", {{ current_user.investor_profile.besoin_liquidite|tojson }});
+                    console.log("experience_investissement:", {{ current_user.investor_profile.experience_investissement|tojson }});
+                    console.log("attitude_volatilite:", {{ current_user.investor_profile.attitude_volatilite|tojson }});
+                    {% endif %}
+                    </script>
                     <input type="hidden" name="risk_tolerance" value="{{ current_user.investor_profile.risk_tolerance or 'modéré' }}">
                 </div>
             </div>
             {% else %}
-            <!-- MODE VISUALISATION - PROFIL DE RISQUE -->
+            <!-- MODE VISUALISATION - PROFIL DE RISQUE SIMPLIFIÉ -->
             <div class="data-list">
-                {% if current_user.investor_profile.tolerance_risque %}
+                {% if current_user.investor_profile.calculated_risk_profile %}
                 <div class="data-item">
-                    <div class="data-label">Tolérance au risque</div>
+                    <div class="data-label">Profil d'investisseur</div>
                     <div class="data-value">
-                        {% if current_user.investor_profile.tolerance_risque == '5' %}
-                            Jusqu'à -5%
-                        {% elif current_user.investor_profile.tolerance_risque == '15' %}
-                            Jusqu'à -15%
-                        {% elif current_user.investor_profile.tolerance_risque == '30' %}
-                            Jusqu'à -30% ou plus
-                        {% else %}
-                            {{ current_user.investor_profile.tolerance_risque }}
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-                
-                {% if current_user.investor_profile.horizon_placement %}
-                <div class="data-item">
-                    <div class="data-label">Horizon de placement</div>
-                    <div class="data-value">
-                        {% if current_user.investor_profile.horizon_placement == 'court' %}
-                            Moins de 2 ans
-                        {% elif current_user.investor_profile.horizon_placement == 'moyen' %}
-                            2 à 5 ans
-                        {% elif current_user.investor_profile.horizon_placement == 'long' %}
-                            Plus de 5 ans
-                        {% else %}
-                            {{ current_user.investor_profile.horizon_placement }}
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-                
-                {% if current_user.investor_profile.besoin_liquidite %}
-                <div class="data-item">
-                    <div class="data-label">Besoin de liquidité</div>
-                    <div class="data-value">
-                        {% if current_user.investor_profile.besoin_liquidite == 'oui' %}
-                            Oui, à court terme
-                        {% elif current_user.investor_profile.besoin_liquidite == 'non' %}
-                            Non, plusieurs années OK
-                        {% else %}
-                            {{ current_user.investor_profile.besoin_liquidite }}
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-                
-                {% if current_user.investor_profile.experience_investissement %}
-                <div class="data-item">
-                    <div class="data-label">Expérience d'investissement</div>
-                    <div class="data-value">
-                        {% if current_user.investor_profile.experience_investissement in ['debutant', 'débutant'] %}
-                            Débutant
-                        {% elif current_user.investor_profile.experience_investissement in ['intermediaire', 'intermédiaire'] %}
-                            Intermédiaire
-                        {% elif current_user.investor_profile.experience_investissement in ['confirme', 'confirmé'] %}
-                            Confirmé
-                        {% else %}
-                            {{ current_user.investor_profile.experience_investissement }}
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-                
-                {% if current_user.investor_profile.attitude_volatilite %}
-                <div class="data-item">
-                    <div class="data-label">Attitude face à la volatilité</div>
-                    <div class="data-value">
-                        {% if current_user.investor_profile.attitude_volatilite == 'vendre' %}
-                            Je vendrais pour limiter les pertes
-                        {% elif current_user.investor_profile.attitude_volatilite == 'attendre' %}
-                            J'attendrais que ça remonte
-                        {% elif current_user.investor_profile.attitude_volatilite == 'investir_plus' %}
-                            J'en profiterais pour investir davantage
-                        {% else %}
-                            {{ current_user.investor_profile.attitude_volatilite }}
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-                
-                {% if current_user.investor_profile.risk_tolerance %}
-                <div class="data-item">
-                    <div class="data-label">Profil de risque calculé</div>
-                    <div class="data-value">
-                        <span class="badge" style="background: var(--qlower-primary); color: white; padding: 4px 12px; border-radius: 12px;">
-                            {{ current_user.investor_profile.risk_tolerance|title }}
+                        <span class="badge" style="background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-light) 100%); color: white; padding: 12px 20px; border-radius: 20px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 20px rgba(19, 124, 139, 0.25);">
+                            {{ current_user.investor_profile.calculated_risk_profile }}
                         </span>
+                    </div>
+                </div>
+                {% else %}
+                <div class="data-item">
+                    <div class="data-label">Profil d'investisseur</div>
+                    <div class="data-value">
+                        <span style="color: #7A90A4; font-style: italic;">Non calculé - Veuillez compléter le questionnaire</span>
                     </div>
                 </div>
                 {% endif %}
@@ -1803,13 +1740,6 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                         <option value="Sans emploi" {{ 'selected' if current_user.investor_profile.professional_situation == 'Sans emploi' }}>Sans emploi</option>
                         <option value="Autre" {{ 'selected' if current_user.investor_profile.professional_situation == 'Autre' }}>Autre</option>
                     </select>
-                </div>
-                <div class="edit-item">
-                    <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Précisions</label>
-                    <input type="text" class="form-control edit-input" name="professional_situation_other" 
-                           value="{{ current_user.investor_profile.professional_situation_other or '' }}" 
-                           placeholder="Ex: Cadre supérieur, Ingénieur..."
-                           style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
                 </div>
                 <div class="edit-item">
                     <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Métier</label>
@@ -1896,12 +1826,6 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                 <div class="data-item">
                     <div class="data-label">Situation professionnelle</div>
                     <div class="data-value">{{ current_user.investor_profile.professional_situation }}</div>
-                </div>
-                {% endif %}
-                {% if current_user.investor_profile.professional_situation_other %}
-                <div class="data-item">
-                    <div class="data-label">Précisions</div>
-                    <div class="data-value">{{ current_user.investor_profile.professional_situation_other }}</div>
                 </div>
                 {% endif %}
                 {% if current_user.investor_profile.metier %}
@@ -3456,22 +3380,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Initialiser le calcul du profil de risque
-    initRiskProfileCalculation();
+    // Initialiser le calcul du profil de risque en temps réel
+    console.log("🚀 Système de calcul de profil de risque initialisé");
 });
 
 // ============ CALCUL AUTOMATIQUE DU PROFIL DE RISQUE ============
+// Algorithme conforme aux vraies règles business
 
-function initRiskProfileCalculation() {
-    // Écouter tous les changements sur les radio buttons du profil de risque
-    const radioButtons = document.querySelectorAll('input[name="tolerance_baisse"], input[name="horizon_placement"], input[name="besoin_liquidite"], input[name="experience_investissement"], input[name="attitude_volatilite"]');
-    
-    radioButtons.forEach(radio => {
-        radio.addEventListener('change', calculateRiskProfile);
-    });
-}
-
-function calculateRiskProfile() {
+function updateRiskProfileLive() {
     // Récupérer toutes les réponses
     const toleranceBaisse = document.querySelector('input[name="tolerance_baisse"]:checked');
     const horizonPlacement = document.querySelector('input[name="horizon_placement"]:checked');
@@ -3481,90 +3397,116 @@ function calculateRiskProfile() {
     
     // Vérifier que toutes les questions ont été répondues
     if (!toleranceBaisse || !horizonPlacement || !besoinLiquidite || !experienceInvestissement || !attitudeVolatilite) {
-        document.getElementById('profil_result').style.display = 'none';
+        return; // Pas assez de réponses
+    }
+    
+    console.log("🎯 Calcul profil de risque en temps réel...");
+    
+    // ÉTAPE 1: Freins prudents automatiques
+    // Frein 1: Q2-A "Moins de 2 ans" → Prudent automatique
+    if (horizonPlacement.value === "court") {
+        updateRiskProfileDisplay("PRUDENT");
+        console.log("FREIN: Horizon court → PRUDENT");
         return;
     }
     
-    // Système de scoring pour calculer le profil
-    let score = 0;
-    
-    // Question 1: Tolérance au risque (poids: 3)
-    switch(toleranceBaisse.value) {
-        case '5': score += 1 * 3; break;
-        case '15': score += 2 * 3; break;
-        case '30': score += 3 * 3; break;
+    // Frein 2: Q3-A "Oui, à court terme" → Prudent automatique  
+    if (besoinLiquidite.value === "oui") {
+        updateRiskProfileDisplay("PRUDENT");
+        console.log("FREIN: Liquidité court terme → PRUDENT");
+        return;
     }
     
-    // Question 2: Horizon de placement (poids: 2)
-    switch(horizonPlacement.value) {
-        case 'court': score += 1 * 2; break;
-        case 'moyen': score += 2 * 2; break;
-        case 'long': score += 3 * 2; break;
+    // ÉTAPE 2: Comptage des tendances
+    const votes = {
+        "PRUDENT": 0,
+        "EQUILIBRE": 0, 
+        "DYNAMIQUE": 0
+    };
+    
+    // Question 1: Tolérance à la baisse
+    if (toleranceBaisse.value === "5") {        // Q1-A: Jusqu'à -5%
+        votes["PRUDENT"]++;
+    } else if (toleranceBaisse.value === "15") {     // Q1-B: Jusqu'à -15%
+        votes["EQUILIBRE"]++;
+    } else if (toleranceBaisse.value === "30") {      // Q1-C: Jusqu'à -30% ou plus
+        votes["DYNAMIQUE"]++;
     }
     
-    // Question 3: Besoin de liquidité (poids: 2)
-    switch(besoinLiquidite.value) {
-        case 'oui': score += 1 * 2; break;
-        case 'non': score += 3 * 2; break;
+    // Question 2: Horizon de placement (si pas frein)
+    if (horizonPlacement.value === "moyen") {        // Q2-B: 2 à 5 ans
+        votes["EQUILIBRE"]++;
+    } else if (horizonPlacement.value === "long") {       // Q2-C: Plus de 5 ans
+        votes["DYNAMIQUE"]++;
+    }
+    // Q2-A (court) déjà traité comme frein
+    
+    // Question 3: Besoin de liquidité (si pas frein)
+    if (besoinLiquidite.value === "non") {    // Q3-C: Non, plusieurs années
+        votes["DYNAMIQUE"]++;
+    }
+    // Q3-A (oui) déjà traité comme frein
+    
+    // Question 4: Expérience
+    if (experienceInvestissement.value === "debutant") {      // Q4-A: Débutant
+        votes["PRUDENT"]++;
+    } else if (experienceInvestissement.value === "intermediaire") { // Q4-B: Intermédiaire  
+        votes["EQUILIBRE"]++;
+    } else if (experienceInvestissement.value === "confirme") {    // Q4-C: Confirmé
+        votes["DYNAMIQUE"]++;
     }
     
-    // Question 4: Expérience (poids: 2)
-    switch(experienceInvestissement.value) {
-        case 'debutant': score += 1 * 2; break;
-        case 'intermediaire': score += 2 * 2; break;
-        case 'confirme': score += 3 * 2; break;
+    // Question 5: Attitude face à la volatilité
+    if (attitudeVolatilite.value === "vendre") {          // Q5-A: Je vendrais
+        votes["PRUDENT"]++;
+    } else if (attitudeVolatilite.value === "attendre") {      // Q5-B: J'attendrais
+        votes["EQUILIBRE"]++;
+    } else if (attitudeVolatilite.value === "investir_plus") { // Q5-C: J'investirais plus
+        votes["DYNAMIQUE"]++;
     }
     
-    // Question 5: Attitude face à la volatilité (poids: 3)
-    switch(attitudeVolatilite.value) {
-        case 'vendre': score += 1 * 3; break;
-        case 'attendre': score += 2 * 3; break;
-        case 'investir_plus': score += 3 * 3; break;
+    // ÉTAPE 3: Règles de décision finales
+    const p = votes["PRUDENT"];
+    const e = votes["EQUILIBRE"];
+    const d = votes["DYNAMIQUE"];
+    
+    console.log(`Votes: P=${p}, E=${e}, D=${d}`);
+    
+    let calculatedProfile;
+    
+    // 3.1. Dynamique fort: au moins 3 réponses dynamiques
+    if (d >= 3) {
+        calculatedProfile = "DYNAMIQUE";
+    }
+    // 3.2. Prudent marqué: au moins 3 réponses prudentes  
+    else if (p >= 3) {
+        calculatedProfile = "PRUDENT";
+    }
+    // 3.3. Cas spécifique: 2 prudents, 2 dynamiques, 1 équilibré
+    else if (p === 2 && d === 2 && e === 1) {
+        calculatedProfile = "EQUILIBRE";
+    }
+    // 3.4. Tous les autres cas → ÉQUILIBRÉ
+    else {
+        calculatedProfile = "EQUILIBRE";
     }
     
-    // Déterminer le profil en fonction du score
-    let profilName = '';
-    let profilValue = '';
-    let profilDescription = '';
-    
-    if (score <= 18) {
-        profilName = 'Prudent';
-        profilValue = 'prudent';
-        profilDescription = 'Vous privilégiez la sécurité et acceptez des rendements plus faibles pour limiter les risques. Recommandation : fonds euros, obligations, placements garantis.';
-    } else if (score <= 28) {
-        profilName = 'Équilibré';
-        profilValue = 'modere';
-        profilDescription = 'Vous recherchez un bon équilibre entre sécurité et performance. Recommandation : mix d\'obligations et d\'actions, fonds diversifiés.';
-    } else {
-        profilName = 'Dynamique';
-        profilValue = 'dynamique';
-        profilDescription = 'Vous acceptez une forte volatilité pour un potentiel de rendement élevé. Recommandation : actions, ETF, investissements à fort potentiel.';
+    console.log(`Profil calculé: ${calculatedProfile}`);
+    updateRiskProfileDisplay(calculatedProfile);
+}
+
+function updateRiskProfileDisplay(profile) {
+    const displayElement = document.getElementById('riskProfileDisplay');
+    if (displayElement) {
+        // Animation de changement
+        displayElement.style.transition = 'all 0.3s ease';
+        displayElement.style.opacity = '0.5';
+        
+        setTimeout(() => {
+            displayElement.textContent = profile;
+            displayElement.style.opacity = '1';
+        }, 150);
     }
-    
-    // Afficher le résultat avec animation
-    const resultElement = document.getElementById('profil_result');
-    document.getElementById('profil_name').textContent = profilName;
-    document.getElementById('profil_description').textContent = profilDescription;
-    document.getElementById('calculated_risk_profile').value = profilValue;
-    
-    // Animation d'apparition
-    resultElement.style.display = 'block';
-    resultElement.style.opacity = '0';
-    resultElement.style.transform = 'translateY(20px)';
-    
-    setTimeout(() => {
-        resultElement.style.transition = 'all 0.5s ease';
-        resultElement.style.opacity = '1';
-        resultElement.style.transform = 'translateY(0)';
-    }, 100);
-    
-    // Scroll vers le résultat après un petit délai
-    setTimeout(() => {
-        resultElement.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
-        });
-    }, 300);
 }
 
 // ===== FONCTIONS POUR ÉPARGNE & PATRIMOINE =====
