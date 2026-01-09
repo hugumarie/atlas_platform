@@ -209,9 +209,44 @@ SECRET_KEY=your-secret-key
 
 ## 🔄 État Actuel du Projet
 
-**Dernière mise à jour** : 7 Janvier 2026
+**Dernière mise à jour** : 9 Janvier 2026
 
-### Dernières Modifications Majeures (30 Décembre 2024) 🆕
+### Dernières Modifications Majeures (9 Janvier 2026) 🆕
+
+#### 🚀 Mise à jour v3.0 - Fonctionnalités avancées
+
+**📅 INTÉGRATION CAL.COM COMPLÈTE** :
+- Modal 2-étapes pour prise de rendez-vous optimisée
+- Workflow : formulaire collecte données → affichage calendrier Cal.com
+- Sauvegarde automatique des données utilisateur 
+- Fix menu mobile universel sur toutes les pages
+- Integration Cal.com embed avec cleanup automatique
+
+**🤖 SYSTÈME RAG (ASSISTANT ATLAS)** :
+- Service `AtlasRAGService` avec recherche sémantique avancée
+- Base de connaissance Atlas complète (50+ documents MD)
+- Intégration OpenAI API avec injection de contexte intelligent
+- Cache TF-IDF pour performances optimales
+- Interface admin pour gestion et tests RAG
+- System prompt dédié depuis `Assistant_atlas.md`
+
+**🎨 REDESIGN INTERFACE UTILISATEUR** :
+- Nouvelle section frais (design ChatGPT exact avec variables Atlas)
+- FAQ moderne plan investissement avec accordéons pleine largeur
+- Fix contraintes base données `investment_actions` → `investment_plan_lines`
+- Tableau fonctionnalités (Critères → Fonctionnalités) 
+- Corrections line breaks sur page solutions
+
+**📄 MISE À JOUR PAGES LÉGALES** :
+- Toutes les dates synchronisées au 9 janvier 2026
+- CGU, Privacy, Cookies, Legal, CGV mises à jour
+
+**🔒 SÉCURITÉ ET DÉPLOIEMENT** :
+- .gitignore renforcé pour éviter push de fichiers sensibles
+- Scripts de configuration restent en local uniquement
+- Suppression scripts avec potentielles clés du repo public
+
+### Modifications Précédentes (30 Décembre 2024)
 - **GESTION D'ABONNEMENTS STRIPE COMPLÈTE** :
   - Changement de plan avec facturation proratisée automatique
   - Gestion des moyens de paiement depuis l'API Stripe (jamais de données bancaires en base)
@@ -470,6 +505,149 @@ sudo systemctl restart atlas-app
 # 3. Vérification logs
 sudo journalctl -u atlas-app -f
 ```
+
+---
+
+## 🚀 Processus de Déploiement Production
+
+### Prérequis Déploiement
+- ✅ Commit et push validés sur `main` 
+- ✅ Variables d'environnement configurées sur serveur Dokku
+- ✅ .gitignore à jour pour éviter push de fichiers sensibles
+- ✅ Tests en local réussis
+
+### 🌐 Déploiement sur Serveur Dokku
+
+#### 1. Connexion au serveur
+```bash
+# Se connecter au serveur de production
+ssh root@atlas-invest.fr
+```
+
+#### 2. Vérification état actuel
+```bash
+# Voir les applications Dokku
+dokku apps:list
+
+# Voir l'état de l'application Atlas
+dokku ps:report atlas
+
+# Voir les variables d'environnement (sans valeurs sensibles)
+dokku config atlas
+```
+
+#### 3. Déploiement
+```bash
+# Déployer depuis le repository GitHub
+dokku git:sync atlas https://github.com/hugumarie/atlas_platform.git main
+
+# Alternative si problème avec git:sync
+cd /home/dokku/atlas
+git pull origin main
+dokku deploy atlas
+```
+
+#### 4. Vérifications post-déploiement
+```bash
+# Vérifier que l'application est en cours d'exécution
+dokku ps:report atlas
+
+# Voir les logs en temps réel
+dokku logs atlas -t
+
+# Tester l'application
+curl -I https://atlas-invest.fr
+```
+
+### ⚠️ Variables d'Environnement CRITIQUES
+
+**IMPORTANT : Ne JAMAIS modifier ces variables lors du déploiement**
+```bash
+# Variables Stripe Production (configurées une fois)
+STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_INITIA=price_...
+STRIPE_PRICE_OPTIMA=price_...
+
+# Database Production
+SQLALCHEMY_DATABASE_URI=postgresql://...
+SECRET_KEY=...
+
+# Services externes
+OPENAI_API_KEY=...
+MAILERSEND_API_TOKEN=...
+```
+
+### 🔧 Commandes Dokku Utiles
+
+#### Gestion des logs
+```bash
+# Logs en temps réel
+dokku logs atlas -t
+
+# Logs des erreurs seulement
+dokku logs atlas --tail 100 | grep -i error
+
+# Logs d'une période spécifique
+dokku logs atlas --since 1h
+```
+
+#### Redémarrage application
+```bash
+# Redémarrage complet
+dokku ps:restart atlas
+
+# Redémarrage après modification config
+dokku config:set atlas FLASK_ENV=production
+dokku ps:restart atlas
+```
+
+#### Base de données
+```bash
+# Voir l'état PostgreSQL
+dokku postgres:info atlas-db
+
+# Backup base de données
+dokku postgres:backup atlas-db atlas-backup-$(date +%Y%m%d)
+
+# Voir les backups
+dokku postgres:backup-list atlas-db
+```
+
+### 🚨 Procédure d'Urgence
+
+En cas de problème critique :
+1. **Rollback rapide**
+   ```bash
+   dokku ps:scale atlas web=0  # Arrêt immédiat
+   dokku ps:scale atlas web=1  # Redémarrage
+   ```
+
+2. **Retour version précédente**
+   ```bash
+   dokku git:sync atlas https://github.com/hugumarie/atlas_platform.git <commit-hash>
+   ```
+
+3. **Monitoring**
+   ```bash
+   # CPU/Mémoire
+   dokku resource:report atlas
+   
+   # Santé application
+   dokku ps:report atlas
+   ```
+
+### ✅ Checklist Post-Déploiement
+
+- [ ] Application accessible sur https://atlas-invest.fr
+- [ ] Connexions utilisateurs fonctionnelles  
+- [ ] Paiements Stripe opérationnels
+- [ ] Assistant RAG disponible (/plateforme/assistant)
+- [ ] Modal Cal.com fonctionnelle
+- [ ] Pages légales à jour (dates 2026)
+- [ ] Dashboard admin accessible
+- [ ] Pas d'erreurs dans les logs
 
 ---
 
