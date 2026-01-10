@@ -98,3 +98,14 @@ build/
 .env.production.enc
 .env.production.tmp
 *.enc
+
+# Fichiers de développement sensibles ajoutés récemment
+delete_user_*.py
+delete_user_*.sh
+regenerate_documents.sh
+setup_persistent_storage.sh
+clean_start.sh
+test_routes.py
+test_stripe_api.sh
+pic_*_atlas.png
+*~$*.pptx

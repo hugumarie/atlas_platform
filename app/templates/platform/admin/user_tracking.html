@@ -1,0 +1,1223 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Suivi utilisateur - {{ user.first_name }} {{ user.last_name }} - Atlas Admin{% endblock %}
+
+{% block head %}
+<!-- Quill Editor CSS -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+{% endblock %}
+
+{% block page_title %}
+<div class="page-title-responsive">
+    <span>Suivi utilisateur : {{ user.first_name }} {{ user.last_name }}</span>
+    <a href="{{ url_for('platform_admin.users') }}" class="admin-btn admin-btn-secondary">
+        <i class="fas fa-arrow-left"></i>
+        Retour à la liste
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- Informations utilisateur -->
+<div class="platform-card mb-4">
+    <div class="platform-card-header">
+        <h3 class="platform-card-title">
+            <i class="fas fa-user text-primary"></i>
+            Informations utilisateur
+        </h3>
+        <p class="platform-card-subtitle">Données de base de l'utilisateur</p>
+    </div>
+    <div class="platform-card-body">
+        <div class="user-info-grid">
+            <div class="user-info-item">
+                <div class="info-label">Nom complet</div>
+                <div class="info-value">{{ user.first_name }} {{ user.last_name }}</div>
+            </div>
+            <div class="user-info-item">
+                <div class="info-label">Email</div>
+                <div class="info-value">{{ user.email }}</div>
+            </div>
+            <div class="user-info-item">
+                <div class="info-label">Téléphone</div>
+                <div class="info-value">{{ user.phone or 'Non renseigné' }}</div>
+            </div>
+            <div class="user-info-item">
+                <div class="info-label">Date création</div>
+                <div class="info-value">{{ user.date_created.strftime('%d/%m/%Y à %H:%M') }}</div>
+            </div>
+            {% if user.last_login %}
+            <div class="user-info-item">
+                <div class="info-label">Dernière connexion</div>
+                <div class="info-value">{{ user.last_login.strftime('%d/%m/%Y à %H:%M') }}</div>
+            </div>
+            {% endif %}
+            <div class="user-info-item">
+                <div class="info-label">Statut</div>
+                <div class="info-value">
+                    <span class="status-badge status-active">
+                        Client actif
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions section -->
+<div class="platform-card mb-4">
+    <div class="platform-card-header">
+        <h3 class="platform-card-title">
+            <i class="fas fa-cogs text-primary"></i>
+            Actions
+        </h3>
+        <p class="platform-card-subtitle">Actions disponibles pour le suivi de l'utilisateur</p>
+    </div>
+    <div class="platform-card-body">
+        <div class="actions-grid">
+            <div class="action-item">
+                <div class="action-icon">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <div class="action-content">
+                    <div class="action-title">Envoyer mail prise du 1er RDV</div>
+                    <div class="action-description">Envoie un email pour inviter l'utilisateur à prendre son premier rendez-vous avec son conseiller Atlas</div>
+                    <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="sendAppointmentEmail({{ user.id }})">
+                        <i class="fas fa-envelope"></i>
+                        Envoyer l'email
+                    </button>
+                </div>
+            </div>
+            
+            <div class="action-item">
+                <div class="action-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="action-content">
+                    <div class="action-title">Envoyer mail suite au 1er RDV</div>
+                    <div class="action-description">Envoie un email de suivi après le premier rendez-vous avec le plan d'investissement finalisé</div>
+                    <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="sendPostAppointmentEmail({{ user.id }})">
+                        <i class="fas fa-envelope"></i>
+                        Envoyer l'email
+                    </button>
+                </div>
+            </div>
+            
+            <div class="action-item">
+                <div class="action-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <div class="action-content">
+                    <div class="action-title">Envoyer mail générique suite à un RDV</div>
+                    <div class="action-description">Envoie un email de suivi générique après n'importe quel rendez-vous avec le conseiller</div>
+                    <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="sendGenericFollowUpEmail({{ user.id }})">
+                        <i class="fas fa-envelope"></i>
+                        Envoyer l'email
+                    </button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<!-- Suivi patrimonial -->
+<div class="platform-card mb-4">
+    <div class="platform-card-header">
+        <div class="suivi-header">
+            <div class="suivi-title-section">
+                <h3 class="platform-card-title">
+                    <i class="fas fa-file-medical text-primary"></i>
+                    Suivi patrimonial
+                </h3>
+                <p class="platform-card-subtitle">Historique des comptes rendus de rendez-vous</p>
+            </div>
+            <div class="suivi-actions">
+                <button class="admin-btn admin-btn-primary" onclick="openCreateCompteRenduModal({{ user.id }})">
+                    <i class="fas fa-plus"></i>
+                    Créer compte rendu
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="platform-card-body">
+        {% if comptes_rendus %}
+        <div class="timeline-container">
+            {% for compte_rendu in comptes_rendus %}
+            <div class="timeline-item">
+                <div class="timeline-marker">
+                    <div class="timeline-dot"></div>
+                    {% if not loop.last %}
+                    <div class="timeline-line"></div>
+                    {% endif %}
+                </div>
+                <div class="timeline-content">
+                    <div class="compte-rendu-card-timeline">
+                        <div class="compte-rendu-header-timeline">
+                            <div class="compte-rendu-date-timeline">
+                                <i class="fas fa-calendar"></i>
+                                {{ compte_rendu.date_rdv.strftime('%d/%m/%Y') }}
+                            </div>
+                            <div class="compte-rendu-actions-timeline">
+                                <button class="admin-btn admin-btn-outline-primary admin-btn-sm" onclick="viewCompteRendu({{ compte_rendu.id }})">
+                                    <i class="fas fa-eye"></i>
+                                    Consulter
+                                </button>
+                            </div>
+                        </div>
+                        <div class="compte-rendu-preview-timeline">
+                            {{ compte_rendu.get_preview(4)|safe }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-file-alt"></i>
+            <p>Aucun compte rendu pour le moment</p>
+            <p class="text-muted">Les comptes rendus de rendez-vous apparaîtront ici</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Liens rapides -->
+<div class="platform-card">
+    <div class="platform-card-header">
+        <h3 class="platform-card-title">
+            <i class="fas fa-link text-primary"></i>
+            Liens rapides
+        </h3>
+        <p class="platform-card-subtitle">Accès rapide aux autres données de l'utilisateur</p>
+    </div>
+    <div class="platform-card-body">
+        <div class="quick-links">
+            <a href="{{ url_for('platform_admin.user_detail', user_id=user.id) }}" class="quick-link">
+                <i class="fas fa-user-circle"></i>
+                Profil investisseur complet
+            </a>
+            <a href="{{ url_for('platform_admin.user_investment_plan', user_id=user.id) }}" class="quick-link">
+                <i class="fas fa-chart-pie"></i>
+                Plan d'investissement
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Import des styles de la page profil -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/investor_data.css') }}">
+
+<style>
+/* Styles spécifiques à la page de suivi */
+.user-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.user-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: var(--qlower-bg-light);
+    border-radius: 8px;
+}
+
+.info-label {
+    font-weight: 500;
+    color: var(--qlower-text-light);
+    font-size: 14px;
+}
+
+.info-value {
+    font-weight: 600;
+    color: var(--qlower-dark);
+    font-size: 16px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Actions grid */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 16px;
+}
+
+.action-item {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: var(--qlower-bg-light);
+    border-radius: 8px;
+    border: 1px solid var(--qlower-border);
+    transition: all 0.3s ease;
+}
+
+.action-item:hover {
+    box-shadow: 0 2px 8px rgba(19, 124, 139, 0.1);
+    border-color: var(--qlower-primary);
+}
+
+.action-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.action-icon.disabled {
+    background: #6c757d;
+    opacity: 0.6;
+}
+
+.action-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.action-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin: 0;
+}
+
+.action-description {
+    font-size: 13px;
+    color: var(--qlower-text-light);
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.admin-btn-sm {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+/* Quick links */
+.quick-links {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.quick-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--qlower-white);
+    border: 2px solid var(--qlower-border);
+    border-radius: 8px;
+    color: var(--qlower-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.quick-link:hover {
+    background: var(--qlower-primary);
+    color: white;
+    border-color: var(--qlower-primary);
+}
+
+/* Platform Card specifics */
+.platform-card {
+    background: var(--qlower-white);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--qlower-border);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.platform-card-header {
+    padding: 24px 24px 0;
+    border-bottom: 1px solid var(--qlower-border);
+    margin-bottom: 24px;
+}
+
+.platform-card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.platform-card-subtitle {
+    font-size: 14px;
+    color: var(--qlower-text-light);
+    margin: 0 0 24px 0;
+}
+
+.platform-card-body {
+    padding: 0 24px 24px;
+}
+
+/* Header suivi patrimonial */
+.suivi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.suivi-title-section {
+    flex: 1;
+}
+
+.suivi-actions {
+    flex-shrink: 0;
+}
+
+/* Timeline chronologique */
+.timeline-container {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    display: flex;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.timeline-marker {
+    position: relative;
+    margin-right: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.timeline-dot {
+    width: 16px;
+    height: 16px;
+    background: var(--qlower-primary);
+    border-radius: 50%;
+    border: 3px solid var(--qlower-white);
+    box-shadow: 0 0 0 2px var(--qlower-primary);
+    position: relative;
+    z-index: 2;
+}
+
+.timeline-line {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--qlower-primary) 0%, var(--qlower-border) 100%);
+    margin-top: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.timeline-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.compte-rendu-card-timeline {
+    background: var(--qlower-bg-light);
+    border: 1px solid var(--qlower-border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.compte-rendu-card-timeline:hover {
+    border-color: var(--qlower-primary);
+    box-shadow: 0 4px 12px rgba(19, 124, 139, 0.1);
+    transform: translateY(-2px);
+}
+
+.compte-rendu-card-timeline::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: -8px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid var(--qlower-border);
+}
+
+.compte-rendu-card-timeline::after {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: -7px;
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-right: 7px solid var(--qlower-bg-light);
+}
+
+.compte-rendu-header-timeline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--qlower-border);
+}
+
+.compte-rendu-date-timeline {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--qlower-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.compte-rendu-actions-timeline {
+    display: flex;
+    gap: 8px;
+}
+
+.compte-rendu-preview-timeline {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--qlower-text-dark);
+    max-height: 120px;
+    overflow: hidden;
+}
+
+.compte-rendu-preview-timeline p {
+    margin: 0 0 8px 0;
+}
+
+.compte-rendu-preview-timeline p:last-child {
+    margin-bottom: 0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--qlower-text-light);
+}
+
+.empty-state i {
+    font-size: 48px;
+    color: var(--qlower-border);
+    margin-bottom: 16px;
+    display: block;
+}
+
+.empty-state p {
+    margin: 8px 0;
+}
+
+.empty-state .text-muted {
+    font-size: 14px;
+}
+
+/* Styles pour l'éditeur Quill */
+.ql-editor {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: var(--qlower-text-dark) !important;
+}
+
+.ql-toolbar {
+    border-top: 2px solid var(--qlower-border) !important;
+    border-left: 2px solid var(--qlower-border) !important;
+    border-right: 2px solid var(--qlower-border) !important;
+    border-bottom: 1px solid var(--qlower-border) !important;
+    border-top-left-radius: 8px !important;
+    border-top-right-radius: 8px !important;
+    background: var(--qlower-bg-light) !important;
+}
+
+.ql-container {
+    border-left: 2px solid var(--qlower-border) !important;
+    border-right: 2px solid var(--qlower-border) !important;
+    border-bottom: 2px solid var(--qlower-border) !important;
+    border-top: none !important;
+    border-bottom-left-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    background: white !important;
+}
+
+.ql-toolbar .ql-stroke {
+    stroke: var(--qlower-primary) !important;
+}
+
+.ql-toolbar .ql-fill {
+    fill: var(--qlower-primary) !important;
+}
+
+.ql-toolbar .ql-picker-label:hover,
+.ql-toolbar button:hover {
+    background: var(--qlower-primary) !important;
+    color: white !important;
+}
+
+.ql-toolbar button.ql-active {
+    background: var(--qlower-primary) !important;
+    color: white !important;
+}
+
+/* Modales */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 900px;
+    width: 95%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--qlower-border);
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--qlower-text-light);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: var(--qlower-bg-light);
+    color: var(--qlower-dark);
+}
+
+.modal-body {
+    margin-bottom: 24px;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 16px;
+    border-top: 1px solid var(--qlower-border);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: var(--qlower-dark);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--qlower-border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--qlower-primary);
+}
+
+.form-control.textarea {
+    min-height: 200px;
+    resize: vertical;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+}
+
+.content-display {
+    background: var(--qlower-bg-light);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--qlower-border);
+    white-space: pre-line;
+    line-height: 1.6;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.admin-btn-outline-primary {
+    background: transparent;
+    color: var(--qlower-primary);
+    border: 2px solid var(--qlower-primary);
+}
+
+.admin-btn-outline-primary:hover {
+    background: var(--qlower-primary);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .user-info-grid,
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .quick-links {
+        flex-direction: column;
+    }
+    
+    /* Timeline responsive */
+    .timeline-marker {
+        margin-right: 16px;
+    }
+    
+    .compte-rendu-header-timeline {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .compte-rendu-actions-timeline {
+        align-self: flex-end;
+    }
+    
+    .compte-rendu-date-timeline {
+        font-size: 14px;
+    }
+    
+    .compte-rendu-card-timeline {
+        padding: 16px;
+    }
+    
+    /* Header suivi responsive */
+    .suivi-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .suivi-actions {
+        align-self: stretch;
+    }
+    
+    .suivi-actions .admin-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Modal responsive */
+    .modal-content {
+        max-width: 95vw;
+        width: 95vw;
+        padding: 16px;
+        max-height: 90vh;
+        margin: 20px 0;
+    }
+    
+    .modal-header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+    
+    .modal-title {
+        font-size: 18px;
+    }
+    
+    .modal-footer {
+        padding-top: 12px;
+        gap: 8px;
+    }
+    
+    .modal-footer .admin-btn {
+        flex: 1;
+        text-align: center;
+    }
+    
+    /* Formulaire responsive */
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-label {
+        font-size: 13px;
+    }
+    
+    .form-control {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+    
+    /* Quill editor responsive */
+    #quillEditor {
+        height: 200px !important;
+    }
+    
+    .ql-toolbar {
+        padding: 8px;
+    }
+    
+    .ql-toolbar .ql-formats {
+        margin-right: 8px;
+    }
+}
+
+/* Breakpoint spécifique pour tablettes */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .modal-content {
+        max-width: 80vw;
+        width: 80vw;
+    }
+    
+    #quillEditor {
+        height: 220px;
+    }
+}
+
+/* Breakpoint pour grands écrans */
+@media (min-width: 1200px) {
+    .modal-content {
+        max-width: 1000px;
+        width: 85vw;
+    }
+    
+    #quillEditor {
+        height: 280px;
+    }
+}
+
+/* Styles de base pour l'éditeur Quill */
+.quill-editor-container {
+    height: 250px;
+    border: 2px solid var(--qlower-border);
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .quill-editor-container {
+        height: 200px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .quill-editor-container {
+        height: 220px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .quill-editor-container {
+        height: 280px;
+    }
+}
+</style>
+
+<!-- Quill Editor JS -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+<script>
+// Initialiser l'éditeur Quill
+let quill = null;
+
+// Fonction pour initialiser Quill quand la modal s'ouvre
+function initQuillEditor() {
+    if (!quill) {
+        quill = new Quill('#quillEditor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'align': [] }],
+                    ['link'],
+                    ['clean']
+                ]
+            },
+            placeholder: 'Saisissez ici le contenu du compte rendu...'
+        });
+        
+        // Styles personnalisés Atlas pour l'éditeur
+        const quillContainer = document.querySelector('.ql-container');
+        if (quillContainer) {
+            quillContainer.style.fontFamily = 'Inter, sans-serif';
+            quillContainer.style.fontSize = '14px';
+            quillContainer.style.lineHeight = '1.5';
+        }
+    }
+}
+</script>
+
+<script>
+function sendAppointmentEmail(userId) {
+    if (confirm('Envoyer un email pour prendre le premier rendez-vous à cet utilisateur ?')) {
+        // Affichage du loader
+        const button = event.target.closest('button');
+        const originalContent = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
+        
+        fetch(`/plateforme/admin/utilisateur/${userId}/envoyer-rdv-email`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Email de prise de RDV envoyé avec succès !');
+            } else {
+                alert('❌ Erreur lors de l\'envoi de l\'email :\n' + data.message);
+            }
+            
+            // Restaurer le bouton
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('❌ Erreur technique lors de l\'envoi de l\'email');
+            
+            // Restaurer le bouton
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        });
+    }
+}
+
+function sendPostAppointmentEmail(userId) {
+    if (confirm('Envoyer un email de suivi après le premier rendez-vous à cet utilisateur ?')) {
+        // Affichage du loader
+        const button = event.target.closest('button');
+        const originalContent = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
+        
+        fetch(`/plateforme/admin/utilisateur/${userId}/envoyer-post-rdv-email`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Email de suivi post-RDV envoyé avec succès !');
+            } else {
+                alert('❌ Erreur lors de l\'envoi de l\'email :\n' + data.message);
+            }
+            
+            // Restaurer le bouton
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('❌ Erreur technique lors de l\'envoi de l\'email');
+            
+            // Restaurer le bouton
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        });
+    }
+}
+
+function sendGenericFollowUpEmail(userId) {
+    if (confirm('Envoyer un email de suivi générique après rendez-vous à cet utilisateur ?')) {
+        // Affichage du loader
+        const button = event.target.closest('button');
+        const originalContent = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
+        
+        fetch(`/plateforme/admin/utilisateur/${userId}/envoyer-email-generique-suivi`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Email de suivi générique envoyé avec succès !');
+            } else {
+                alert('❌ Erreur lors de l\'envoi de l\'email :\n' + data.message);
+            }
+            
+            // Restaurer le bouton
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('❌ Erreur technique lors de l\'envoi de l\'email');
+            
+            // Restaurer le bouton
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        });
+    }
+}
+
+// Variables globales
+let currentUserId = null;
+
+// Fonction pour ouvrir la modal de création
+function openCreateCompteRenduModal(userId) {
+    currentUserId = userId;
+    const modal = document.getElementById('createCompteRenduModal');
+    
+    // Réinitialiser le formulaire
+    document.getElementById('createCompteRenduForm').reset();
+    
+    // Définir la date d'aujourd'hui par défaut
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('dateRdv').value = today;
+    
+    // Initialiser l'éditeur Quill
+    initQuillEditor();
+    
+    // Vider le contenu de l'éditeur
+    if (quill) {
+        quill.setText('');
+    }
+    
+    modal.classList.add('active');
+}
+
+// Fonction pour fermer la modal de création
+function closeCreateCompteRenduModal() {
+    const modal = document.getElementById('createCompteRenduModal');
+    modal.classList.remove('active');
+}
+
+// Fonction pour sauvegarder le compte rendu
+function saveCompteRendu() {
+    const dateRdv = document.getElementById('dateRdv').value;
+    
+    // Récupérer le contenu de l'éditeur Quill (HTML)
+    let contenu = '';
+    if (quill) {
+        const delta = quill.getContents();
+        contenu = quill.root.innerHTML.trim();
+        
+        // Vérifier si l'éditeur n'est pas vide (ignorer les tags vides)
+        const textContent = quill.getText().trim();
+        if (!textContent) {
+            alert('Veuillez saisir le contenu du compte rendu');
+            return;
+        }
+    } else {
+        alert('Erreur : éditeur non initialisé');
+        return;
+    }
+    
+    if (!dateRdv) {
+        alert('Veuillez sélectionner une date de rendez-vous');
+        return;
+    }
+    
+    // Affichage du loader
+    const saveButton = event.target;
+    const originalContent = saveButton.innerHTML;
+    saveButton.disabled = true;
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sauvegarde...';
+    
+    fetch(`/plateforme/admin/utilisateur/${currentUserId}/compte-rendu`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            date_rdv: dateRdv,
+            contenu: contenu
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Compte rendu créé avec succès !');
+            closeCreateCompteRenduModal();
+            // Recharger la page pour voir le nouveau compte rendu
+            window.location.reload();
+        } else {
+            alert('❌ Erreur lors de la création :\n' + data.message);
+        }
+        
+        // Restaurer le bouton
+        saveButton.disabled = false;
+        saveButton.innerHTML = originalContent;
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('❌ Erreur technique lors de la création');
+        
+        // Restaurer le bouton
+        saveButton.disabled = false;
+        saveButton.innerHTML = originalContent;
+    });
+}
+
+// Fonction pour consulter un compte rendu
+function viewCompteRendu(compteRenduId) {
+    fetch(`/plateforme/admin/compte-rendu/${compteRenduId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const compteRendu = data.compte_rendu;
+            
+            // Mettre à jour le titre avec la date
+            document.getElementById('viewModalTitle').textContent = `Compte rendu du ${compteRendu.date_rdv_formatted}`;
+            
+            // Mettre à jour le contenu (affichage HTML)
+            document.getElementById('compteRenduContent').innerHTML = compteRendu.contenu;
+            
+            // Ouvrir la modal
+            document.getElementById('viewCompteRenduModal').classList.add('active');
+        } else {
+            alert('❌ Erreur lors du chargement du compte rendu');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('❌ Erreur technique lors du chargement');
+    });
+}
+
+// Fonction pour fermer la modal de consultation
+function closeViewCompteRenduModal() {
+    const modal = document.getElementById('viewCompteRenduModal');
+    modal.classList.remove('active');
+}
+
+// Fermer les modales en cliquant sur l'overlay
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal-overlay')) {
+        event.target.classList.remove('active');
+    }
+});
+
+// Fermer les modales avec Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeCreateCompteRenduModal();
+        closeViewCompteRenduModal();
+    }
+});
+</script>
+
+<!-- Modal création compte rendu -->
+<div id="createCompteRenduModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Créer un compte rendu</h3>
+            <button class="modal-close" onclick="closeCreateCompteRenduModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="createCompteRenduForm">
+                <div class="form-group">
+                    <label class="form-label" for="dateRdv">Date du rendez-vous</label>
+                    <input type="date" id="dateRdv" name="date_rdv" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="contenuRdv">Contenu du compte rendu</label>
+                    <div id="quillEditor" class="quill-editor-container"></div>
+                    <textarea id="contenuRdv" name="contenu" class="form-control textarea" style="display: none;" required></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="admin-btn admin-btn-secondary" onclick="closeCreateCompteRenduModal()">Annuler</button>
+            <button type="button" class="admin-btn admin-btn-primary" onclick="saveCompteRendu()">Sauvegarder</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal consultation compte rendu -->
+<div id="viewCompteRenduModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="viewModalTitle">Compte rendu</h3>
+            <button class="modal-close" onclick="closeViewCompteRenduModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="compteRenduContent" class="content-display"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="admin-btn admin-btn-secondary" onclick="closeViewCompteRenduModal()">Fermer</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

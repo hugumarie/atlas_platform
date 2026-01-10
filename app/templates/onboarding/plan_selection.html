@@ -556,7 +556,7 @@ body {
         <div class="qlower-left-content">
             <div class="qlower-hero-badge">
                 <i class="fas fa-crown"></i>
-                <span>Formules d'investissement</span>
+                <span>Formules d'accompagnement</span>
             </div>
             
             <h1 class="qlower-plan-title">
@@ -565,35 +565,39 @@ body {
             </h1>
             
             <p class="qlower-plan-subtitle">
-                Bonjour {{ user.first_name }}, sélectionnez la formule qui correspond le mieux à vos besoins d'investissement.
+                {{ user.first_name }}, choisissez la formule qui correspond le mieux à vos besoins.
             </p>
             
             <ul class="qlower-hero-features">
                 <li class="qlower-hero-feature">
                     <div class="qlower-hero-feature-icon">
-                        <i class="fas fa-chart-line"></i>
+                        <i class="fas fa-user-tie"></i>
                     </div>
-                    <span>Plans personnalisés selon votre profil</span>
+                    <span>Conseils personnalisés selon votre profil</span>
                 </li>
                 <li class="qlower-hero-feature">
                     <div class="qlower-hero-feature-icon">
                         <i class="fas fa-shield-alt"></i>
                     </div>
-                    <span>Sécurité et transparence maximales</span>
+                    <span>Gestion sécurisée et transparente</span>
                 </li>
                 <li class="qlower-hero-feature">
                     <div class="qlower-hero-feature-icon">
-                        <i class="fas fa-sync-alt"></i>
+                        <i class="fas fa-times-circle"></i>
                     </div>
-                    <span>Modification possible à tout moment</span>
+                    <span>Sans engagement, résiliable à tout moment</span>
                 </li>
             </ul>
             
-            <!-- Bouton retour au site -->
-            <div style="margin-top: 32px;">
+            <!-- Boutons de navigation -->
+            <div style="margin-top: 32px; display: flex; gap: 16px; align-items: center;">
                 <a href="{{ url_for('site_pages.index') }}" class="qlower-back-to-site-btn">
                     <i class="fas fa-arrow-left"></i>
                     Retour au site
+                </a>
+                <a href="{{ url_for('platform_auth.logout') }}" class="qlower-back-to-site-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Déconnexion
                 </a>
             </div>
         </div>
@@ -602,7 +606,7 @@ body {
         <div class="qlower-support-section">
             <div class="qlower-support-text">
                 <i class="fas fa-headset" style="margin-right: 6px;"></i>
-                <a href="mailto:support@atlas-invest.fr">Support Atlas</a>
+                <a href="mailto:contact@atlas-invest.fr">Contact Atlas</a>
             </div>
         </div>
     </div>
@@ -803,4 +807,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+{% endblock %}
+
+{% block footer %}
+<!-- Supprimer le footer pour cette page -->
 {% endblock %}

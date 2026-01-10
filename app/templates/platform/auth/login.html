@@ -503,7 +503,7 @@ body {
             </form>
             
             <div class="qlower-forgot-password">
-                <a href="#">Mot de passe oublié ?</a>
+                <a href="{{ url_for('platform_auth.forgot_password') }}">Mot de passe oublié ?</a>
             </div>
             
         </div>
@@ -609,4 +609,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+{% endblock %}
+
+{% block footer %}
+<!-- Supprimer le footer pour cette page -->
 {% endblock %}

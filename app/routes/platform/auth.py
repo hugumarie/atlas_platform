@@ -9,7 +9,10 @@ from app import db
 from app.models.user import User
 from app.models.subscription import Subscription
 from app.models.portfolio import Portfolio
+from app.models.password_reset_token import PasswordResetToken
+from app.services.email_service import send_password_reset_email
 import re
+from datetime import datetime
 
 platform_auth_bp = Blueprint('platform_auth', __name__, url_prefix='/plateforme')
 
@@ -190,35 +193,52 @@ def login():
         # Vérification des identifiants utilisateur
         user = User.query.filter_by(email=email).first()
         
-        if user and user.check_password(password):
-            if not user.is_active:
-                flash('Votre compte est désactivé.', 'error')
-                return render_template('platform/auth/login.html')
-            
-            # Vérification accès plateforme
-            if not user.can_access_platform():
-                flash('Votre abonnement a expiré. Veuillez renouveler votre abonnement.', 'error')
-                return render_template('platform/auth/login.html')
-            
-            login_user(user, remember=remember_me)
-            user.update_last_login()
-            
-            # Hook supprimé - pas de recalcul automatique à la connexion
-            
-            # Nouveau flow : vérifier si l'onboarding est terminé
-            if not user.has_completed_onboarding():
-                # Si l'onboarding n'est pas terminé, rediriger vers sélection de plan
-                flash('Veuillez compléter votre inscription en sélectionnant un plan.', 'info')
-                return redirect(url_for('onboarding.plan_selection'))
-            
-            # Redirection selon le profil - dashboard si onboarding terminé
-            next_page = request.args.get('next')
-            if next_page:
-                return redirect(next_page)
-            else:
-                return redirect(url_for('platform_investor.dashboard'))
+        # Messages d'erreur détaillés pour diagnostic
+        if not user:
+            # Utilisateur inexistant
+            flash('Aucun compte trouvé avec cet email. Vérifiez votre adresse email ou créez un compte.', 'error')
+            print(f"❌ Tentative de connexion - Email inexistant: {email}")
+            return render_template('platform/auth/login.html')
+        
+        if not user.check_password(password):
+            # Mot de passe incorrect
+            flash('Mot de passe incorrect. Vérifiez votre mot de passe.', 'error')
+            print(f"❌ Tentative de connexion - Mot de passe incorrect pour: {email}")
+            return render_template('platform/auth/login.html')
+        
+        # Utilisateur trouvé et mot de passe correct
+        if not user.is_active:
+            flash('Votre compte est désactivé. Contactez l\'administrateur.', 'error')
+            print(f"❌ Tentative de connexion - Compte désactivé: {email}")
+            return render_template('platform/auth/login.html')
+        
+        # Vérification accès plateforme
+        if not user.can_access_platform():
+            flash('Votre abonnement a expiré. Veuillez renouveler votre abonnement.', 'error')
+            print(f"❌ Tentative de connexion - Pas d'accès plateforme: {email}")
+            return render_template('platform/auth/login.html')
+        
+        # Connexion réussie
+        login_user(user, remember=remember_me)
+        user.update_last_login()
+        
+        print(f"✅ Connexion réussie: {email} (ID: {user.id})")
+        
+        # Hook supprimé - pas de recalcul automatique à la connexion
+        
+        # Nouveau flow : vérifier si l'onboarding est terminé
+        if not user.has_completed_onboarding():
+            # Si l'onboarding n'est pas terminé, rediriger vers sélection de plan
+            flash('Veuillez compléter votre inscription en sélectionnant un plan.', 'info')
+            print(f"🔄 Redirection vers onboarding: {email}")
+            return redirect(url_for('onboarding.plan_selection'))
+        
+        # Redirection selon le profil - dashboard si onboarding terminé
+        next_page = request.args.get('next')
+        if next_page:
+            return redirect(next_page)
         else:
-            flash('Email ou mot de passe incorrect.', 'error')
+            return redirect(url_for('platform_investor.dashboard'))
     
     return render_template('platform/auth/login.html')
 
@@ -230,3 +250,108 @@ def logout():
     """
     logout_user()
     return redirect(url_for('site_pages.index'))
+
+@platform_auth_bp.route('/mot-de-passe-oublie', methods=['GET', 'POST'])
+def forgot_password():
+    """
+    Page de demande de réinitialisation de mot de passe.
+    """
+    if current_user.is_authenticated:
+        if current_user.is_admin:
+            return redirect(url_for('platform_admin.dashboard'))
+        return redirect(url_for('platform_investor.dashboard'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        
+        if not email:
+            flash('Veuillez saisir une adresse email.', 'error')
+            return render_template('platform/auth/forgot_password.html')
+        
+        # Rechercher l'utilisateur
+        user = User.query.filter_by(email=email).first()
+        
+        if user:
+            try:
+                # Créer un token de réinitialisation
+                reset_token = PasswordResetToken.create_for_user(user.id)
+                
+                # Envoyer l'email de réinitialisation
+                email_sent = send_password_reset_email(user, reset_token.token)
+                
+                if email_sent:
+                    print(f"✅ Email de réinitialisation envoyé pour {email}")
+                else:
+                    print(f"❌ Échec envoi email de réinitialisation pour {email}")
+                    
+            except Exception as e:
+                print(f"❌ Erreur lors de la création du token de réinitialisation: {e}")
+        else:
+            print(f"⚠️ Tentative de réinitialisation pour email inexistant: {email}")
+        
+        # Toujours afficher le message de succès pour des raisons de sécurité
+        # (éviter l'énumération des emails)
+        return render_template('platform/auth/forgot_password.html', 
+                             email_sent=True, 
+                             email=email)
+    
+    return render_template('platform/auth/forgot_password.html')
+
+@platform_auth_bp.route('/reinitialiser-mot-de-passe/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """
+    Page de réinitialisation de mot de passe avec token.
+    """
+    if current_user.is_authenticated:
+        if current_user.is_admin:
+            return redirect(url_for('platform_admin.dashboard'))
+        return redirect(url_for('platform_investor.dashboard'))
+    
+    # Vérifier la validité du token
+    reset_token = PasswordResetToken.get_valid_token(token)
+    if not reset_token:
+        flash('Lien de réinitialisation invalide ou expiré. Demandez un nouveau lien.', 'error')
+        return redirect(url_for('platform_auth.forgot_password'))
+    
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        
+        # Validations
+        if not password or not confirm_password:
+            return render_template('platform/auth/reset_password.html', 
+                                 error='Veuillez remplir tous les champs.')
+        
+        if password != confirm_password:
+            return render_template('platform/auth/reset_password.html', 
+                                 error='Les mots de passe ne correspondent pas.')
+        
+        # Valider la complexité du mot de passe
+        is_valid, message = validate_password(password)
+        if not is_valid:
+            return render_template('platform/auth/reset_password.html', 
+                                 error=message)
+        
+        try:
+            # Récupérer l'utilisateur et mettre à jour son mot de passe
+            user = reset_token.user
+            user.set_password(password)
+            
+            # Marquer le token comme utilisé
+            reset_token.mark_as_used()
+            
+            # Sauvegarder les modifications
+            db.session.commit()
+            
+            print(f"✅ Mot de passe réinitialisé pour {user.email}")
+            
+            flash('Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter.', 'success')
+            return redirect(url_for('platform_auth.login'))
+            
+        except Exception as e:
+            print(f"❌ Erreur lors de la réinitialisation du mot de passe: {e}")
+            db.session.rollback()
+            return render_template('platform/auth/reset_password.html', 
+                                 error='Une erreur est survenue. Veuillez réessayer.')
+    
+    return render_template('platform/auth/reset_password.html')

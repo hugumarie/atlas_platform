@@ -497,27 +497,27 @@ body {
             </h1>
             
             <p class="qlower-hero-subtitle">
-                {{ prospect.first_name }}, vous avez été invité à rejoindre notre plateforme d'investissement personnalisée.
+                {{ prospect.first_name }}, vous avez été invité à rejoindre notre service d'accompagnement Atlas.
             </p>
             
             <ul class="qlower-hero-features">
                 <li class="qlower-hero-feature">
                     <div class="qlower-hero-feature-icon">
-                        <i class="fas fa-chart-line"></i>
+                        <i class="fas fa-chart-pie"></i>
                     </div>
-                    <span>Plans d'investissement sur-mesure</span>
+                    <span>Plan d'investissement sur mesure</span>
                 </li>
                 <li class="qlower-hero-feature">
                     <div class="qlower-hero-feature-icon">
-                        <i class="fas fa-shield-alt"></i>
+                        <i class="fas fa-eye"></i>
                     </div>
-                    <span>Gestion sécurisée de votre patrimoine</span>
+                    <span>Vision globale de votre patrimoine</span>
                 </li>
                 <li class="qlower-hero-feature">
                     <div class="qlower-hero-feature-icon">
-                        <i class="fas fa-mobile-alt"></i>
+                        <i class="fas fa-handshake"></i>
                     </div>
-                    <span>Suivi en temps réel depuis votre mobile</span>
+                    <span>Suivi humain et indépendant</span>
                 </li>
             </ul>
         </div>
@@ -590,24 +590,42 @@ body {
 
                 <div class="qlower-form-group">
                     <label for="password" class="qlower-form-label">Mot de passe</label>
-                    <input type="password" 
-                           class="qlower-form-input" 
-                           id="password" 
-                           name="password" 
-                           required
-                           placeholder="Au moins 8 caractères, 1 majuscule, 1 chiffre">
+                    <div style="position: relative;">
+                        <input type="password" 
+                               class="qlower-form-input" 
+                               id="password" 
+                               name="password" 
+                               required
+                               placeholder="Au moins 8 caractères, 1 majuscule, 1 chiffre"
+                               style="padding-right: 45px;">
+                        <button type="button" 
+                                onclick="togglePasswordVisibility('password')" 
+                                style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--qlower-text-light); cursor: pointer; font-size: 16px; padding: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;"
+                                title="Afficher/Masquer le mot de passe">
+                            <i id="password-eye" class="fas fa-eye"></i>
+                        </button>
+                    </div>
                     <div class="qlower-form-text">8+ caractères, majuscule, chiffre</div>
                     <div class="qlower-invalid-feedback">Format requis non respecté</div>
                 </div>
 
                 <div class="qlower-form-group">
                     <label for="password_confirm" class="qlower-form-label">Confirmation</label>
-                    <input type="password" 
-                           class="qlower-form-input" 
-                           id="password_confirm" 
-                           name="password_confirm" 
-                           required
-                           placeholder="Répétez le mot de passe">
+                    <div style="position: relative;">
+                        <input type="password" 
+                               class="qlower-form-input" 
+                               id="password_confirm" 
+                               name="password_confirm" 
+                               required
+                               placeholder="Répétez le mot de passe"
+                               style="padding-right: 45px;">
+                        <button type="button" 
+                                onclick="togglePasswordVisibility('password_confirm')" 
+                                style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--qlower-text-light); cursor: pointer; font-size: 16px; padding: 0; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;"
+                                title="Afficher/Masquer le mot de passe">
+                            <i id="password_confirm-eye" class="fas fa-eye"></i>
+                        </button>
+                    </div>
                     <div class="qlower-invalid-feedback">Les mots de passe ne correspondent pas</div>
                 </div>
 
@@ -627,16 +645,16 @@ body {
                 <!-- Legal text compact -->
                 <div style="text-align: center; font-size: 12px; color: var(--qlower-text-light); line-height: 1.4;">
                     En continuant, vous acceptez nos 
-                    <a href="#" style="color: var(--qlower-primary); text-decoration: none;">CGU</a> et 
-                    <a href="#" style="color: var(--qlower-primary); text-decoration: none;">Confidentialité</a>
+                    <a href="{{ url_for('site_pages.cgu') }}" target="_blank" style="color: var(--qlower-primary); text-decoration: none;">CGU</a> et 
+                    <a href="{{ url_for('site_pages.privacy') }}" target="_blank" style="color: var(--qlower-primary); text-decoration: none;">Confidentialité</a>
                 </div>
             </form>
 
             <!-- Support compact -->
             <div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--qlower-border);">
                 <div style="font-size: 13px; color: var(--qlower-text-light);">
-                    <i class="fas fa-headset" style="margin-right: 6px; color: var(--qlower-primary);"></i>
-                    <a href="mailto:support@atlas-invest.fr" style="color: var(--qlower-primary); text-decoration: none; font-weight: 500;">Support Atlas</a>
+                    En cas de problème, contactez 
+                    <a href="mailto:contact@atlas-invest.fr" style="color: var(--qlower-primary); text-decoration: none; font-weight: 500;">contact@atlas-invest.fr</a>
                 </div>
             </div>
         </div>
@@ -815,5 +833,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 200);
     }, 100);
 });
+
+// Fonction pour basculer la visibilité du mot de passe
+function togglePasswordVisibility(fieldId) {
+    const field = document.getElementById(fieldId);
+    const eyeIcon = document.getElementById(fieldId + '-eye');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    }
+}
 </script>
+{% endblock %}
+
+{% block footer %}
+<!-- Supprimer le footer pour cette page -->
 {% endblock %}

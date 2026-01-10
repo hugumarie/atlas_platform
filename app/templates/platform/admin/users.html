@@ -125,6 +125,10 @@
                                 <i class="fas fa-eye"></i>
                                 <span class="hide-on-mobile">Plan invest</span>
                             </button>
+                            <button class="admin-btn admin-btn-info admin-btn-sm" onclick="viewUserTracking({{ user.id }})">
+                                <i class="fas fa-chart-line"></i>
+                                <span class="hide-on-mobile">Suivi</span>
+                            </button>
                             <button class="admin-btn admin-btn-danger admin-btn-sm" onclick="deleteUser({{ user.id }}, '{{ user.first_name }} {{ user.last_name }}')" style="margin-left: 5px;" title="Supprimer l'utilisateur">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -205,6 +209,10 @@
                     <button class="admin-btn admin-btn-success admin-btn-sm" onclick="viewInvestmentPlan({{ user.id }})" title="Voir le plan d'investissement">
                         <i class="fas fa-eye"></i>
                         Plan invest
+                    </button>
+                    <button class="admin-btn admin-btn-info admin-btn-sm" onclick="viewUserTracking({{ user.id }})" title="Suivi utilisateur">
+                        <i class="fas fa-chart-line"></i>
+                        Suivi
                     </button>
                     <button class="admin-btn admin-btn-warning admin-btn-sm" onclick="editUser({{ user.id }})" title="Modifier les données">
                         <i class="fas fa-edit"></i>
@@ -327,6 +335,10 @@ function deleteUser(userId, userName) {
             });
         }
     }
+}
+
+function viewUserTracking(userId) {
+    window.location.href = '/plateforme/admin/utilisateur/' + userId + '/suivi';
 }
 </script>
 {% endblock %}

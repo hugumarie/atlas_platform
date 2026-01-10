@@ -10,6 +10,7 @@ from app.models.investor_profile import InvestorProfile
 from app.models.subscription import Subscription
 from app.models.apprentissage import Apprentissage
 from app.models.investment_plan import InvestmentPlan, InvestmentPlanLine, AVAILABLE_ENVELOPES
+from app.models.compte_rendu import CompteRendu
 from sqlalchemy import or_
 from flask import jsonify
 import requests
@@ -1104,60 +1105,154 @@ def invite_prospect(prospect_id):
                                 token=invitation_token.token, 
                                 _external=True)
         
-        # Créer le contenu de l'email d'invitation
+        # Créer le contenu de l'email d'invitation avec le nouveau design
         email_html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; }}
-                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                .header {{ background: linear-gradient(135deg, #344d59, #4a6572); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
-                .content {{ background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
-                .btn {{ display: inline-block; background: #2563eb; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; font-size: 16px; border: 2px solid #2563eb; }}
-                .btn:hover {{ background: #1d4ed8; border-color: #1d4ed8; }}
-                .footer {{ text-align: center; margin-top: 20px; color: #666; font-size: 12px; }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>🚀 Bienvenue chez Atlas Invest !</h1>
-                    <p>Votre voyage vers l'excellence financière commence ici</p>
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>Atlas</title>
+  </head>
+
+  <body style="margin:0;padding:0;background:#f2f4f5;">
+    <!-- Preheader -->
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+      Créez votre compte Atlas et accédez à votre espace personnel.
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" 
+style="background:#f2f4f5;">
+      <tr>
+        <td align="center" style="padding:28px 16px;">
+          <table role="presentation" width="640" cellpadding="0" cellspacing="0" 
+style="max-width:640px;background:#fff;border-radius:18px;overflow:hidden;">
+
+            <!-- Header -->
+            <tr>
+              <td align="center" style="background:#137C8B;padding:18px;">
+                <div 
+style="font-family:Arial,sans-serif;font-size:22px;font-weight:700;color:#ffffff;">
+                  Atlas
                 </div>
-                <div class="content">
-                    <h2>Bonjour {prospect.first_name},</h2>
-                    <p>Nous sommes ravis de vous accueillir dans la communauté Atlas Invest !</p>
-                    
-                    <p>Vous avez été invité(e) à créer votre compte client pour accéder à notre plateforme de gestion patrimoniale.</p>
-                    
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="{invitation_url}" class="btn">✨ Créer mon compte Atlas</a>
-                    </div>
-                    
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
-                        <h4>📋 Prochaines étapes :</h4>
-                        <ol>
-                            <li>Créez votre mot de passe sécurisé</li>
-                            <li>Choisissez votre formule (Initia ou Optima)</li>
-                            <li>Accédez à votre tableau de bord personnalisé</li>
-                        </ol>
-                    </div>
-                    
-                    <p><strong>⏰ Important :</strong> Cette invitation est valide pendant <strong>7 jours</strong>.</p>
-                    
-                    <p>Si vous avez des questions, notre équipe est disponible pour vous accompagner.</p>
-                    
-                    <p>À très bientôt sur Atlas Invest !<br>
-                    <strong>L'équipe Atlas Invest</strong></p>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:34px;">
+                <div 
+style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:#3a3a3a;">
+
+                  <div style="margin-bottom:20px;font-size:20px;font-weight:700;">
+                    🧭 Vous êtes à un pas de rejoindre Atlas
+                  </div>
+
+                  <div style="margin-bottom:16px;font-weight:700;">
+                    Bonjour {prospect.first_name},
+                  </div>
+
+                  <div style="margin-bottom:22px;">
+                    Vous avez été invité(e) à créer votre compte afin d'accéder à votre 
+<strong>espace personnel Atlas</strong> et choisir la formule qui vous correspond.
+                  </div>
+
+                  <!-- Button -->
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:22px 
+0 28px 0;">
+                    <tr>
+                      <td align="center">
+                        <!--[if mso]>
+                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" 
+href="{invitation_url}" style="height:54px;v-text-anchor:middle;width:320px;" 
+arcsize="50%" stroke="f" fillcolor="#137C8B">
+                          <w:anchorlock/>
+                          <center 
+style="color:#ffffff;font-family:Arial,sans-serif;font-size:18px;font-weight:bold;">
+                            ✨ Créer mon compte Atlas
+                          </center>
+                        </v:roundrect>
+                        <![endif]-->
+                        <!--[if !mso]><!-- -->
+                        <a href="{invitation_url}"
+                          style="display:inline-block;background:#137C8B;color:#ffffff;text-decor
+ation:none;font-family:Arial,sans-serif;font-size:18px;font-weight:700;padding:16px 
+28px;border-radius:999px;">
+                          ✨ Créer mon compte Atlas
+                        </a>
+                        <!--<![endif]-->
+                      </td>
+                    </tr>
+                  </table>
+
+                  <div style="margin-bottom:12px;font-weight:700;">
+                    📋 Prochaines étapes :
+                  </div>
+
+                  <ol style="margin:0 0 22px 18px;padding:0;font-size:18px;line-height:28px;">
+                    <li>Créer votre <strong>mot de passe sécurisé</strong></li>
+                    <li>Choisir votre formule (<strong>INITIA</strong> ou 
+<strong>OPTIMA</strong>)</li>
+                    <li>Accéder à votre <strong>tableau de bord</strong> et à votre 
+<strong>accompagnement Atlas</strong></li>
+                  </ol>
+
+                  <div style="margin-bottom:18px;">
+                    <strong>⏰ Important :</strong> Cette invitation reste valable <strong>7 
+jours</strong>.
+                  </div>
+
+                  <div style="margin-bottom:26px;">
+                    Si vous avez la moindre question, vous pouvez nous écrire à :
+                    <a href="mailto:contact@atlas-invest.fr" 
+style="color:#137C8B;font-weight:700;text-decoration:none;">
+                      contact@atlas-invest.fr
+                    </a>
+                  </div>  
+
+                  <div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:#3a3a3a;margi
+n-top:28px;">
+                    À tout de suite dans votre espace client,
+                  </div>
+                  <div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:#3a3a3a;font-weigh
+t:700;margin-bottom:20px;">
+                    L'équipe Atlas
+                  </div>
+
                 </div>
-                <div class="footer">
-                    <p>Cet email a été envoyé par Atlas Invest | Si vous n'êtes pas concerné(e), veuillez ignorer ce message.</p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:0 34px 30px 34px;">
+                <a href="https://atlas-invest.fr" 
+style="font-family:Arial,sans-serif;color:#137C8B;text-decoration:underline;">
+                  https://atlas-invest.fr
+                </a>
+
+                <div style="margin-top:12px;">
+                  <img src="https://atlas-invest.fr/static/img/logo-atlas.png" alt="Atlas" style="height:32px;width:auto;vertical-align:middle;margin-right:12px;">
+                  <span style="display:inline-block;background:#137C8B;color:#ffffff;font-family:Arial,
+sans-serif;font-size:14px;font-weight:700;padding:10px 14px;border-radius:10px;vertical-align:middle;">
+                    Atlas – le conseil financier clair et indépendant
+                  </span>
                 </div>
-            </div>
-        </body>
-        </html>
+
+                <div 
+style="margin-top:20px;font-family:Arial,sans-serif;font-size:12px;color:#8a8a8a;">
+                  Cet email a été envoyé automatiquement, merci de ne pas y répondre.
+                </div>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
         """
         
         email_text = f"""
@@ -1193,11 +1288,11 @@ def invite_prospect(prospect_id):
             email_sent = mailer.send_email(
                 to_email=prospect.email,
                 to_name=f"{prospect.first_name} {prospect.last_name}",
-                subject="🚀 Créez votre compte Atlas Invest - Votre invitation vous attend !",
+                subject="🚀 Créez votre compte Atlas",
                 html_content=email_html,
                 text_content=email_text,
                 from_email="noreply@atlas-invest.fr",
-                from_name="Atlas Invest"
+                from_name="Atlas"
             )
             
             email_result = {'success': email_sent}
@@ -2202,3 +2297,761 @@ def delete_prospect(prospect_id):
         return jsonify(result)
     else:
         return jsonify(result), 500
+
+
+@platform_admin_bp.route('/utilisateur/<int:user_id>/suivi')
+@login_required
+def user_tracking(user_id):
+    """
+    Page de suivi utilisateur avec actions possibles
+    """
+    if not current_user.is_admin:
+        flash('Accès non autorisé.', 'error')
+        return redirect(url_for('site_pages.index'))
+    
+    # Récupérer l'utilisateur
+    user = User.query.filter_by(id=user_id, is_admin=False).first()
+    if not user:
+        flash('Utilisateur introuvable.', 'error')
+        return redirect(url_for('platform_admin.users'))
+    
+    # Récupérer les comptes rendus de l'utilisateur
+    comptes_rendus = CompteRendu.query.filter_by(user_id=user_id).order_by(CompteRendu.date_rdv.desc()).all()
+    
+    return render_template('platform/admin/user_tracking.html', user=user, comptes_rendus=comptes_rendus)
+
+
+@platform_admin_bp.route('/utilisateur/<int:user_id>/envoyer-rdv-email', methods=['POST'])
+@login_required
+def send_first_appointment_email(user_id):
+    """
+    Envoie un email pour prendre le premier rendez-vous
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    # Récupérer l'utilisateur
+    user = User.query.filter_by(id=user_id, is_admin=False).first()
+    if not user:
+        return jsonify({'success': False, 'message': 'Utilisateur introuvable'}), 404
+    
+    try:
+        from app.services.email_service import MailerSendService
+        
+        # Récupérer l'API token depuis les variables d'environnement
+        api_token = os.getenv('MAILERSEND_API_TOKEN')
+        if not api_token:
+            return jsonify({'success': False, 'message': 'Configuration email manquante'}), 500
+        
+        mailer = MailerSendService(api_token)
+        
+        # Construire l'URL pour le rendez-vous (Cal.com)
+        appointment_url = "https://app.cal.eu/contact-atlas/suivi-patrimonial-atlas"
+        
+        # Contenu HTML de l'email de première prise de RDV avec couleurs Atlas corrigées
+        email_html = f"""
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="x-apple-disable-message-reformatting" />
+  <title>Atlas</title>
+</head>
+
+<body style="margin:0;padding:0;background:#f2f4f5;">
+  <!-- Preheader -->
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+    Votre recommandation d'investissement Atlas est en préparation.
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f4f5;">
+    <tr>
+      <td align="center" style="padding:28px 16px;">
+        <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:18px;overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td align="center" style="background:#137C8B;padding:18px;">
+              <div style="font-family:Arial,sans-serif;font-size:22px;font-weight:700;color:#ffffff;">
+                Atlas
+              </div>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:34px;">
+              <div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:#3a3a3a;">
+
+                <div style="font-weight:700;margin-bottom:16px;">
+                  Bonjour {user.first_name},
+                </div>
+
+                <div style="margin-bottom:20px;font-size:20px;font-weight:700;">
+                  Ton profil investisseur est bien complété 👍
+                </div>
+
+                <div style="margin-bottom:22px;">
+                  À partir de ces informations, nous allons analyser ta situation et préparer une première
+                  <strong>recommandation d'investissement adaptée</strong> à ton <strong>profil de risque</strong> et à tes <strong>objectifs</strong>.
+                </div>
+
+                <div style="margin-bottom:18px;">
+                  La prochaine étape est simple 👇
+                </div>
+
+                <!-- CTA -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:22px 0 26px 0;">
+                  <tr>
+                    <td align="center">
+                      <!--[if mso]>
+                      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="{appointment_url}" style="height:74px;v-text-anchor:middle;width:380px;" arcsize="50%" stroke="f" fillcolor="#137C8B">
+                        <w:anchorlock/>
+                        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:18px;font-weight:bold;">
+                          👉 Choisir un créneau de rendez-vous
+                        </center>
+                      </v:roundrect>
+                      <![endif]-->
+                      <!--[if !mso]><!-- -->
+                      <a href="{appointment_url}"
+                        style="display:inline-block;background:#137C8B;color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;font-size:18px;font-weight:700;padding:18px 30px;border-radius:999px;text-align:center;">
+                        👉 Choisir un créneau de rendez-vous<br>
+                        <span style="font-size:14px;font-style:italic;font-weight:400;">
+                          (téléphonique ou visio – 30 min)
+                        </span>
+                      </a>
+                      <!--<![endif]-->
+                    </td>
+                  </tr>
+                </table>
+
+                <div style="margin-bottom:12px;font-weight:700;">
+                  Ce rendez-vous nous permettra de :
+                </div>
+
+                <ul style="margin:0 0 22px 18px;padding:0;font-size:18px;line-height:28px;">
+                  <li>te présenter la <strong>stratégie retenue</strong></li>
+                  <li>t'expliquer les <strong>choix effectués</strong></li>
+                  <li>répondre à tes <strong>questions</strong></li>
+                  <li>valider les <strong>prochaines étapes</strong></li>
+                </ul>
+
+                <div style="margin-bottom:26px;">
+                  Les créneaux sont disponibles à partir de <strong>J+2</strong>, le temps pour nous de travailler sur ton dossier.
+                </div>
+
+                <div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:#3a3a3a;font-style:italic;">
+                  À très vite,
+                </div>
+                <div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:#3a3a3a;font-weight:700;margin-bottom:20px;">
+                  L'équipe Atlas
+                </div>
+
+              </div>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:0 34px 30px 34px;">
+              <a href="https://atlas-invest.fr" style="font-family:Arial,sans-serif;color:#137C8B;text-decoration:underline;">
+                https://atlas-invest.fr
+              </a>
+
+              <div style="margin-top:12px;">
+                <img src="https://atlas-invest.fr/static/img/logo-atlas.png" alt="Atlas" style="height:32px;width:auto;vertical-align:middle;margin-right:12px;">
+                <span style="display:inline-block;background:#137C8B;color:#ffffff;font-family:Arial,sans-serif;font-size:14px;font-weight:700;padding:10px 14px;border-radius:10px;vertical-align:middle;">
+                  Atlas – le conseil financier clair et indépendant
+                </span>
+              </div>
+
+              <div style="margin-top:20px;font-family:Arial,sans-serif;font-size:12px;color:#8a8a8a;">
+                Cet email a été envoyé automatiquement, merci de ne pas y répondre.
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+        """
+        
+        # Version texte
+        email_text = f"""
+        Bonjour {user.first_name},
+        
+        Ton profil investisseur est bien complété !
+        
+        À partir de ces informations, nous allons analyser ta situation et préparer une première recommandation d'investissement adaptée à ton profil de risque et à tes objectifs.
+        
+        La prochaine étape est simple : choisir un créneau de rendez-vous.
+        
+        Lien pour réserver : {appointment_url}
+        
+        Ce rendez-vous nous permettra de :
+        - te présenter la stratégie retenue
+        - t'expliquer les choix effectués  
+        - répondre à tes questions
+        - valider les prochaines étapes
+        
+        Les créneaux sont disponibles à partir de J+2, le temps pour nous de travailler sur ton dossier.
+        
+        À très vite,
+        L'équipe Atlas
+        """
+        
+        # Envoyer l'email
+        success = mailer.send_email(
+            to_email=user.email,
+            to_name=f"{user.first_name} {user.last_name}",
+            subject="🌱 Ton premier investissement commence ici",
+            html_content=email_html,
+            text_content=email_text
+        )
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': f'Email de prise de RDV envoyé avec succès à {user.email}'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Erreur lors de l\'envoi de l\'email'
+            })
+            
+    except Exception as e:
+        print(f"Erreur envoi email RDV: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Erreur lors de l\'envoi: {str(e)}'
+        }), 500
+
+
+@platform_admin_bp.route('/utilisateur/<int:user_id>/envoyer-post-rdv-email', methods=['POST'])
+@login_required
+def send_post_appointment_email(user_id):
+    """
+    Envoie un email de suivi après le premier rendez-vous
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    # Récupérer l'utilisateur
+    user = User.query.filter_by(id=user_id, is_admin=False).first()
+    if not user:
+        return jsonify({'success': False, 'message': 'Utilisateur introuvable'}), 404
+    
+    try:
+        from app.services.email_service import MailerSendService
+        
+        # Récupérer l'API token depuis les variables d'environnement
+        api_token = os.getenv('MAILERSEND_API_TOKEN')
+        if not api_token:
+            return jsonify({'success': False, 'message': 'Configuration email manquante'}), 500
+        
+        mailer = MailerSendService(api_token)
+        
+        # URL vers l'espace client (section Mon Plan)
+        plan_url = "https://atlas-invest.fr/plateforme/plan-investissement"
+        
+        # Contenu HTML de l'email post-RDV avec couleurs Atlas corrigées
+        email_html = f"""
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>Atlas</title>
+  </head>
+
+  <body style="margin:0;padding:0;background:#f2f4f5;">
+    <!-- Preheader (hidden) -->
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+      Les étapes de mise en œuvre de ton investissement sont disponibles dans « Mon Plan ».
+    </div>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f2f4f5;">
+      <tr>
+        <td align="center" style="padding:28px 16px;">
+          <!-- Container -->
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="width:640px;max-width:640px;background:#ffffff;border-radius:18px;overflow:hidden;">
+            <!-- Header -->
+            <tr>
+              <td align="center" style="background:#137C8B;padding:18px 20px;">
+                <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:22px;line-height:26px;font-weight:700;color:#ffffff;">
+                  Atlas
+                </div>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:34px 34px 16px 34px;">
+                <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#3a3a3a;font-size:18px;line-height:28px;">
+                  <div style="margin:0 0 16px 0;font-weight:700;">Bonjour {user.first_name},</div>
+
+                  <div style="margin:0 0 16px 0;">Merci pour notre échange.</div>
+
+                  <div style="margin:0 0 22px 0;">
+                    Suite à notre rendez-vous, nous avons formalisé les étapes de mise en œuvre de ton investissement.
+                  </div>
+
+                  <div style="margin:0 0 20px 0;">
+                    <span style="font-weight:700;">👉</span> Tu peux retrouver l'ensemble des éléments concrets, ainsi que les supports d'investissement préconisés,
+                    dans la rubrique <span style="font-weight:700;">« Mon Plan »</span> de ton espace client.
+                  </div>
+
+                  <!-- Button -->
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:22px 0 26px 0;">
+                    <tr>
+                      <td align="center">
+                        <!--[if mso]>
+                          <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="{plan_url}" style="height:54px;v-text-anchor:middle;width:320px;" arcsize="50%" stroke="f" fillcolor="#137C8B">
+                            <w:anchorlock/>
+                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:18px;font-weight:bold;">
+                              👉 Accéder à mon plan
+                            </center>
+                          </v:roundrect>
+                        <![endif]-->
+                        <!--[if !mso]><!-- -->
+                        <a href="{plan_url}"
+                          style="display:inline-block;background:#137C8B;color:#ffffff;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;padding:16px 28px;border-radius:999px;">
+                          👉 Accéder à mon plan
+                        </a>
+                        <!--<![endif]-->
+                      </td>
+                    </tr>
+                  </table>
+
+                  <div style="margin:0 0 18px 0;">
+                    Pour les prochaines semaines, l'idée est simple : prendre le temps de te familiariser avec ce placement
+                    et de comprendre son fonctionnement.
+                  </div>
+
+                  <div style="margin:0 0 10px 0;">
+                    <span style="font-weight:700;">👉</span> Tu peux t'appuyer sur :
+                  </div>
+
+                  <!-- Bullets -->
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:8px 0 20px 0;">
+                    <tr>
+                      <td style="padding-left:18px;">
+                        <ul style="margin:0;padding-left:18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#3a3a3a;font-size:18px;line-height:28px;">
+                          <li><span style="font-weight:700;">ton tableau de bord</span> pour suivre tes avancées</li>
+                          <li><span style="font-weight:700;">les ressources pédagogiques</span> disponibles dans ton espace client</li>
+                          <li>
+                            notre accompagnement, si tu as la moindre question
+                            <span style="font-style:italic;">(via WhatsApp pour une réponse rapide)</span>
+                          </li>
+                        </ul>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <div style="margin:0 0 18px 0;">
+                    Nous nous reparlerons dans environ <span style="font-weight:700;">3 mois</span> pour faire le point et, si c'est pertinent,
+                    envisager la mise en place d'un autre investissement.
+                  </div>
+
+                  <div style="margin:0 0 22px 0;">
+                    Atlas s'inscrit dans une logique progressive : on avance étape par étape, au bon rythme.
+                  </div>
+
+                  <div style="margin:0 0 6px 0;">À bientôt,</div>
+                  <div style="margin:0 0 18px 0;font-weight:700;">L'équipe Atlas</div>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Signature / Footer band -->
+            <tr>
+              <td style="padding:10px 34px 30px 34px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                  <tr>
+                    <td style="padding:10px 0 6px 0;">
+                      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px;line-height:22px;">
+                        <a href="https://atlas-invest.fr" style="color:#137C8B;text-decoration:underline;">https://atlas-invest.fr</a>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding-top:10px;">
+                      <img src="https://atlas-invest.fr/static/img/logo-atlas.png" alt="Atlas" style="height:32px;width:auto;vertical-align:middle;margin-right:12px;">
+                      <span style="display:inline-block;background:#137C8B;color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;line-height:18px;font-weight:700;padding:10px 14px;border-radius:10px;vertical-align:middle;">
+                        Atlas – le conseil financier clair et indépendant
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding-top:22px;">
+                      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:18px;color:#8a8a8a;">
+                        Cet email a été envoyé automatiquement, merci de ne pas y répondre.
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+          <!-- /Container -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+        """
+        
+        # Version texte
+        email_text = f"""
+        Bonjour {user.first_name},
+        
+        Merci pour notre échange.
+        
+        Suite à notre rendez-vous, nous avons formalisé les étapes de mise en œuvre de ton investissement.
+        
+        Tu peux retrouver l'ensemble des éléments concrets, ainsi que les supports d'investissement préconisés, dans la rubrique « Mon Plan » de ton espace client.
+        
+        Lien vers ton plan : {plan_url}
+        
+        Pour les prochaines semaines, l'idée est simple : prendre le temps de te familiariser avec ce placement et de comprendre son fonctionnement.
+        
+        Tu peux t'appuyer sur :
+        - ton tableau de bord pour suivre tes avancées
+        - les ressources pédagogiques disponibles dans ton espace client
+        - notre accompagnement, si tu as la moindre question (via WhatsApp pour une réponse rapide)
+        
+        Nous nous reparlerons dans environ 3 mois pour faire le point et, si c'est pertinent, envisager la mise en place d'un autre investissement.
+        
+        Atlas s'inscrit dans une logique progressive : on avance étape par étape, au bon rythme.
+        
+        À bientôt,
+        L'équipe Atlas
+        """
+        
+        # Envoyer l'email
+        success = mailer.send_email(
+            to_email=user.email,
+            to_name=f"{user.first_name} {user.last_name}",
+            subject="🎯 Ton plan d'investissement est en place",
+            html_content=email_html,
+            text_content=email_text
+        )
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': f'Email de suivi post-RDV envoyé avec succès à {user.email}'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Erreur lors de l\'envoi de l\'email'
+            })
+            
+    except Exception as e:
+        print(f"Erreur envoi email post-RDV: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Erreur lors de l\'envoi: {str(e)}'
+        }), 500
+
+
+@platform_admin_bp.route('/utilisateur/<int:user_id>/envoyer-email-generique-suivi', methods=['POST'])
+@login_required
+def send_generic_follow_up_email(user_id):
+    """
+    Envoie un email de suivi générique après n'importe quel rendez-vous
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    # Récupérer l'utilisateur
+    user = User.query.filter_by(id=user_id, is_admin=False).first()
+    if not user:
+        return jsonify({'success': False, 'message': 'Utilisateur introuvable'}), 404
+    
+    try:
+        from app.services.email_service import MailerSendService
+        
+        # Récupérer l'API token depuis les variables d'environnement
+        api_token = os.getenv('MAILERSEND_API_TOKEN')
+        if not api_token:
+            return jsonify({'success': False, 'message': 'Configuration email manquante'}), 500
+        
+        mailer = MailerSendService(api_token)
+        
+        # URL vers l'espace client principal
+        dashboard_url = "https://atlas-invest.fr/plateforme/dashboard"
+        
+        # Contenu HTML de l'email générique de suivi avec couleurs Atlas
+        email_html = f"""
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>Atlas</title>
+  </head>
+
+  <body style="margin:0;padding:0;background:#f2f4f5;">
+    <!-- Preheader (hidden) -->
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+      Merci pour votre confiance accordée lors de notre échange.
+    </div>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f2f4f5;">
+      <tr>
+        <td align="center" style="padding:28px 16px;">
+          <!-- Container -->
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="width:640px;max-width:640px;background:#ffffff;border-radius:18px;overflow:hidden;">
+            <!-- Header -->
+            <tr>
+              <td align="center" style="background:#137C8B;padding:18px 20px;">
+                <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:22px;line-height:26px;font-weight:700;color:#ffffff;">
+                  Atlas
+                </div>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:34px 34px 16px 34px;">
+                <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#3a3a3a;font-size:18px;line-height:28px;">
+                  <div style="margin:0 0 16px 0;font-weight:700;">Bonjour {user.first_name},</div>
+
+                  <div style="margin:0 0 22px 0;">
+                    Merci pour la <strong>confiance accordée</strong> lors de notre échange et pour le temps que vous nous avez consacré.
+                  </div>
+
+                  <div style="margin:0 0 20px 0;">
+                    Votre <strong>accompagnement Atlas</strong> continue et nous restons à votre disposition pour toutes vos questions sur l'investissement.
+                  </div>
+
+                  <div style="margin:0 0 18px 0;">
+                    <span style="font-weight:700;">👉</span> N'hésitez pas à consulter votre <strong>espace client</strong> pour :
+                  </div>
+
+                  <!-- Bullets -->
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:8px 0 20px 0;">
+                    <tr>
+                      <td style="padding-left:18px;">
+                        <ul style="margin:0;padding-left:18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#3a3a3a;font-size:18px;line-height:28px;">
+                          <li>suivre l'évolution de votre <span style="font-weight:700;">patrimoine</span></li>
+                          <li>consulter votre <span style="font-weight:700;">plan d'investissement</span></li>
+                          <li>accéder aux <span style="font-weight:700;">ressources pédagogiques</span></li>
+                          <li>poser vos questions à votre <span style="font-weight:700;">conseiller dédié</span></li>
+                        </ul>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <!-- Button -->
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:22px 0 26px 0;">
+                    <tr>
+                      <td align="center">
+                        <!--[if mso]>
+                          <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="{dashboard_url}" style="height:54px;v-text-anchor:middle;width:320px;" arcsize="50%" stroke="f" fillcolor="#137C8B">
+                            <w:anchorlock/>
+                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:18px;font-weight:bold;">
+                              👉 Accéder à mon espace client
+                            </center>
+                          </v:roundrect>
+                        <![endif]-->
+                        <!--[if !mso]><!-- -->
+                        <a href="{dashboard_url}"
+                          style="display:inline-block;background:#137C8B;color:#ffffff;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;padding:16px 28px;border-radius:999px;">
+                          👉 Accéder à mon espace client
+                        </a>
+                        <!--<![endif]-->
+                      </td>
+                    </tr>
+                  </table>
+
+                  <div style="margin:0 0 18px 0;">
+                    Si vous avez la moindre question ou souhaitez échanger sur votre stratégie d'investissement, 
+                    n'hésitez pas à nous contacter. <strong>Nous sommes là pour vous accompagner</strong>.
+                  </div>
+
+                  <div style="margin:0 0 22px 0;">
+                    Merci encore pour votre confiance et à très bientôt.
+                  </div>
+
+                  <div style="margin:0 0 6px 0;">Cordialement,</div>
+                  <div style="margin:0 0 18px 0;font-weight:700;">Votre conseiller Atlas</div>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Signature / Footer band -->
+            <tr>
+              <td style="padding:10px 34px 30px 34px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                  <tr>
+                    <td style="padding:10px 0 6px 0;">
+                      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px;line-height:22px;">
+                        <a href="https://atlas-invest.fr" style="color:#137C8B;text-decoration:underline;">https://atlas-invest.fr</a>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding-top:10px;">
+                      <img src="https://atlas-invest.fr/static/img/logo-atlas.png" alt="Atlas" style="height:32px;width:auto;vertical-align:middle;margin-right:12px;">
+                      <span style="display:inline-block;background:#137C8B;color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;line-height:18px;font-weight:700;padding:10px 14px;border-radius:10px;vertical-align:middle;">
+                        Atlas – le conseil financier clair et indépendant
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="padding-top:22px;">
+                      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;line-height:18px;color:#8a8a8a;">
+                        Cet email a été envoyé automatiquement, merci de ne pas y répondre.
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+          <!-- /Container -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+        """
+        
+        # Version texte
+        email_text = f"""
+        Bonjour {user.first_name},
+        
+        Merci pour la confiance accordée lors de notre échange et pour le temps que vous nous avez consacré.
+        
+        Votre accompagnement Atlas continue et nous restons à votre disposition pour toutes vos questions sur l'investissement.
+        
+        N'hésitez pas à consulter votre espace client pour :
+        - suivre l'évolution de votre patrimoine
+        - consulter votre plan d'investissement
+        - accéder aux ressources pédagogiques
+        - poser vos questions à votre conseiller dédié
+        
+        Lien vers votre espace client : {dashboard_url}
+        
+        Si vous avez la moindre question ou souhaitez échanger sur votre stratégie d'investissement, n'hésitez pas à nous contacter. Nous sommes là pour vous accompagner.
+        
+        Merci encore pour votre confiance et à très bientôt.
+        
+        Cordialement,
+        Votre conseiller Atlas
+        """
+        
+        # Envoyer l'email
+        success = mailer.send_email(
+            to_email=user.email,
+            to_name=f"{user.first_name} {user.last_name}",
+            subject="Suite à votre rendez-vous avec votre conseiller Atlas",
+            html_content=email_html,
+            text_content=email_text
+        )
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': f'Email de suivi générique envoyé avec succès à {user.email}'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Erreur lors de l\'envoi de l\'email'
+            })
+            
+    except Exception as e:
+        print(f"Erreur envoi email générique: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Erreur lors de l\'envoi: {str(e)}'
+        }), 500
+
+
+@platform_admin_bp.route('/utilisateur/<int:user_id>/compte-rendu', methods=['POST'])
+@login_required
+def create_compte_rendu(user_id):
+    """
+    Créer un compte rendu de rendez-vous
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    # Récupérer l'utilisateur
+    user = User.query.filter_by(id=user_id, is_admin=False).first()
+    if not user:
+        return jsonify({'success': False, 'message': 'Utilisateur introuvable'}), 404
+    
+    try:
+        data = request.get_json()
+        date_rdv_str = data.get('date_rdv')
+        contenu = data.get('contenu', '').strip()
+        
+        if not date_rdv_str:
+            return jsonify({'success': False, 'message': 'Date du rendez-vous requise'}), 400
+        
+        if not contenu:
+            return jsonify({'success': False, 'message': 'Contenu du compte rendu requis'}), 400
+        
+        # Convertir la date
+        from datetime import datetime
+        try:
+            date_rdv = datetime.strptime(date_rdv_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'success': False, 'message': 'Format de date invalide'}), 400
+        
+        # Créer le compte rendu
+        compte_rendu = CompteRendu(
+            user_id=user_id,
+            date_rdv=date_rdv,
+            contenu=contenu
+        )
+        
+        db.session.add(compte_rendu)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Compte rendu créé avec succès',
+            'compte_rendu': compte_rendu.to_dict()
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erreur création compte rendu: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Erreur lors de la création: {str(e)}'
+        }), 500
+
+
+@platform_admin_bp.route('/compte-rendu/<int:compte_rendu_id>')
+@login_required
+def get_compte_rendu(compte_rendu_id):
+    """
+    Récupérer un compte rendu complet
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+    
+    compte_rendu = CompteRendu.query.get_or_404(compte_rendu_id)
+    
+    return jsonify({
+        'success': True,
+        'compte_rendu': compte_rendu.to_dict()
+    })

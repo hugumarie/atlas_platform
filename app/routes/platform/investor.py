@@ -120,9 +120,9 @@ def dashboard():
         monthly_capacity = current_user.investor_profile.monthly_savings_capacity
         
         if current_year == registration_date.year:
-            # Première année : objectif basé sur les mois depuis l'inscription
-            months_since_registration = max((now.month - registration_date.month), 1)
-            yearly_objective = monthly_capacity * months_since_registration
+            # Première année : objectif annuel complet basé sur les mois restants dans l'année
+            months_remaining_in_year = 12 - registration_date.month + 1
+            yearly_objective = monthly_capacity * months_remaining_in_year
         else:
             # Années suivantes : 12 mois complets
             yearly_objective = monthly_capacity * 12

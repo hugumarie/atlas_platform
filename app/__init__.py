@@ -112,6 +112,8 @@ def create_app():
     from app.models.apprentissage import Apprentissage
     from app.models.crypto_price import CryptoPrice
     from app.models.investment_action import InvestmentAction
+    from app.models.compte_rendu import CompteRendu
+    from app.models.password_reset_token import PasswordResetToken
     
     # Configuration du user_loader pour Flask-Login
     @login_manager.user_loader
