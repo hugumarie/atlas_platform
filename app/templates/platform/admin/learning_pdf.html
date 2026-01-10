@@ -444,7 +444,7 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 let pdfDoc = null;
-let scale = 1.0;
+let scale = 3.0; // Zoom par défaut x3
 let totalPages = 0;
 let renderedPages = 0;
 
@@ -483,49 +483,124 @@ function renderAllPages() {
     
     renderedPages = 0;
     
-    // Créer toutes les pages
+    // Créer les conteneurs pour toutes les pages dans l'ordre correct
+    const pageContainers = [];
     for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-        renderPage(pageNum);
+        const pageContainer = document.createElement('div');
+        pageContainer.className = 'pdf-page-container';
+        pageContainer.setAttribute('data-page', pageNum);
+        pageContainer.style.display = 'flex';
+        pageContainer.style.justifyContent = 'center';
+        pageContainer.style.marginBottom = '20px';
+        pagesContainer.appendChild(pageContainer);
+        pageContainers.push(pageContainer);
     }
+    
+    // Rendre les pages une par une dans l'ordre correct
+    renderPageSequentially(1, pageContainers);
+}
+
+// Fonction pour rendre les pages séquentiellement
+function renderPageSequentially(pageNumber, pageContainers) {
+    if (pageNumber > totalPages) {
+        // Toutes les pages sont rendues
+        document.getElementById('pdfLoading').style.display = 'none';
+        document.getElementById('pdfContainer').style.display = 'block';
+        updateUI();
+        return;
+    }
+    
+    renderPage(pageNumber, pageContainers[pageNumber - 1]).then(() => {
+        renderedPages++;
+        // Continuer avec la page suivante
+        setTimeout(() => renderPageSequentially(pageNumber + 1, pageContainers), 10);
+    }).catch((error) => {
+        console.error('Erreur lors du rendu de la page ' + pageNumber + ':', error);
+        renderedPages++;
+        // Continuer malgré l'erreur
+        setTimeout(() => renderPageSequentially(pageNumber + 1, pageContainers), 10);
+    });
 }
 
 // Fonction pour rendre une page spécifique
-function renderPage(pageNumber) {
-    pdfDoc.getPage(pageNumber).then(function(page) {
-        const viewport = page.getViewport({ scale: scale });
-        
-        // Créer un canvas pour cette page
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        canvas.className = 'pdf-page';
-        
-        const renderContext = {
-            canvasContext: ctx,
-            viewport: viewport
-        };
-        
-        page.render(renderContext).promise.then(function() {
-            // Ajouter la page au conteneur
-            const pagesContainer = document.getElementById('pdfPages');
-            pagesContainer.appendChild(canvas);
+function renderPage(pageNumber, pageContainer) {
+    return new Promise((resolve, reject) => {
+        pdfDoc.getPage(pageNumber).then(function(page) {
+            const viewport = page.getViewport({ scale: scale });
             
-            renderedPages++;
+            // Créer un canvas pour cette page
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
             
-            // Si toutes les pages sont rendues, afficher le conteneur
-            if (renderedPages === totalPages) {
-                document.getElementById('pdfLoading').style.display = 'none';
-                document.getElementById('pdfContainer').style.display = 'block';
-                updateUI();
+            // S'assurer que les dimensions sont valides
+            if (viewport.width <= 0 || viewport.height <= 0) {
+                console.error(`Dimensions invalides pour la page ${pageNumber}: ${viewport.width}x${viewport.height}`);
+                reject(new Error('Dimensions invalides'));
+                return;
             }
+            
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            canvas.className = 'pdf-page';
+            
+            // Ajouter un attribut pour identifier la page
+            canvas.setAttribute('data-page-num', pageNumber);
+            
+            // Pré-remplir le canvas avec du blanc pour éviter les carrés noirs/transparents
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+            };
+            
+            console.log(`🎨 Admin - Rendu page ${pageNumber}/${totalPages} (${Math.round(viewport.width)}x${Math.round(viewport.height)})`);
+            
+            page.render(renderContext).promise.then(function() {
+                // Vérifier que le rendu s'est bien passé
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const hasContent = imageData.data.some((pixel, index) => {
+                    // Vérifier s'il y a du contenu non-blanc
+                    return index % 4 < 3 && pixel < 250; // RGB < 250 (pas complètement blanc)
+                });
+                
+                if (hasContent) {
+                    console.log(`✅ Admin - Page ${pageNumber} rendue avec succès`);
+                } else {
+                    console.warn(`⚠️ Admin - Page ${pageNumber} semble vide ou blanche`);
+                }
+                
+                // Ajouter la page au conteneur spécifique
+                pageContainer.appendChild(canvas);
+                resolve();
+            }).catch(function(error) {
+                console.error(`❌ Admin - Erreur rendu page ${pageNumber}:`, error);
+                
+                // En cas d'erreur, créer un placeholder informatif
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'pdf-page-error';
+                errorDiv.style.cssText = `
+                    width: ${Math.round(viewport.width)}px;
+                    height: ${Math.round(viewport.height)}px;
+                    background: #f8f9fa;
+                    border: 2px dashed #dee2e6;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #6c757d;
+                    font-size: 14px;
+                    text-align: center;
+                `;
+                errorDiv.innerHTML = `<div>Erreur page ${pageNumber}<br><small>Rechargez la page</small></div>`;
+                pageContainer.appendChild(errorDiv);
+                
+                reject(error);
+            });
+        }).catch(function(error) {
+            console.error(`❌ Admin - Erreur accès page ${pageNumber}:`, error);
+            reject(error);
         });
-    }).catch(function(error) {
-        console.error('Erreur lors du rendu de la page ' + pageNumber + ':', error);
-        renderedPages++;
-        if (renderedPages === totalPages) {
-            showError();
-        }
     });
 }
 

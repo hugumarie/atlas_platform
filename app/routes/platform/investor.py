@@ -2445,11 +2445,16 @@ def pdf_proxy(formation_id):
         
         print(f"✅ PDF proxy serving: {apprentissage.nom}")
         
+        # Nettoyer le nom du fichier pour éviter les erreurs d'encodage
+        import re
+        safe_filename = re.sub(r'[^\w\s-]', '', apprentissage.nom).strip()
+        safe_filename = re.sub(r'[-\s]+', '-', safe_filename)
+        
         return Response(
             generate(),
             content_type='application/pdf',
             headers={
-                'Content-Disposition': f'inline; filename="{apprentissage.nom}.pdf"',
+                'Content-Disposition': f'inline; filename="{safe_filename}.pdf"',
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 'Pragma': 'no-cache',
                 'Expires': '0'

@@ -448,7 +448,7 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
     color: var(--qlower-primary);
 }
 
-/* Styles compacts pour liquidités */
+/* Styles compacts pour épargne */
 .liquidites-compact-list {
     display: flex;
     flex-direction: column;
@@ -1563,8 +1563,8 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                     
                     <!-- Question 1: Tolérance au risque -->
                     <div style="padding: 15px; border: 1px solid #e5e7eb; border-radius: 10px; background: #f8f9fa;">
-                        <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">1. Baisse acceptable</h4>
-                        <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Quelle baisse maximale acceptez-vous par an ?</p>
+                        <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Question 1 — Tolérance à la baisse</h4>
+                        <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Quelle baisse maximale seriez-vous prêt à accepter sur une année ?</p>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
                                 <input type="radio" name="tolerance_baisse" value="5" {{ 'checked' if current_user.investor_profile.tolerance_risque == 'faible' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
@@ -1583,8 +1583,8 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
 
                     <!-- Question 2: Horizon de placement -->
                     <div style="padding: 15px; border: 1px solid #e5e7eb; border-radius: 10px; background: #f8f9fa;">
-                        <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">2. Horizon de placement</h4>
-                        <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Sur quelle durée investissez-vous ?</p>
+                        <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Question 2 — Horizon de placement</h4>
+                        <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Sur quelle durée envisagez-vous vos placements ?</p>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
                                 <input type="radio" name="horizon_placement" value="court" {{ 'checked' if current_user.investor_profile.horizon_placement == 'court' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
@@ -1603,8 +1603,8 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
 
                     <!-- Question 3: Besoin de liquidité -->
                     <div style="padding: 15px; border: 1px solid #e5e7eb; border-radius: 10px; background: #f8f9fa;">
-                        <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">3. Besoin de liquidité</h4>
-                        <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Besoin de récupérer rapidement vos fonds ?</p>
+                        <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Question 3 — Besoin de liquidité</h4>
+                        <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Avez-vous besoin de récupérer rapidement une partie de vos placements ?</p>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
                                 <input type="radio" name="besoin_liquidite" value="oui" {{ 'checked' if current_user.investor_profile.besoin_liquidite == 'court_terme' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
@@ -1612,27 +1612,27 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                             </label>
                             <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
                                 <input type="radio" name="besoin_liquidite" value="non" {{ 'checked' if current_user.investor_profile.besoin_liquidite == 'long_terme' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
-                                <span style="color: #344D59;">Non, plusieurs années OK</span>
+                                <span style="color: #344D59;">Non, je peux laisser l'argent investi plusieurs années</span>
                             </label>
                         </div>
                     </div>
 
                     <!-- Question 4: Expérience -->
                     <div style="padding: 15px; border: 1px solid #e5e7eb; border-radius: 10px; background: #f8f9fa;">
-                        <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">4. Expérience</h4>
-                        <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Votre niveau en investissement ?</p>
+                        <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Question 4 — Expérience / connaissance</h4>
+                        <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Comment évalueriez-vous votre expérience en matière d'investissement ?</p>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
                                 <input type="radio" name="experience_investissement" value="debutant" {{ 'checked' if current_user.investor_profile.experience_investissement in ['débutant', 'debutant'] }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
-                                <span style="color: #344D59;">Débutant</span>
+                                <span style="color: #344D59;">Débutant – Je découvre l'investissement</span>
                             </label>
                             <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
                                 <input type="radio" name="experience_investissement" value="intermediaire" {{ 'checked' if current_user.investor_profile.experience_investissement in ['intermédiaire', 'intermediaire'] }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
-                                <span style="color: #344D59;">Intermédiaire</span>
+                                <span style="color: #344D59;">Intermédiaire – J'ai déjà quelques placements</span>
                             </label>
                             <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
                                 <input type="radio" name="experience_investissement" value="confirme" {{ 'checked' if current_user.investor_profile.experience_investissement in ['confirmé', 'confirme'] }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
-                                <span style="color: #344D59;">Confirmé</span>
+                                <span style="color: #344D59;">Confirmé – Je suis à l'aise avec les marchés et la gestion du risque</span>
                             </label>
                         </div>
                     </div>
@@ -1640,9 +1640,9 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
 
                 <!-- Question 5: Attitude face à la volatilité (pleine largeur) -->
                 <div style="padding: 15px; border: 1px solid #e5e7eb; border-radius: 10px; background: #f8f9fa; margin-bottom: 20px;">
-                    <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">5. Attitude face à la volatilité</h4>
-                    <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Comment réagiriez-vous si vos placements baissaient fortement ?</p>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px;">
+                    <h4 style="color: #344D59; margin-bottom: 8px; font-size: 14px; font-weight: 600;">Question 5 — Attitude face à une forte baisse</h4>
+                    <p style="color: #7A90A4; margin-bottom: 10px; font-size: 12px;">Comment réagiriez-vous si la valeur de vos placements baissait fortement ?</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
                         <label class="risk-radio-label" style="display: flex; align-items: center; gap: 8px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: white; transition: all 0.2s; font-size: 13px;" onmouseover="this.style.borderColor='#137C8B'" onmouseout="this.style.borderColor='#e5e7eb'">
                             <input type="radio" name="attitude_volatilite" value="vendre" {{ 'checked' if current_user.investor_profile.attitude_volatilite == 'vendre' }} style="margin: 0; transform: scale(1.1); accent-color: #137C8B;" onchange="updateRiskProfileLive()">
                             <span style="color: #344D59;">Je vendrais pour limiter les pertes</span>
@@ -1893,18 +1893,18 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
         <div class="platform-card-header">
             <div>
                 <div class="platform-card-title">ÉPARGNE & PATRIMOINE</div>
-                <div class="platform-card-subtitle">Situation patrimoniale complète : liquidités, placements, immobilier et autres actifs</div>
+                <div class="platform-card-subtitle">Situation patrimoniale complète : épargne, placements, immobilier et autres actifs</div>
             </div>
         </div>
         <div class="platform-card-body">
             {% if edit_mode %}
             <!-- MODE ÉDITION - ÉPARGNE & PATRIMOINE -->
             
-            <!-- Section LIQUIDITÉS -->
+            <!-- Section ÉPARGNE -->
             <div style="margin-bottom: 30px;">
                 <h4 style="color: #344D59; margin-bottom: 20px; font-weight: 600; font-size: 16px;">
                     <i class="fas fa-tint" style="color: var(--qlower-primary); margin-right: 8px;"></i>
-                    Liquidités
+                    Épargne
                 </h4>
                 <div class="edit-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                     <div class="edit-item">
@@ -1937,16 +1937,16 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                     </div>
                 </div>
                 
-                <!-- Liquidités personnalisées -->
+                <!-- Épargne personnalisée -->
                 <div style="margin-top: 25px;">
-                    <h5 style="color: #344D59; margin-bottom: 15px; font-weight: 600;">Liquidités personnalisées</h5>
+                    <h5 style="color: #344D59; margin-bottom: 15px; font-weight: 600;">Épargne personnalisée</h5>
                     <div id="liquiditesContainer">
                         {% if current_user.investor_profile.liquidites_personnalisees_data %}
                             {% for liquidite in current_user.investor_profile.liquidites_personnalisees_data %}
                             <div class="dynamic-row" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; margin-bottom: 12px; align-items: end;">
                                 <div>
                                     <input type="text" class="form-control" name="liquidite_personnalisee_name[]" 
-                                           value="{{ liquidite.name }}" placeholder="Nom de la liquidité"
+                                           value="{{ liquidite.name }}" placeholder="Nom de l'épargne"
                                            style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px;">
                                 </div>
                                 <div>
@@ -1963,16 +1963,16 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                     </div>
                     <button type="button" class="btn btn-success btn-sm" onclick="addLiquidite()" 
                             style="padding: 8px 16px; background: var(--qlower-primary); color: white; border: none; border-radius: 6px; margin-top: 8px;">
-                        <i class="fas fa-plus"></i> Ajouter une liquidité
+                        <i class="fas fa-plus"></i> Ajouter une épargne
                     </button>
                 </div>
                 
-                <!-- Total Liquidités -->
+                <!-- Total Épargne -->
                 <div style="margin-top: 20px; padding: 15px; background: rgba(19, 124, 139, 0.7); border-radius: 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-tint" style="color: white;"></i>
-                            <span style="font-weight: 600; color: white;">Total Liquidités</span>
+                            <span style="font-weight: 600; color: white;">Total Épargne</span>
                         </div>
                         <div id="edit-total-liquidites-value" style="font-weight: 700; font-size: 16px; color: white;">
                             {{ "{:,.0f}".format(current_user.investor_profile.calculated_total_liquidites or 0) }}€
@@ -2428,7 +2428,7 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
             <!-- MODE VISUALISATION - ÉPARGNE & PATRIMOINE -->
             <!-- Note: Tous les totaux proviennent exclusivement des champs calculated_total_* de la BDD -->
             
-            <!-- Sous-section LIQUIDITÉS -->
+            <!-- Sous-section ÉPARGNE -->
             {% set has_liquidites = false %}
             
             {% if current_user.investor_profile.livret_a_value or current_user.investor_profile.ldds_value or current_user.investor_profile.pel_cel_value or current_user.investor_profile.current_savings or current_user.investor_profile.current_account_value or current_user.investor_profile.liquidites_personnalisees_data %}
@@ -2439,7 +2439,7 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
             <div class="revenue-subsection">
                 <h4 class="revenue-subsection-title">
                     <i class="fas fa-tint"></i>
-                    Liquidités
+                    Épargne
                 </h4>
                 <div class="data-list">
                     {% if current_user.investor_profile.livret_a_value %}
@@ -2487,7 +2487,7 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                     {% endif %}
                     
                     <div class="liquidites-compact-item-total">
-                        <div class="liquidites-compact-name-total">Total Liquidités</div>
+                        <div class="liquidites-compact-name-total">Total Épargne</div>
                         <div id="view-total-liquidites-value" class="liquidites-compact-value-total">{{ "{:,.0f}".format(current_user.investor_profile.calculated_total_liquidites or 0) }}€</div>
                     </div>
                 </div>
@@ -3069,7 +3069,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fonction debug pour forcer le recalcul (temporaire)
     window.debugRecalculerLiquidites = function() {
-        console.log('🔍 DEBUG: Force recalcul liquidités...');
+        console.log('🔍 DEBUG: Force recalcul épargne...');
         updateTotalLiquidites();
     };
     {% else %}
@@ -3367,7 +3367,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Mettre à jour les totaux appropriés
                 if (isLiquidite) {
-                    console.log('🗑️ Liquidité personnalisée supprimée, recalcul du total...');
+                    console.log('🗑️ Épargne personnalisée supprimée, recalcul du total...');
                     updateTotalLiquidites();
                 } else if (isPlacement) {
                     console.log('🗑️ Placement personnalisé supprimé, recalcul du total...');
@@ -3520,7 +3520,7 @@ function addLiquidite() {
     const html = `
         <div>
             <input type="text" class="form-control" name="liquidite_personnalisee_name[]" 
-                   placeholder="Nom de la liquidité"
+                   placeholder="Nom de l'épargne"
                    style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px;">
         </div>
         <div>
@@ -4377,26 +4377,26 @@ function updateTotalLiquidites() {
     
     let total = 0;
     
-    // Liquidités fixes
+    // Épargne fixe
     const livretA = parseFloat(document.querySelector('input[name="livret_a_value"]')?.value) || 0;
     const ldds = parseFloat(document.querySelector('input[name="ldds_value"]')?.value) || 0;
     const pelCel = parseFloat(document.querySelector('input[name="pel_cel_value"]')?.value) || 0;
     const currentSavings = parseFloat(document.querySelector('input[name="current_savings"]')?.value) || 0;
     
-    console.log('📊 Liquidités fixes détaillées:');
+    console.log('📊 Épargne fixe détaillée:');
     console.log(`  - Livret A: ${livretA}€`);
     console.log(`  - LDDS: ${ldds}€`);
     console.log(`  - PEL/CEL: ${pelCel}€`);
     console.log(`  - Épargne courante: ${currentSavings}€`);
     
     total += livretA + ldds + pelCel + currentSavings;
-    console.log(`✅ Sous-total liquidités fixes: ${total}€`);
+    console.log(`✅ Sous-total épargne fixe: ${total}€`);
     
-    // Liquidités personnalisées
+    // Épargne personnalisée
     const liquiditeNames = document.querySelectorAll('input[name="liquidite_personnalisee_name[]"]');
     const liquiditeAmounts = document.querySelectorAll('input[name="liquidite_personnalisee_amount[]"]');
     
-    console.log(`🔍 Liquidités personnalisées trouvées: ${liquiditeNames.length} lignes`);
+    console.log(`🔍 Épargne personnalisée trouvée: ${liquiditeNames.length} lignes`);
     
     let totalPerso = 0;
     for (let i = 0; i < Math.min(liquiditeNames.length, liquiditeAmounts.length); i++) {
@@ -4410,8 +4410,8 @@ function updateTotalLiquidites() {
     }
     
     total += totalPerso;
-    console.log(`✅ Total liquidités personnalisées: ${totalPerso}€`);
-    console.log(`🎯 TOTAL LIQUIDITÉS CALCULÉ: ${total}€ (${livretA} + ${ldds} + ${pelCel} + ${currentSavings} + ${totalPerso})`);
+    console.log(`✅ Total épargne personnalisée: ${totalPerso}€`);
+    console.log(`🎯 TOTAL ÉPARGNE CALCULÉ: ${total}€ (${livretA} + ${ldds} + ${pelCel} + ${currentSavings} + ${totalPerso})`);
     
     // Mettre à jour l'affichage avec les nouveaux IDs
     const editElement = document.getElementById('edit-total-liquidites-value');
@@ -4572,7 +4572,7 @@ function updateTotalEpargnePatrimoine() {
     // Extraire les valeurs des affichages des totaux
     const liquiditesElements = document.querySelectorAll('div');
     liquiditesElements.forEach(element => {
-        if (element.textContent.includes('Total Liquidités') && element.querySelector('div[style*="font-weight: 700"]')) {
+        if (element.textContent.includes('Total Épargne') && element.querySelector('div[style*="font-weight: 700"]')) {
             const valueDiv = element.querySelector('div[style*="font-weight: 700"]');
             if (valueDiv) {
                 const value = valueDiv.textContent.replace(/[€\s,]/g, '');
@@ -4612,7 +4612,7 @@ function updateTotalEpargnePatrimoine() {
     const grandTotal = totalLiquidites + totalPlacements + totalAutresBiens + totalImmobilier + totalCrypto;
     
     console.log('TOTAL ÉPARGNE & PATRIMOINE calculé:', grandTotal);
-    console.log('  - Liquidités:', totalLiquidites);
+    console.log('  - Épargne:', totalLiquidites);
     console.log('  - Placements:', totalPlacements);
     console.log('  - Autres Biens:', totalAutresBiens);
     console.log('  - Immobilier:', totalImmobilier);
@@ -4633,7 +4633,7 @@ function updateTotalEpargnePatrimoine() {
 function setupAllTotalsEventListeners() {
     console.log('setupAllTotalsEventListeners appelée');
     
-    // Event listeners pour liquidités
+    // Event listeners pour épargne
     const liquiditesInputs = [
         'livret_a_value', 'ldds_value', 'pel_cel_value', 'current_savings',
         'liquidite_personnalisee_name[]', 'liquidite_personnalisee_amount[]'
@@ -4697,7 +4697,7 @@ function updatePatrimoineNetTotal() {
     if (liquiditesElement) {
         const value = liquiditesElement.textContent.replace(/[€\s,]/g, '');
         totalLiquidites = parseFloat(value) || 0;
-        console.log(`  💧 Liquidités: ${totalLiquidites}€`);
+        console.log(`  💧 Épargne: ${totalLiquidites}€`);
     }
     
     const placementsElement = document.getElementById('edit-total-placements-value');
@@ -4750,7 +4750,7 @@ function updatePatrimoineNetTotal() {
     
     console.log('🎯 PATRIMOINE NET TOTAL calculé:');
     console.log(`  ✅ Total Actifs: ${totalActifs}€`);
-    console.log(`    💧 Liquidités: ${totalLiquidites}€`);
+    console.log(`    💧 Épargne: ${totalLiquidites}€`);
     console.log(`    📈 Placements: ${totalPlacements}€`);
     console.log(`    💎 Autres Biens: ${totalAutresBiens}€`);
     console.log(`    🏠 Immobilier Net: ${totalImmobilier}€`);
