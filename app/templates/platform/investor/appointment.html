@@ -127,9 +127,11 @@
 
 .info-card-header {
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 12px;
     margin-bottom: 16px;
+    text-align: center;
 }
 
 .info-card-icon {
@@ -149,21 +151,35 @@
     font-weight: 600;
     color: var(--qlower-primary);
     margin: 0;
+    text-align: center;
 }
 
 .info-card-content {
     font-size: 14px;
     color: var(--qlower-text-dark);
     line-height: 1.5;
+    text-align: center;
 }
 
 .info-card-content ul {
     margin: 12px 0 0 0;
-    padding-left: 16px;
+    padding-left: 0;
+    list-style: none;
+    text-align: center;
 }
 
 .info-card-content li {
     margin-bottom: 8px;
+    position: relative;
+}
+
+.info-card-content li:before {
+    content: "•";
+    color: var(--qlower-primary);
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-right: 8px;
 }
 
 /* Responsive */
@@ -225,6 +241,10 @@
         </p>
         
         <div class="appointment-features">
+            <div class="appointment-feature">
+                <i class="fas fa-phone"></i>
+                <span>Téléphone</span>
+            </div>
             <div class="appointment-feature">
                 <i class="fas fa-video"></i>
                 <span>Visioconférence</span>

@@ -91,15 +91,15 @@ def create_account_from_invitation(token):
         
         db.session.commit()
         
-        # Connecter automatiquement l'utilisateur
-        login_user(prospect, remember=False)
+        # Ne plus connecter automatiquement l'utilisateur
+        # Il devra se connecter manuellement sur la page de connexion
         
         print(f"✅ Compte créé avec succès pour {prospect.email}")
         
         return jsonify({
             'success': True,
-            'message': 'Compte créé avec succès !',
-            'redirect_url': url_for('onboarding.plan_selection')
+            'message': 'Compte créé avec succès ! Connectez-vous pour continuer.',
+            'redirect_url': url_for('platform_auth.login')
         })
         
     except Exception as e:

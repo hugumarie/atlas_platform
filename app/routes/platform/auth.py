@@ -205,7 +205,13 @@ def login():
             
             # Hook supprimé - pas de recalcul automatique à la connexion
             
-            # Redirection selon le profil - toujours vers dashboard
+            # Nouveau flow : vérifier si l'onboarding est terminé
+            if not user.has_completed_onboarding():
+                # Si l'onboarding n'est pas terminé, rediriger vers sélection de plan
+                flash('Veuillez compléter votre inscription en sélectionnant un plan.', 'info')
+                return redirect(url_for('onboarding.plan_selection'))
+            
+            # Redirection selon le profil - dashboard si onboarding terminé
             next_page = request.args.get('next')
             if next_page:
                 return redirect(next_page)

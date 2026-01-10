@@ -144,6 +144,20 @@ class User(UserMixin, db.Model):
         # Sinon, vérifier l'abonnement
         return self.subscription and self.subscription.is_active()
     
+    def has_completed_onboarding(self):
+        """
+        Vérifie si l'utilisateur a complété le processus d'onboarding.
+        
+        Returns:
+            bool: True si l'onboarding est terminé (plan sélectionné + paiement), False sinon
+        """
+        # Admin a toujours l'onboarding "complet"
+        if self.is_admin:
+            return True
+            
+        # Un utilisateur a terminé l'onboarding s'il a un abonnement actif
+        return self.subscription is not None and self.subscription.is_active()
+    
     def is_prospect_type(self):
         """
         Vérifie si l'utilisateur est un prospect (ancienne méthode).

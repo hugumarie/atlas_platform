@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 def require_active_subscription(f):
     """
-    Décorateur pour vérifier qu'un utilisateur a un abonnement actif.
-    Redirige vers la page de sélection de plan si pas d'accès.
+    Décorateur pour vérifier qu'un utilisateur a terminé son onboarding.
+    Redirige vers la page de sélection de plan si l'onboarding n'est pas complet.
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -31,9 +31,9 @@ def require_active_subscription(f):
         if current_user.is_admin:
             return f(*args, **kwargs)
         
-        # Vérifier l'accès à la plateforme
-        if not current_user.can_access_platform():
-            flash('🔒 Votre abonnement n\'est pas actif. Veuillez vous abonner pour accéder à cette fonctionnalité.', 'warning')
+        # Nouveau flow : vérifier si l'onboarding est terminé
+        if not current_user.has_completed_onboarding():
+            flash('🔒 Veuillez compléter votre inscription en sélectionnant un plan et en procédant au paiement.', 'warning')
             return redirect(url_for('onboarding.plan_selection'))
         
         return f(*args, **kwargs)
