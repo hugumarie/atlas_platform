@@ -471,7 +471,7 @@ function renderAllPages() {
         const pageContainer = document.createElement('div');
         pageContainer.className = 'pdf-page-container';
         pageContainer.setAttribute('data-page', pageNum);
-        pageContainer.style.display = 'flex';
+        pageContainer.style.display = 'none'; // Caché initialement
         pageContainer.style.justifyContent = 'center';
         pageContainer.style.marginBottom = '20px';
         pagesContainer.appendChild(pageContainer);
@@ -548,6 +548,8 @@ function renderPage(pageNumber, pageContainer) {
                 
                 // Ajouter la page au conteneur spécifique
                 pageContainer.appendChild(canvas);
+                // Rendre visible le conteneur maintenant qu'il a du contenu
+                pageContainer.style.display = 'flex';
                 resolve();
             }).catch(function(error) {
                 console.error(`❌ Erreur rendu page ${pageNumber}:`, error);
@@ -569,6 +571,8 @@ function renderPage(pageNumber, pageContainer) {
                 `;
                 errorDiv.innerHTML = `<div>Erreur page ${pageNumber}<br><small>Rechargez la page</small></div>`;
                 pageContainer.appendChild(errorDiv);
+                // Rendre visible même en cas d'erreur
+                pageContainer.style.display = 'flex';
                 
                 reject(error);
             });

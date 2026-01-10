@@ -1,0 +1,340 @@
+{% extends "platform/base.html" %}
+
+{% block title %}Prendre rendez-vous - Atlas{% endblock %}
+
+{% block page_title %}Prendre rendez-vous avec votre conseiller{% endblock %}
+
+{% block head %}
+<style>
+/* Page container */
+.appointment-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header section */
+.appointment-header {
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 32px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(19, 124, 139, 0.15);
+}
+
+.appointment-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    line-height: 1.2;
+}
+
+.appointment-subtitle {
+    font-size: 18px;
+    opacity: 0.9;
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+}
+
+.appointment-features {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.appointment-feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.appointment-feature i {
+    font-size: 18px;
+    opacity: 0.8;
+}
+
+/* Calendar section */
+.appointment-calendar {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    min-height: 700px;
+    position: relative;
+}
+
+.appointment-calendar-header {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.appointment-calendar-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--qlower-primary);
+    margin: 0 0 8px 0;
+}
+
+.appointment-calendar-description {
+    font-size: 16px;
+    color: var(--qlower-text-dark);
+    margin: 0;
+}
+
+/* Calendar loader */
+.calendar-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--qlower-text-light);
+}
+
+.calendar-loader i {
+    font-size: 32px;
+    margin-bottom: 16px;
+    color: var(--qlower-primary);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Info cards */
+.appointment-info {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e5e7eb;
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.info-card-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+}
+
+.info-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--qlower-primary);
+    margin: 0;
+}
+
+.info-card-content {
+    font-size: 14px;
+    color: var(--qlower-text-dark);
+    line-height: 1.5;
+}
+
+.info-card-content ul {
+    margin: 12px 0 0 0;
+    padding-left: 16px;
+}
+
+.info-card-content li {
+    margin-bottom: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .appointment-header {
+        padding: 24px;
+        text-align: center;
+    }
+    
+    .appointment-title {
+        font-size: 24px;
+    }
+    
+    .appointment-subtitle {
+        font-size: 16px;
+    }
+    
+    .appointment-features {
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+    }
+    
+    .appointment-calendar {
+        padding: 20px;
+        min-height: 600px;
+    }
+    
+    .appointment-calendar-title {
+        font-size: 20px;
+    }
+    
+    .appointment-info {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+
+/* Cal.com iframe styles */
+#my-cal-inline-suivi-patrimonial-atlas {
+    border-radius: 12px;
+    overflow: hidden;
+    min-height: 650px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="appointment-container">
+    
+    <!-- Header section -->
+    <div class="appointment-header">
+        <h1 class="appointment-title">
+            <i class="fas fa-calendar-check"></i>
+            Planifiez votre rendez-vous
+        </h1>
+        <p class="appointment-subtitle">
+            Rencontrez votre conseiller Atlas pour un suivi personnalisé de votre patrimoine
+        </p>
+        
+        <div class="appointment-features">
+            <div class="appointment-feature">
+                <i class="fas fa-video"></i>
+                <span>Visioconférence</span>
+            </div>
+            <div class="appointment-feature">
+                <i class="fas fa-clock"></i>
+                <span>30 minutes</span>
+            </div>
+            <div class="appointment-feature">
+                <i class="fas fa-user-tie"></i>
+                <span>Conseiller dédié</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Calendar section -->
+    <div class="appointment-calendar">
+        <div class="appointment-calendar-header">
+            <h2 class="appointment-calendar-title">Choisissez votre créneau</h2>
+            <p class="appointment-calendar-description">
+                Sélectionnez la date et l'heure qui vous conviennent le mieux
+            </p>
+        </div>
+        
+        <!-- Loader -->
+        <div class="calendar-loader" id="calendarLoader">
+            <i class="fas fa-spinner"></i>
+            <div>Chargement du calendrier...</div>
+        </div>
+        
+        <!-- Cal.com embed -->
+        <div style="width:100%;height:100%;overflow:scroll" id="my-cal-inline-suivi-patrimonial-atlas"></div>
+    </div>
+    
+    <!-- Info cards -->
+    <div class="appointment-info">
+        <div class="info-card">
+            <div class="info-card-header">
+                <div class="info-card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="info-card-title">Au programme</h3>
+            </div>
+            <div class="info-card-content">
+                <ul>
+                    <li>Analyse de l'évolution de votre patrimoine</li>
+                    <li>Révision de vos objectifs d'investissement</li>
+                    <li>Optimisations et recommandations personnalisées</li>
+                    <li>Questions & réponses sur vos placements</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-header">
+                <div class="info-card-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="info-card-title">Préparation</h3>
+            </div>
+            <div class="info-card-content">
+                <ul>
+                    <li>Mettez à jour vos données patrimoniales</li>
+                    <li>Préparez vos questions à l'avance</li>
+                    <li>Ayez vos documents financiers à portée de main</li>
+                    <li>Testez votre connexion internet et webcam</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-header">
+                <div class="info-card-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <h3 class="info-card-title">Engagement Atlas</h3>
+            </div>
+            <div class="info-card-content">
+                <ul>
+                    <li>Conseils 100% personnalisés et indépendants</li>
+                    <li>Respect de vos objectifs et contraintes</li>
+                    <li>Transparence totale sur nos recommandations</li>
+                    <li>Accompagnement dans la durée</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+  (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.eu/embed/embed.js", "init");
+Cal("init", "suivi-patrimonial-atlas", {origin:"https://app.cal.eu"});
+
+  Cal.ns["suivi-patrimonial-atlas"]("inline", {
+    elementOrSelector:"#my-cal-inline-suivi-patrimonial-atlas",
+    config: {"layout":"month_view"},
+    calLink: "contact-atlas/suivi-patrimonial-atlas",
+  });
+
+  Cal.ns["suivi-patrimonial-atlas"]("ui", {"cssVarsPerTheme":{"light":{"cal-brand":"#137C8B"}},"hideEventTypeDetails":false,"layout":"month_view"});
+
+  // Masquer le loader après le chargement
+  setTimeout(function() {
+    const loader = document.getElementById('calendarLoader');
+    if (loader) {
+      loader.style.display = 'none';
+    }
+  }, 2000);
+</script>
+{% endblock %}

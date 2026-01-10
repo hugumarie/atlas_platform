@@ -2720,3 +2720,16 @@ def create_payment_setup():
             'error': 'Erreur lors de la création de la session de paiement'
         }), 500
 
+
+@platform_investor_bp.route('/rendez-vous')
+@login_required
+@require_active_subscription
+def appointment():
+    """
+    Page de prise de rendez-vous avec le conseiller Atlas
+    """
+    if current_user.is_admin:
+        return redirect(url_for('platform_admin.dashboard'))
+    
+    return render_template('platform/investor/appointment.html')
+

@@ -736,6 +736,14 @@
                     <div class="platform-nav-title">Compte</div>
                     <ul class="platform-nav-list">
                         <li class="platform-nav-item">
+                            <a href="{{ url_for('platform_investor.appointment') }}" class="platform-nav-link {{ 'active' if 'platform_investor.appointment' in request.endpoint }}">
+                                <div class="platform-nav-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                Prendre rendez-vous
+                            </a>
+                        </li>
+                        <li class="platform-nav-item">
                             <a href="{{ url_for('platform_investor.profile') }}" class="platform-nav-link {{ 'active' if 'platform_investor.profile' in request.endpoint }}">
                                 <div class="platform-nav-icon">
                                     <i class="fas fa-user"></i>

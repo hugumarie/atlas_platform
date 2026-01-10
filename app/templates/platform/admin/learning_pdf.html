@@ -489,7 +489,7 @@ function renderAllPages() {
         const pageContainer = document.createElement('div');
         pageContainer.className = 'pdf-page-container';
         pageContainer.setAttribute('data-page', pageNum);
-        pageContainer.style.display = 'flex';
+        pageContainer.style.display = 'none'; // Caché initialement
         pageContainer.style.justifyContent = 'center';
         pageContainer.style.marginBottom = '20px';
         pagesContainer.appendChild(pageContainer);
@@ -558,21 +558,12 @@ function renderPage(pageNumber, pageContainer) {
             console.log(`🎨 Admin - Rendu page ${pageNumber}/${totalPages} (${Math.round(viewport.width)}x${Math.round(viewport.height)})`);
             
             page.render(renderContext).promise.then(function() {
-                // Vérifier que le rendu s'est bien passé
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const hasContent = imageData.data.some((pixel, index) => {
-                    // Vérifier s'il y a du contenu non-blanc
-                    return index % 4 < 3 && pixel < 250; // RGB < 250 (pas complètement blanc)
-                });
-                
-                if (hasContent) {
-                    console.log(`✅ Admin - Page ${pageNumber} rendue avec succès`);
-                } else {
-                    console.warn(`⚠️ Admin - Page ${pageNumber} semble vide ou blanche`);
-                }
+                console.log(`✅ Admin - Page ${pageNumber} rendue avec succès`);
                 
                 // Ajouter la page au conteneur spécifique
                 pageContainer.appendChild(canvas);
+                // Rendre visible le conteneur maintenant qu'il a du contenu
+                pageContainer.style.display = 'flex';
                 resolve();
             }).catch(function(error) {
                 console.error(`❌ Admin - Erreur rendu page ${pageNumber}:`, error);
@@ -594,6 +585,8 @@ function renderPage(pageNumber, pageContainer) {
                 `;
                 errorDiv.innerHTML = `<div>Erreur page ${pageNumber}<br><small>Rechargez la page</small></div>`;
                 pageContainer.appendChild(errorDiv);
+                // Rendre visible même en cas d'erreur
+                pageContainer.style.display = 'flex';
                 
                 reject(error);
             });
