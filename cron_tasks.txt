@@ -1,0 +1,12 @@
+# Cron tasks pour Atlas Production
+# Format Dokku: <schedule> <command>
+#
+# Tâches configurées:
+# 1. Mise à jour prix crypto - Toutes les heures à la minute 5
+# 2. Backup base de données - Toutes les heures à la minute 30
+
+# Mise à jour des prix crypto (toutes les heures à :05)
+5 * * * * python scripts/update_crypto_prices.py
+
+# Backup base de données (toutes les heures à :30)
+30 * * * * python scripts/backup_database_production.py

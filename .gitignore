@@ -39,6 +39,7 @@ exports/
 *.dump
 *.gz
 backup_*.py
+!scripts/backup_database_production.py
 backup_*.sh
 backup_config.env*
 
