@@ -85,16 +85,13 @@ MONTH=$(date '+%m')
 DAY=$(date '+%d')
 SPACES_PATH="backups/database/${YEAR}/${MONTH}/${DAY}/$(basename ${COMPRESSED_FILE})"
 
-# Vérifier awscli
-if ! command -v aws &> /dev/null; then
-    echo "📦 Installation AWS CLI..."
-    pip3 install awscli --quiet
-fi
+# AWS CLI - utiliser le chemin complet pour éviter problèmes PATH dans cron
+AWS_CMD="/usr/bin/aws"
 
 export AWS_ACCESS_KEY_ID="${DIGITALOCEAN_SPACES_KEY}"
 export AWS_SECRET_ACCESS_KEY="${DIGITALOCEAN_SPACES_SECRET}"
 
-if aws s3 cp "${COMPRESSED_FILE}" "s3://${DIGITALOCEAN_SPACES_BUCKET}/${SPACES_PATH}" \
+if ${AWS_CMD} s3 cp "${COMPRESSED_FILE}" "s3://${DIGITALOCEAN_SPACES_BUCKET}/${SPACES_PATH}" \
     --endpoint-url="${DIGITALOCEAN_SPACES_ENDPOINT}" \
     --acl private \
     --metadata "backup-date=$(date --iso-8601=seconds),database=atlas_production"; then
