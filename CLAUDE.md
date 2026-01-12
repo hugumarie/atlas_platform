@@ -1073,3 +1073,246 @@ psql -h $DB_HOST -U $DB_USER -d atlas_restore_test < atlas_backup_20250109_05000
 ---
 
 *Ce document est maintenu à jour à chaque session de développement importante.*
+---
+
+## ⏰ Système de Cron Jobs Production (12 Janvier 2026) 🆕
+
+### Vue d'Ensemble
+**Automatisation complète** des tâches critiques via cron jobs sur le serveur Dokku:
+1. **Mise à jour prix crypto**: Toutes les heures à :05
+2. **Backup base de données**: Toutes les heures à :30 vers DigitalOcean Spaces
+
+### 📋 Configuration
+
+#### Scripts Automatisés
+
+**1. Script de backup (/home/dokku/backup_atlas_db.sh)**
+```bash
+#!/bin/bash
+# Charge les variables d'environnement Dokku
+# Exporte la base avec dokku postgres:export
+# Compresse avec gzip -9
+# Upload vers Spaces avec AWS CLI
+# Compatible PostgreSQL 18.1
+```
+
+**2. Crontab utilisateur dokku**
+```cron
+# ATLAS PRODUCTION CRON JOBS
+5 * * * * dokku enter atlas web python scripts/update_crypto_prices.py >> /var/log/atlas_crypto.log 2>&1
+30 * * * * /home/dokku/backup_atlas_db.sh >> /var/log/atlas_backup.log 2>&1
+```
+
+### 🚀 Installation
+
+#### Méthode Automatique (Recommandée)
+
+**1. Copier le script d'installation**
+```bash
+scp setup_cron_production.sh root@atlas-invest.fr:/tmp/
+```
+
+**2. Exécuter sur le serveur**
+```bash
+ssh root@atlas-invest.fr
+chmod +x /tmp/setup_cron_production.sh
+/tmp/setup_cron_production.sh
+```
+
+Le script configure automatiquement:
+- ✅ Script de backup avec variables d'environnement
+- ✅ Crontab avec les 2 tâches
+- ✅ Fichiers de log (/var/log/atlas_*.log)
+- ✅ Test optionnel du backup
+
+#### Méthode Manuelle
+
+**1. Créer le script de backup**
+```bash
+ssh root@atlas-invest.fr
+
+cat > /home/dokku/backup_atlas_db.sh << 'SCRIPT'
+#!/bin/bash
+set -e
+eval "$(dokku config:export atlas)"
+
+TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
+BACKUP_FILE="/tmp/atlas_backup_${TIMESTAMP}.sql"
+
+# Export & compression
+dokku postgres:export atlas-db > "${BACKUP_FILE}"
+gzip -9 "${BACKUP_FILE}"
+
+# Upload vers Spaces
+YEAR=$(date '+%Y')
+MONTH=$(date '+%m')
+DAY=$(date '+%d')
+SPACES_PATH="backups/database/${YEAR}/${MONTH}/${DAY}/$(basename ${BACKUP_FILE}.gz)"
+
+export AWS_ACCESS_KEY_ID="${DIGITALOCEAN_SPACES_KEY}"
+export AWS_SECRET_ACCESS_KEY="${DIGITALOCEAN_SPACES_SECRET}"
+
+aws s3 cp "${BACKUP_FILE}.gz" "s3://${DIGITALOCEAN_SPACES_BUCKET}/${SPACES_PATH}" \
+    --endpoint-url="${DIGITALOCEAN_SPACES_ENDPOINT}" \
+    --acl private
+
+rm -f "${BACKUP_FILE}.gz"
+SCRIPT
+
+chmod +x /home/dokku/backup_atlas_db.sh
+chown dokku:dokku /home/dokku/backup_atlas_db.sh
+```
+
+**2. Configurer le crontab**
+```bash
+crontab -u dokku -e
+
+# Ajouter ces lignes:
+5 * * * * dokku enter atlas web python scripts/update_crypto_prices.py >> /var/log/atlas_crypto.log 2>&1
+30 * * * * /home/dokku/backup_atlas_db.sh >> /var/log/atlas_backup.log 2>&1
+```
+
+**3. Créer les fichiers de log**
+```bash
+touch /var/log/atlas_crypto.log /var/log/atlas_backup.log
+chown dokku:dokku /var/log/atlas_*.log
+```
+
+### 📊 Monitoring
+
+#### Vérifier le Crontab
+```bash
+ssh root@atlas-invest.fr
+crontab -u dokku -l | grep ATLAS -A 5
+```
+
+#### Logs en Temps Réel
+```bash
+# Prix crypto
+ssh root@atlas-invest.fr "tail -f /var/log/atlas_crypto.log"
+
+# Backups
+ssh root@atlas-invest.fr "tail -f /var/log/atlas_backup.log"
+```
+
+#### Vérifier les Backups dans Spaces
+```bash
+# Via interface web DigitalOcean Spaces
+# Ou via AWS CLI:
+aws s3 ls s3://atlas-storage/backups/database/ \
+    --endpoint-url=https://fra1.digitaloceanspaces.com \
+    --recursive
+```
+
+### 🔧 Maintenance
+
+#### Tester Manuellement
+
+**Prix crypto**
+```bash
+ssh dokku@167.172.108.93 "enter atlas web python scripts/update_crypto_prices.py"
+```
+
+**Backup DB**
+```bash
+ssh root@atlas-invest.fr "/home/dokku/backup_atlas_db.sh"
+```
+
+#### Désactiver Temporairement
+```bash
+ssh root@atlas-invest.fr
+crontab -u dokku -e
+# Commenter les lignes avec # devant
+```
+
+#### Modifier la Fréquence
+```bash
+# Toutes les 2 heures: 5 */2 * * *
+# Toutes les 6 heures: 5 */6 * * *
+# Quotidien à 2h:      5 2 * * *
+```
+
+### 🚨 Dépannage
+
+#### Les Crons Ne S'Exécutent Pas
+
+**Vérifier le service cron**
+```bash
+ssh root@atlas-invest.fr
+systemctl status cron
+```
+
+**Vérifier les permissions**
+```bash
+ls -la /home/dokku/backup_atlas_db.sh
+# Doit être: -rwxr-xr-x dokku dokku
+```
+
+**Tester l'export DB manuellement**
+```bash
+ssh dokku@167.172.108.93 "postgres:export atlas-db" | head -20
+```
+
+#### Erreur "AWS CLI Not Found"
+
+```bash
+ssh root@atlas-invest.fr
+pip3 install awscli
+# Ou avec apt:
+apt-get update && apt-get install -y awscli
+```
+
+#### Backup Échoue
+
+**Vérifier les variables d'environnement**
+```bash
+ssh dokku@167.172.108.93 "config:get atlas DIGITALOCEAN_SPACES_KEY"
+ssh dokku@167.172.108.93 "config:get atlas DIGITALOCEAN_SPACES_SECRET"
+```
+
+**Test connexion Spaces**
+```bash
+export AWS_ACCESS_KEY_ID="DO8..."
+export AWS_SECRET_ACCESS_KEY="..."
+aws s3 ls --endpoint-url=https://fra1.digitaloceanspaces.com
+```
+
+### 📈 Métriques
+
+#### Informations Typiques
+- **Taille DB Atlas**: ~50-200 MB (selon utilisateurs)
+- **Backup compressé**: ~10-40 MB (compression 80-90%)
+- **Durée backup**: 30 secondes - 2 minutes
+- **Durée upload**: 10-30 secondes
+- **Coût Spaces**: ~$5-15/mois (stockage + transfert)
+
+#### Planning des Exécutions
+```
+00:05 - Mise à jour prix crypto
+00:30 - Backup base de données
+01:05 - Mise à jour prix crypto
+01:30 - Backup base de données
+... (toutes les heures)
+```
+
+### ✅ Checklist Post-Installation
+
+- [ ] Crontab configuré et vérifié
+- [ ] Script de backup exécutable
+- [ ] Fichiers de log créés
+- [ ] Test manuel du backup réussi
+- [ ] Backup visible dans DigitalOcean Spaces
+- [ ] Prix crypto mis à jour
+- [ ] Logs accessibles et lisibles
+
+### 🔐 Sécurité
+
+**Bonnes pratiques:**
+- ✅ Variables d'environnement jamais en clair dans les scripts
+- ✅ Chargement dynamique via `dokku config:export`
+- ✅ Backups uploadés avec ACL privé
+- ✅ Cleanup automatique fichiers temporaires
+- ✅ Logs rotatifs pour éviter saturation disque
+
+---
+
