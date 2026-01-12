@@ -1910,23 +1910,58 @@
             </div>
             
             <script>
-            // Valeurs calculées côté serveur, plus d'appels API JavaScript nécessaires
+            // Mapping symboles vers IDs crypto (synchronisé avec la liste des 50 cryptos)
             const symbolToId = {
                 'btc': 'bitcoin', 'bitcoin': 'bitcoin',
-                'eth': 'ethereum', 'ethereum': 'ethereum', 
+                'eth': 'ethereum', 'ethereum': 'ethereum',
                 'usdt': 'tether', 'tether': 'tether',
                 'usdc': 'usd-coin', 'usd-coin': 'usd-coin',
                 'bnb': 'binancecoin', 'binancecoin': 'binancecoin',
-                'ada': 'cardano', 'cardano': 'cardano',
                 'sol': 'solana', 'solana': 'solana',
                 'xrp': 'ripple', 'ripple': 'ripple',
-                'dot': 'polkadot', 'polkadot': 'polkadot',
-                'avax': 'avalanche-2', 'avalanche-2': 'avalanche-2',
+                'doge': 'dogecoin', 'dogecoin': 'dogecoin',
+                'ada': 'cardano', 'cardano': 'cardano',
+                'trx': 'tron', 'tron': 'tron',
                 'link': 'chainlink', 'chainlink': 'chainlink',
-                'matic': 'matic-network', 'matic-network': 'matic-network',
+                'matic': 'polygon', 'polygon': 'polygon',
+                'wbtc': 'wrapped-bitcoin', 'wrapped-bitcoin': 'wrapped-bitcoin',
+                'avax': 'avalanche-2', 'avalanche-2': 'avalanche-2',
+                'dai': 'dai',
+                'shib': 'shiba-inu', 'shiba-inu': 'shiba-inu',
+                'dot': 'polkadot', 'polkadot': 'polkadot',
                 'ltc': 'litecoin', 'litecoin': 'litecoin',
+                'bch': 'bitcoin-cash', 'bitcoin-cash': 'bitcoin-cash',
+                'near': 'near',
+                'uni': 'uniswap', 'uniswap': 'uniswap',
+                'icp': 'internet-computer', 'internet-computer': 'internet-computer',
+                'etc': 'ethereum-classic', 'ethereum-classic': 'ethereum-classic',
+                'apt': 'aptos', 'aptos': 'aptos',
+                'xlm': 'stellar', 'stellar': 'stellar',
+                'xmr': 'monero', 'monero': 'monero',
+                'hbar': 'hedera-hashgraph', 'hedera-hashgraph': 'hedera-hashgraph',
                 'atom': 'cosmos', 'cosmos': 'cosmos',
-                'uni': 'uniswap', 'uniswap': 'uniswap'
+                'fil': 'filecoin', 'filecoin': 'filecoin',
+                'arb': 'arbitrum', 'arbitrum': 'arbitrum',
+                'vet': 'vechain', 'vechain': 'vechain',
+                'fdusd': 'first-digital-usd', 'first-digital-usd': 'first-digital-usd',
+                'mkr': 'maker', 'maker': 'maker',
+                'op': 'optimism', 'optimism': 'optimism',
+                'imx': 'immutable-x', 'immutable-x': 'immutable-x',
+                'rndr': 'render-token', 'render-token': 'render-token',
+                'grt': 'the-graph', 'the-graph': 'the-graph',
+                'inj': 'injective-protocol', 'injective-protocol': 'injective-protocol',
+                'sei': 'sei-network', 'sei-network': 'sei-network',
+                'theta': 'theta-token', 'theta-token': 'theta-token',
+                'tao': 'bittensor', 'bittensor': 'bittensor',
+                'rune': 'rune',
+                'stx': 'stacks', 'stacks': 'stacks',
+                'aave': 'aave',
+                'zec': 'zcash', 'zcash': 'zcash',
+                'dash': 'dash',
+                'sushi': 'sushiswap', 'sushiswap': 'sushiswap',
+                'ftm': 'fantom', 'fantom': 'fantom',
+                'algo': 'algorand', 'algorand': 'algorand',
+                'egld': 'elrond-erd-2', 'elrond-erd-2': 'elrond-erd-2'
             };
             
             // Collecter les IDs des cryptos présentes (ignorer les éléments sans data-symbol)
@@ -5853,18 +5888,58 @@ async function loadCryptoList() {
         const response = await fetch('/plateforme/admin/api/crypto-prices');
         const pricesData = await response.json();
         
-        // Liste des cryptos supportées avec les prix réels depuis la DB
+        // Liste des 50 cryptos supportées avec les prix réels depuis la DB (synchronisé avec investor_data.html)
         cryptoList = [
             {id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', current_price: pricesData.bitcoin?.eur || 0, price_change_percentage_24h: 0},
             {id: 'ethereum', symbol: 'ETH', name: 'Ethereum', current_price: pricesData.ethereum?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'tether', symbol: 'USDT', name: 'Tether', current_price: pricesData.tether?.eur || 0, price_change_percentage_24h: 0},
             {id: 'binancecoin', symbol: 'BNB', name: 'BNB', current_price: pricesData.binancecoin?.eur || 0, price_change_percentage_24h: 0},
             {id: 'solana', symbol: 'SOL', name: 'Solana', current_price: pricesData.solana?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'usd-coin', symbol: 'USDC', name: 'USDC', current_price: pricesData['usd-coin']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'ripple', symbol: 'XRP', name: 'XRP', current_price: pricesData.ripple?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'dogecoin', symbol: 'DOGE', name: 'Dogecoin', current_price: pricesData.dogecoin?.eur || 0, price_change_percentage_24h: 0},
             {id: 'cardano', symbol: 'ADA', name: 'Cardano', current_price: pricesData.cardano?.eur || 0, price_change_percentage_24h: 0},
-            {id: 'polkadot', symbol: 'DOT', name: 'Polkadot', current_price: pricesData.polkadot?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'tron', symbol: 'TRX', name: 'TRON', current_price: pricesData.tron?.eur || 0, price_change_percentage_24h: 0},
             {id: 'chainlink', symbol: 'LINK', name: 'Chainlink', current_price: pricesData.chainlink?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'polygon', symbol: 'MATIC', name: 'Polygon', current_price: pricesData.polygon?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'wrapped-bitcoin', symbol: 'WBTC', name: 'Wrapped Bitcoin', current_price: pricesData['wrapped-bitcoin']?.eur || 0, price_change_percentage_24h: 0},
             {id: 'avalanche-2', symbol: 'AVAX', name: 'Avalanche', current_price: pricesData['avalanche-2']?.eur || 0, price_change_percentage_24h: 0},
-            {id: 'cosmos', symbol: 'ATOM', name: 'Cosmos', current_price: pricesData.cosmos?.eur || 0, price_change_percentage_24h: 0},
-            {id: 'stellar', symbol: 'XLM', name: 'Stellar', current_price: pricesData.stellar?.eur || 0, price_change_percentage_24h: 0}
+            {id: 'dai', symbol: 'DAI', name: 'Dai', current_price: pricesData.dai?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'shiba-inu', symbol: 'SHIB', name: 'Shiba Inu', current_price: pricesData['shiba-inu']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'polkadot', symbol: 'DOT', name: 'Polkadot', current_price: pricesData.polkadot?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'litecoin', symbol: 'LTC', name: 'Litecoin', current_price: pricesData.litecoin?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'bitcoin-cash', symbol: 'BCH', name: 'Bitcoin Cash', current_price: pricesData['bitcoin-cash']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'near', symbol: 'NEAR', name: 'NEAR Protocol', current_price: pricesData.near?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'uniswap', symbol: 'UNI', name: 'Uniswap', current_price: pricesData.uniswap?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'internet-computer', symbol: 'ICP', name: 'Internet Computer', current_price: pricesData['internet-computer']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'ethereum-classic', symbol: 'ETC', name: 'Ethereum Classic', current_price: pricesData['ethereum-classic']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'aptos', symbol: 'APT', name: 'Aptos', current_price: pricesData.aptos?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'stellar', symbol: 'XLM', name: 'Stellar', current_price: pricesData.stellar?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'monero', symbol: 'XMR', name: 'Monero', current_price: pricesData.monero?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'hedera-hashgraph', symbol: 'HBAR', name: 'Hedera', current_price: pricesData['hedera-hashgraph']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'cosmos', symbol: 'ATOM', name: 'Cosmos Hub', current_price: pricesData.cosmos?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'filecoin', symbol: 'FIL', name: 'Filecoin', current_price: pricesData.filecoin?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'arbitrum', symbol: 'ARB', name: 'Arbitrum', current_price: pricesData.arbitrum?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'vechain', symbol: 'VET', name: 'VeChain', current_price: pricesData.vechain?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'first-digital-usd', symbol: 'FDUSD', name: 'First Digital USD', current_price: pricesData['first-digital-usd']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'maker', symbol: 'MKR', name: 'MakerDAO', current_price: pricesData.maker?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'optimism', symbol: 'OP', name: 'Optimism', current_price: pricesData.optimism?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'immutable-x', symbol: 'IMX', name: 'Immutable', current_price: pricesData['immutable-x']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'render-token', symbol: 'RNDR', name: 'Render', current_price: pricesData['render-token']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'the-graph', symbol: 'GRT', name: 'The Graph', current_price: pricesData['the-graph']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'injective-protocol', symbol: 'INJ', name: 'Injective', current_price: pricesData['injective-protocol']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'sei-network', symbol: 'SEI', name: 'Sei', current_price: pricesData['sei-network']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'theta-token', symbol: 'THETA', name: 'Theta Network', current_price: pricesData['theta-token']?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'bittensor', symbol: 'TAO', name: 'Bittensor', current_price: pricesData.bittensor?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'rune', symbol: 'RUNE', name: 'THORChain', current_price: pricesData.rune?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'stacks', symbol: 'STX', name: 'Stacks', current_price: pricesData.stacks?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'aave', symbol: 'AAVE', name: 'Aave', current_price: pricesData.aave?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'zcash', symbol: 'ZEC', name: 'Zcash', current_price: pricesData.zcash?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'dash', symbol: 'DASH', name: 'Dash', current_price: pricesData.dash?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'sushiswap', symbol: 'SUSHI', name: 'SushiSwap', current_price: pricesData.sushiswap?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'fantom', symbol: 'FTM', name: 'Fantom', current_price: pricesData.fantom?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'algorand', symbol: 'ALGO', name: 'Algorand', current_price: pricesData.algorand?.eur || 0, price_change_percentage_24h: 0},
+            {id: 'elrond-erd-2', symbol: 'EGLD', name: 'MultiversX', current_price: pricesData['elrond-erd-2']?.eur || 0, price_change_percentage_24h: 0}
         ];
         
         console.log('Prix chargés depuis la DB:', pricesData);
@@ -5890,11 +5965,13 @@ async function loadCryptoList() {
         
     } catch (error) {
         console.error('Erreur lors du chargement des cryptos:', error);
-        // Fallback avec quelques cryptos principales
+        // Fallback avec quelques cryptos principales (incluant USD-COIN pour compatibilité)
         cryptoList = [
             {id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', current_price: 0, price_change_percentage_24h: 0},
             {id: 'ethereum', symbol: 'ETH', name: 'Ethereum', current_price: 0, price_change_percentage_24h: 0},
-            {id: 'binancecoin', symbol: 'BNB', name: 'BNB', current_price: 0, price_change_percentage_24h: 0}
+            {id: 'binancecoin', symbol: 'BNB', name: 'BNB', current_price: 0, price_change_percentage_24h: 0},
+            {id: 'usd-coin', symbol: 'USDC', name: 'USDC', current_price: 0, price_change_percentage_24h: 0},
+            {id: 'solana', symbol: 'SOL', name: 'Solana', current_price: 0, price_change_percentage_24h: 0}
         ];
         updateAllCryptoSelects();
     }

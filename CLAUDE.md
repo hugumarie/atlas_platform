@@ -209,9 +209,128 @@ SECRET_KEY=your-secret-key
 
 ## 🔄 État Actuel du Projet
 
-**Dernière mise à jour** : 9 Janvier 2026
+**Dernière mise à jour** : 12 Janvier 2026
 
-### Dernières Modifications Majeures (9 Janvier 2026) 🆕
+### Dernières Modifications (12 Janvier 2026) 🆕
+
+#### 📊 AMÉLIORATION SYSTÈME SUIVI PATRIMONIAL
+
+**Nouvelles fonctionnalités comptes rendus** :
+- **Titre personnalisable** : Ajout d'un champ titre pour identifier rapidement les comptes rendus
+- **Type de RDV** : Liste déroulante avec 3 options (RDV invest, RDV suivi, Contact)
+- **Prochaine action** : Liste déroulante pour planifier la suite (Autre invest, Suivi classique)
+- **Édition complète** : Modal d'édition avec éditeur Quill pour modifier tous les champs
+- **Suppression sécurisée** : Bouton de suppression avec confirmation pour nettoyer l'historique
+- **Affichage enrichi** : Timeline améliorée avec badges et métadonnées visibles
+
+**Modifications techniques** :
+- Modèle `CompteRendu` étendu avec 3 nouvelles colonnes : `titre`, `type_rdv`, `prochaine_action`
+- Routes API complètes : `/compte-rendu/<id>/update` (PUT) et `/compte-rendu/<id>/delete` (DELETE)
+- Interface utilisateur cohérente avec design Atlas (couleurs, typographie, boutons)
+- Double éditeur Quill (création + édition) pour expérience utilisateur fluide
+
+**⚠️ MIGRATION BASE DE DONNÉES REQUISE POUR DÉPLOIEMENT** :
+```bash
+# Sur le serveur de production
+python migrations/add_compte_rendu_fields.py
+```
+
+#### 💰 SYNCHRONISATION COMPLÈTE SYSTÈME CRYPTOMONNAIES
+
+**Problème résolu** : Listes de cryptos désynchronisées entre espace client (50 cryptos) et admin (10 cryptos), causant des prix manquants et des calculs incorrects.
+
+**Modifications apportées** :
+- **Liste cryptos admin étendue** : 10 → **50 cryptomonnaies** dans `user_detail.html` (ligne 5857)
+- **Mapping symboles complet** : `symbolToId` mis à jour avec les 50 cryptos (ligne 1914)
+- **API admin corrigée** : Retourne désormais **tous les prix** disponibles (104 cryptos) au lieu de 10
+- **Précision augmentée** : 8 décimales pour les petites cryptos comme SHIB (0.00000729€)
+- **Prix mis à jour** : Script `update_crypto_prices.py` exécuté avec succès
+
+**Impact** :
+- ✅ USD-COIN (USDC), SHIB et toutes les cryptos maintenant disponibles en admin
+- ✅ Calculs patrimoniaux corrects : Total Cryptos = 62,286€ (BTC + USDC + SHIB)
+- ✅ Prix unitaires affichés correctement pour toutes les cryptos
+
+**Fichiers modifiés** :
+- `app/templates/platform/admin/user_detail.html` : Liste cryptos + mapping symboles
+- `app/routes/platform/admin.py` : API `/api/crypto-prices` sans filtrage
+
+#### 📊 AMÉLIORATIONS DASHBOARD ADMIN
+
+**Refonte des métriques** :
+- **Nouvelle carte "Abonnements"** : Affiche le nombre d'abonnés Initia et Optima séparément
+- **"Total Encours Conseillés"** : Remplace "Profils Complétés", calcule la somme de `calculated_total_placements` + `calculated_total_cryptomonnaies` de tous les clients
+- **Suppression "Total Clients"** : Redondant avec "Clients Actifs" + "Prospects"
+- **Mois dynamique** : Affichage du mois actuel en français pour "Nouveaux Clients"
+
+**Fichiers modifiés** :
+- `app/routes/platform/admin.py` : Calcul `total_encours` et `mois_actuel`
+- `app/templates/platform/admin/dashboard.html` : Nouvelle disposition des cartes
+
+#### 🐛 CORRECTIONS BUGS PATRIMOINE
+
+**Fix champ PEE/PERCO** :
+- **Problème** : Champ ne s'affichait pas en mode visualisation et n'entrait pas dans les calculs en temps réel
+- **Cause** : Incohérence de nommage (`pee_perco_value` dans le template vs `pee_value` dans le modèle)
+- **Solution** : Standardisation sur `pee_value` partout (input, display, JavaScript)
+
+**Fichier modifié** :
+- `app/templates/platform/investor/investor_data.html` : Lignes 2021, 2539, 4454, 4655
+
+#### 📧 MISE À JOUR EMAIL GÉNÉRIQUE SUIVI RDV
+
+**Nouveau design professionnel** :
+- **Objet** : "Suite à notre échange – votre accompagnement Atlas"
+- **Couleur principale** : #268190 (couleur Atlas)
+- **Logo Atlas** : Ajouté dans la signature (32px de hauteur)
+- **Contenu** : Message personnalisé et chaleureux avec CTA vers espace client
+
+**Fichier modifié** :
+- `app/routes/platform/admin.py` : Route `send_generic_follow_up_email`
+
+#### 🎓 AMÉLIORATIONS ONBOARDING
+
+**Page sélection des plans** (`/onboarding/plan`) :
+
+1. **Images des plans** :
+   - Plan INITIA : `/static/images/plan_initia.png` (icône feuilles blanches sur fond bleu-vert)
+   - Plan OPTIMA : `/static/images/plan_optima.png`
+   - Dimensions : 120×120px avec coins arrondis (20px)
+   - Style : `object-fit: cover` pour meilleur rendu
+
+2. **Informations de suivi** :
+   - INITIA : "2 rendez-vous de suivi par an avec votre conseiller Atlas" (dernière ligne des features)
+   - OPTIMA : "4 rendez-vous de suivi par an avec votre conseiller Atlas"
+   - Synchronisé avec la page de tarifs du site vitrine
+
+3. **Textes de bienvenue améliorés** :
+   - Titre : "Bienvenue sur Atlas !" → "Bienvenue chez Atlas !"
+   - Sous-titre : Message plus chaleureux "Merci pour votre confiance, nous avons hâte de vous accompagner"
+
+**Fichiers modifiés** :
+- `app/models/user_plan.py` : Configuration `PLAN_CONFIGS` avec images et features
+- `app/templates/onboarding/plan_selection.html` : Affichage images + CSS styling
+
+#### 📝 RÉCAPITULATIF TECHNIQUE
+
+**Migrations base de données** :
+```bash
+# Migration déjà créée et documentée
+python migrations/add_compte_rendu_fields.py
+```
+
+**Scripts de maintenance** :
+```bash
+# Mise à jour prix crypto (cron job)
+python scripts/update_crypto_prices.py
+```
+
+**Fichiers sensibles exclus** :
+- ✅ `.env` et fichiers de configuration avec clés Stripe
+- ✅ Scripts de configuration locale (`configure_*.sh`)
+- ✅ Backups base de données (`.sql`, `.gz`)
+
+### Modifications Majeures (9 Janvier 2026)
 
 #### 🚀 Mise à jour v3.0 - Fonctionnalités avancées
 
@@ -547,7 +666,31 @@ git pull origin main
 dokku deploy atlas
 ```
 
-#### 4. Vérifications post-déploiement
+#### 4. Exécution des migrations (si nécessaire)
+```bash
+# Copier les fichiers de migration si ce n'est pas déjà fait
+# (ils sont normalement déjà dans le repo Git)
+
+# Se connecter au conteneur Dokku
+dokku enter atlas web
+
+# Exécuter les migrations nécessaires
+# Exemple pour la migration des comptes rendus (12 janvier 2026)
+python migrations/add_compte_rendu_fields.py
+
+# Vérifier que la migration a réussi
+python migrations/add_compte_rendu_fields.py --check
+
+# Sortir du conteneur
+exit
+```
+
+**⚠️ IMPORTANT** : Toujours faire un backup de la base avant d'exécuter une migration :
+```bash
+dokku postgres:backup atlas-db atlas-backup-pre-migration-$(date +%Y%m%d-%H%M%S)
+```
+
+#### 5. Vérifications post-déploiement
 ```bash
 # Vérifier que l'application est en cours d'exécution
 dokku ps:report atlas

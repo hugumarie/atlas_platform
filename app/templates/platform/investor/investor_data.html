@@ -2018,8 +2018,8 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                     </div>
                     <div class="edit-item">
                         <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">PEE/PERCO</label>
-                        <input type="number" step="0.01" class="form-control edit-input" name="pee_value" 
-                               value="{{ current_user.investor_profile.pee_value or '' }}" 
+                        <input type="number" step="0.01" class="form-control edit-input" name="pee_value"
+                               value="{{ current_user.investor_profile.pee_value or '' }}"
                                placeholder="0.00"
                                style="width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
                     </div>
@@ -2497,7 +2497,7 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
             <!-- Sous-section PLACEMENTS FINANCIERS -->
             {% set has_placements = false %}
             
-            {% if current_user.investor_profile.pea_value or current_user.investor_profile.per_value or current_user.investor_profile.life_insurance_value or current_user.investor_profile.cto_value or current_user.investor_profile.pee_perco_value or current_user.investor_profile.private_equity_value or current_user.investor_profile.scpi_value or current_user.investor_profile.placements_personnalises_data %}
+            {% if current_user.investor_profile.pea_value or current_user.investor_profile.per_value or current_user.investor_profile.life_insurance_value or current_user.investor_profile.cto_value or current_user.investor_profile.pee_value or current_user.investor_profile.private_equity_value or current_user.investor_profile.scpi_value or current_user.investor_profile.placements_personnalises_data %}
                 {% set has_placements = true %}
             {% endif %}
             
@@ -2536,10 +2536,10 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                         </div>
                     {% endif %}
                     
-                    {% if current_user.investor_profile.pee_perco_value %}
+                    {% if current_user.investor_profile.pee_value %}
                         <div class="data-item">
                             <div class="data-label">PEE/PERCO</div>
-                            <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.pee_perco_value) }}€</div>
+                            <div class="data-value">{{ "{:,.0f}".format(current_user.investor_profile.pee_value) }}€</div>
                         </div>
                     {% endif %}
                     
@@ -4451,10 +4451,10 @@ function updateTotalPlacementsFinanciers() {
     const per = parseFloat(document.querySelector('input[name="per_value"]')?.value) || 0;
     const lifeInsurance = parseFloat(document.querySelector('input[name="life_insurance_value"]')?.value) || 0;
     const cto = parseFloat(document.querySelector('input[name="cto_value"]')?.value) || 0;
-    const peePerco = parseFloat(document.querySelector('input[name="pee_perco_value"]')?.value) || 0;
+    const peePerco = parseFloat(document.querySelector('input[name="pee_value"]')?.value) || 0;
     const privateEquity = parseFloat(document.querySelector('input[name="private_equity_value"]')?.value) || 0;
     const scpi = parseFloat(document.querySelector('input[name="scpi_value"]')?.value) || 0;
-    
+
     console.log('📊 Placements fixes détaillés:');
     console.log(`  - PEA: ${pea}€`);
     console.log(`  - PER: ${per}€`);
@@ -4463,7 +4463,7 @@ function updateTotalPlacementsFinanciers() {
     console.log(`  - PEE/PERCO: ${peePerco}€`);
     console.log(`  - Private Equity: ${privateEquity}€`);
     console.log(`  - SCPI: ${scpi}€`);
-    
+
     total += pea + per + lifeInsurance + cto + peePerco + privateEquity + scpi;
     console.log(`✅ Sous-total placements fixes: ${total}€`);
     
@@ -4651,8 +4651,8 @@ function setupAllTotalsEventListeners() {
     
     // Event listeners pour placements financiers
     const placementsInputs = [
-        'pea_value', 'per_value', 'life_insurance_value', 'cto_value', 
-        'pee_perco_value', 'private_equity_value', 'scpi_value',
+        'pea_value', 'per_value', 'life_insurance_value', 'cto_value',
+        'pee_value', 'private_equity_value', 'scpi_value',
         'placement_personnalise_name[]', 'placement_personnalise_amount[]'
     ];
     

@@ -37,6 +37,10 @@ backups/
 exports/
 *.sql
 *.dump
+*.gz
+backup_*.py
+backup_*.sh
+backup_config.env*
 
 # Scripts temporaires avec secrets
 *_config.env

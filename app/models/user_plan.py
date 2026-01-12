@@ -34,24 +34,28 @@ class UserPlan(db.Model):
             'name': 'INITIA',
             'price': 25.00,
             'description': 'Pour débuter dans l\'investissement',
+            'image': '/static/images/plan_initia.png',
             'features': [
                 'Analyse de votre situation et de vos objectifs',
                 'Mise en place d\'une stratégie d\'investissement',
                 'Suivi via votre tableau de bord Atlas',
                 'Pilotage de vos investissements',
                 'Contenus pédagogiques exclusifs',
-                'Accompagnement humain et 100% indépendant'
+                'Accompagnement humain et 100% indépendant',
+                '2 rendez-vous de suivi par an avec votre conseiller Atlas'
             ]
         },
         'optima': {
             'name': 'OPTIMA',
             'price': 50.00,
             'description': 'Pour structurer et optimiser son patrimoine existant',
+            'image': '/static/images/plan_optima.png',
             'features': [
                 'Tous les avantages Initia',
                 'Optimisation du patrimoine existant',
                 'Classes d\'actifs supplémentaires',
-                'Réponses prioritaires'
+                'Réponses prioritaires',
+                '4 rendez-vous de suivi par an avec votre conseiller Atlas'
             ]
         }
     }

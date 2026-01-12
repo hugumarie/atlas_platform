@@ -69,9 +69,21 @@ def dashboard():
             User.is_prospect == False,
             User.date_created >= debut_mois
         ).count()
+
+        # Nom du mois actuel
+        mois_actuel = datetime.now().strftime('%B %Y')
+        mois_fr = {
+            'January': 'Janvier', 'February': 'Février', 'March': 'Mars',
+            'April': 'Avril', 'May': 'Mai', 'June': 'Juin',
+            'July': 'Juillet', 'August': 'Août', 'September': 'Septembre',
+            'October': 'Octobre', 'November': 'Novembre', 'December': 'Décembre'
+        }
+        for en, fr in mois_fr.items():
+            mois_actuel = mois_actuel.replace(en, fr)
     except Exception as e:
         print(f"Erreur croissance: {e}")
         nouveaux_ce_mois = 0
+        mois_actuel = "Janvier 2026"
     
     # === PATRIMOINE MOYEN ===
     try:
@@ -83,7 +95,39 @@ def dashboard():
     except Exception as e:
         print(f"Erreur patrimoine: {e}")
         avg_patrimoine = 0.0
-    
+
+    # === TOTAL ENCOURS CONSEILLÉS (Placements + Crypto) ===
+    try:
+        # Somme des placements financiers + crypto de tous les clients
+        total_encours = 0.0
+
+        # Récupérer les profils investisseurs des vrais clients uniquement
+        all_profiles = db.session.query(InvestorProfile).join(User).filter(
+            User.is_admin == False,
+            User.is_prospect == False
+        ).all()
+
+        print(f"🔍 Calcul encours conseillés pour {len(all_profiles)} clients")
+
+        for profile in all_profiles:
+            # Utiliser les colonnes calculées déjà sauvegardées en base
+            placements = float(profile.calculated_total_placements or 0)
+            crypto = float(profile.calculated_total_cryptomonnaies or 0)
+
+            profile_encours = placements + crypto
+            total_encours += profile_encours
+
+            if profile_encours > 0:
+                print(f"  - User {profile.user_id}: Placements={placements:,.0f}€ + Crypto={crypto:,.0f}€ = {profile_encours:,.0f}€")
+
+        print(f"✅ Total encours conseillés: {total_encours:,.0f}€")
+
+    except Exception as e:
+        print(f"❌ Erreur calcul encours: {e}")
+        import traceback
+        traceback.print_exc()
+        total_encours = 0.0
+
     stats = {
         'total_users': total_users,
         'total_prospects': total_prospects,
@@ -93,7 +137,9 @@ def dashboard():
         'initia_subs': initia_subs,
         'optima_subs': optima_subs,
         'nouveaux_ce_mois': nouveaux_ce_mois,
-        'avg_patrimoine': avg_patrimoine
+        'mois_actuel': mois_actuel,
+        'avg_patrimoine': avg_patrimoine,
+        'total_encours': total_encours
     }
     
     # Utilisateurs récents
@@ -2023,31 +2069,17 @@ def get_crypto_prices():
             return jsonify({'error': 'Aucun prix disponible en base'}), 500
         
         # Convertir en format compatible avec le frontend JavaScript
+        # Retourner TOUS les prix disponibles (pas de mapping limité)
         formatted_prices = {}
-        
-        symbol_mapping = {
-            'bitcoin': {'symbol': 'BTC', 'name': 'Bitcoin'},
-            'ethereum': {'symbol': 'ETH', 'name': 'Ethereum'},
-            'binancecoin': {'symbol': 'BNB', 'name': 'BNB'},
-            'solana': {'symbol': 'SOL', 'name': 'Solana'},
-            'cardano': {'symbol': 'ADA', 'name': 'Cardano'},
-            'polkadot': {'symbol': 'DOT', 'name': 'Polkadot'},
-            'chainlink': {'symbol': 'LINK', 'name': 'Chainlink'},
-            'avalanche-2': {'symbol': 'AVAX', 'name': 'Avalanche'},
-            'cosmos': {'symbol': 'ATOM', 'name': 'Cosmos'},
-            'stellar': {'symbol': 'XLM', 'name': 'Stellar'},
-        }
-        
+
         for crypto_price in crypto_prices:
             symbol = crypto_price.symbol
-            if symbol in symbol_mapping:
-                formatted_prices[symbol] = {
-                    'eur': round(crypto_price.price_eur, 2),
-                    'symbol': symbol_mapping[symbol]['symbol'],
-                    'name': symbol_mapping[symbol]['name'],
-                    'price': round(crypto_price.price_eur, 2)
-                }
-        
+            # Utiliser plus de décimales pour les petites cryptos comme SHIB
+            formatted_prices[symbol] = {
+                'eur': round(crypto_price.price_eur, 8),  # 8 décimales pour SHIB et autres petites cryptos
+                'price': round(crypto_price.price_eur, 8)
+            }
+
         return jsonify(formatted_prices)
         
     except Exception as e:
@@ -2805,7 +2837,7 @@ def send_generic_follow_up_email(user_id):
   <body style="margin:0;padding:0;background:#f2f4f5;">
     <!-- Preheader (hidden) -->
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
-      Merci pour votre confiance accordée lors de notre échange.
+      Votre accompagnement Atlas se poursuit.
     </div>
 
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f2f4f5;">
@@ -2813,9 +2845,10 @@ def send_generic_follow_up_email(user_id):
         <td align="center" style="padding:28px 16px;">
           <!-- Container -->
           <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="width:640px;max-width:640px;background:#ffffff;border-radius:18px;overflow:hidden;">
+
             <!-- Header -->
             <tr>
-              <td align="center" style="background:#137C8B;padding:18px 20px;">
+              <td align="center" style="background:#268190;padding:18px 20px;">
                 <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:22px;line-height:26px;font-weight:700;color:#ffffff;">
                   Atlas
                 </div>
@@ -2824,70 +2857,46 @@ def send_generic_follow_up_email(user_id):
 
             <!-- Body -->
             <tr>
-              <td style="padding:34px 34px 16px 34px;">
-                <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#3a3a3a;font-size:18px;line-height:28px;">
-                  <div style="margin:0 0 16px 0;font-weight:700;">Bonjour {user.first_name},</div>
+              <td style="padding:28px 26px 10px 26px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;line-height:1.6;color:#111827;">
 
-                  <div style="margin:0 0 22px 0;">
-                    Merci pour la <strong>confiance accordée</strong> lors de notre échange et pour le temps que vous nous avez consacré.
-                  </div>
+                <p style="margin:0 0 14px 0;">Bonjour {user.first_name},</p>
 
-                  <div style="margin:0 0 20px 0;">
-                    Votre <strong>accompagnement Atlas</strong> continue et nous restons à votre disposition pour toutes vos questions sur l'investissement.
-                  </div>
+                <p style="margin:0 0 14px 0;">
+                  Merci pour notre échange et pour <strong>la confiance que vous accordez à Atlas</strong>.
+                </p>
 
-                  <div style="margin:0 0 18px 0;">
-                    <span style="font-weight:700;">👉</span> N'hésitez pas à consulter votre <strong>espace client</strong> pour :
-                  </div>
+                <p style="margin:0 0 14px 0;">
+                  👉 Votre accompagnement Atlas se poursuit, vous pouvez consulter à tout moment votre <strong>espace client</strong> pour :
+                </p>
 
-                  <!-- Bullets -->
-                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:8px 0 20px 0;">
-                    <tr>
-                      <td style="padding-left:18px;">
-                        <ul style="margin:0;padding-left:18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#3a3a3a;font-size:18px;line-height:28px;">
-                          <li>suivre l'évolution de votre <span style="font-weight:700;">patrimoine</span></li>
-                          <li>consulter votre <span style="font-weight:700;">plan d'investissement</span></li>
-                          <li>accéder aux <span style="font-weight:700;">ressources pédagogiques</span></li>
-                          <li>poser vos questions à votre <span style="font-weight:700;">conseiller dédié</span></li>
-                        </ul>
-                      </td>
-                    </tr>
-                  </table>
+                <ul style="margin:0 0 18px 18px;padding:0;">
+                  <li style="margin:0 0 8px 0;">suivre l'évolution de <strong>votre patrimoine</strong></li>
+                  <li style="margin:0 0 8px 0;">consulter votre <strong>plan d'investissement</strong></li>
+                  <li style="margin:0 0 8px 0;">accéder aux <strong>ressources pédagogiques</strong></li>
+                </ul>
 
-                  <!-- Button -->
-                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:22px 0 26px 0;">
-                    <tr>
-                      <td align="center">
-                        <!--[if mso]>
-                          <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="{dashboard_url}" style="height:54px;v-text-anchor:middle;width:320px;" arcsize="50%" stroke="f" fillcolor="#137C8B">
-                            <w:anchorlock/>
-                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:18px;font-weight:bold;">
-                              👉 Accéder à mon espace client
-                            </center>
-                          </v:roundrect>
-                        <![endif]-->
-                        <!--[if !mso]><!-- -->
-                        <a href="{dashboard_url}"
-                          style="display:inline-block;background:#137C8B;color:#ffffff;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;padding:16px 28px;border-radius:999px;">
-                          👉 Accéder à mon espace client
-                        </a>
-                        <!--<![endif]-->
-                      </td>
-                    </tr>
-                  </table>
+                <!-- CTA -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 22px 0;">
+                  <tr>
+                    <td align="center">
+                      <a href="{dashboard_url}" target="_blank"
+                        style="display:inline-block;background:#268190;color:#ffffff;text-decoration:none;font-weight:700;
+                               padding:14px 22px;border-radius:12px;font-size:14px;">
+                        👉 Accéder à mon espace Atlas
+                      </a>
+                    </td>
+                  </tr>
+                </table>
 
-                  <div style="margin:0 0 18px 0;">
-                    Si vous avez la moindre question ou souhaitez échanger sur votre stratégie d'investissement, 
-                    n'hésitez pas à nous contacter. <strong>Nous sommes là pour vous accompagner</strong>.
-                  </div>
+                <p style="margin:0 0 14px 0;">
+                  Si vous avez la moindre question ou si vous souhaitez ajuster un point de votre stratégie, nous restons à votre disposition.
+                </p>
 
-                  <div style="margin:0 0 22px 0;">
-                    Merci encore pour votre confiance et à très bientôt.
-                  </div>
+                <p style="margin:0;">
+                  À très bientôt,<br />
+                  <strong>L'équipe Atlas</strong>
+                </p>
 
-                  <div style="margin:0 0 6px 0;">Cordialement,</div>
-                  <div style="margin:0 0 18px 0;font-weight:700;">Votre conseiller Atlas</div>
-                </div>
               </td>
             </tr>
 
@@ -2898,7 +2907,7 @@ def send_generic_follow_up_email(user_id):
                   <tr>
                     <td style="padding:10px 0 6px 0;">
                       <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:16px;line-height:22px;">
-                        <a href="https://atlas-invest.fr" style="color:#137C8B;text-decoration:underline;">https://atlas-invest.fr</a>
+                        <a href="https://atlas-invest.fr" style="color:#3f7f88;text-decoration:underline;">https://atlas-invest.fr</a>
                       </div>
                     </td>
                   </tr>
@@ -2906,7 +2915,7 @@ def send_generic_follow_up_email(user_id):
                   <tr>
                     <td style="padding-top:10px;">
                       <img src="https://atlas-invest.fr/static/img/logo-atlas.png" alt="Atlas" style="height:32px;width:auto;vertical-align:middle;margin-right:12px;">
-                      <span style="display:inline-block;background:#137C8B;color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;line-height:18px;font-weight:700;padding:10px 14px;border-radius:10px;vertical-align:middle;">
+                      <span style="display:inline-block;background:#3f7f88;color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;line-height:18px;font-weight:700;padding:10px 14px;border-radius:10px;vertical-align:middle;">
                         Atlas – le conseil financier clair et indépendant
                       </span>
                     </td>
@@ -2934,32 +2943,27 @@ def send_generic_follow_up_email(user_id):
         # Version texte
         email_text = f"""
         Bonjour {user.first_name},
-        
-        Merci pour la confiance accordée lors de notre échange et pour le temps que vous nous avez consacré.
-        
-        Votre accompagnement Atlas continue et nous restons à votre disposition pour toutes vos questions sur l'investissement.
-        
-        N'hésitez pas à consulter votre espace client pour :
+
+        Merci pour notre échange et pour la confiance que vous accordez à Atlas.
+
+        Votre accompagnement Atlas se poursuit, vous pouvez consulter à tout moment votre espace client pour :
         - suivre l'évolution de votre patrimoine
         - consulter votre plan d'investissement
         - accéder aux ressources pédagogiques
-        - poser vos questions à votre conseiller dédié
-        
-        Lien vers votre espace client : {dashboard_url}
-        
-        Si vous avez la moindre question ou souhaitez échanger sur votre stratégie d'investissement, n'hésitez pas à nous contacter. Nous sommes là pour vous accompagner.
-        
-        Merci encore pour votre confiance et à très bientôt.
-        
-        Cordialement,
-        Votre conseiller Atlas
+
+        Lien vers votre espace Atlas : {dashboard_url}
+
+        Si vous avez la moindre question ou si vous souhaitez ajuster un point de votre stratégie, nous restons à votre disposition.
+
+        À très bientôt,
+        L'équipe Atlas
         """
-        
+
         # Envoyer l'email
         success = mailer.send_email(
             to_email=user.email,
             to_name=f"{user.first_name} {user.last_name}",
-            subject="Suite à votre rendez-vous avec votre conseiller Atlas",
+            subject="Suite à notre échange – votre accompagnement Atlas",
             html_content=email_html,
             text_content=email_text
         )
@@ -3000,25 +3004,31 @@ def create_compte_rendu(user_id):
     try:
         data = request.get_json()
         date_rdv_str = data.get('date_rdv')
+        titre = data.get('titre', '').strip()
+        type_rdv = data.get('type_rdv', '').strip()
+        prochaine_action = data.get('prochaine_action', '').strip()
         contenu = data.get('contenu', '').strip()
-        
+
         if not date_rdv_str:
             return jsonify({'success': False, 'message': 'Date du rendez-vous requise'}), 400
-        
+
         if not contenu:
             return jsonify({'success': False, 'message': 'Contenu du compte rendu requis'}), 400
-        
+
         # Convertir la date
         from datetime import datetime
         try:
             date_rdv = datetime.strptime(date_rdv_str, '%Y-%m-%d').date()
         except ValueError:
             return jsonify({'success': False, 'message': 'Format de date invalide'}), 400
-        
+
         # Créer le compte rendu
         compte_rendu = CompteRendu(
             user_id=user_id,
+            titre=titre if titre else None,
             date_rdv=date_rdv,
+            type_rdv=type_rdv if type_rdv else None,
+            prochaine_action=prochaine_action if prochaine_action else None,
             contenu=contenu
         )
         
@@ -3048,10 +3058,95 @@ def get_compte_rendu(compte_rendu_id):
     """
     if not current_user.is_admin:
         return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
-    
+
     compte_rendu = CompteRendu.query.get_or_404(compte_rendu_id)
-    
+
     return jsonify({
         'success': True,
         'compte_rendu': compte_rendu.to_dict()
     })
+
+
+@platform_admin_bp.route('/compte-rendu/<int:compte_rendu_id>/update', methods=['PUT'])
+@login_required
+def update_compte_rendu(compte_rendu_id):
+    """
+    Mettre à jour un compte rendu
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+
+    compte_rendu = CompteRendu.query.get_or_404(compte_rendu_id)
+
+    try:
+        data = request.get_json()
+
+        # Mise à jour des champs
+        if 'date_rdv' in data:
+            date_rdv_str = data.get('date_rdv')
+            if date_rdv_str:
+                from datetime import datetime
+                try:
+                    compte_rendu.date_rdv = datetime.strptime(date_rdv_str, '%Y-%m-%d').date()
+                except ValueError:
+                    return jsonify({'success': False, 'message': 'Format de date invalide'}), 400
+
+        if 'titre' in data:
+            compte_rendu.titre = data.get('titre', '').strip() or None
+
+        if 'type_rdv' in data:
+            compte_rendu.type_rdv = data.get('type_rdv', '').strip() or None
+
+        if 'prochaine_action' in data:
+            compte_rendu.prochaine_action = data.get('prochaine_action', '').strip() or None
+
+        if 'contenu' in data:
+            contenu = data.get('contenu', '').strip()
+            if not contenu:
+                return jsonify({'success': False, 'message': 'Contenu du compte rendu requis'}), 400
+            compte_rendu.contenu = contenu
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Compte rendu mis à jour avec succès',
+            'compte_rendu': compte_rendu.to_dict()
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erreur mise à jour compte rendu: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Erreur lors de la mise à jour: {str(e)}'
+        }), 500
+
+
+@platform_admin_bp.route('/compte-rendu/<int:compte_rendu_id>/delete', methods=['DELETE'])
+@login_required
+def delete_compte_rendu(compte_rendu_id):
+    """
+    Supprimer un compte rendu
+    """
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
+
+    compte_rendu = CompteRendu.query.get_or_404(compte_rendu_id)
+
+    try:
+        db.session.delete(compte_rendu)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Compte rendu supprimé avec succès'
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erreur suppression compte rendu: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'Erreur lors de la suppression: {str(e)}'
+        }), 500

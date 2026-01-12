@@ -250,6 +250,22 @@ body {
     gap: 4px;
 }
 
+.qlower-plan-image {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qlower-plan-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
 .qlower-plan-name {
     font-family: 'Encode Sans Condensed', 'Inter', sans-serif;
     font-size: 24px;
@@ -623,10 +639,15 @@ body {
         <!-- Compact Plans Grid -->
         <div class="qlower-plans-grid">
             {% for plan_key, plan_config in plans.items() %}
-            <div class="qlower-plan-card {{ 'popular' if plan_key == 'optima' else '' }} {{ 'selected' if current_plan == plan_key else '' }}" 
+            <div class="qlower-plan-card {{ 'popular' if plan_key == 'optima' else '' }} {{ 'selected' if current_plan == plan_key else '' }}"
                  data-plan="{{ plan_key }}">
-                
+
                 <div class="qlower-plan-info">
+                    {% if plan_config.image %}
+                    <div class="qlower-plan-image">
+                        <img src="{{ plan_config.image }}" alt="{{ plan_config.name }}">
+                    </div>
+                    {% endif %}
                     <h3 class="qlower-plan-name">{{ plan_config.name }}</h3>
                     <p class="qlower-plan-description">{{ plan_config.description }}</p>
                     <button class="qlower-toggle-details" data-plan="{{ plan_key }}">

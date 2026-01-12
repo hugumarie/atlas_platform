@@ -332,10 +332,23 @@
         <div class="metric-label">MRR</div>
         <div class="metric-info">
             <i class="fas fa-chart-line"></i>
-            {{ stats.initia_subs + stats.optima_subs }} abonnements
+            Revenu mensuel récurrent
         </div>
     </div>
-    
+
+    <!-- Abonnements -->
+    <div class="compact-card">
+        <div class="compact-icon">
+            <i class="fas fa-id-card"></i>
+        </div>
+        <div class="metric-value">{{ stats.initia_subs + stats.optima_subs }}</div>
+        <div class="metric-label">Abonnements</div>
+        <div class="metric-info">
+            <i class="fas fa-layer-group"></i>
+            {{ stats.initia_subs }} Initia • {{ stats.optima_subs }} Optima
+        </div>
+    </div>
+
     <!-- Clients Actifs -->
     <div class="compact-card">
         <div class="compact-icon">
@@ -348,20 +361,7 @@
             Abonnements payants
         </div>
     </div>
-    
-    <!-- Total Clients -->
-    <div class="compact-card">
-        <div class="compact-icon">
-            <i class="fas fa-user-check"></i>
-        </div>
-        <div class="metric-value">{{ stats.total_users }}</div>
-        <div class="metric-label">Total Clients</div>
-        <div class="metric-info">
-            <i class="fas fa-chart-bar"></i>
-            Utilisateurs inscrits
-        </div>
-    </div>
-    
+
     <!-- Prospects -->
     <div class="compact-card">
         <div class="compact-icon" style="background: var(--atlas-warning);">
@@ -391,16 +391,16 @@
         </div>
     </div>
     
-    <!-- Profils Complétés -->
+    <!-- Total Encours Conseillés -->
     <div class="compact-card">
         <div class="compact-icon" style="background: var(--atlas-secondary);">
-            <i class="fas fa-clipboard-check"></i>
+            <i class="fas fa-coins"></i>
         </div>
-        <div class="metric-value">{{ stats.completed_profiles }}</div>
-        <div class="metric-label">Profils Complétés</div>
+        <div class="metric-value">{{ "{:,.0f}".format(stats.total_encours) }}€</div>
+        <div class="metric-label">Total Encours Conseillés</div>
         <div class="metric-info">
-            <i class="fas fa-percentage"></i>
-            Questionnaires patrimoine
+            <i class="fas fa-chart-pie"></i>
+            Placements + Crypto
         </div>
     </div>
     
@@ -413,7 +413,7 @@
         <div class="metric-label">Nouveaux ce Mois</div>
         <div class="metric-info">
             <i class="fas fa-calendar"></i>
-            Janvier 2026
+            {{ stats.mois_actuel }}
         </div>
     </div>
 </div>

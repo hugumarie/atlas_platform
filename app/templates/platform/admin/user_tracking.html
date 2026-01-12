@@ -154,14 +154,33 @@
                 <div class="timeline-content">
                     <div class="compte-rendu-card-timeline">
                         <div class="compte-rendu-header-timeline">
-                            <div class="compte-rendu-date-timeline">
-                                <i class="fas fa-calendar"></i>
-                                {{ compte_rendu.date_rdv.strftime('%d/%m/%Y') }}
+                            <div class="compte-rendu-info-timeline">
+                                {% if compte_rendu.titre %}
+                                <div class="compte-rendu-titre-timeline">
+                                    <i class="fas fa-file-alt"></i>
+                                    {{ compte_rendu.titre }}
+                                </div>
+                                {% endif %}
+                                <div class="compte-rendu-date-timeline">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ compte_rendu.date_rdv.strftime('%d/%m/%Y') }}
+                                    {% if compte_rendu.type_rdv %}
+                                    <span class="badge-type-rdv">{{ compte_rendu.type_rdv }}</span>
+                                    {% endif %}
+                                </div>
                             </div>
                             <div class="compte-rendu-actions-timeline">
                                 <button class="admin-btn admin-btn-outline-primary admin-btn-sm" onclick="viewCompteRendu({{ compte_rendu.id }})">
                                     <i class="fas fa-eye"></i>
                                     Consulter
+                                </button>
+                                <button class="admin-btn admin-btn-outline-secondary admin-btn-sm" onclick="editCompteRendu({{ compte_rendu.id }})">
+                                    <i class="fas fa-edit"></i>
+                                    Éditer
+                                </button>
+                                <button class="admin-btn admin-btn-outline-danger admin-btn-sm" onclick="deleteCompteRendu({{ compte_rendu.id }})">
+                                    <i class="fas fa-trash"></i>
+                                    Supprimer
                                 </button>
                             </div>
                         </div>
@@ -485,24 +504,57 @@
 .compte-rendu-header-timeline {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 16px;
     padding-bottom: 12px;
     border-bottom: 1px solid var(--qlower-border);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.compte-rendu-info-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.compte-rendu-titre-timeline {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--qlower-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .compte-rendu-date-timeline {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--qlower-primary);
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
+}
+
+.badge-type-rdv {
+    display: inline-block;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, var(--qlower-primary) 0%, var(--qlower-dark) 100%);
+    color: white;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .compte-rendu-actions-timeline {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .compte-rendu-preview-timeline {
@@ -717,6 +769,49 @@
 .admin-btn-outline-primary:hover {
     background: var(--qlower-primary);
     color: white;
+}
+
+.admin-btn-outline-secondary {
+    background: transparent;
+    color: var(--qlower-secondary);
+    border: 2px solid var(--qlower-secondary);
+}
+
+.admin-btn-outline-secondary:hover {
+    background: var(--qlower-secondary);
+    color: white;
+}
+
+.admin-btn-outline-danger {
+    background: transparent;
+    color: #dc3545;
+    border: 2px solid #dc3545;
+}
+
+.admin-btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Métadonnées dans la modal de consultation */
+.compte-rendu-metadata {
+    background: var(--qlower-bg-light);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.metadata-item {
+    font-size: 14px;
+    color: var(--qlower-text-dark);
+}
+
+.metadata-item strong {
+    color: var(--qlower-dark);
+    font-weight: 600;
 }
 
 /* Responsive */
@@ -1065,13 +1160,16 @@ function closeCreateCompteRenduModal() {
 // Fonction pour sauvegarder le compte rendu
 function saveCompteRendu() {
     const dateRdv = document.getElementById('dateRdv').value;
-    
+    const titre = document.getElementById('titreRdv').value.trim();
+    const typeRdv = document.getElementById('typeRdv').value;
+    const prochaineAction = document.getElementById('prochaineAction').value;
+
     // Récupérer le contenu de l'éditeur Quill (HTML)
     let contenu = '';
     if (quill) {
         const delta = quill.getContents();
         contenu = quill.root.innerHTML.trim();
-        
+
         // Vérifier si l'éditeur n'est pas vide (ignorer les tags vides)
         const textContent = quill.getText().trim();
         if (!textContent) {
@@ -1082,18 +1180,18 @@ function saveCompteRendu() {
         alert('Erreur : éditeur non initialisé');
         return;
     }
-    
+
     if (!dateRdv) {
         alert('Veuillez sélectionner une date de rendez-vous');
         return;
     }
-    
+
     // Affichage du loader
     const saveButton = event.target;
     const originalContent = saveButton.innerHTML;
     saveButton.disabled = true;
     saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sauvegarde...';
-    
+
     fetch(`/plateforme/admin/utilisateur/${currentUserId}/compte-rendu`, {
         method: 'POST',
         headers: {
@@ -1101,6 +1199,9 @@ function saveCompteRendu() {
         },
         body: JSON.stringify({
             date_rdv: dateRdv,
+            titre: titre,
+            type_rdv: typeRdv,
+            prochaine_action: prochaineAction,
             contenu: contenu
         })
     })
@@ -1136,13 +1237,31 @@ function viewCompteRendu(compteRenduId) {
     .then(data => {
         if (data.success) {
             const compteRendu = data.compte_rendu;
-            
-            // Mettre à jour le titre avec la date
-            document.getElementById('viewModalTitle').textContent = `Compte rendu du ${compteRendu.date_rdv_formatted}`;
-            
+
+            // Mettre à jour le titre avec la date et le titre si présent
+            let modalTitle = `Compte rendu du ${compteRendu.date_rdv_formatted}`;
+            if (compteRendu.titre) {
+                modalTitle = `${compteRendu.titre} - ${compteRendu.date_rdv_formatted}`;
+            }
+            document.getElementById('viewModalTitle').textContent = modalTitle;
+
+            // Construire le contenu avec les métadonnées
+            let contentHtml = '';
+            if (compteRendu.type_rdv || compteRendu.prochaine_action) {
+                contentHtml += '<div class="compte-rendu-metadata">';
+                if (compteRendu.type_rdv) {
+                    contentHtml += `<div class="metadata-item"><strong>Type de RDV:</strong> ${compteRendu.type_rdv}</div>`;
+                }
+                if (compteRendu.prochaine_action) {
+                    contentHtml += `<div class="metadata-item"><strong>Prochaine action:</strong> ${compteRendu.prochaine_action}</div>`;
+                }
+                contentHtml += '</div><hr>';
+            }
+            contentHtml += compteRendu.contenu;
+
             // Mettre à jour le contenu (affichage HTML)
-            document.getElementById('compteRenduContent').innerHTML = compteRendu.contenu;
-            
+            document.getElementById('compteRenduContent').innerHTML = contentHtml;
+
             // Ouvrir la modal
             document.getElementById('viewCompteRenduModal').classList.add('active');
         } else {
@@ -1161,6 +1280,195 @@ function closeViewCompteRenduModal() {
     modal.classList.remove('active');
 }
 
+// Variables pour l'édition
+let quillEdit = null;
+let editCompteRenduId = null;
+
+// Fonction pour initialiser l'éditeur Quill d'édition
+function initQuillEditorEdit() {
+    if (!quillEdit) {
+        quillEdit = new Quill('#quillEditorEdit', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'align': [] }],
+                    ['link'],
+                    ['clean']
+                ]
+            },
+            placeholder: 'Saisissez ici le contenu du compte rendu...'
+        });
+
+        const quillContainer = document.querySelector('#quillEditorEdit .ql-container');
+        if (quillContainer) {
+            quillContainer.style.fontFamily = 'Inter, sans-serif';
+            quillContainer.style.fontSize = '14px';
+            quillContainer.style.lineHeight = '1.5';
+        }
+    }
+}
+
+// Fonction pour éditer un compte rendu
+function editCompteRendu(compteRenduId) {
+    editCompteRenduId = compteRenduId;
+
+    fetch(`/plateforme/admin/compte-rendu/${compteRenduId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const compteRendu = data.compte_rendu;
+
+            // Remplir le formulaire
+            document.getElementById('editTitreRdv').value = compteRendu.titre || '';
+            document.getElementById('editDateRdv').value = compteRendu.date_rdv;
+            document.getElementById('editTypeRdv').value = compteRendu.type_rdv || '';
+            document.getElementById('editProchaineAction').value = compteRendu.prochaine_action || '';
+
+            // Initialiser l'éditeur Quill pour l'édition
+            initQuillEditorEdit();
+
+            // Charger le contenu
+            if (quillEdit) {
+                quillEdit.root.innerHTML = compteRendu.contenu;
+            }
+
+            // Ouvrir la modal
+            document.getElementById('editCompteRenduModal').classList.add('active');
+        } else {
+            alert('❌ Erreur lors du chargement du compte rendu');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('❌ Erreur technique lors du chargement');
+    });
+}
+
+// Fonction pour fermer la modal d'édition
+function closeEditCompteRenduModal() {
+    const modal = document.getElementById('editCompteRenduModal');
+    modal.classList.remove('active');
+    editCompteRenduId = null;
+}
+
+// Fonction pour sauvegarder les modifications
+function updateCompteRendu() {
+    const dateRdv = document.getElementById('editDateRdv').value;
+    const titre = document.getElementById('editTitreRdv').value.trim();
+    const typeRdv = document.getElementById('editTypeRdv').value;
+    const prochaineAction = document.getElementById('editProchaineAction').value;
+
+    // Récupérer le contenu de l'éditeur Quill (HTML)
+    let contenu = '';
+    if (quillEdit) {
+        contenu = quillEdit.root.innerHTML.trim();
+
+        // Vérifier si l'éditeur n'est pas vide (ignorer les tags vides)
+        const textContent = quillEdit.getText().trim();
+        if (!textContent) {
+            alert('Veuillez saisir le contenu du compte rendu');
+            return;
+        }
+    } else {
+        alert('Erreur : éditeur non initialisé');
+        return;
+    }
+
+    if (!dateRdv) {
+        alert('Veuillez sélectionner une date de rendez-vous');
+        return;
+    }
+
+    // Affichage du loader
+    const saveButton = event.target;
+    const originalContent = saveButton.innerHTML;
+    saveButton.disabled = true;
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mise à jour...';
+
+    fetch(`/plateforme/admin/compte-rendu/${editCompteRenduId}/update`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            date_rdv: dateRdv,
+            titre: titre,
+            type_rdv: typeRdv,
+            prochaine_action: prochaineAction,
+            contenu: contenu
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Compte rendu mis à jour avec succès !');
+            closeEditCompteRenduModal();
+            // Recharger la page pour voir les modifications
+            window.location.reload();
+        } else {
+            alert('❌ Erreur lors de la mise à jour :\n' + data.message);
+        }
+
+        // Restaurer le bouton
+        saveButton.disabled = false;
+        saveButton.innerHTML = originalContent;
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('❌ Erreur technique lors de la mise à jour');
+
+        // Restaurer le bouton
+        saveButton.disabled = false;
+        saveButton.innerHTML = originalContent;
+    });
+}
+
+// Fonction pour supprimer un compte rendu
+function deleteCompteRendu(compteRenduId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce compte rendu ?\n\nCette action est irréversible.')) {
+        return;
+    }
+
+    // Affichage du loader
+    const button = event.target.closest('button');
+    const originalContent = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    fetch(`/plateforme/admin/compte-rendu/${compteRenduId}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Compte rendu supprimé avec succès !');
+            // Recharger la page pour voir les changements
+            window.location.reload();
+        } else {
+            alert('❌ Erreur lors de la suppression :\n' + data.message);
+            // Restaurer le bouton
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('❌ Erreur technique lors de la suppression');
+
+        // Restaurer le bouton
+        button.disabled = false;
+        button.innerHTML = originalContent;
+    });
+}
+
 // Fermer les modales en cliquant sur l'overlay
 document.addEventListener('click', function(event) {
     if (event.target.classList.contains('modal-overlay')) {
@@ -1173,6 +1481,7 @@ document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeCreateCompteRenduModal();
         closeViewCompteRenduModal();
+        closeEditCompteRenduModal();
     }
 });
 </script>
@@ -1187,8 +1496,29 @@ document.addEventListener('keydown', function(event) {
         <div class="modal-body">
             <form id="createCompteRenduForm">
                 <div class="form-group">
+                    <label class="form-label" for="titreRdv">Titre (optionnel)</label>
+                    <input type="text" id="titreRdv" name="titre" class="form-control" placeholder="Ex: Premier rendez-vous, Suivi trimestriel...">
+                </div>
+                <div class="form-group">
                     <label class="form-label" for="dateRdv">Date du rendez-vous</label>
                     <input type="date" id="dateRdv" name="date_rdv" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="typeRdv">Type de RDV</label>
+                    <select id="typeRdv" name="type_rdv" class="form-control">
+                        <option value="">-- Sélectionner --</option>
+                        <option value="RDV invest">RDV invest</option>
+                        <option value="RDV suivi">RDV suivi</option>
+                        <option value="Contact">Contact</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="prochaineAction">Prochaine action</label>
+                    <select id="prochaineAction" name="prochaine_action" class="form-control">
+                        <option value="">-- Sélectionner --</option>
+                        <option value="Autre invest">Autre invest</option>
+                        <option value="Suivi classique">Suivi classique</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="contenuRdv">Contenu du compte rendu</label>
@@ -1216,6 +1546,53 @@ document.addEventListener('keydown', function(event) {
         </div>
         <div class="modal-footer">
             <button type="button" class="admin-btn admin-btn-secondary" onclick="closeViewCompteRenduModal()">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal édition compte rendu -->
+<div id="editCompteRenduModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Éditer le compte rendu</h3>
+            <button class="modal-close" onclick="closeEditCompteRenduModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="editCompteRenduForm">
+                <div class="form-group">
+                    <label class="form-label" for="editTitreRdv">Titre (optionnel)</label>
+                    <input type="text" id="editTitreRdv" name="titre" class="form-control" placeholder="Ex: Premier rendez-vous, Suivi trimestriel...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editDateRdv">Date du rendez-vous</label>
+                    <input type="date" id="editDateRdv" name="date_rdv" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editTypeRdv">Type de RDV</label>
+                    <select id="editTypeRdv" name="type_rdv" class="form-control">
+                        <option value="">-- Sélectionner --</option>
+                        <option value="RDV invest">RDV invest</option>
+                        <option value="RDV suivi">RDV suivi</option>
+                        <option value="Contact">Contact</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editProchaineAction">Prochaine action</label>
+                    <select id="editProchaineAction" name="prochaine_action" class="form-control">
+                        <option value="">-- Sélectionner --</option>
+                        <option value="Autre invest">Autre invest</option>
+                        <option value="Suivi classique">Suivi classique</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="contenuRdvEdit">Contenu du compte rendu</label>
+                    <div id="quillEditorEdit" class="quill-editor-container"></div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="admin-btn admin-btn-secondary" onclick="closeEditCompteRenduModal()">Annuler</button>
+            <button type="button" class="admin-btn admin-btn-primary" onclick="updateCompteRendu()">Enregistrer les modifications</button>
         </div>
     </div>
 </div>
