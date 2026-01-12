@@ -41,6 +41,7 @@ exports/
 backup_*.py
 !scripts/backup_database_production.py
 backup_*.sh
+!scripts/backup_and_upload.sh
 backup_config.env*
 
 # Scripts temporaires avec secrets
