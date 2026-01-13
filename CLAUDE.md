@@ -209,9 +209,158 @@ SECRET_KEY=your-secret-key
 
 ## 🔄 État Actuel du Projet
 
-**Dernière mise à jour** : 12 Janvier 2026
+**Dernière mise à jour** : 13 Janvier 2026
 
-### Dernières Modifications (12 Janvier 2026) 🆕
+### Dernières Modifications (13 Janvier 2026) 🆕
+
+#### 🎨 AMÉLIORATIONS UX ET DESIGN INTERFACE
+
+**1. Nettoyage Interface Données Investisseur**
+- **Suppression ligne "Total Actifs/Dettes"** : Retrait de la ligne récapitulative sur `/plateforme/donnees-investisseur`
+- **Raison** : Information redondante déjà visible dans le dashboard
+- **Fichier modifié** : `app/templates/platform/investor/investor_data.html`
+
+**2. Amélioration Qualité Affichage PDF 📄**
+- **Problème résolu** : PDFs flous sur écrans haute résolution (Retina, 4K)
+- **Solution technique** :
+  - Rendu canvas à haute résolution avec `devicePixelRatio`
+  - Scale de sortie 1.5× pour netteté optimale
+  - Transform matrix pour PDF.js
+  - Échelle par défaut augmentée de 1.0 → 1.5
+- **Impact** : PDFs nets et lisibles sur tous les devices sans compromis de sécurité
+- **Fichiers modifiés** :
+  - `app/templates/platform/investor/learning_pdf.html`
+  - `app/templates/platform/admin/learning_pdf.html`
+
+**Code clé implémenté** :
+```javascript
+const pixelRatio = window.devicePixelRatio || 1;
+const outputScale = pixelRatio * 1.5; // 1.5x pour netteté extra
+
+canvas.height = Math.floor(viewport.height * outputScale);
+canvas.width = Math.floor(viewport.width * outputScale);
+canvas.style.width = Math.floor(viewport.width) + 'px';
+canvas.style.height = Math.floor(viewport.height) + 'px';
+
+const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+```
+
+**3. Sécurisation Changement Abonnement 🔐**
+- **Nouvelle fonctionnalité** : Confirmation par mot de passe pour changement de plan
+- **Design moderne** : Modal avec gradient header, icône exchange, billing détaillé
+- **Sécurité** : Vérification backend du mot de passe via `current_user.check_password()`
+- **UX** :
+  - Affichage du nouveau prix (25€ ou 50€)
+  - Explication claire de la facturation (immédiat, prorata, nouveau tarif)
+  - Messages d'erreur inline pour mot de passe incorrect
+  - Loading states et feedback temps réel
+
+**Fichiers modifiés** :
+- `app/templates/platform/investor/profile.html` : Nouveau modal + JavaScript
+- `app/routes/platform/investor.py` : Route `/profil/changer-plan` avec vérification
+
+**Design du modal** :
+```
+┌─────────────────────────────────────┐
+│  🔄 (gradient #137C8B → #344D59)   │
+│  Changement de plan                 │
+│  Confirmez votre nouveau abonnement │
+├─────────────────────────────────────┤
+│  ┌─────────────────────────────┐   │
+│  │ OPTIMA                      │   │
+│  │ 50€/mois                    │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  Ce qui va se passer:               │
+│  ✓ Changement immédiat              │
+│  ✓ Facturation au prorata           │
+│  ✓ Prochain paiement nouveau tarif │
+│                                     │
+│  [Votre mot de passe]              │
+│  [Mot de passe incorrect]          │
+│                                     │
+│  [Annuler]  [✓ Confirmer]          │
+└─────────────────────────────────────┘
+```
+
+#### 🐛 CORRECTIONS BUGS CRITIQUES
+
+**1. Fix Service Suppression Utilisateurs**
+- **Problème** : Échec de suppression pour certains utilisateurs en production
+- **Cause** : Nouvelles tables (comptes_rendus, password_reset_tokens) non gérées
+- **Solution** : Extension de `UserDeletionService._delete_investment_plans()` pour 11 tables
+- **Tables maintenant supprimées** :
+  1. comptes_rendus (NOUVELLE)
+  2. investment_actions
+  3. investment_plan_lines
+  4. investment_plans
+  5. password_reset_tokens (NOUVELLE)
+  6. invitation_tokens
+  7. user_plans
+  8. payment_methods
+  9. portfolios
+  10. subscriptions
+  11. investor_profiles
+
+**Fichier modifié** : `app/services/user_deletion_service.py`
+
+**2. Fix Menu Mobile Double-Clic 📱**
+- **Problème critique** : Boutons menu mobile nécessitaient 2 clics pour fonctionner
+- **Cause** : Menu se fermait AVANT que le clic bouton ne soit traité
+- **Solution** : Script centralisé avec gestion événements appropriée
+  - **Pour modals Bootstrap** : Écoute événement `show.bs.modal`
+  - **Pour liens navigation** : Délai 10ms avant fermeture menu
+- **Impact** : Fix appliqué sur **10 pages** du site vitrine
+
+**Nouveau fichier créé** : `app/static/js/mobile-menu-fix.js`
+
+**Pages mises à jour** :
+- about.html, cgu.html, cgv.html, contact.html, cookies.html
+- index_exact.html, legal.html, pricing.html, privacy.html, solutions.html
+
+**Code de la solution** :
+```javascript
+// ✅ FIX 1: Liens navigation
+document.querySelectorAll('.mobile-menu-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+        setTimeout(() => toggleMobileMenu(), 10); // 10ms délai
+    });
+});
+
+// ✅ FIX 2: Modals Bootstrap (RDV)
+appointmentModal.addEventListener('show.bs.modal', function () {
+    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
+    if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
+        hamburger.classList.remove('active');
+        mobileMenuOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+});
+```
+
+#### 📝 RÉCAPITULATIF TECHNIQUE
+
+**Nouveaux fichiers** :
+- `app/static/js/mobile-menu-fix.js` : Fix universel menu mobile
+
+**Modifications majeures** :
+- `app/templates/platform/investor/investor_data.html` : Suppression ligne récap
+- `app/templates/platform/investor/learning_pdf.html` : Rendu haute résolution
+- `app/templates/platform/admin/learning_pdf.html` : Rendu haute résolution
+- `app/templates/platform/investor/profile.html` : Modal confirmation + 400 lignes JS
+- `app/routes/platform/investor.py` : Vérification mot de passe changement plan
+- `app/services/user_deletion_service.py` : Extension suppression 11 tables
+- 10 templates site vitrine : Intégration mobile-menu-fix.js
+
+**Tests effectués en local** :
+- ✅ Suppression ligne Total Actifs/Dettes
+- ✅ PDFs affichés nets sur écrans haute résolution
+- ✅ Menu mobile fonctionne au premier clic
+- ✅ Changement plan avec mot de passe fonctionnel
+- ✅ Messages d'erreur mot de passe incorrect
+- ✅ Design modal moderne et professionnel
+
+### Modifications Précédentes (12 Janvier 2026)
 
 #### ⏰ ACTIVATION COMPLÈTE SYSTÈME CRON JOBS PRODUCTION 🎉
 

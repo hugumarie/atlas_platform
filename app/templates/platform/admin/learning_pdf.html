@@ -444,7 +444,7 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 let pdfDoc = null;
-let scale = 3.0; // Zoom par défaut x3
+let scale = 1.5; // Zoom par défaut optimisé (haute résolution via devicePixelRatio)
 let totalPages = 0;
 let renderedPages = 0;
 
@@ -526,22 +526,31 @@ function renderPageSequentially(pageNumber, pageContainers) {
 function renderPage(pageNumber, pageContainer) {
     return new Promise((resolve, reject) => {
         pdfDoc.getPage(pageNumber).then(function(page) {
+            // Utiliser devicePixelRatio pour des rendus haute résolution (écrans Retina/4K)
+            const pixelRatio = window.devicePixelRatio || 1;
+            const outputScale = pixelRatio * 1.5; // 1.5x pour encore plus de netteté
+
             const viewport = page.getViewport({ scale: scale });
-            
+
             // Créer un canvas pour cette page
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
+
             // S'assurer que les dimensions sont valides
             if (viewport.width <= 0 || viewport.height <= 0) {
                 console.error(`Dimensions invalides pour la page ${pageNumber}: ${viewport.width}x${viewport.height}`);
                 reject(new Error('Dimensions invalides'));
                 return;
             }
-            
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
+
+            // Haute résolution : canvas interne plus grand, affiché à taille normale via CSS
+            canvas.height = Math.floor(viewport.height * outputScale);
+            canvas.width = Math.floor(viewport.width * outputScale);
             canvas.className = 'pdf-page';
+
+            // Afficher le canvas à sa taille visuelle normale via CSS
+            canvas.style.width = Math.floor(viewport.width) + 'px';
+            canvas.style.height = Math.floor(viewport.height) + 'px';
             
             // Ajouter un attribut pour identifier la page
             canvas.setAttribute('data-page-num', pageNumber);
@@ -549,10 +558,14 @@ function renderPage(pageNumber, pageContainer) {
             // Pré-remplir le canvas avec du blanc pour éviter les carrés noirs/transparents
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
+
+            // Appliquer le transform pour la haute résolution
+            const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+
             const renderContext = {
                 canvasContext: ctx,
-                viewport: viewport
+                viewport: viewport,
+                transform: transform
             };
             
             console.log(`🎨 Admin - Rendu page ${pageNumber}/${totalPages} (${Math.round(viewport.width)}x${Math.round(viewport.height)})`);
@@ -617,7 +630,7 @@ function fitToWidth() {
     
     pdfDoc.getPage(1).then(function(page) {
         const viewport = page.getViewport({ scale: 1 });
-        scale = (containerWidth / viewport.width) / 2;
+        scale = Math.max(1.2, (containerWidth / viewport.width) * 0.95); // Ajustement optimisé pour la netteté
         renderAllPages();
     });
 }
@@ -651,7 +664,7 @@ pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
     
     pdf.getPage(1).then(function(page) {
         const viewport = page.getViewport({ scale: 1 });
-        scale = Math.min((containerWidth - 40) / viewport.width, 1.5) / 2;
+        scale = 1.5; // Zoom optimisé pour netteté au chargement
         renderAllPages();
     });
     

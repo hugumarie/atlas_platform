@@ -2760,6 +2760,9 @@ body {
 {% endblock %}
 
 {% block scripts %}
+<!-- ✅ Menu Mobile Fix - Résolution problème double-clic -->
+<script src="{{ url_for('static', filename='js/mobile-menu-fix.js') }}"></script>
+
 <script>
 // EXACT QLOWER INTERACTIONS
 
@@ -2780,102 +2783,8 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // Ajouter classe index-page au body
 document.body.classList.add('index-page');
 
-// Modern hamburger menu toggle
-function toggleMobileMenu() {
-    const hamburger = document.querySelector('.hamburger');
-    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
-    
-    if (hamburger && mobileMenuOverlay) {
-        // Toggle active classes
-        hamburger.classList.toggle('active');
-        mobileMenuOverlay.classList.toggle('active');
-        
-        // FORCE CENTERING pour page d'accueil
-        if (mobileMenuOverlay.classList.contains('active')) {
-            // Force le centrage du menu mobile spécifiquement pour la page d'accueil
-            setTimeout(() => {
-                const menuContent = document.querySelector('.mobile-menu-content');
-                const menuNav = document.querySelector('.mobile-menu-nav');
-                const menuActions = document.querySelector('.mobile-menu-actions');
-                const menuLinks = document.querySelectorAll('.mobile-menu-link');
-                const menuBtns = document.querySelectorAll('.mobile-menu-btn');
-                
-                if (menuContent) {
-                    menuContent.style.textAlign = 'center';
-                    menuContent.style.alignItems = 'center';
-                    menuContent.style.justifyContent = 'center';
-                    menuContent.style.margin = '0 auto';
-                    menuContent.style.width = '100%';
-                }
-                
-                if (menuNav) {
-                    menuNav.style.textAlign = 'center';
-                    menuNav.style.alignItems = 'center';
-                    menuNav.style.margin = '0 auto';
-                    menuNav.style.width = '100%';
-                }
-                
-                if (menuActions) {
-                    menuActions.style.textAlign = 'center';
-                    menuActions.style.alignItems = 'center';
-                    menuActions.style.margin = '0 auto';
-                }
-                
-                menuLinks.forEach(link => {
-                    link.style.textAlign = 'center';
-                    link.style.margin = '0 auto';
-                    link.style.display = 'block';
-                    link.style.width = 'auto';
-                });
-                
-                menuBtns.forEach(btn => {
-                    btn.style.textAlign = 'center';
-                    btn.style.margin = '0 auto';
-                });
-            }, 10);
-            
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-    }
-}
-
-// Setup mobile menu event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Close menu when clicking mobile links
-    document.querySelectorAll('.mobile-menu-link').forEach(link => {
-        link.addEventListener('click', function() {
-            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
-            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
-                toggleMobileMenu();
-            }
-        });
-    });
-    
-    // Close mobile menu when clicking the mobile "Prendre RDV" button
-    const mobileRDVButton = document.querySelector('.mobile-menu-btn-primary');
-    if (mobileRDVButton) {
-        mobileRDVButton.addEventListener('click', function() {
-            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
-            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
-                toggleMobileMenu();
-            }
-        });
-    }
-    
-    // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
-    // Handle clicking outside the menu content to close (on the overlay background)
-    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
-    if (mobileMenuOverlay) {
-        mobileMenuOverlay.addEventListener('click', function(e) {
-            // Only close if clicking on the overlay itself, not its children
-            if (e.target === mobileMenuOverlay) {
-                toggleMobileMenu();
-            }
-        });
-    }
-});
+// ✅ MENU MOBILE FIXÉ - Chargé depuis fichier externe
+// Fix du problème de double-clic sur les boutons du menu mobile
 
 // Navbar scroll effect - transparent background with enhanced container
 const navbar = document.querySelector('.qlower-navbar');

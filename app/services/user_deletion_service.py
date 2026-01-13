@@ -137,51 +137,98 @@ class UserDeletionService:
     
     @staticmethod
     def _delete_investment_plans(user_id: int):
-        """Supprime spécifiquement les contraintes FK qui bloquent la suppression."""
+        """Supprime TOUTES les données liées à l'utilisateur avant suppression."""
         try:
-            # 1. Supprimer les lignes de plans d'investissement
-            result1 = db.session.execute(
-                db.text("DELETE FROM investment_plan_lines WHERE plan_id IN (SELECT id FROM investment_plans WHERE user_id = :user_id)"), 
+            deleted_counts = {}
+
+            # 1. Supprimer les comptes rendus (NOUVELLE TABLE - Janvier 2026)
+            result = db.session.execute(
+                db.text("DELETE FROM comptes_rendus WHERE user_id = :user_id"),
                 {"user_id": user_id}
             )
-            lines_deleted = result1.rowcount
-            
-            # 2. Supprimer les plans d'investissement
-            result2 = db.session.execute(
-                db.text("DELETE FROM investment_plans WHERE user_id = :user_id"), 
+            deleted_counts['comptes_rendus'] = result.rowcount
+
+            # 2. Supprimer les investment_actions
+            result = db.session.execute(
+                db.text("DELETE FROM investment_actions WHERE user_id = :user_id"),
                 {"user_id": user_id}
             )
-            plans_deleted = result2.rowcount
-            
-            # 3. Supprimer les invitation_tokens (utilisent prospect_id)
-            result3 = db.session.execute(
-                db.text("DELETE FROM invitation_tokens WHERE prospect_id = :user_id"), 
+            deleted_counts['investment_actions'] = result.rowcount
+
+            # 3. Supprimer les lignes de plans d'investissement
+            result = db.session.execute(
+                db.text("DELETE FROM investment_plan_lines WHERE plan_id IN (SELECT id FROM investment_plans WHERE user_id = :user_id)"),
                 {"user_id": user_id}
             )
-            tokens_deleted = result3.rowcount
-            
-            # 4. Supprimer les user_plans
-            result4 = db.session.execute(
-                db.text("DELETE FROM user_plans WHERE user_id = :user_id"), 
+            deleted_counts['investment_plan_lines'] = result.rowcount
+
+            # 4. Supprimer les plans d'investissement
+            result = db.session.execute(
+                db.text("DELETE FROM investment_plans WHERE user_id = :user_id"),
                 {"user_id": user_id}
             )
-            user_plans_deleted = result4.rowcount
-            
-            # 5. Supprimer les investment_actions (au cas où)
-            result5 = db.session.execute(
-                db.text("DELETE FROM investment_actions WHERE user_id = :user_id"), 
+            deleted_counts['investment_plans'] = result.rowcount
+
+            # 5. Supprimer les password_reset_tokens
+            result = db.session.execute(
+                db.text("DELETE FROM password_reset_tokens WHERE user_id = :user_id"),
                 {"user_id": user_id}
             )
-            actions_deleted = result5.rowcount
-            
-            # Commit toutes ces suppressions spécifiques
+            deleted_counts['password_reset_tokens'] = result.rowcount
+
+            # 6. Supprimer les invitation_tokens (utilisent prospect_id)
+            result = db.session.execute(
+                db.text("DELETE FROM invitation_tokens WHERE prospect_id = :user_id"),
+                {"user_id": user_id}
+            )
+            deleted_counts['invitation_tokens'] = result.rowcount
+
+            # 7. Supprimer les user_plans
+            result = db.session.execute(
+                db.text("DELETE FROM user_plans WHERE user_id = :user_id"),
+                {"user_id": user_id}
+            )
+            deleted_counts['user_plans'] = result.rowcount
+
+            # 8. Supprimer les payment_methods
+            result = db.session.execute(
+                db.text("DELETE FROM payment_methods WHERE user_id = :user_id"),
+                {"user_id": user_id}
+            )
+            deleted_counts['payment_methods'] = result.rowcount
+
+            # 9. Supprimer les portfolios
+            result = db.session.execute(
+                db.text("DELETE FROM portfolios WHERE user_id = :user_id"),
+                {"user_id": user_id}
+            )
+            deleted_counts['portfolios'] = result.rowcount
+
+            # 10. Supprimer les subscriptions
+            result = db.session.execute(
+                db.text("DELETE FROM subscriptions WHERE user_id = :user_id"),
+                {"user_id": user_id}
+            )
+            deleted_counts['subscriptions'] = result.rowcount
+
+            # 11. Supprimer les investor_profiles
+            result = db.session.execute(
+                db.text("DELETE FROM investor_profiles WHERE user_id = :user_id"),
+                {"user_id": user_id}
+            )
+            deleted_counts['investor_profiles'] = result.rowcount
+
+            # Commit toutes ces suppressions
             db.session.commit()
-            
-            if plans_deleted > 0 or tokens_deleted > 0 or user_plans_deleted > 0 or actions_deleted > 0:
-                print(f"✅ Contraintes supprimées: {plans_deleted} invest plans, {lines_deleted} lignes, {tokens_deleted} tokens, {user_plans_deleted} user plans, {actions_deleted} actions")
-            
+
+            # Afficher le résumé
+            total = sum(deleted_counts.values())
+            if total > 0:
+                details = ", ".join([f"{count} {table}" for table, count in deleted_counts.items() if count > 0])
+                print(f"✅ Données supprimées: {details}")
+
         except Exception as e:
-            print(f"⚠️ Erreur suppression contraintes FK: {e}")
+            print(f"⚠️ Erreur suppression données liées: {e}")
             db.session.rollback()
     
     @staticmethod

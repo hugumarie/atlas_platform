@@ -1440,21 +1440,30 @@ def portfolio_data():
 def change_plan():
     """
     Changement de plan d'abonnement avec facturation Stripe.
+    Nécessite une authentification par mot de passe pour des raisons de sécurité.
     """
     if current_user.is_admin:
         return jsonify({'success': False, 'message': 'Accès non autorisé'}), 403
-    
+
     if not current_user.subscription:
         return jsonify({'success': False, 'message': 'Aucun abonnement trouvé'}), 404
-    
+
     data = request.get_json()
     new_tier = data.get('tier', '').lower()
-    
+    password = data.get('password', '')
+
+    # ✅ VÉRIFICATION DU MOT DE PASSE (sécurité)
+    if not password:
+        return jsonify({'success': False, 'message': 'Mot de passe requis pour confirmer le changement'}), 400
+
+    if not current_user.check_password(password):
+        return jsonify({'success': False, 'message': 'Mot de passe incorrect'}), 401
+
     # Vérifier que le tier est valide
     valid_tiers = ['initia', 'optima', 'ultima']
     if new_tier not in valid_tiers:
         return jsonify({'success': False, 'message': 'Plan invalide'}), 400
-    
+
     # Vérifier si c'est le même plan
     if new_tier == current_user.subscription.tier:
         return jsonify({'success': False, 'message': 'Vous êtes déjà sur ce plan'}), 400

@@ -850,6 +850,9 @@ body {
 {% endblock %}
 
 {% block scripts %}
+<!-- ✅ Menu Mobile Fix - Résolution problème double-clic -->
+<script src="{{ url_for('static', filename='js/mobile-menu-fix.js') }}"></script>
+
 <script>
 // EXACT QLOWER INTERACTIONS - Complete version from index
 
@@ -867,60 +870,8 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Modern hamburger menu toggle
-function toggleMobileMenu() {
-    const hamburger = document.querySelector('.hamburger');
-    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
-    
-    if (hamburger && mobileMenuOverlay) {
-        // Toggle active classes
-        hamburger.classList.toggle('active');
-        mobileMenuOverlay.classList.toggle('active');
-        
-        // Prevent body scroll when menu is open
-        if (mobileMenuOverlay.classList.contains('active')) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-    }
-}
-
-// Setup mobile menu event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Close menu when clicking mobile links
-    document.querySelectorAll('.mobile-menu-link').forEach(link => {
-        link.addEventListener('click', function() {
-            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
-            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
-                toggleMobileMenu();
-            }
-        });
-    });
-    
-    // Close mobile menu when clicking the mobile "Prendre RDV" button
-    const mobileRDVButton = document.querySelector('.mobile-menu-btn-primary');
-    if (mobileRDVButton) {
-        mobileRDVButton.addEventListener('click', function() {
-            const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
-            if (mobileMenuOverlay && mobileMenuOverlay.classList.contains('active')) {
-                toggleMobileMenu();
-            }
-        });
-    }
-    
-    // Handle close button click (already has onclick="toggleMobileMenu()" in HTML)
-    // Handle clicking outside the menu content to close (on the overlay background)
-    const mobileMenuOverlay = document.querySelector('.mobile-menu-overlay');
-    if (mobileMenuOverlay) {
-        mobileMenuOverlay.addEventListener('click', function(e) {
-            // Only close if clicking on the overlay itself, not its children
-            if (e.target === mobileMenuOverlay) {
-                toggleMobileMenu();
-            }
-        });
-    }
-});
+// ✅ MENU MOBILE FIXÉ - Chargé depuis fichier externe
+// Fix du problème de double-clic sur les boutons du menu mobile
 
 // Navbar scroll effect - transparent background with enhanced container
 const navbar = document.querySelector('.qlower-navbar');

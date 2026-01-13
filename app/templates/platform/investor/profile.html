@@ -422,6 +422,111 @@
     </div>
 </div>
 
+<!-- Modal Confirmation Changement de Plan avec Authentification -->
+<div id="confirmPlanChangeModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 540px; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <!-- Header moderne avec gradient -->
+        <div style="background: linear-gradient(135deg, #137C8B 0%, #344D59 100%); padding: 32px 32px 24px; position: relative;">
+            <button class="modal-close"
+                    onclick="hideConfirmPlanChangeModal()"
+                    style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2); border: none; width: 36px; height: 36px; border-radius: 8px; color: white; font-size: 20px; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(10px);">
+                &times;
+            </button>
+
+            <div style="text-align: center; color: white;">
+                <div style="width: 64px; height: 64px; background: rgba(255,255,255,0.15); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; backdrop-filter: blur(10px);">
+                    <i class="fas fa-exchange-alt" style="font-size: 28px;"></i>
+                </div>
+                <h3 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 700;">Changement de plan</h3>
+                <p style="margin: 0; opacity: 0.9; font-size: 14px;">Confirmez votre nouveau abonnement</p>
+            </div>
+        </div>
+
+        <div class="modal-body" style="padding: 32px;">
+            <!-- Carte du plan sélectionné -->
+            <div style="background: linear-gradient(135deg, rgba(19,124,139,0.08) 0%, rgba(19,124,139,0.04) 100%); border: 2px solid #137C8B; border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center;">
+                <div style="color: #137C8B; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+                    Nouveau plan
+                </div>
+                <div id="confirmPlanName" style="font-size: 36px; font-weight: 800; color: #344D59; margin-bottom: 4px;">OPTIMA</div>
+                <div id="confirmPlanPrice" style="font-size: 28px; font-weight: 700; color: #137C8B;">
+                    50€<span style="font-size: 18px; font-weight: 500; color: #709CA7;">/mois</span>
+                </div>
+            </div>
+
+            <!-- Informations de facturation -->
+            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <div style="width: 32px; height: 32px; background: #137C8B; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fas fa-info-circle" style="color: white; font-size: 14px;"></i>
+                    </div>
+                    <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #344D59;">Ce qui va se passer</h4>
+                </div>
+
+                <div style="color: #7A90A4; font-size: 14px; line-height: 1.7; padding-left: 40px;">
+                    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                        <i class="fas fa-check" style="color: #137C8B; margin-top: 2px; flex-shrink: 0;"></i>
+                        <span>Changement <strong style="color: #344D59;">immédiat</strong> de votre abonnement</span>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                        <i class="fas fa-check" style="color: #137C8B; margin-top: 2px; flex-shrink: 0;"></i>
+                        <span>Facturation au <strong style="color: #344D59;">prorata</strong> de la différence aujourd'hui</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <i class="fas fa-check" style="color: #137C8B; margin-top: 2px; flex-shrink: 0;"></i>
+                        <span>Prochain paiement au <strong style="color: #344D59;">nouveau tarif</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire de confirmation -->
+            <form id="confirmPlanChangeForm" onsubmit="submitPlanChange(event)">
+                <div style="background: #fef3c7; border-radius: 12px; padding: 16px; margin-bottom: 20px; display: flex; gap: 12px;">
+                    <i class="fas fa-lock" style="color: #f59e0b; font-size: 18px; margin-top: 2px;"></i>
+                    <div style="flex: 1;">
+                        <p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 700; color: #78350f;">Authentification requise</p>
+                        <p style="margin: 0; font-size: 13px; color: #92400e; line-height: 1.5;">Saisissez votre mot de passe pour confirmer</p>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <input type="password"
+                           id="confirmPassword"
+                           class="form-control"
+                           placeholder="Votre mot de passe"
+                           required
+                           autocomplete="current-password"
+                           style="padding: 14px 16px; border: 2px solid #e5e7eb; border-radius: 12px; width: 100%; font-size: 15px; transition: all 0.2s; background: white;"
+                           onfocus="this.style.borderColor='#137C8B'; this.style.boxShadow='0 0 0 3px rgba(19,124,139,0.1)'"
+                           onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                    <div id="passwordError" style="color: #dc2626; font-size: 13px; margin-top: 10px; padding: 10px; background: #fee; border-radius: 8px; display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Mot de passe incorrect
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button type="button"
+                            class="platform-btn"
+                            onclick="hideConfirmPlanChangeModal()"
+                            style="flex: 1; padding: 14px 20px; border: 2px solid #e5e7eb; background: white; color: #344D59; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.background='#f9fafb'; this.style.borderColor='#d1d5db'"
+                            onmouseout="this.style.background='white'; this.style.borderColor='#e5e7eb'">
+                        Annuler
+                    </button>
+                    <button type="submit"
+                            class="platform-btn platform-btn-primary"
+                            id="confirmPlanChangeBtn"
+                            style="flex: 1; padding: 14px 20px; background: linear-gradient(135deg, #137C8B 0%, #344D59 100%); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(19,124,139,0.3);"
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(19,124,139,0.4)'"
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(19,124,139,0.3)'">
+                        <i class="fas fa-check"></i> Confirmer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Modification Informations -->
 <div id="editInfoModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
@@ -1585,67 +1690,141 @@ function hidePlanSelector() {
     document.body.style.overflow = 'auto';
 }
 
-// Changement de plan
+// Variables globales pour le changement de plan
+let pendingPlanChange = null;
+
+// Changement de plan - ÉTAPE 1: Ouvrir modal de confirmation
 function changePlan(planTier) {
-    if (confirm(`Êtes-vous sûr de vouloir changer pour le plan ${planTier.toUpperCase()} ?`)) {
-        // Afficher un indicateur de chargement
-        const loadingMessage = "Traitement du changement de plan en cours...";
-        
-        // Afficher une notification de chargement (optionnel)
-        const originalConfirm = window.confirm;
-        
-        fetch('/plateforme/profil/changer-plan', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                tier: planTier
-            })
+    // Stocker le plan demandé
+    pendingPlanChange = planTier;
+
+    // Définir le prix selon le plan
+    const planPrices = {
+        'initia': 25,
+        'optima': 50
+    };
+
+    const planPrice = planPrices[planTier] || '?';
+
+    // Mettre à jour le contenu de la modal
+    document.getElementById('confirmPlanName').textContent = planTier.toUpperCase();
+    document.getElementById('confirmPlanPrice').innerHTML = `${planPrice}€<span style="font-size: 16px; font-weight: 400;">/mois</span>`;
+
+    // Réinitialiser le formulaire
+    document.getElementById('confirmPassword').value = '';
+    document.getElementById('passwordError').style.display = 'none';
+    document.getElementById('confirmPlanChangeBtn').disabled = false;
+
+    // Fermer la modal de sélection de plan
+    hidePlanSelector();
+
+    // Ouvrir la modal de confirmation
+    document.getElementById('confirmPlanChangeModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Focus sur le champ mot de passe
+    setTimeout(() => {
+        document.getElementById('confirmPassword').focus();
+    }, 300);
+}
+
+// Gestion modal confirmation changement de plan
+function hideConfirmPlanChangeModal() {
+    document.getElementById('confirmPlanChangeModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    pendingPlanChange = null;
+}
+
+// ÉTAPE 2: Soumettre le changement avec vérification mot de passe
+function submitPlanChange(event) {
+    event.preventDefault();
+
+    if (!pendingPlanChange) {
+        alert('Erreur: aucun plan sélectionné');
+        return;
+    }
+
+    const password = document.getElementById('confirmPassword').value;
+    const submitBtn = document.getElementById('confirmPlanChangeBtn');
+    const passwordError = document.getElementById('passwordError');
+
+    // Désactiver le bouton pendant le traitement
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Vérification...';
+    passwordError.style.display = 'none';
+
+    // Envoyer la requête avec le mot de passe
+    fetch('/plateforme/profil/changer-plan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            tier: pendingPlanChange,
+            password: password
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                let successMessage = data.message;
-                
-                // Ajouter des informations sur la proration si c'est un upgrade
-                if (data.proration_message) {
-                    successMessage += '\n\n💳 ' + data.proration_message;
-                }
-                
-                // Ajouter des informations sur le downgrade
-                if (data.downgrade_message) {
-                    successMessage += '\n\n📋 ' + data.downgrade_message;
-                }
-                
-                // Ajouter les détails du nouveau plan
-                if (data.new_monthly_price) {
-                    successMessage += `\n\n📊 Nouveau tarif mensuel: ${data.new_monthly_price}€/mois`;
-                }
-                
-                // Afficher un avertissement si mode dégradé
-                if (data.warning) {
-                    successMessage += '\n\n⚠️ ' + data.warning;
-                }
-                
-                alert(successMessage);
-                location.reload();
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Succès - fermer la modal et afficher message
+            hideConfirmPlanChangeModal();
+
+            let successMessage = data.message;
+
+            // Ajouter des informations sur la proration si c'est un upgrade
+            if (data.proration_message) {
+                successMessage += '\n\n💳 ' + data.proration_message;
+            }
+
+            // Ajouter des informations sur le downgrade
+            if (data.downgrade_message) {
+                successMessage += '\n\n📋 ' + data.downgrade_message;
+            }
+
+            // Ajouter les détails du nouveau plan
+            if (data.new_monthly_price) {
+                successMessage += `\n\n📊 Nouveau tarif mensuel: ${data.new_monthly_price}€/mois`;
+            }
+
+            // Afficher un avertissement si mode dégradé
+            if (data.warning) {
+                successMessage += '\n\n⚠️ ' + data.warning;
+            }
+
+            alert(successMessage);
+            location.reload();
+        } else {
+            // Erreur - vérifier si c'est une erreur de mot de passe
+            if (data.message && (data.message.includes('Mot de passe') || data.message.includes('mot de passe') || data.message.includes('password'))) {
+                // Afficher l'erreur de mot de passe
+                passwordError.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Confirmer le changement';
+
+                // Focus sur le champ mot de passe
+                document.getElementById('confirmPassword').select();
             } else {
+                // Autre erreur
+                hideConfirmPlanChangeModal();
+
                 let errorMessage = 'Erreur lors du changement de plan: ' + data.message;
-                
+
                 // Messages spécifiques pour certaines erreurs
                 if (data.message.includes('ULTIMA')) {
                     errorMessage += '\n\nVeuillez utiliser le bouton "Nous contacter" pour le plan ULTIMA.';
                 }
-                
+
                 alert(errorMessage);
             }
-        })
-        .catch(error => {
-            console.error('Erreur réseau:', error);
-            alert('Erreur de connexion lors du changement de plan. Veuillez réessayer ou nous contacter si le problème persiste.');
-        });
-    }
+        }
+    })
+    .catch(error => {
+        console.error('Erreur réseau:', error);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> Confirmer le changement';
+        alert('Erreur de connexion lors du changement de plan. Veuillez réessayer ou nous contacter si le problème persiste.');
+    });
 }
 
 // Contact pour ULTIMA
