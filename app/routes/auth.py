@@ -98,25 +98,6 @@ def login():
             flash('Veuillez saisir votre email et mot de passe.', 'error')
             return render_template('auth/login.html')
         
-        # Vérification des identifiants admin
-        if email == 'admin@gmail.com' and password == 'admin':
-            # Création ou récupération du compte admin
-            admin_user = User.query.filter_by(email=email).first()
-            if not admin_user:
-                admin_user = User(
-                    email=email,
-                    first_name='Admin',
-                    last_name='Système',
-                    is_admin=True
-                )
-                admin_user.set_password(password)
-                db.session.add(admin_user)
-                db.session.commit()
-            
-            login_user(admin_user, remember=remember_me)
-            admin_user.update_last_login()
-            return redirect(url_for('admin.dashboard'))
-        
         # Vérification des identifiants utilisateur
         user = User.query.filter_by(email=email).first()
         
