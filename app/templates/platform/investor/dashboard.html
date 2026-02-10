@@ -1571,32 +1571,7 @@ function createCustomLegend(portfolioData, total) {
 }
 </style>
 
-<!-- Modal pour ajuster le montant -->
-<div class="modal fade" id="adjustModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Ajuster le montant investi</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p id="adjustDescription"></p>
-                <div class="mb-3">
-                    <label for="adjustAmount" class="form-label">Montant réellement investi (€)</label>
-                    <input type="number" class="form-control" id="adjustAmount" step="0.01" min="0">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="button" class="btn btn-primary" onclick="confirmAdjust()">Confirmer</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-// Variables pour les actions d'investissement
-let currentActionId = null;
 
 function updateInvestmentAction(actionId, status, realizedAmount = null) {
     
@@ -1677,29 +1652,6 @@ function updateDashboardCounters() {
 }
 
 // Fonction refreshYearlySavings supprimée - maintenant les données viennent directement du serveur
-
-function showAdjustModal(actionId, label, expectedAmount) {
-    currentActionId = actionId;
-    document.getElementById('adjustDescription').textContent = 
-        `${label} - Montant attendu: ${expectedAmount}€`;
-    document.getElementById('adjustAmount').value = expectedAmount;
-    
-    const modal = new bootstrap.Modal(document.getElementById('adjustModal'));
-    modal.show();
-}
-
-function confirmAdjust() {
-    const amount = parseFloat(document.getElementById('adjustAmount').value);
-    if (isNaN(amount) || amount < 0) {
-        alert('Veuillez saisir un montant valide');
-        return;
-    }
-    
-    updateInvestmentAction(currentActionId, 'adjusted', amount);
-    
-    const modal = bootstrap.Modal.getInstance(document.getElementById('adjustModal'));
-    modal.hide();
-}
 </script>
 
 {% endblock %}
