@@ -220,10 +220,11 @@
 .pdf-scroll-container {
     flex: 1;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: auto;
     padding: 20px;
     background: #f5f5f5;
     max-height: calc(100% - 50px);
+    -webkit-overflow-scrolling: touch;
 }
 
 .pdf-pages {
@@ -232,15 +233,16 @@
     align-items: center;
     gap: 20px;
     padding: 10px 0 40px 0;
+    min-width: min-content;
 }
 
 .pdf-page {
     border: 1px solid #ddd;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     background: white;
-    max-width: 100%;
     border-radius: 8px;
     transition: all 0.3s ease;
+    display: block;
 }
 
 .pdf-page:hover {
@@ -323,23 +325,54 @@
     }
     
     .pdf-viewer-container {
-        height: calc(100vh - 200px);
-        min-height: 600px;
+        height: calc(100vh - 180px);
+        min-height: 500px;
+        border-radius: 10px;
     }
-    
+
     .pdf-toolbar {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 12px 16px;
+        padding: 6px 10px;
+        gap: 6px;
+        min-height: 40px;
     }
-    
+
+    .pdf-toolbar-title {
+        display: none;
+    }
+
     .pdf-controls {
         width: 100%;
         justify-content: space-between;
     }
-    
-    .pdf-nav {
-        flex-wrap: wrap;
+
+    .pdf-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .pdf-scroll-container {
+        padding: 8px;
+    }
+
+    .formation-header {
+        margin-bottom: 6px;
+    }
+
+    .formation-hero {
+        padding: 6px 14px 8px;
+    }
+
+    .formation-title {
+        font-size: 16px;
+    }
+
+    .formation-description {
+        font-size: 13px;
+    }
+
+    .formation-hero-image {
+        width: 36px;
+        height: 36px;
     }
 }
 </style>
@@ -611,12 +644,20 @@ function showError() {
 // Ajuster la largeur de toutes les pages
 function fitToWidth() {
     if (!pdfDoc) return;
-    
-    const containerWidth = document.getElementById('pdfContainer').clientWidth - 40;
-    
+
+    const outerContainer = document.querySelector('.pdf-viewer-container');
+    const outerWidth = outerContainer ? outerContainer.clientWidth : 800;
+    const padding = window.innerWidth <= 768 ? 16 : 40;
+    const containerWidth = Math.max(200, outerWidth - padding);
+
     pdfDoc.getPage(1).then(function(page) {
         const viewport = page.getViewport({ scale: 1 });
-        scale = Math.max(1.2, (containerWidth / viewport.width) * 0.95); // Ajustement optimisé pour la netteté
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            scale = containerWidth / viewport.width;
+        } else {
+            scale = Math.max(1.2, (containerWidth / viewport.width) * 0.95);
+        }
         renderAllPages();
     });
 }
@@ -644,16 +685,23 @@ pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
     console.log('✅ PDF chargé avec succès:', pdf.numPages, 'pages');
     pdfDoc = pdf;
     totalPages = pdf.numPages;
-    
-    // Ajuster automatiquement la largeur au chargement
-    const containerWidth = document.getElementById('pdfContainer').clientWidth || 800;
-    
+
     pdf.getPage(1).then(function(page) {
         const viewport = page.getViewport({ scale: 1 });
-        scale = 1.5; // Zoom optimisé pour netteté au chargement
+        // Utiliser le container extérieur (toujours visible) pour avoir la bonne largeur
+        const outerContainer = document.querySelector('.pdf-viewer-container');
+        const outerWidth = outerContainer ? outerContainer.clientWidth : 800;
+        const padding = window.innerWidth <= 768 ? 16 : 40;
+        const containerWidth = Math.max(200, outerWidth - padding);
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            scale = containerWidth / viewport.width;
+        } else {
+            scale = 1.5;
+        }
         renderAllPages();
     });
-    
+
 }).catch(function(error) {
     console.error('❌ Erreur lors du chargement du PDF:', error);
     showError();

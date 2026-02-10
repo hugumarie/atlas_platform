@@ -2115,7 +2115,7 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                             <div class="edit-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
                                 <div class="edit-item">
                                     <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Type de bien *</label>
-                                    <select class="form-control edit-input" name="bien_type[]" required
+                                    <select class="form-control edit-input" name="bien_type[]"
                                             style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px;">
                                         <option value="">Choisir...</option>
                                         <option value="residence_principale" {{ 'selected' if bien.type == 'residence_principale' }}>Résidence principale</option>
@@ -2131,8 +2131,8 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                                 </div>
                                 <div class="edit-item">
                                     <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Valeur du bien *</label>
-                                    <input type="number" step="0.01" class="form-control edit-input bien-valeur-input" name="bien_valeur[]" 
-                                           value="{{ bien.valeur }}" placeholder="0.00" required
+                                    <input type="number" step="0.01" class="form-control edit-input bien-valeur-input" name="bien_valeur[]"
+                                           value="{{ bien.valeur }}" placeholder="0.00"
                                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px;">
                                 </div>
                                 <div class="edit-item">
@@ -2812,8 +2812,8 @@ div[style*="border-left: 4px solid #dc3545"] div[style*="color: #dc3545"] {
                             <div class="edit-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
                                 <div class="edit-item">
                                     <label class="edit-label">Description du crédit *</label>
-                                    <input type="text" class="form-control edit-input" name="credit_conso_description[]" 
-                                           value="{{ credit.description }}" placeholder="Ex: Crédit auto, Prêt personnel..." required>
+                                    <input type="text" class="form-control edit-input" name="credit_conso_description[]"
+                                           value="{{ credit.description }}" placeholder="Ex: Crédit auto, Prêt personnel...">
                                     <input type="hidden" name="credit_conso_id[]" value="{{ credit.get('id', loop.index0) }}">
                                 </div>
                                 <div class="edit-item">
@@ -3714,7 +3714,7 @@ function addBienImmobilier() {
             <div class="edit-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
                 <div class="edit-item">
                     <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Type de bien *</label>
-                    <select class="form-control edit-input" name="bien_type[]" required
+                    <select class="form-control edit-input" name="bien_type[]"
                             style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px;">
                         <option value="">Choisir...</option>
                         <option value="residence_principale">Résidence principale</option>
@@ -3724,14 +3724,14 @@ function addBienImmobilier() {
                 </div>
                 <div class="edit-item">
                     <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Description</label>
-                    <input type="text" class="form-control edit-input" name="bien_description[]" 
+                    <input type="text" class="form-control edit-input" name="bien_description[]"
                            placeholder="Ex: Appartement 3 pièces Paris"
                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px;">
                 </div>
                 <div class="edit-item">
                     <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Valeur du bien *</label>
-                    <input type="number" step="0.01" class="form-control edit-input bien-valeur-input" name="bien_valeur[]" 
-                           placeholder="0.00" required
+                    <input type="number" step="0.01" class="form-control edit-input bien-valeur-input" name="bien_valeur[]"
+                           placeholder="0.00"
                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px;">
                 </div>
                 <div class="edit-item">
@@ -3870,8 +3870,8 @@ function addCredit() {
             <div class="edit-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
                 <div class="edit-item">
                     <label class="edit-label" style="display: block; font-weight: 600; color: #344D59; margin-bottom: 8px;">Description du crédit *</label>
-                    <input type="text" class="form-control edit-input" name="credit_conso_description[]" 
-                           placeholder="Ex: Crédit auto, Prêt personnel..." required
+                    <input type="text" class="form-control edit-input" name="credit_conso_description[]"
+                           placeholder="Ex: Crédit auto, Prêt personnel..."
                            style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px;">
                     <input type="hidden" name="credit_conso_id[]" value="">
                 </div>

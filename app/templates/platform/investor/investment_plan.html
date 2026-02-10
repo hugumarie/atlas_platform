@@ -576,27 +576,166 @@ function toggleFAQ(faqId) {
     .amount-value {
         font-size: 2rem;
     }
-    
-    .table-header, .table-row, .investment-line-readonly {
-        grid-template-columns: 1fr;
-        text-align: left;
-    }
-    
-    .table-cell {
-        padding: 12px;
-        border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .header-cell {
+
+    .investment-card-body {
         padding: 12px;
     }
-    
-    .readonly-field {
+
+    /* Table → liste de cards */
+    .modern-investment-table {
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
         margin-bottom: 8px;
     }
-    
+
+    .table-header {
+        display: none;
+    }
+
+    .table-body {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* Chaque ligne devient une card avec grid */
+    .investment-line-readonly {
+        display: grid !important;
+        grid-template-areas:
+            "desc desc"
+            "ref  ref"
+            "pct  amt";
+        grid-template-columns: 1fr 1fr;
+        border: 1.5px solid rgba(19,124,139,0.2) !important;
+        border-bottom: 1.5px solid rgba(19,124,139,0.2) !important;
+        border-radius: 14px;
+        background: white;
+        box-shadow: 0 3px 12px rgba(19,124,139,0.1);
+        overflow: hidden;
+    }
+
+    .investment-line-readonly:hover {
+        transform: none;
+        box-shadow: 0 3px 12px rgba(19,124,139,0.1);
+    }
+
+    /* Zone Description : enveloppe + nom */
+    .table-cell.description {
+        grid-area: desc;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 14px 14px 10px;
+        border-bottom: 1px solid rgba(19,124,139,0.08);
+    }
+
+    .envelope-display {
+        font-size: 0.75rem;
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-bottom: 0;
+        display: inline-block;
+        width: auto;
+    }
+
+    .description-display {
+        font-size: 0.82rem;
+        margin-bottom: 0;
+        line-height: 1.35;
+        background: transparent;
+        padding: 0;
+        border: none;
+        color: #495057;
+    }
+
+    /* Zone Référence */
+    .table-cell.reference {
+        grid-area: ref;
+        padding: 6px 14px 8px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid rgba(19,124,139,0.08);
+    }
+
+    .table-cell.reference .readonly-field {
+        margin-bottom: 0;
+        font-size: 0.76rem;
+        font-family: 'Courier New', monospace;
+        color: #6c757d;
+        padding: 4px 10px;
+        letter-spacing: 0.3px;
+    }
+
+    /* Zone % */
+    .table-cell.percentage {
+        grid-area: pct;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 10px 8px 14px 14px;
+        border-right: 1px solid rgba(19,124,139,0.08);
+    }
+
+    .table-cell.percentage::before {
+        content: 'Allocation';
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #9aa5b4;
+        font-weight: 700;
+    }
+
+    .percentage-display {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Zone Montant */
+    .table-cell.amount {
+        grid-area: amt;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 10px 14px 14px 8px;
+    }
+
+    .table-cell.amount::before {
+        content: 'Montant / mois';
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #9aa5b4;
+        font-weight: 700;
+    }
+
+    .amount-display {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Section Total */
     .total-section {
-        padding: 20px;
+        padding: 16px;
+        margin-top: 12px;
+        border-radius: 12px;
+    }
+
+    .total-value {
+        font-size: 1.35rem;
+    }
+
+    .readonly-field {
+        margin-bottom: 4px;
     }
 }
 
@@ -731,28 +870,52 @@ function toggleFAQ(faqId) {
 }
 
 @media (max-width: 768px) {
-    .faq-question {
-        padding: 20px 24px;
-        font-size: 1rem;
-    }
-    
-    .faq-content {
-        padding: 24px;
-    }
-    
     .faq-section {
-        margin-top: 24px;
+        margin-top: 20px;
     }
-    
+
+    .faq-item {
+        border-radius: 12px;
+        margin-bottom: 14px;
+    }
+
+    .faq-question {
+        padding: 16px 18px;
+        font-size: 0.95rem;
+        gap: 10px;
+    }
+
+    .faq-question span {
+        flex: 1;
+        line-height: 1.4;
+    }
+
     .faq-arrow {
-        width: 32px;
-        height: 32px;
-        font-size: 0.8rem;
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        font-size: 0.75rem;
     }
-    
+
+    .faq-content {
+        padding: 18px 16px;
+    }
+
+    .faq-content p {
+        font-size: 0.9rem;
+        margin-bottom: 14px;
+        line-height: 1.6;
+    }
+
     .faq-content ul {
-        padding: 12px 20px;
-        margin: 16px 0;
+        padding: 12px 14px 12px 28px;
+        margin: 12px 0;
+    }
+
+    .faq-content li {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        line-height: 1.55;
     }
 }
 </style>

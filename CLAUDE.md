@@ -209,6 +209,57 @@ SECRET_KEY=your-secret-key
 
 ## 🔄 État Actuel du Projet
 
+**Dernière mise à jour** : 10 Février 2026
+
+### Dernières Modifications (10 Février 2026) 🆕
+
+#### 📱 CORRECTIONS RESPONSIVE POPUP RDV - SITE VITRINE
+
+**Fichier modifié** : `app/templates/site/base_new.html`
+
+**1. Étape 1 (formulaire) — mobile**
+- Colonne gauche (panneau vert) cachée sur mobile/tablette avec `d-none d-lg-block` — elle apparaissait comme un bloc vide prenant de l'espace
+- `font-size: 16px` sur les inputs pour éviter le zoom automatique iOS
+- Paddings ajustés pour un affichage confortable sur petits écrans
+
+**2. Étape 2 (calendrier) — même taille que l'étape 1**
+- Suppression de `modal-fullscreen-step2` et `modal-lg-expanded` — les deux étapes gardent maintenant la même taille de modal (`modal-lg`)
+- CSS responsive ajusté : `#cal-embed-container` à 520px sur mobile, 480px sur très petits écrans
+
+**3. Fix erreur Cal.com (conflit Bootstrap Modal + Next.js router)**
+- Remplacement de `embed.js` Cal.com par une **iframe directe** — l'embed.js patchait `window.history.pushState` dans la page parente, entrant en conflit avec Bootstrap Modal et causant `Cannot read properties of null (reading 'dispatchEvent')`
+- URL iframe : `https://app.cal.eu/contact-atlas/30min/embed?embed=30min&layout=month_view&embedType=inline`
+- Loader converti en **overlay CSS positionné** au-dessus du container (le container reste toujours visible avec de vraies dimensions pour que l'iframe puisse s'initialiser correctement)
+- Timeout augmenté à 15 secondes (adapté aux connexions mobiles lentes)
+- postMessage origin corrigé : `https://app.cal.com` → `https://app.cal.eu` (l'origin réelle)
+
+**4. CSS loader overlay**
+```css
+#cal-loader {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: white;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+```
+
+#### 🖼️ MISE À JOUR PHOTOS ÉQUIPE
+
+**Nouvelles photos ajoutées** :
+- `app/static/images/photo_equipe.png` — photo d'équipe groupe
+- `app/static/images/photo_profil_hug.png` — nouveau portrait Hugues Marie
+- `app/static/images/photo_profil_roland.png` — nouveau portrait Roland Baudinot
+
+**Fichiers modifiés** :
+- `app/templates/site/index_exact.html` : Section "Atlas est une société..." — remplacement des deux photos fondateurs superposées par `photo_equipe.png` (photo unique, `flex: 0 0 420px`, badge "Notre équipe")
+- `app/templates/site/about.html` : Photos de l'équipe mises à jour (`photo_profil_roland.png`, `photo_profil_hug.png`) + `object-position: center top` pour éviter la coupure des têtes
+
+---
+
 **Dernière mise à jour** : 13 Janvier 2026
 
 ### Dernières Modifications (13 Janvier 2026) 🆕

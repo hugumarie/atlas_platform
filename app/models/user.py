@@ -119,28 +119,19 @@ class User(UserMixin, db.Model):
     def can_access_platform(self):
         """
         Vérifie si l'utilisateur peut accéder à la plateforme.
-        Permet l'accès aux clients récents (24h) même sans abonnement actif.
+        Permet l'accès aux clients en cours d'onboarding (pas encore d'abonnement).
         """
         # Admin a toujours accès
         if self.is_admin:
             return True
-            
-        # Vérifier si c'est un client récent (webhook Stripe peut avoir échoué)
-        from datetime import datetime, timedelta, timezone
-        now = datetime.now(timezone.utc)
-        if self.date_created.tzinfo is None:
-            user_created = self.date_created.replace(tzinfo=timezone.utc)
-        else:
-            user_created = self.date_created.astimezone(timezone.utc)
-        
-        recent_client = (self.user_type == 'client' and 
-                       not self.is_prospect and 
-                       user_created > now - timedelta(hours=24))
-        
-        # Si client récent, autoriser l'accès
-        if recent_client:
+
+        # Client converti via invitation mais onboarding incomplet (pas encore d'abonnement)
+        # On laisse passer pour qu'il puisse choisir son plan et payer
+        if (self.user_type == 'client' and
+                not self.is_prospect and
+                self.subscription is None):
             return True
-            
+
         # Sinon, vérifier l'abonnement
         return self.subscription and self.subscription.is_active()
     

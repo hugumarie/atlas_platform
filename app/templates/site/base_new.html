@@ -492,6 +492,33 @@
             height: 40px;
             font-size: 18px;
         }
+
+        /* Formulaire pleine largeur sur mobile (colonne gauche cachée) */
+        .atlas-modal-right {
+            width: 100%;
+        }
+
+        .atlas-modal-content-right {
+            padding: 24px 20px 20px;
+        }
+
+        .atlas-form-header {
+            margin-bottom: 16px;
+        }
+
+        .atlas-form-group {
+            margin-bottom: 12px;
+        }
+
+        .atlas-form-input {
+            padding: 11px 11px 11px 34px;
+            font-size: 16px; /* évite le zoom auto sur iOS */
+        }
+
+        .atlas-submit-btn {
+            padding: 13px 20px;
+            font-size: 15px;
+        }
     }
 
     /* FOOTER STYLES - Style menu avec boîte blanche sur fond vert */
@@ -776,8 +803,8 @@
                 <div id="step-1" class="atlas-modal-body">
                     <div class="row g-0">
                         <!-- Section gauche - Informations -->
-                        <div class="col-lg-6 atlas-modal-left">
-                            <div class="atlas-modal-content-left d-none d-md-block">
+                        <div class="col-lg-6 atlas-modal-left d-none d-lg-block">
+                            <div class="atlas-modal-content-left">
                                 <!-- Titre principal -->
                                 <div class="atlas-modal-title-section">
                                     <div class="atlas-modal-icon">
@@ -1070,51 +1097,62 @@
         }
         
         /* Responsive design pour étape 2 */
-        @media (max-width: 768px) {
-            #modal-dialog.modal-lg-expanded {
-                max-width: 95vw;
-                margin: 10px;
-            }
-            
+        @media (max-width: 991px) {
             .atlas-step2-header {
                 padding: 20px 24px;
-                flex-direction: column;
-                text-align: center;
                 gap: 15px;
             }
-            
+
             .atlas-step2-title h3 {
                 font-size: 20px;
             }
-            
+
             .atlas-step2-body {
-                min-height: 400px;
+                min-height: 500px;
             }
-            
+
             #cal-embed-container {
-                height: 400px;
+                height: 500px;
             }
         }
-        
-        @media (max-width: 576px) {
+
+        @media (max-width: 767px) {
             .atlas-step2-header {
                 padding: 16px 20px;
             }
-            
+
             .atlas-step2-title h3 {
                 font-size: 18px;
             }
-            
+
             .atlas-step2-title p {
-                font-size: 14px;
+                font-size: 13px;
             }
-            
-            .atlas-step2-body {
-                min-height: 350px;
-            }
-            
+
+            /* Calendrier scrollable sur mobile */
             #cal-embed-container {
-                height: 350px;
+                height: 520px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .atlas-step2-header {
+                padding: 14px 16px;
+                gap: 12px;
+            }
+
+            .atlas-step2-title h3 {
+                font-size: 16px;
+            }
+
+            .atlas-step2-title p {
+                font-size: 12px;
+            }
+
+            #cal-embed-container {
+                height: 480px;
             }
         }
         
@@ -1137,6 +1175,26 @@
         .spinner-border {
             width: 3rem;
             height: 3rem;
+        }
+
+        /* Loader comme overlay au-dessus du container Cal.com */
+        #cal-loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Container Cal.com : position relative pour l'overlay */
+        .atlas-step2-body {
+            position: relative;
         }
         
         /* Fallback buttons styling */
@@ -1258,9 +1316,6 @@
                 step1.classList.add('d-none');
                 step2.classList.remove('d-none');
                 
-                // Agrandir le modal pour le calendrier
-                modalDialog.classList.add('modal-lg-expanded');
-                
                 // Animation d'entrée étape 2
                 step2.classList.add('step-transition', 'step-fade-in');
                 
@@ -1285,8 +1340,7 @@
                 step2.classList.add('d-none');
                 step1.classList.remove('d-none');
                 
-                // Remettre la taille normale du modal
-                modalDialog.classList.remove('modal-lg-expanded');
+                // Taille du modal inchangée entre étapes
                 
                 // Animation d'entrée étape 1
                 step1.classList.remove('step-fade-out');
@@ -1312,8 +1366,6 @@
             step1.classList.remove('d-none', 'step-transition', 'step-fade-out', 'step-fade-in');
             step2.classList.add('d-none');
             step2.classList.remove('step-transition', 'step-fade-out', 'step-fade-in');
-            modalDialog.classList.remove('modal-lg-expanded');
-            
             // Reset du formulaire
             if (form) {
                 form.reset();
@@ -1326,93 +1378,55 @@
             console.log('🔄 Modal reset à l\'étape 1');
         }
 
-        // Fonction pour charger l'embed Cal.com
+        // Fonction pour charger le calendrier Cal.com (iframe directe, tous devices)
         function loadCalEmbed() {
             const container = document.getElementById('cal-embed-container');
             const loader = document.getElementById('cal-loader');
             const fallback = document.getElementById('cal-fallback');
-            
+
             // Reset des états
-            container.classList.add('d-none');
+            container.classList.remove('d-none');
             fallback.classList.add('d-none');
             loader.classList.remove('d-none');
-            
+            loader.style.display = 'flex';
+
             try {
-                // Nettoyer le container
                 container.innerHTML = '';
-                
-                // Créer le container Cal.com
-                const calDiv = document.createElement('div');
-                calDiv.style.width = '100%';
-                calDiv.style.height = '100%';
-                calDiv.style.overflow = 'scroll';
-                calDiv.id = 'my-cal-inline-30min';
-                container.appendChild(calDiv);
-                
-                // Charger le script Cal.com et initialiser l'embed
-                (function (C, A, L) { 
-                    let p = function (a, ar) { a.q.push(ar); }; 
-                    let d = C.document; 
-                    C.Cal = C.Cal || function () { 
-                        let cal = C.Cal; 
-                        let ar = arguments; 
-                        if (!cal.loaded) { 
-                            cal.ns = {}; 
-                            cal.q = cal.q || []; 
-                            d.head.appendChild(d.createElement("script")).src = A; 
-                            cal.loaded = true; 
-                        } 
-                        if (ar[0] === L) { 
-                            const api = function () { p(api, arguments); }; 
-                            const namespace = ar[1]; 
-                            api.q = api.q || []; 
-                            if(typeof namespace === "string"){
-                                cal.ns[namespace] = cal.ns[namespace] || api;
-                                p(cal.ns[namespace], ar);
-                                p(cal, ["initNamespace", namespace]);
-                            } else p(cal, ar); 
-                            return;
-                        } 
-                        p(cal, ar); 
-                    }; 
-                })(window, "https://app.cal.eu/embed/embed.js", "init");
-                
-                Cal("init", "30min", {origin:"https://app.cal.eu"});
 
-                Cal.ns["30min"]("inline", {
-                    elementOrSelector:"#my-cal-inline-30min",
-                    config: {"layout":"month_view"},
-                    calLink: "contact-atlas/30min",
-                });
+                const calUrl = 'https://app.cal.eu/contact-atlas/30min/embed?embed=30min&layout=month_view&embedType=inline';
 
-                Cal.ns["30min"]("ui", {
-                    "cssVarsPerTheme":{"light":{"cal-brand":"#137C8B"}},
-                    "hideEventTypeDetails":false,
-                    "layout":"month_view"
-                });
-                
-                // Masquer le loader et afficher le container après un court délai
-                setTimeout(function() {
+                const iframe = document.createElement('iframe');
+                iframe.src = calUrl;
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.style.display = 'block';
+                iframe.setAttribute('scrolling', 'yes');
+                iframe.setAttribute('allow', 'camera; microphone; clipboard-write; autoplay');
+                iframe.setAttribute('title', 'Calendrier de prise de rendez-vous Atlas');
+
+                iframe.addEventListener('load', function() {
                     clearTimeout(calLoadTimeout);
+                    loader.style.display = 'none';
                     loader.classList.add('d-none');
-                    container.classList.remove('d-none');
-                    console.log('✅ Cal.com embed chargé avec succès');
-                }, 2000);
-                
-                calEmbed = calDiv;
-                
+                    console.log('✅ Cal.com iframe chargée avec succès');
+                });
+
+                container.appendChild(iframe);
+                calEmbed = iframe;
+
             } catch (error) {
-                console.error('❌ Erreur lors de la création de l\'embed:', error);
+                console.error('❌ Erreur lors de la création de l\'iframe Cal.com:', error);
                 showCalFallback();
             }
-            
-            // Timeout de sécurité
+
             calLoadTimeout = setTimeout(function() {
-                if (container.classList.contains('d-none')) {
-                    showCalFallback();
-                    console.warn('⏰ Timeout: Cal.com prend trop de temps à charger');
+                if (!loader.classList.contains('d-none')) {
+                    loader.style.display = 'none';
+                    loader.classList.add('d-none');
+                    console.warn('⏰ Timeout Cal.com');
                 }
-            }, EMBED_TIMEOUT);
+            }, 15000);
         }
 
         // Fonction pour afficher le fallback
@@ -1420,7 +1434,8 @@
             const container = document.getElementById('cal-embed-container');
             const loader = document.getElementById('cal-loader');
             const fallback = document.getElementById('cal-fallback');
-            
+
+            loader.style.display = 'none';
             loader.classList.add('d-none');
             container.classList.add('d-none');
             fallback.classList.remove('d-none');
@@ -1441,24 +1456,14 @@
                 clearTimeout(calLoadTimeout);
                 calLoadTimeout = null;
             }
-            
+
             const container = document.getElementById('cal-embed-container');
             if (container) {
                 container.innerHTML = '';
             }
-            
-            // Nettoyer les objets Cal.com globaux
-            if (window.Cal && window.Cal.ns && window.Cal.ns["30min"]) {
-                try {
-                    // Essayer de nettoyer l'instance Cal.com
-                    delete window.Cal.ns["30min"];
-                } catch (e) {
-                    console.warn('Erreur lors du nettoyage Cal.com:', e);
-                }
-            }
-            
+
             calEmbed = null;
-            console.log('🧹 Cal.com embed nettoyé');
+            console.log('🧹 Cal.com nettoyé');
         }
 
         // Fonction pour afficher les notifications
@@ -1486,12 +1491,11 @@
 
         // Gestion du message de booking réussi
         window.addEventListener('message', function(e) {
-            if (e.origin === 'https://app.cal.com') {
-                if (e.data.type === 'booking_completed') {
+            if (e.origin === 'https://app.cal.eu' || e.origin === 'https://app.cal.com') {
+                if (e.data && (e.data.type === 'booking_completed' || e.data.type === 'CAL:bookingSuccessful')) {
                     console.log('🎉 Rendez-vous réservé avec succès!');
                     showNotification('Parfait ! Votre rendez-vous est confirmé. Vous allez recevoir un email de confirmation.', 'success');
-                    
-                    // Fermer le modal après 2 secondes
+
                     setTimeout(() => {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('appointmentModal'));
                         if (modal) modal.hide();

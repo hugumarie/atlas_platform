@@ -1,0 +1,8 @@
+# Atlas Production Cron Jobs
+# Format: minute hour day month weekday command
+
+# Mise à jour des prix crypto - Toutes les heures à :05
+5 * * * * python scripts/update_crypto_prices.py
+
+# Backup base de données - Toutes les heures à :30
+30 * * * * bash scripts/backup_and_upload.sh

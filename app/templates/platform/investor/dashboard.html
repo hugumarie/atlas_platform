@@ -1321,6 +1321,36 @@ function createCustomLegend(portfolioData, total) {
     .savings-progress-months {
         font-size: 10px;
     }
+
+    /* Actions investissement - layout mobile */
+    .action-item-compact {
+        display: grid;
+        grid-template-areas:
+            "info info"
+            "amount button";
+        grid-template-columns: 1fr auto;
+        gap: 6px;
+        padding: 10px 12px;
+        min-height: auto;
+        align-items: center;
+    }
+
+    .action-info {
+        grid-area: info;
+        min-width: 0;
+    }
+
+    .action-amount-compact {
+        grid-area: amount;
+        margin: 0;
+        min-width: auto;
+        font-size: 0.95rem;
+        text-align: left;
+    }
+
+    .action-buttons-compact {
+        grid-area: button;
+    }
 }
 
 /* Animation d'entrée */

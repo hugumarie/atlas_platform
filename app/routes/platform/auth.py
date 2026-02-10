@@ -214,7 +214,10 @@ def login():
         
         # Vérification accès plateforme
         if not user.can_access_platform():
-            flash('Votre abonnement a expiré. Veuillez renouveler votre abonnement.', 'error')
+            if user.subscription is not None:
+                flash('Votre abonnement a expiré. Veuillez renouveler votre abonnement.', 'error')
+            else:
+                flash('Votre accès n\'est pas actif. Contactez votre conseiller Atlas.', 'error')
             print(f"❌ Tentative de connexion - Pas d'accès plateforme: {email}")
             return render_template('platform/auth/login.html')
         
