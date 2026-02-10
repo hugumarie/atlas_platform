@@ -1384,7 +1384,7 @@
             const loader = document.getElementById('cal-loader');
             const fallback = document.getElementById('cal-fallback');
 
-            // Reset des états
+            // Reset des états - container toujours visible pour que l'iframe ait de vraies dimensions
             container.classList.remove('d-none');
             fallback.classList.add('d-none');
             loader.classList.remove('d-none');
@@ -1405,13 +1405,6 @@
                 iframe.setAttribute('allow', 'camera; microphone; clipboard-write; autoplay');
                 iframe.setAttribute('title', 'Calendrier de prise de rendez-vous Atlas');
 
-                iframe.addEventListener('load', function() {
-                    clearTimeout(calLoadTimeout);
-                    loader.style.display = 'none';
-                    loader.classList.add('d-none');
-                    console.log('✅ Cal.com iframe chargée avec succès');
-                });
-
                 container.appendChild(iframe);
                 calEmbed = iframe;
 
@@ -1420,13 +1413,12 @@
                 showCalFallback();
             }
 
+            // Masquer le loader après 2.5s - méthode principale (iframe load event cross-origin peu fiable)
             calLoadTimeout = setTimeout(function() {
-                if (!loader.classList.contains('d-none')) {
-                    loader.style.display = 'none';
-                    loader.classList.add('d-none');
-                    console.warn('⏰ Timeout Cal.com');
-                }
-            }, 15000);
+                loader.style.display = 'none';
+                loader.classList.add('d-none');
+                console.log('✅ Cal.com calendrier affiché');
+            }, 2500);
         }
 
         // Fonction pour afficher le fallback
