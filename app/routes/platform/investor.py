@@ -549,13 +549,13 @@ def update_investor_data():
         profile.nationalite = request.form.get('nationalite', '').strip() or None
         profile.pays_residence = request.form.get('pays_residence', '').strip() or None
         profile.pays_residence_fiscal = request.form.get('pays_residence_fiscal', '').strip() or None
-        profile.family_situation = request.form.get('family_situation', '').strip() or None
+        profile.family_situation = request.form.get('family_situation', '').strip() or profile.family_situation or 'célibataire'
         
         # Mise à jour du téléphone utilisateur
         user.phone = request.form.get('phone', '').strip() or None
         
         # Section 2: REVENUS
-        profile.professional_situation = request.form.get('professional_situation', '').strip() or None
+        profile.professional_situation = request.form.get('professional_situation', '').strip() or profile.professional_situation or 'salarié'
         profile.professional_situation_other = request.form.get('professional_situation_other', '').strip() or None
         profile.metier = request.form.get('metier', '').strip() or None
         
