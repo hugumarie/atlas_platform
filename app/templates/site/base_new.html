@@ -976,42 +976,17 @@
                     
                     <!-- Body étape 2 -->
                     <div class="atlas-step2-body">
-                        <!-- Loader pendant le chargement -->
-                        <div id="cal-loader" class="d-none text-center p-4">
+                        <!-- Spinner de chargement (flux normal, visible initialement) -->
+                        <div id="cal-loader" class="text-center p-5">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Chargement...</span>
                             </div>
                             <p class="mt-3 text-muted">Chargement du calendrier...</p>
                         </div>
-                        
-                        <!-- Container pour Cal.com -->
-                        <div id="cal-embed-container" class="d-none">
-                            <!-- L'embed Cal.com sera injecté ici -->
-                        </div>
-                        
-                        <!-- Fallback en cas d'erreur -->
-                        <div id="cal-fallback" class="d-none text-center p-4">
-                            <div class="mb-4">
-                                <i class="fas fa-exclamation-triangle text-warning fs-1 mb-3"></i>
-                                <h6 class="fw-bold mb-3">Impossible de charger le calendrier</h6>
-                                <p class="text-muted mb-4">
-                                    Une erreur s'est produite lors du chargement du calendrier.
-                                </p>
-                            </div>
-                            <div class="d-flex gap-3 justify-content-center">
-                                <a href="https://app.cal.com/atlas-finance/30min" 
-                                   target="_blank" 
-                                   class="btn btn-primary">
-                                    <i class="fas fa-external-link-alt me-2"></i>
-                                    Ouvrir le calendrier
-                                </a>
-                                <button type="button" 
-                                        class="btn btn-secondary" 
-                                        onclick="reloadCalEmbed()">
-                                    <i class="fas fa-redo me-2"></i>
-                                    Réessayer
-                                </button>
-                            </div>
+
+                        <!-- Container iframe Cal.com (caché initialement, affiché après chargement) -->
+                        <div id="cal-embed-container" style="display:none;">
+                            <!-- L'iframe Cal.com sera injectée ici par JS -->
                         </div>
                     </div>
                 </div>
@@ -1078,22 +1053,12 @@
         
         /* Body étape 2 */
         .atlas-step2-body {
-            position: relative;
-            min-height: 500px;
+            min-height: 580px;
         }
-        
+
         /* Container Cal.com pour étape 2 */
         #cal-embed-container {
             width: 100%;
-            height: 500px;
-            position: relative;
-            background: white;
-        }
-        
-        #cal-embed-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
         }
         
         /* Responsive design pour étape 2 */
@@ -1108,11 +1073,7 @@
             }
 
             .atlas-step2-body {
-                min-height: 500px;
-            }
-
-            #cal-embed-container {
-                height: 500px;
+                min-height: 520px;
             }
         }
 
@@ -1177,28 +1138,28 @@
             height: 3rem;
         }
 
-        /* Loader comme overlay au-dessus du container Cal.com */
+        /* Spinner de chargement Cal.com (flux normal) */
         #cal-loader {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: white;
-            z-index: 10;
+            min-height: 200px;
+            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
-        /* Container Cal.com : position relative pour l'overlay */
-        .atlas-step2-body {
-            position: relative;
+        /* Container iframe Cal.com */
+        #cal-embed-container iframe {
+            width: 100%;
+            height: 580px;
+            border: none;
+            display: block;
         }
-        
-        /* Fallback buttons styling */
-        #cal-fallback .btn {
-            min-width: 180px;
+
+        @media (max-width: 767px) {
+            #cal-embed-container iframe { height: 520px; }
+        }
+        @media (max-width: 576px) {
+            #cal-embed-container iframe { height: 480px; }
         }
         
         /* Animation d'entrée userName */
@@ -1381,55 +1342,40 @@
         function loadCalEmbed() {
             const container = document.getElementById('cal-embed-container');
             const loader = document.getElementById('cal-loader');
-            const fallback = document.getElementById('cal-fallback');
 
-            // Reset des états - container toujours visible pour que l'iframe ait de vraies dimensions
-            container.classList.remove('d-none');
-            fallback.classList.add('d-none');
-            loader.classList.remove('d-none');
+            // Montrer le spinner, cacher le container
             loader.style.display = 'flex';
+            container.style.display = 'none';
+            container.innerHTML = '';
 
-            try {
-                container.innerHTML = '';
+            // Créer l'iframe avec l'URL simple Cal.com
+            const iframe = document.createElement('iframe');
+            iframe.src = 'https://app.cal.eu/contact-atlas/30min';
+            iframe.setAttribute('width', '100%');
+            iframe.setAttribute('height', '580');
+            iframe.setAttribute('frameborder', '0');
+            iframe.setAttribute('scrolling', 'yes');
+            iframe.setAttribute('allow', 'camera; microphone; clipboard-write; autoplay');
+            iframe.setAttribute('title', 'Calendrier de prise de rendez-vous Atlas');
+            iframe.style.cssText = 'width:100%; height:580px; border:none; display:block; min-width:320px;';
 
-                const calUrl = 'https://app.cal.eu/contact-atlas/30min/embed?embed=30min&layout=month_view&embedType=inline';
+            container.appendChild(iframe);
+            calEmbed = iframe;
 
-                const iframe = document.createElement('iframe');
-                iframe.src = calUrl;
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.style.display = 'block';
-                iframe.setAttribute('scrolling', 'yes');
-                iframe.setAttribute('allow', 'camera; microphone; clipboard-write; autoplay');
-                iframe.setAttribute('title', 'Calendrier de prise de rendez-vous Atlas');
-
-                container.appendChild(iframe);
-                calEmbed = iframe;
-
-            } catch (error) {
-                console.error('❌ Erreur lors de la création de l\'iframe Cal.com:', error);
-                showCalFallback();
-            }
-
-            // Masquer le loader après 2.5s - méthode principale (iframe load event cross-origin peu fiable)
+            // Afficher l'iframe après 2.5s (swap spinner → calendrier)
             calLoadTimeout = setTimeout(function() {
                 loader.style.display = 'none';
-                loader.classList.add('d-none');
+                container.style.display = 'block';
                 console.log('✅ Cal.com calendrier affiché');
             }, 2500);
         }
 
-        // Fonction pour afficher le fallback
+        // Fonction pour afficher le fallback (plus utilisée mais conservée)
         function showCalFallback() {
             const container = document.getElementById('cal-embed-container');
             const loader = document.getElementById('cal-loader');
-            const fallback = document.getElementById('cal-fallback');
-
             loader.style.display = 'none';
-            loader.classList.add('d-none');
-            container.classList.add('d-none');
-            fallback.classList.remove('d-none');
+            container.style.display = 'none';
         }
 
         // Fonction pour réessayer le chargement
@@ -1451,14 +1397,13 @@
             const container = document.getElementById('cal-embed-container');
             if (container) {
                 container.innerHTML = '';
-                container.classList.add('d-none');
+                container.style.display = 'none';
             }
 
-            // Reset loader state
+            // Reset loader : visible pour la prochaine ouverture
             const loader = document.getElementById('cal-loader');
             if (loader) {
-                loader.style.display = '';
-                loader.classList.add('d-none');
+                loader.style.display = 'flex';
             }
 
             calEmbed = null;
