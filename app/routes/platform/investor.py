@@ -410,13 +410,13 @@ def investor_data():
             monthly_net_income=0.0,
             current_savings=0.0,
             monthly_savings_capacity=0.0,
-            risk_tolerance='conservateur',
-            investment_experience='debutant',
-            investment_goals='constitution_epargne',
-            investment_horizon='court terme',
-            family_situation='celibataire',  # Valeur par défaut requise
-            professional_situation='salarie',  # Valeur par défaut
-            civilite='M'  # Valeur par défaut
+            risk_tolerance='modéré',
+            investment_experience='intermédiaire',
+            investment_goals='',
+            investment_horizon='moyen',
+            family_situation='',   # Vide = non saisi, n'apparaît pas en visualisation
+            professional_situation='',  # Vide = non saisi
+            civilite=None  # None = non saisi, n'apparaît pas en visualisation
         )
         db.session.add(profile)
         db.session.commit()
@@ -548,13 +548,13 @@ def update_investor_data():
         profile.nationalite = request.form.get('nationalite', '').strip() or None
         profile.pays_residence = request.form.get('pays_residence', '').strip() or None
         profile.pays_residence_fiscal = request.form.get('pays_residence_fiscal', '').strip() or None
-        profile.family_situation = request.form.get('family_situation', '').strip() or profile.family_situation or 'célibataire'
+        profile.family_situation = request.form.get('family_situation', '').strip() or profile.family_situation or ''
         
         # Mise à jour du téléphone utilisateur
         user.phone = request.form.get('phone', '').strip() or None
         
         # Section 2: REVENUS
-        profile.professional_situation = request.form.get('professional_situation', '').strip() or profile.professional_situation or 'salarié'
+        profile.professional_situation = request.form.get('professional_situation', '').strip() or profile.professional_situation or ''
         profile.professional_situation_other = request.form.get('professional_situation_other', '').strip() or None
         profile.metier = request.form.get('metier', '').strip() or None
         
