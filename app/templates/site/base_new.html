@@ -977,7 +977,7 @@
                     <!-- Body étape 2 -->
                     <div class="atlas-step2-body">
                         <!-- Loader pendant le chargement -->
-                        <div id="cal-loader" class="text-center p-4">
+                        <div id="cal-loader" class="d-none text-center p-4">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Chargement...</span>
                             </div>
@@ -1186,7 +1186,6 @@
             bottom: 0;
             background: white;
             z-index: 10;
-            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -1452,6 +1451,14 @@
             const container = document.getElementById('cal-embed-container');
             if (container) {
                 container.innerHTML = '';
+                container.classList.add('d-none');
+            }
+
+            // Reset loader state
+            const loader = document.getElementById('cal-loader');
+            if (loader) {
+                loader.style.display = '';
+                loader.classList.add('d-none');
             }
 
             calEmbed = null;
