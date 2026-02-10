@@ -540,7 +540,6 @@ def update_investor_data():
         profile.civilite = request.form.get('civilite', '').strip() or None
         date_naissance_str = request.form.get('date_naissance', '').strip()
         if date_naissance_str:
-            from datetime import datetime
             try:
                 profile.date_naissance = datetime.strptime(date_naissance_str, '%Y-%m-%d').date()
             except ValueError:
