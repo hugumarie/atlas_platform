@@ -16,7 +16,7 @@ from app.services.investment_actions_service import InvestmentActionsService
 import json
 import re
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 logger = logging.getLogger(__name__)
 
@@ -993,7 +993,6 @@ def update_investor_data():
                 # 🔧 FORCER LE RECALCUL AVEC VRAIES FORMULES POUR TOUS LES CRÉDITS  
                 if montant_initial > 0 and taux > 0 and duree > 0 and date_depart:
                     try:
-                        from datetime import datetime, date
                         from app.services.credit_calculation import CreditCalculationService
                         
                         # Parse de la date de début
@@ -1055,7 +1054,6 @@ def update_investor_data():
         # Recalculer les valeurs nettes des biens immobiliers avec les nouvelles données
         if current_user.investor_profile and current_user.investor_profile.immobilier_data:
             from app.services.credit_calculation import CreditCalculationService
-            from datetime import datetime, date
             
             immobilier_updated = []
             for bien in current_user.investor_profile.immobilier_data:
@@ -1152,7 +1150,6 @@ def update_investor_data():
             # Seulement si pas de valeurs JS, utiliser le service de calcul
             print(f"🧮 Pas de totaux JS, calcul via PatrimoineCalculationService...")
             from app.services.patrimoine_calculation import PatrimoineCalculationService
-            from datetime import datetime
             totaux = PatrimoineCalculationService.calculate_all_totaux(profile, save_to_db=True)
         
         # FORCER LA SAUVEGARDE DES BONNES VALEURS EN BASE
