@@ -2624,13 +2624,26 @@ def projections():
 
     if profile:
         # Profil de risque (mapping vers les noms utilisés dans le simulateur)
+        # calculated_risk_profile peut être : PRUDENT, EQUILIBRE, DYNAMIQUE (en majuscules)
         risk_mapping = {
+            'PRUDENT': 'Prudent',
+            'EQUILIBRE': 'Conservateur',
+            'DYNAMIQUE': 'Dynamique',
+            'OFFENSIF': 'Offensif',
+            # Fallback pour anciennes valeurs en minuscules
             'prudent': 'Prudent',
             'equilibre': 'Conservateur',
             'dynamique': 'Dynamique',
-            'offensif': 'Offensif'
+            'offensif': 'Offensif',
+            # Fallback pour risk_tolerance
+            'conservateur': 'Conservateur',
+            'modéré': 'Conservateur',
+            'modere': 'Conservateur'
         }
-        risk_profile = risk_mapping.get(profile.risk_profile, 'Conservateur')
+
+        # Essayer calculated_risk_profile d'abord, sinon risk_tolerance
+        risk_value = profile.calculated_risk_profile or profile.risk_tolerance or 'EQUILIBRE'
+        risk_profile = risk_mapping.get(risk_value, 'Conservateur')
 
         # Capital actuel = patrimoine total net
         initial_capital = profile.calculated_patrimoine_total_net or 0
