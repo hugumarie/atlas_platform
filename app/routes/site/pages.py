@@ -42,6 +42,11 @@ def solutions():
     """Page nos solutions."""
     return render_template('site/solutions.html')
 
+@site_pages_bp.route('/simulateur')
+def simulator():
+    """Page simulateur d'investissement."""
+    return render_template('site/simulator.html')
+
 @site_pages_bp.route('/cgu')
 def cgu():
     """Page CGU."""

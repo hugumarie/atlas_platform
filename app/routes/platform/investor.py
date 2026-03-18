@@ -53,18 +53,39 @@ platform_investor_bp = Blueprint('platform_investor', __name__, url_prefix='/pla
 @login_required
 @require_active_subscription
 def dashboard():
-    
+
     if current_user.is_admin:
         return redirect(url_for('platform_admin.dashboard'))
-    
+
     # Plus de redirection vers questionnaire - dashboard accessible sans profil
-    
+
     # FORCER RELECTURE FRAÎCHE DE LA BASE - PAS DE CACHE
     db.session.refresh(current_user)  # Recharger l'utilisateur depuis la base
     profile = current_user.investor_profile
     if profile:
         db.session.refresh(profile)  # Recharger le profil depuis la base
-    
+
+    # Détecter si le popup de première connexion doit s'afficher
+    # Critères : Pas de profil investisseur OU profil vide (pas de données patrimoniales)
+    show_first_login_popup = False
+    if not profile:
+        # Aucun profil créé
+        show_first_login_popup = True
+    elif profile:
+        # Profil existe mais vide (toutes les valeurs calculées à 0 ou None)
+        total_patrimoine = profile.calculated_patrimoine_total_net or 0
+        monthly_income = profile.monthly_net_income or 0
+        monthly_savings = profile.monthly_savings_capacity or 0
+
+        has_data = (
+            total_patrimoine > 0 or
+            monthly_income > 0 or
+            monthly_savings > 0
+        )
+
+        if not has_data:
+            show_first_login_popup = True
+
     # Si pas de profil, afficher dashboard vide avec toutes valeurs à zéro
     if not profile:
         # Plan d'investissement vide
@@ -72,11 +93,12 @@ def dashboard():
             'total_monthly_investment': 0,
             'lines': []
         })()
-        
-        return render_template('platform/investor/dashboard.html', 
+
+        return render_template('platform/investor/dashboard.html',
                              user=current_user,
                              profile=None,
                              show_profile_invitation=True,
+                             show_first_login_popup=show_first_login_popup,
                              patrimoine_repartition={'liquidites': 0, 'placements': 0, 'immobilier': 0, 'crypto': 0, 'autres_biens': 0},
                              patrimoine_total_net=0,
                              total_immobilier_net=0,
@@ -128,17 +150,17 @@ def dashboard():
             yearly_objective = monthly_capacity * 12
     
     yearly_savings_percentage = (yearly_savings / yearly_objective * 100) if yearly_objective > 0 else 0
-    
-    
+
     return render_template('platform/investor/dashboard.html',
                          investment_plan=investment_plan,
-                         patrimoine_repartition=patrimoine_repartition, 
+                         patrimoine_repartition=patrimoine_repartition,
                          patrimoine_total_net=patrimoine_total_net,
                          total_immobilier_net=total_immobilier_net,
                          actions_data=actions_data,
                          yearly_savings=yearly_savings,
                          yearly_objective=yearly_objective,
-                         yearly_savings_percentage=yearly_savings_percentage)
+                         yearly_savings_percentage=yearly_savings_percentage,
+                         show_first_login_popup=show_first_login_popup)
 
 @platform_investor_bp.route('/questionnaire')
 @login_required
@@ -2578,10 +2600,48 @@ def investment_plan():
     if current_user.investor_profile and current_user.investor_profile.monthly_savings_capacity:
         monthly_amount = current_user.investor_profile.monthly_savings_capacity
     
-    return render_template('platform/investor/investment_plan.html', 
+    return render_template('platform/investor/investment_plan.html',
                          investment_plan=investment_plan,
                          monthly_amount=monthly_amount,
                          available_envelopes=AVAILABLE_ENVELOPES)
+
+
+@platform_investor_bp.route('/projections')
+@login_required
+@require_active_subscription
+def projections():
+    """
+    Page de projections patrimoniales pour l'utilisateur connecté.
+    Utilise les données réelles de l'utilisateur (profil de risque, capital actuel, épargne mensuelle).
+    """
+    # Récupérer le profil investisseur
+    profile = current_user.investor_profile
+
+    # Valeurs par défaut si pas de profil
+    risk_profile = "Conservateur"
+    initial_capital = 0
+    monthly_savings = 0
+
+    if profile:
+        # Profil de risque (mapping vers les noms utilisés dans le simulateur)
+        risk_mapping = {
+            'prudent': 'Prudent',
+            'equilibre': 'Conservateur',
+            'dynamique': 'Dynamique',
+            'offensif': 'Offensif'
+        }
+        risk_profile = risk_mapping.get(profile.risk_profile, 'Conservateur')
+
+        # Capital actuel = patrimoine total net
+        initial_capital = profile.calculated_patrimoine_total_net or 0
+
+        # Épargne mensuelle
+        monthly_savings = profile.monthly_savings_capacity or 0
+
+    return render_template('platform/investor/projections.html',
+                         risk_profile=risk_profile,
+                         initial_capital=initial_capital,
+                         monthly_savings=monthly_savings)
 
 
 @platform_investor_bp.route('/plan-investissement/save', methods=['POST'])
